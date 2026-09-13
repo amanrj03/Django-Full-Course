@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 30: Advanced Django ORM — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 30 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 30 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Advanced Django ORM</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<span class="nav-item current">30. Advanced Django ORM</span>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-29.html">← Module 29: Django Shell &amp; CRUD</a>
+<a class="pn-btn pn-next" href="module-31.html">Module 31: Relationships &amp; Foreign Keys →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2423-module-30-advanced-django-orm">Module 30 — Advanced Django ORM</h1>
+<p>You already know the basic ORM:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()
+Student.objects.filter(...)
+Student.objects.get(...)
+Student.objects.create(...)
+Student.objects.update(...)
+Student.objects.delete(...)</code></pre></div>
+<p>Now we move to the <strong>advanced ORM</strong>, which is very important for interviews, viva, and coding questions.</p>
+<p>We will learn:</p>
+<ol>
+<li><code>Q</code> objects</li>
+<li><code>F</code> expressions</li>
+<li><code>aggregate()</code></li>
+<li><code>annotate()</code></li>
+<li><code>Count</code>, <code>Sum</code>, <code>Avg</code>, <code>Max</code>, <code>Min</code></li>
+<li><code>values()</code></li>
+<li><code>values_list()</code></li>
+<li>Complex queries</li>
+<li>QuerySet chaining</li>
+<li>Practical coding questions</li>
+</ol>
+<hr>
+<h1 id="h-2424-1-why-do-we-need-advanced-orm">1. Why Do We Need Advanced ORM?</h1>
+<p>Suppose you have 10,000 students.</p>
+<p>You want to find:</p>
+<blockquote>Students who are from CSE <strong>OR</strong> ECE and have marks greater than 80.</blockquote>
+<p>Basic <code>filter()</code> isn't enough for this kind of OR logic.</p>
+<p>Or suppose you want:</p>
+<blockquote>Increase every student's marks by 5.</blockquote>
+<p>You don't want to retrieve every student into Python, modify each one, and save them individually.</p>
+<p>Or:</p>
+<blockquote>Find the average marks of all students.</blockquote>
+<p>You don't need to manually calculate it.</p>
+<p>Django ORM provides advanced tools for these situations.</p>
+<hr>
+<h1 id="h-2425-2-our-example-model">2. Our Example Model</h1>
+<p>We'll continue with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name</code></pre></div>
+<p>Imagine the database contains:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>course</th>
+<th>age</th>
+<th>marks</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>CSE</td>
+<td>21</td>
+<td>85</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+<td>ECE</td>
+<td>22</td>
+<td>75</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Priya</td>
+<td>CSE</td>
+<td>20</td>
+<td>92</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Neha</td>
+<td>IT</td>
+<td>21</td>
+<td>68</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Karan</td>
+<td>ECE</td>
+<td>23</td>
+<td>88</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2426-3-q-objects">3. Q Objects</h1>
+<p>Normally:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(course="CSE")</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course = CSE</code></pre></div>
+<p>If you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)</code></pre></div>
+<p>Django interprets this as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course = CSE
+AND
+marks &gt;= 80</code></pre></div>
+<p>But what if you need:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course = CSE
+OR
+course = ECE</code></pre></div>
+<p>That's where <code>Q</code> comes in.</p>
+<hr>
+<h1 id="h-2427-4-import-q">4. Import Q</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)</code></pre></div>
+<p>The <code>|</code> means <strong>OR</strong>.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE OR ECE</code></pre></div>
+<hr>
+<h1 id="h-2428-5-q-object-or">5. Q Object OR</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(marks__gte=90)
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course = CSE
+OR
+marks &gt;= 90</code></pre></div>
+<hr>
+<h1 id="h-2429-6-q-object-and">6. Q Object AND</h1>
+<p>The <code>&amp;</code> operator means AND:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") &amp; Q(marks__gte=80)
+)</code></pre></div>
+<p>Equivalent to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)</code></pre></div>
+<hr>
+<h1 id="h-2430-7-q-object-not">7. Q Object NOT</h1>
+<p>The <code>~</code> operator means NOT.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    ~Q(course="CSE")
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Students who are NOT in CSE.</blockquote>
+<hr>
+<h1 id="h-2431-8-combining-q-objects">8. Combining Q Objects</h1>
+<p>You can create complex conditions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    (Q(course="CSE") | Q(course="ECE"))
+    &amp; Q(marks__gte=80)
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(CSE OR ECE)
+AND
+marks &gt;= 80</code></pre></div>
+<p>This is a very common interview question.</p>
+<hr>
+<h1 id="h-2432-9-q-object-practical-question">9. Q Object Practical Question</h1>
+<h3 id="h-2433-question">Question:</h3>
+<p>Find students who are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE OR ECE</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)</code></pre></div>
+<hr>
+<h3 id="h-2434-question">Question:</h3>
+<p>Find students who are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE OR marks &gt;= 90</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(marks__gte=90)
+)</code></pre></div>
+<hr>
+<h3 id="h-2435-question">Question:</h3>
+<p>Find students who are not in CSE.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    ~Q(course="CSE")
+)</code></pre></div>
+<hr>
+<h1 id="h-2436-10-f-expressions">10. F Expressions</h1>
+<p>Now an extremely important concept.</p>
+<p>Suppose every student should get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks = marks + 5</code></pre></div>
+<p>A beginner might write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()
+
+for student in students:
+    student.marks += 5
+    student.save()</code></pre></div>
+<p>This requires retrieving and updating objects individually.</p>
+<p>Django provides <code>F()</code> expressions.</p>
+<hr>
+<h1 id="h-2437-11-import-f">11. Import F</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import F</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<p>This means:</p>
+<blockquote>Take the existing database value of <code>marks</code> and add 5.</blockquote>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks = marks + 5</code></pre></div>
+<hr>
+<h1 id="h-2438-12-why-f-expressions-are-powerful">12. Why F Expressions Are Powerful</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman = 85
+Priya = 92
+Karan = 88</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman  → 90
+Priya → 97
+Karan → 93</code></pre></div>
+<p>The operation is performed by the database rather than manually calculating each value in Python.</p>
+<hr>
+<h1 id="h-2439-13-f-expression-comparison">13. F Expression Comparison</h1>
+<p>You can also compare fields.</p>
+<p>Suppose another model has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = models.DecimalField(...)
+discount = models.DecimalField(...)</code></pre></div>
+<p>You could query relationships between fields using <code>F()</code> expressions.</p>
+<p>Basic idea:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Product.objects.filter(
+    discount__gt=F("price")
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>discount &gt; price</code></pre></div>
+<hr>
+<h1 id="h-2440-14-f-expression-operators">14. F Expression Operators</h1>
+<p>You can use arithmetic:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>F("marks") + 5</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>F("marks") - 5</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>F("price") * 2</code></pre></div>
+<p>and other supported expressions.</p>
+<hr>
+<h1 id="h-2441-15-important-viva-question">15. Important Viva Question</h1>
+<h3 id="h-2442-what-is-an-f-expression">What is an <code>F()</code> expression?</h3>
+<p>A good answer:</p>
+<blockquote>An <code>F()</code> expression allows Django to reference database field values directly inside a query, enabling database-side operations and comparisons without first loading the values into Python.</blockquote>
+<hr>
+<h1 id="h-2443-16-aggregate-functions">16. Aggregate Functions</h1>
+<p>Now suppose you want:</p>
+<blockquote>Average marks of all students.</blockquote>
+<p>You could retrieve everything and calculate manually, but Django can ask the database to calculate it.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Avg
+
+Student.objects.aggregate(
+    Avg("marks")
+)</code></pre></div>
+<p>Result might look like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{'marks__avg': 81.6}</code></pre></div>
+<hr>
+<h1 id="h-2444-17-aggregate">17. <code>aggregate()</code></h1>
+<p><code>aggregate()</code> calculates a summary over a QuerySet.</p>
+<p>Common aggregate functions:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Count
+Sum
+Avg
+Max
+Min</code></pre></div>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Count, Sum, Avg, Max, Min</code></pre></div>
+<hr>
+<h1 id="h-2445-18-average">18. Average</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Avg("marks")
+)</code></pre></div>
+<p>Example result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{'marks__avg': 81.6}</code></pre></div>
+<hr>
+<h1 id="h-2446-19-sum">19. Sum</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Sum("marks")
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Sum the marks of all students.</blockquote>
+<hr>
+<h1 id="h-2447-20-maximum">20. Maximum</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Max("marks")
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Find the highest marks.</blockquote>
+<hr>
+<h1 id="h-2448-21-minimum">21. Minimum</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Min("marks")
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Find the lowest marks.</blockquote>
+<hr>
+<h1 id="h-2449-22-count">22. Count</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Count("id")
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Count IDs/records represented by the aggregation.</blockquote>
+<p>For simply counting all Student rows, this is usually more straightforward:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.count()</code></pre></div>
+<hr>
+<h1 id="h-2450-23-naming-aggregate-results">23. Naming Aggregate Results</h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    Avg("marks")
+)</code></pre></div>
+<p>you can give the result a name:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average_marks=Avg("marks")
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "average_marks": 81.6
+}</code></pre></div>
+<p>This is cleaner.</p>
+<hr>
+<h1 id="h-2451-24-multiple-aggregations">24. Multiple Aggregations</h1>
+<p>You can calculate multiple statistics at once:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    total=Count("id"),
+    average=Avg("marks"),
+    highest=Max("marks"),
+    lowest=Min("marks"),
+    total_marks=Sum("marks")
+)</code></pre></div>
+<p>Possible result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "total": 5,
+    "average": 81.6,
+    "highest": 92,
+    "lowest": 68,
+    "total_marks": 408
+}</code></pre></div>
+<hr>
+<h1 id="h-2452-25-aggregate-key-concept">25. <code>aggregate()</code> Key Concept</h1>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>aggregate()</code></pre></div>
+<p>generally gives you:</p>
+<blockquote><strong>One summary dictionary for the entire QuerySet.</strong></blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{"average": 81.6}</code></pre></div>
+<hr>
+<h1 id="h-2453-26-annotate">26. <code>annotate()</code></h1>
+<p>Now comes one of the most important advanced ORM concepts.</p>
+<p><code>annotate()</code> adds calculated information to <strong>each object/group in the QuerySet</strong>.</p>
+<p>This becomes especially powerful with relationships, which we'll study more deeply in Module 31.</p>
+<hr>
+<h1 id="h-2454-27-simple-idea-of-annotate">27. Simple Idea of <code>annotate()</code></h1>
+<p>Suppose we want each student to have an additional calculated value.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import F
+
+students = Student.objects.annotate(
+    bonus_marks=F("marks") + 5
+)</code></pre></div>
+<p>Now each returned student has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.bonus_marks</code></pre></div>
+<p>For Aman:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks = 85
+bonus_marks = 90</code></pre></div>
+<hr>
+<h1 id="h-2455-28-aggregate-vs-annotate">28. <code>aggregate()</code> vs <code>annotate()</code></h1>
+<p>This distinction is <strong>very important for viva</strong>.</p>
+<h3 id="h-2456-aggregate"><code>aggregate()</code></h3>
+<p>Produces a summary:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>All students
+    ↓
+One summary</code></pre></div>
+<h3 id="h-2457-annotate"><code>annotate()</code></h3>
+<p>Adds calculated information to individual returned objects/groups:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.annotate(
+    bonus_marks=F("marks") + 5
+)</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student 1 → calculated value
+Student 2 → calculated value
+Student 3 → calculated value</code></pre></div>
+<h3 id="h-2458-memorize">Memorize:</h3>
+<blockquote><strong>aggregate = summary</strong><br><strong>annotate = add calculated data to each result/group</strong></blockquote>
+<hr>
+<h1 id="h-2459-29-values">29. <code>values()</code></h1>
+<p>Normally:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>returns model objects.</p>
+<p>But sometimes you only want specific fields.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "marks"
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;QuerySet [
+    {'name': 'Aman', 'marks': 85},
+    {'name': 'Rahul', 'marks': 75}
+]&gt;</code></pre></div>
+<p>So <code>values()</code> returns dictionaries.</p>
+<hr>
+<h1 id="h-2460-30-why-use-values">30. Why Use <code>values()</code>?</h1>
+<p>Suppose you only need:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name
+email</code></pre></div>
+<p>Instead of retrieving full model objects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>you can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "email"
+)</code></pre></div>
+<p>This is useful when you specifically need dictionary-like results containing selected fields.</p>
+<hr>
+<h1 id="h-2461-31-values-example">31. <code>values()</code> Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    course="CSE"
+).values(
+    "name",
+    "marks"
+)</code></pre></div>
+<p>Output conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>[
+    {"name": "Aman", "marks": 85},
+    {"name": "Priya", "marks": 92}
+]</code></pre></div>
+<hr>
+<h1 id="h-2462-32-values-list">32. <code>values_list()</code></h1>
+<p><code>values_list()</code> is similar, but returns tuples instead of dictionaries.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name",
+    "marks"
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>[
+    ("Aman", 85),
+    ("Priya", 92)
+]</code></pre></div>
+<hr>
+<h1 id="h-2463-33-values-vs-values-list">33. <code>values()</code> vs <code>values_list()</code></h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Method</th>
+<th>Result</th>
+</tr></thead><tbody>
+<tr>
+<td><code>values()</code></td>
+<td>Dictionaries</td>
+</tr>
+<tr>
+<td><code>values_list()</code></td>
+<td>Tuples</td>
+</tr>
+</tbody></table></div>
+<p>Memorize:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>values()      → dict
+values_list() → tuple</code></pre></div>
+<hr>
+<h1 id="h-2464-34-flat-true">34. <code>flat=True</code></h1>
+<p>Suppose you only want student names.</p>
+<p>Without <code>flat=True</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name"
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>[
+    ("Aman",),
+    ("Rahul",),
+    ("Priya",)
+]</code></pre></div>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name",
+    flat=True
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>[
+    "Aman",
+    "Rahul",
+    "Priya"
+]</code></pre></div>
+<h3 id="h-2465-important">Important:</h3>
+<p><code>flat=True</code> is used when selecting <strong>one field</strong> with <code>values_list()</code>.</p>
+<hr>
+<h1 id="h-2466-35-practical-question">35. Practical Question</h1>
+<h3 id="h-2467-get-only-names">Get only names.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name",
+    flat=True
+)</code></pre></div>
+<hr>
+<h3 id="h-2468-get-names-and-marks">Get names and marks.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name",
+    "marks"
+)</code></pre></div>
+<hr>
+<h3 id="h-2469-get-names-and-marks-as-dictionaries">Get names and marks as dictionaries.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "marks"
+)</code></pre></div>
+<hr>
+<h1 id="h-2470-36-chaining-querysets">36. Chaining QuerySets</h1>
+<p>You already know:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...)</code></pre></div>
+<p>You can chain operations.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).filter(
+    marks__gte=80
+).order_by(
+    "-marks"
+)</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ ↓
+marks &gt;= 80
+ ↓
+highest marks first</code></pre></div>
+<hr>
+<h1 id="h-2471-37-better-chaining-example">37. Better Chaining Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = (
+    Student.objects
+    .filter(is_active=True)
+    .filter(age__gte=18)
+    .filter(marks__gte=70)
+    .order_by("-marks")
+)</code></pre></div>
+<p>This is perfectly valid and readable.</p>
+<p>You can also combine the conditions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    is_active=True,
+    age__gte=18,
+    marks__gte=70
+).order_by("-marks")</code></pre></div>
+<hr>
+<h1 id="h-2472-38-distinct">38. <code>distinct()</code></h1>
+<p>Suppose a query produces duplicate rows.</p>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "course"
+).distinct()</code></pre></div>
+<p>This can give unique course values.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+CSE
+ECE
+IT
+ECE</code></pre></div>
+<p>becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ECE
+IT</code></pre></div>
+<hr>
+<h1 id="h-2473-39-advanced-query-example">39. Advanced Query Example</h1>
+<h3 id="h-2474-question">Question:</h3>
+<p>Find active students who are either CSE or ECE and have marks at least 80, highest marks first.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q
+
+students = Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE"),
+    is_active=True,
+    marks__gte=80
+).order_by("-marks")</code></pre></div>
+<p>Break it down:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Q(course="CSE") | Q(course="ECE")
+              ↓
+          CSE OR ECE
+
+is_active=True
+              ↓
+          AND active
+
+marks__gte=80
+              ↓
+          AND marks &gt;= 80
+
+order_by("-marks")
+              ↓
+          highest first</code></pre></div>
+<hr>
+<h1 id="h-2475-40-top-3-students">40. Top 3 Students</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "-marks"
+)[:3]</code></pre></div>
+<p>The <code>[:3]</code> is QuerySet slicing.</p>
+<p>Meaning:</p>
+<blockquote>Return the first three records after ordering.</blockquote>
+<hr>
+<h1 id="h-2476-41-students-with-marks-between-70-and-90">41. Students With Marks Between 70 and 90</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__range=(70, 90)
+)</code></pre></div>
+<hr>
+<h1 id="h-2477-42-students-whose-name-contains-am">42. Students Whose Name Contains "am"</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    name__icontains="am"
+)</code></pre></div>
+<p><code>icontains</code> is case-insensitive.</p>
+<hr>
+<h1 id="h-2478-43-students-from-cse-or-it">43. Students From CSE or IT</h1>
+<p>Using <code>Q</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(course="IT")
+)</code></pre></div>
+<hr>
+<h1 id="h-2479-44-students-not-in-cse">44. Students Not in CSE</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.exclude(
+    course="CSE"
+)</code></pre></div>
+<p>This is often simpler than:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    ~Q(course="CSE")
+)</code></pre></div>
+<p>Both express the exclusion concept, but <code>exclude()</code> is often more readable for straightforward negation.</p>
+<hr>
+<h1 id="h-2480-45-exclude">45. <code>exclude()</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.exclude(
+    marks__lt=40
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Students whose marks are not less than 40.</blockquote>
+<hr>
+<h1 id="h-2481-46-exists-vs-count">46. <code>exists()</code> vs <code>count()</code></h1>
+<p>Suppose you only need to know:</p>
+<blockquote>Are there any CSE students?</blockquote>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).exists()</code></pre></div>
+<p>Don't use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).count() &gt; 0</code></pre></div>
+<p>when existence is all you need.</p>
+<p><code>exists()</code> communicates the intention clearly and is designed for existence checks.</p>
+<hr>
+<h1 id="h-2482-47-first-and-last">47. <code>first()</code> and <code>last()</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "-marks"
+).first()</code></pre></div>
+<p>This gives the highest-mark student.</p>
+<p>You can also:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "marks"
+).first()</code></pre></div>
+<p>to get the lowest-mark student.</p>
+<hr>
+<h1 id="h-2483-48-highest-and-lowest-marks">48. Highest and Lowest Marks</h1>
+<p>Method 1:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    highest=Max("marks"),
+    lowest=Min("marks")
+)</code></pre></div>
+<p>Method 2 — retrieve the actual student:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>top_student = Student.objects.order_by(
+    "-marks"
+).first()</code></pre></div>
+<p>These answer different questions:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Max("marks")
+       ↓
+highest NUMBER
+
+order_by("-marks").first()
+       ↓
+STUDENT who has highest marks</code></pre></div>
+<p>That's a useful distinction.</p>
+<hr>
+<h1 id="h-2484-49-average-marks-of-cse-students">49. Average Marks of CSE Students</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Filter CSE
+   ↓
+Calculate average</code></pre></div>
+<hr>
+<h1 id="h-2485-50-total-marks-of-cse-students">50. Total Marks of CSE Students</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).aggregate(
+    total=Sum("marks")
+)</code></pre></div>
+<hr>
+<h1 id="h-2486-51-count-active-students">51. Count Active Students</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    is_active=True
+).count()</code></pre></div>
+<p>Simple and preferred when you only need the count of rows.</p>
+<hr>
+<h1 id="h-2487-52-important-aggregate-vs-annotate-example">52. Important <code>aggregate()</code> vs <code>annotate()</code> Example</h1>
+<p>Suppose marks are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman   85
+Rahul  75
+Priya  92</code></pre></div>
+<h3 id="h-2488-aggregate">Aggregate:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>average = 84</code></pre></div>
+<p>One summary.</p>
+<h3 id="h-2489-annotate">Annotate:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.annotate(
+    adjusted_marks=F("marks") + 5
+)</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman  → 85 → adjusted 90
+Rahul → 75 → adjusted 80
+Priya → 92 → adjusted 97</code></pre></div>
+<hr>
+<h1 id="h-2490-53-very-important-lazy-querysets">53. Very Important: Lazy QuerySets</h1>
+<p>Remember from Module 28:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<p>Creating this QuerySet does not necessarily immediately retrieve the rows.</p>
+<p>The QuerySet is generally <strong>lazy</strong>.</p>
+<p>The database query is executed when Django needs the results.</p>
+<p>Examples of evaluation include:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list(students)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for student in students:
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students.exists()</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students.count()</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students.first()</code></pre></div>
+<p>This is an important ORM concept.</p>
+<hr>
+<h1 id="h-2491-54-queryset-does-not-mean-database-rows-immediatel">54. QuerySet Does Not Mean Database Rows Immediately</h1>
+<p>This:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    course="CSE"
+)</code></pre></div>
+<p>is a QuerySet representing a query.</p>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+  ↓
+QuerySet
+  ↓
+"Give me CSE students"</code></pre></div>
+<p>Django determines when it needs to execute the underlying database query.</p>
+<hr>
+<h1 id="h-2492-55-practical-coding-questions">55. Practical Coding Questions</h1>
+<h3 id="h-2493-q1-find-all-students-with-marks-above-90">Q1. Find all students with marks above 90.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__gt=90
+)</code></pre></div>
+<hr>
+<h3 id="h-2494-q2-find-cse-students-with-marks-between-70-and-90">Q2. Find CSE students with marks between 70 and 90.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE",
+    marks__range=(70, 90)
+)</code></pre></div>
+<hr>
+<h3 id="h-2495-q3-find-students-whose-name-starts-with-a">Q3. Find students whose name starts with A.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    name__startswith="A"
+)</code></pre></div>
+<hr>
+<h3 id="h-2496-q4-find-students-whose-email-contains-gmail">Q4. Find students whose email contains <code>gmail</code>.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    email__icontains="gmail"
+)</code></pre></div>
+<hr>
+<h3 id="h-2497-q5-find-students-from-cse-or-ece">Q5. Find students from CSE or ECE.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)</code></pre></div>
+<hr>
+<h3 id="h-2498-q6-find-students-who-are-not-in-cse">Q6. Find students who are not in CSE.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.exclude(
+    course="CSE"
+)</code></pre></div>
+<hr>
+<h3 id="h-2499-q7-increase-all-marks-by-5">Q7. Increase all marks by 5.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<hr>
+<h3 id="h-2500-q8-find-average-marks">Q8. Find average marks.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<hr>
+<h3 id="h-2501-q9-find-highest-marks">Q9. Find highest marks.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    highest=Max("marks")
+)</code></pre></div>
+<hr>
+<h3 id="h-2502-q10-find-lowest-marks">Q10. Find lowest marks.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    lowest=Min("marks")
+)</code></pre></div>
+<hr>
+<h3 id="h-2503-q11-get-only-names">Q11. Get only names.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values_list(
+    "name",
+    flat=True
+)</code></pre></div>
+<hr>
+<h3 id="h-2504-q12-get-name-and-course-as-dictionaries">Q12. Get name and course as dictionaries.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "course"
+)</code></pre></div>
+<hr>
+<h3 id="h-2505-q13-get-top-5-students">Q13. Get top 5 students.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "-marks"
+)[:5]</code></pre></div>
+<hr>
+<h1 id="h-2506-56-viva-masterclass">56. Viva Masterclass</h1>
+<h3 id="h-2507-q1-what-is-a-q-object">Q1. What is a <code>Q</code> object?</h3>
+<blockquote><code>Q</code> objects are used to construct complex database queries involving logical conditions such as OR, AND, and NOT.</blockquote>
+<hr>
+<h3 id="h-2508-q2-what-does-mean-with-q-objects">Q2. What does <code>|</code> mean with Q objects?</h3>
+<blockquote>OR.</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Q(course="CSE") | Q(course="ECE")</code></pre></div>
+<hr>
+<h3 id="h-2509-q3-what-does-mean">Q3. What does <code>&amp;</code> mean?</h3>
+<blockquote>AND.</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Q(course="CSE") &amp; Q(marks__gte=80)</code></pre></div>
+<hr>
+<h3 id="h-2510-q4-what-does-q-mean">Q4. What does <code>~Q()</code> mean?</h3>
+<blockquote>NOT.</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>~Q(course="CSE")</code></pre></div>
+<hr>
+<h3 id="h-2511-q5-what-is-an-f-expression">Q5. What is an F expression?</h3>
+<blockquote>It allows Django to reference database field values directly in queries and perform database-side calculations or comparisons.</blockquote>
+<hr>
+<h3 id="h-2512-q6-what-does-this-do">Q6. What does this do?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<blockquote>It increases the existing marks of every affected student by 5 using a database-side expression.</blockquote>
+<hr>
+<h3 id="h-2513-q7-what-is-aggregate">Q7. What is <code>aggregate()</code>?</h3>
+<blockquote><code>aggregate()</code> performs summary calculations over a QuerySet and returns a dictionary containing the calculated results.</blockquote>
+<hr>
+<h3 id="h-2514-q8-name-five-aggregate-functions">Q8. Name five aggregate functions.</h3>
+<blockquote><code>Count</code>, <code>Sum</code>, <code>Avg</code>, <code>Max</code>, and <code>Min</code>.</blockquote>
+<hr>
+<h3 id="h-2515-q9-what-is-annotate">Q9. What is <code>annotate()</code>?</h3>
+<blockquote><code>annotate()</code> adds calculated values to each returned object or group in a QuerySet.</blockquote>
+<hr>
+<h3 id="h-2516-q10-difference-between-aggregate-and-annotate">Q10. Difference between <code>aggregate()</code> and <code>annotate()</code>?</h3>
+<blockquote><code>aggregate()</code> produces an overall summary, while <code>annotate()</code> adds calculated values to individual results or groups.</blockquote>
+<hr>
+<h3 id="h-2517-q11-what-does-values-return">Q11. What does <code>values()</code> return?</h3>
+<blockquote>A QuerySet containing dictionaries with the requested fields.</blockquote>
+<hr>
+<h3 id="h-2518-q12-what-does-values-list-return">Q12. What does <code>values_list()</code> return?</h3>
+<blockquote>A QuerySet containing tuples of the requested field values.</blockquote>
+<hr>
+<h3 id="h-2519-q13-what-does-flat-true-do">Q13. What does <code>flat=True</code> do?</h3>
+<blockquote>When <code>values_list()</code> selects a single field, <code>flat=True</code> returns the values directly instead of one-element tuples.</blockquote>
+<hr>
+<h3 id="h-2520-q14-what-is-queryset-laziness">Q14. What is QuerySet laziness?</h3>
+<blockquote>A QuerySet generally delays database execution until its results are actually needed.</blockquote>
+<hr>
+<h1 id="h-2521-57-most-important-things-to-memorize">57. Most Important Things to Memorize</h1>
+<p>If your teacher asks you to write advanced ORM code, these are the patterns you should immediately recognize:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># OR
+Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># NOT
+Student.objects.filter(
+    ~Q(course="CSE")
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Database-side calculation
+Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Average
+Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Multiple aggregate calculations
+Student.objects.aggregate(
+    total=Count("id"),
+    average=Avg("marks"),
+    highest=Max("marks"),
+    lowest=Min("marks")
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Selected fields as dictionaries
+Student.objects.values(
+    "name",
+    "marks"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Selected fields as tuples
+Student.objects.values_list(
+    "name",
+    "marks"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># One field as flat list-like results
+Student.objects.values_list(
+    "name",
+    flat=True
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Highest marks first
+Student.objects.order_by("-marks")</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Top 3
+Student.objects.order_by("-marks")[:3]</code></pre></div>
+<hr>
+<h1 id="h-2522-58-module-30-final-mental-map">58. Module 30 Final Mental Map</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 ADVANCED ORM
+                      │
+       ┌──────────────┼──────────────┐
+       ↓              ↓              ↓
+      Q()            F()         QuerySet
+       │              │              │
+   OR/AND/NOT    DB calculations   chaining
+       │              │              │
+       ↓              ↓              ↓
+ complex filters   update fields   filter/order
+                                      │
+                         ┌────────────┴────────────┐
+                         ↓                         ↓
+                    aggregate()               annotate()
+                         │                         │
+                    one summary          calculated result/object
+                         │
+              ┌──────────┼──────────┐
+              ↓          ↓          ↓
+             Avg        Sum       Count
+             Max        Min
+                         
+                         ↓
+                   values()
+                   values_list()</code></pre></div>
+<h3 id="h-2523-the-four-lines-i-especially-want-you-to-remember">The four lines I especially want you to remember:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Q(...) | Q(...)       # OR
+F("field") + value   # database-side calculation
+aggregate(...)       # overall summary
+annotate(...)        # calculated data on results/groups</code></pre></div>
+<p><strong>Next → Module 31: Django Relationships &amp; Foreign Keys</strong></p>
+<p>We'll learn how to connect models such as <strong>Student → Department</strong>, understand <code>ForeignKey</code>, <code>OneToOneField</code>, <code>ManyToManyField</code>, <code>on_delete</code>, reverse relationships, and write ORM queries across related tables.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-29.html">← Module 29: Django Shell &amp; CRUD</a>
+<a class="pn-btn pn-next" href="module-31.html">Module 31: Relationships &amp; Foreign Keys →</a>
+</div>
+
+</div>
+
+</body>
+</html>

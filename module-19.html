@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 19: Testing in Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 19 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 19 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Testing in Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<span class="nav-item current">19. Testing in Django</span>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-18.html">← Module 18: Debugging Django</a>
+<a class="pn-btn pn-next" href="module-20.html">Module 20: HTML Forms &amp; HTTP in Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1393-module-19-testing-in-django">Module 19 — Testing in Django</h1>
+<p>Now we move to <strong>Testing</strong>, the final topic of Unit III.</p>
+<p>So far, we've learned how to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URLs → Views → Templates → Dynamic Data → Debugging</code></pre></div>
+<p>But how do we know that our application actually works correctly?</p>
+<p>That's where <strong>testing</strong> comes in.</p>
+<hr>
+<h1 id="h-1394-1-what-is-software-testing">1. What Is Software Testing?</h1>
+<p><strong>Software testing</strong> is the process of checking whether software behaves as expected.</p>
+<p>Suppose we create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def add(a, b):
+    return a + b</code></pre></div>
+<p>We expect:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>add(2, 3) → 5</code></pre></div>
+<p>A test verifies that assumption.</p>
+<p>In Django, we can automatically test:</p>
+<ul>
+<li>Views</li>
+<li>URLs</li>
+<li>Templates</li>
+<li>Models</li>
+<li>Forms</li>
+<li>Authentication</li>
+<li>HTTP responses</li>
+<li>Application logic</li>
+</ul>
+<hr>
+<h1 id="h-1395-2-why-do-we-need-testing">2. Why Do We Need Testing?</h1>
+<p>Imagine your Django application has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>100 views
+500 URLs
+50 forms
+20 models</code></pre></div>
+<p>You cannot manually check every feature every time you modify the application.</p>
+<p>Suppose you change the login system.</p>
+<p>It might accidentally break:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Registration
+Profile
+Dashboard
+Logout</code></pre></div>
+<p>Automated tests help detect these regressions.</p>
+<hr>
+<h1 id="h-1396-3-what-is-a-test">3. What Is a Test?</h1>
+<p>A test generally follows:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Arrange
+   ↓
+Act
+   ↓
+Assert</code></pre></div>
+<h3 id="h-1397-arrange">Arrange</h3>
+<p>Prepare the required data.</p>
+<h3 id="h-1398-act">Act</h3>
+<p>Perform the operation.</p>
+<h3 id="h-1399-assert">Assert</h3>
+<p>Check whether the result is what you expected.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>result = add(2, 3)
+
+self.assertEqual(result, 5)</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Act → add(2, 3)
+Assert → result == 5</code></pre></div>
+<hr>
+<h1 id="h-1400-4-what-is-unit-testing">4. What Is Unit Testing?</h1>
+<p><strong>Unit testing</strong> tests a small, isolated part of an application.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def calculate_total(price, quantity):
+    return price * quantity</code></pre></div>
+<p>We could test this function independently.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    calculate_total(100, 5),
+    500
+)</code></pre></div>
+<p>The goal is to verify individual units of behavior.</p>
+<hr>
+<h1 id="h-1401-5-django-testing-framework">5. Django Testing Framework</h1>
+<p>Django provides built-in support for testing.</p>
+<p>A newly created Django app normally contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── admin.py
+├── apps.py
+├── models.py
+├── tests.py
+├── views.py
+└── ...</code></pre></div>
+<p>The default:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>tests.py</code></pre></div>
+<p>is where you can begin writing tests.</p>
+<p>Django's testing system is built on Python's <code>unittest</code> framework.</p>
+<hr>
+<h1 id="h-1402-6-basic-django-test">6. Basic Django Test</h1>
+<p>Suppose our <code>views.py</code> contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello Django")</code></pre></div>
+<p>We can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+
+class HomeTest(TestCase):
+
+    def test_home(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)</code></pre></div>
+<p>Let's understand every line.</p>
+<hr>
+<h1 id="h-1403-7-testcase">7. <code>TestCase</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase</code></pre></div>
+<p><code>TestCase</code> provides Django-specific testing functionality.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class HomeTest(TestCase):</code></pre></div>
+<p>creates a test class.</p>
+<p>It inherits from Django's <code>TestCase</code>.</p>
+<hr>
+<h1 id="h-1404-8-test-method">8. Test Method</h1>
+<p>Inside the class:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home(self):</code></pre></div>
+<p>This is a test method.</p>
+<p>Django's test discovery looks for methods whose names begin with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>test</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home(self):</code></pre></div>
+<p>is detected as a test.</p>
+<hr>
+<h1 id="h-1405-9-django-test-client">9. Django Test Client</h1>
+<p>This is extremely important:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client</code></pre></div>
+<p>Django provides a <strong>test client</strong> that can simulate requests to your application.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get("/")</code></pre></div>
+<p>This behaves conceptually like a browser making a GET request.</p>
+<p>You don't need to manually open Chrome.</p>
+<hr>
+<h1 id="h-1406-10-get-request-test">10. GET Request Test</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get("/")</code></pre></div>
+<p>This sends a GET request to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/</code></pre></div>
+<p>Then we can inspect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.status_code</code></pre></div>
+<p>If the page works:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200</code></pre></div>
+<hr>
+<h1 id="h-1407-11-assertequal">11. <code>assertEqual</code></h1>
+<p>We can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    200
+)</code></pre></div>
+<p>This means:</p>
+<blockquote>Assert that the response status code equals 200.</blockquote>
+<p>If it is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200</code></pre></div>
+<p>the test passes.</p>
+<p>If it is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<p>the test fails.</p>
+<hr>
+<h1 id="h-1408-12-complete-example">12. Complete Example</h1>
+<h3 id="h-1409-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello Django")</code></pre></div>
+<h3 id="h-1410-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+]</code></pre></div>
+<h3 id="h-1411-tests-py"><code>tests.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+
+class HomeTest(TestCase):
+
+    def test_home(self):
+        response = self.client.get("/")
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<hr>
+<h1 id="h-1412-13-running-tests">13. Running Tests</h1>
+<p>The main command is:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<p>Django searches for tests and runs them.</p>
+<p>You might see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Creating test database...
+.
+----------------------------------------------------------------------
+Ran 1 test
+
+OK</code></pre></div>
+<p>The <code>.</code> indicates a passing test.</p>
+<hr>
+<h1 id="h-1413-14-what-is-the-test-database">14. What Is the Test Database?</h1>
+<p>When Django tests interact with the database, Django creates a <strong>separate test database</strong>.</p>
+<p>This prevents normal development data from being modified by tests.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Normal Database
+      │
+      │ protected
+      ↓
+Test Database
+      │
+      ↓
+Tests run here
+      │
+      ↓
+Test database is removed</code></pre></div>
+<p>This is an important Django testing feature.</p>
+<hr>
+<h1 id="h-1414-15-why-not-use-the-real-database">15. Why Not Use the Real Database?</h1>
+<p>Imagine your database contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1000 students</code></pre></div>
+<p>A test might create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student: Test Student</code></pre></div>
+<p>If tests used your real database, they could modify or delete real data.</p>
+<p>Therefore Django isolates testing using a test database.</p>
+<hr>
+<h1 id="h-1415-16-testing-response-content">16. Testing Response Content</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello Django")</code></pre></div>
+<p>We can test whether the response contains the expected text:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertContains(
+    response,
+    "Hello Django"
+)</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home_content(self):
+
+    response = self.client.get("/")
+
+    self.assertContains(
+        response,
+        "Hello Django"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1416-17-assertcontains">17. <code>assertContains</code></h1>
+<p>This is very useful for Django views.</p>
+<p>It checks whether the response contains the specified content.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertContains(
+    response,
+    "Welcome"
+)</code></pre></div>
+<p>If the response contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to Django</code></pre></div>
+<p>the test passes.</p>
+<hr>
+<h1 id="h-1417-18-testing-status-codes">18. Testing Status Codes</h1>
+<p>Common examples:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(response.status_code, 200)</code></pre></div>
+<p>For a missing URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get("/does-not-exist/")
+self.assertEqual(response.status_code, 404)</code></pre></div>
+<p>You can test expected HTTP behavior.</p>
+<hr>
+<h1 id="h-1418-19-testing-templates">19. Testing Templates</h1>
+<p>Suppose your view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+
+    return render(
+        request,
+        "home.html"
+    )</code></pre></div>
+<p>You can check whether the correct template was used:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertTemplateUsed(
+    response,
+    "home.html"
+)</code></pre></div>
+<p>Complete:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home_template(self):
+
+    response = self.client.get("/")
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1419-20-testing-multiple-things">20. Testing Multiple Things</h1>
+<p>A good test can check several related expectations.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home(self):
+
+    response = self.client.get("/")
+
+    self.assertEqual(
+        response.status_code,
+        200
+    )
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )
+
+    self.assertContains(
+        response,
+        "Welcome"
+    )</code></pre></div>
+<p>This checks:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTP status
++
+Template
++
+Content</code></pre></div>
+<hr>
+<h1 id="h-1420-21-testing-url-names">21. Testing URL Names</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "students/",
+    views.students,
+    name="students"
+)</code></pre></div>
+<p>You can use Django's URL reversing system in tests.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import reverse
+
+url = reverse("students")
+
+response = self.client.get(url)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    200
+)</code></pre></div>
+<p>This is often better than hardcoding:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"/students/"</code></pre></div>
+<p>because if the URL path changes but its name remains the same, the test doesn't need to change.</p>
+<hr>
+<h1 id="h-1421-22-reverse-in-tests">22. <code>reverse()</code> in Tests</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>url = reverse("home")
+response = self.client.get(url)</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "",
+    views.home,
+    name="home"
+)</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>reverse("home")</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/</code></pre></div>
+<hr>
+<h1 id="h-1422-23-testing-dynamic-urls">23. Testing Dynamic URLs</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>url = reverse(
+    "student_detail",
+    kwargs={"id": 101}
+)
+
+response = self.client.get(url)</code></pre></div>
+<p>Django generates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/101/</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    200
+)</code></pre></div>
+<hr>
+<h1 id="h-1423-24-testing-post-requests">24. Testing POST Requests</h1>
+<p>The test client can also send POST requests.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.post(
+    "/students/",
+    {
+        "name": "Aman",
+        "age": 21
+    }
+)</code></pre></div>
+<p>This simulates submitting a form.</p>
+<p>The general syntax is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client.post(
+    url,
+    data
+)</code></pre></div>
+<hr>
+<h1 id="h-1424-25-get-vs-post-testing">25. GET vs POST Testing</h1>
+<h3 id="h-1425-get">GET</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get("/students/")</code></pre></div>
+<h3 id="h-1426-post">POST</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.post(
+    "/students/",
+    {"name": "Aman"}
+)</code></pre></div>
+<p>The test client supports both.</p>
+<hr>
+<h1 id="h-1427-26-testing-redirects">26. Testing Redirects</h1>
+<p>Suppose a successful POST redirects to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>You might test:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.post(
+    "/students/create/",
+    {"name": "Aman"}
+)
+
+self.assertRedirects(
+    response,
+    "/students/"
+)</code></pre></div>
+<p><code>assertRedirects()</code> checks redirect behavior.</p>
+<hr>
+<h1 id="h-1428-27-why-test-redirects">27. Why Test Redirects?</h1>
+<p>Imagine you create a student.</p>
+<p>Expected:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST form
+   ↓
+student created
+   ↓
+redirect
+   ↓
+student list</code></pre></div>
+<p>If the redirect breaks, the user experience breaks.</p>
+<p>Testing ensures the expected navigation occurs.</p>
+<hr>
+<h1 id="h-1429-28-testing-a-view-with-context">28. Testing a View With Context</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+
+    return render(
+        request,
+        "home.html",
+        {"name": "Aman"}
+    )</code></pre></div>
+<p>You can inspect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.context["name"]</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.context["name"],
+    "Aman"
+)</code></pre></div>
+<p>This verifies that the expected context was provided.</p>
+<hr>
+<h1 id="h-1430-29-testing-a-model">29. Testing a Model</h1>
+<p>We'll learn models in detail later, but here's the basic idea.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>A test might create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    student.name,
+    "Aman"
+)</code></pre></div>
+<p>This tests model behavior/database interaction.</p>
+<hr>
+<h1 id="h-1431-30-setup">30. <code>setUp()</code></h1>
+<p>Suppose many tests need the same data.</p>
+<p>Instead of creating the data repeatedly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_one(self):
+    ...
+
+def test_two(self):
+    ...
+
+def test_three(self):
+    ...</code></pre></div>
+<p>you can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def setUp(self):
+    ...</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentTest(TestCase):
+
+    def setUp(self):
+
+        self.student = Student.objects.create(
+            name="Aman"
+        )
+
+    def test_student_name(self):
+
+        self.assertEqual(
+            self.student.name,
+            "Aman"
+        )</code></pre></div>
+<p><code>setUp()</code> runs before each test method.</p>
+<hr>
+<h1 id="h-1432-31-why-setup-is-useful">31. Why <code>setUp()</code> Is Useful</h1>
+<p>Suppose you have 10 tests and all require:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+Course
+Teacher</code></pre></div>
+<p>You can prepare the common test data in <code>setUp()</code>.</p>
+<p>This avoids duplication.</p>
+<hr>
+<h1 id="h-1433-32-important-tests-are-independent">32. Important: Tests Are Independent</h1>
+<p>A good test should generally not depend on another test having run first.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>test_create_student
+        ↓
+test_delete_student</code></pre></div>
+<p>You shouldn't assume <code>test_create_student</code> always runs first.</p>
+<p>Each test should establish the state it needs.</p>
+<p>Django's <code>TestCase</code> helps isolate database state between tests.</p>
+<hr>
+<h1 id="h-1434-33-test-naming">33. Test Naming</h1>
+<p>Good:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home_page_loads(self):</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_student_creation(self):</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_invalid_login(self):</code></pre></div>
+<p>Bad:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def check(self):</code></pre></div>
+<p>The test discovery convention is important.</p>
+<hr>
+<h1 id="h-1435-34-testing-invalid-behavior">34. Testing Invalid Behavior</h1>
+<p>Don't only test successful cases.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Valid ID → 200
+Invalid ID → 404</code></pre></div>
+<p>Test both.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_invalid_student(self):
+
+    response = self.client.get(
+        "/student/999/"
+    )
+
+    self.assertEqual(
+        response.status_code,
+        404
+    )</code></pre></div>
+<p>This is called testing an <strong>edge/error case</strong>.</p>
+<hr>
+<h1 id="h-1436-35-positive-vs-negative-tests">35. Positive vs Negative Tests</h1>
+<h3 id="h-1437-positive-test">Positive test</h3>
+<p>Tests expected valid behavior.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Valid request
+→ 200</code></pre></div>
+<h3 id="h-1438-negative-test">Negative test</h3>
+<p>Tests invalid/unexpected input.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Invalid request
+→ 400/404/etc.</code></pre></div>
+<p>Both are important.</p>
+<hr>
+<h1 id="h-1439-36-what-is-regression-testing">36. What Is Regression Testing?</h1>
+<p>Suppose your login system worked yesterday.</p>
+<p>You modify the registration system.</p>
+<p>After the modification, login accidentally breaks.</p>
+<p>A test that previously passed now fails.</p>
+<p>This helps detect a <strong>regression</strong>.</p>
+<p>So:</p>
+<blockquote>Regression testing checks that previously working functionality continues to work after changes.</blockquote>
+<p>Automated tests are particularly valuable for this.</p>
+<hr>
+<h1 id="h-1440-37-test-driven-development">37. Test-Driven Development</h1>
+<p>You may hear the term <strong>TDD</strong>.</p>
+<p>TDD stands for:</p>
+<blockquote>Test-Driven Development.</blockquote>
+<p>The simplified cycle is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Write failing test
+       ↓
+Write code
+       ↓
+Make test pass
+       ↓
+Refactor
+       ↓
+Repeat</code></pre></div>
+<p>This is a development methodology.</p>
+<p>You don't need to use TDD for every Django project, but understand the concept for viva.</p>
+<hr>
+<h1 id="h-1441-38-complete-example-testing-a-home-page">38. Complete Example — Testing a Home Page</h1>
+<h3 id="h-1442-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+
+    return render(
+        request,
+        "home.html",
+        {
+            "name": "Aman"
+        }
+    )</code></pre></div>
+<h3 id="h-1443-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "",
+        views.home,
+        name="home"
+    ),
+]</code></pre></div>
+<h3 id="h-1444-tests-py"><code>tests.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+from django.urls import reverse
+
+
+class HomeTest(TestCase):
+
+    def test_home_page(self):
+
+        url = reverse("home")
+
+        response = self.client.get(url)
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "home.html"
+        )
+
+        self.assertContains(
+            response,
+            "Aman"
+        )</code></pre></div>
+<p>This is a very good beginner Django test.</p>
+<hr>
+<h1 id="h-1445-39-understanding-the-test">39. Understanding the Test</h1>
+<p>Let's break it down.</p>
+<h3 id="h-1446-step-1">Step 1</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>url = reverse("home")</code></pre></div>
+<p>Gets the URL using its name.</p>
+<h3 id="h-1447-step-2">Step 2</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get(url)</code></pre></div>
+<p>Simulates a GET request.</p>
+<h3 id="h-1448-step-3">Step 3</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    200
+)</code></pre></div>
+<p>Checks that the page loaded successfully.</p>
+<h3 id="h-1449-step-4">Step 4</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertTemplateUsed(
+    response,
+    "home.html"
+)</code></pre></div>
+<p>Checks the template.</p>
+<h3 id="h-1450-step-5">Step 5</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertContains(
+    response,
+    "Aman"
+)</code></pre></div>
+<p>Checks the content.</p>
+<hr>
+<h1 id="h-1451-40-running-a-specific-app-s-tests">40. Running a Specific App's Tests</h1>
+<p>You can run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test students</code></pre></div>
+<p>This tells Django to run tests associated with the <code>students</code> app.</p>
+<p>You can also run a particular test module/class/method using Django's test-label syntax.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test students.tests.HomeTest</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test students.tests.HomeTest.test_home_page</code></pre></div>
+<p>This is useful when you have many tests.</p>
+<hr>
+<h1 id="h-1452-41-test-output">41. Test Output</h1>
+<p>A successful test run may look approximately like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Creating test database...
+.
+----------------------------------------------------------------------
+Ran 1 test
+
+OK
+Destroying test database...</code></pre></div>
+<p>If a test fails, Django provides information about:</p>
+<ul>
+<li>Which test failed</li>
+<li>Expected result</li>
+<li>Actual result</li>
+<li>Traceback</li>
+</ul>
+<p>Then you debug the failing test/code.</p>
+<hr>
+<h1 id="h-1453-42-common-testing-mistakes">42. Common Testing Mistakes</h1>
+<h3 id="h-1454-mistake-1">Mistake 1</h3>
+<p>Forgetting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase</code></pre></div>
+<hr>
+<h3 id="h-1455-mistake-2">Mistake 2</h3>
+<p>Naming test method incorrectly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home_test(self):</code></pre></div>
+<p>Instead use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home(self):</code></pre></div>
+<hr>
+<h3 id="h-1456-mistake-3">Mistake 3</h3>
+<p>Using incorrect URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client.get("/wrong/")</code></pre></div>
+<p>when the actual URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<hr>
+<h3 id="h-1457-mistake-4">Mistake 4</h3>
+<p>Expecting the wrong status:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    404
+)</code></pre></div>
+<p>when the view should return 200.</p>
+<hr>
+<h3 id="h-1458-mistake-5">Mistake 5</h3>
+<p>Testing only successful cases.</p>
+<p>Always consider invalid input and failure scenarios.</p>
+<hr>
+<h1 id="h-1459-43-important-assertions-to-know">43. Important Assertions to Know</h1>
+<p>For your syllabus and viva, know these:</p>
+<h3 id="h-1460-assertequal"><code>assertEqual</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(actual, expected)</code></pre></div>
+<p>Checks equality.</p>
+<hr>
+<h3 id="h-1461-assertcontains"><code>assertContains</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertContains(response, "Hello")</code></pre></div>
+<p>Checks response content.</p>
+<hr>
+<h3 id="h-1462-asserttemplateused"><code>assertTemplateUsed</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertTemplateUsed(
+    response,
+    "home.html"
+)</code></pre></div>
+<p>Checks template usage.</p>
+<hr>
+<h3 id="h-1463-assertredirects"><code>assertRedirects</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertRedirects(
+    response,
+    "/students/"
+)</code></pre></div>
+<p>Checks redirects.</p>
+<hr>
+<h1 id="h-1464-44-other-useful-assertions">44. Other Useful Assertions</h1>
+<p>Python/Django tests also provide many other assertions, including:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertTrue(value)
+self.assertFalse(value)
+self.assertIsNone(value)
+self.assertIsNotNone(value)
+self.assertIn(item, collection)
+self.assertNotEqual(a, b)</code></pre></div>
+<p>You don't need to memorize every assertion, but understand that Django tests build on Python's testing framework.</p>
+<hr>
+<h1 id="h-1465-45-viva-questions">45. Viva Questions</h1>
+<h3 id="h-1466-q1-what-is-software-testing">Q1. What is software testing?</h3>
+<blockquote>Software testing is the process of verifying that software behaves according to its expected requirements.</blockquote>
+<h3 id="h-1467-q2-why-do-we-test-django-applications">Q2. Why do we test Django applications?</h3>
+<blockquote>To verify correctness, detect bugs, prevent regressions, and ensure that application features continue to work after changes.</blockquote>
+<h3 id="h-1468-q3-what-is-testcase">Q3. What is <code>TestCase</code>?</h3>
+<blockquote><code>django.test.TestCase</code> is a Django testing class that provides a test environment and database isolation for tests.</blockquote>
+<h3 id="h-1469-q4-how-do-you-run-django-tests">Q4. How do you run Django tests?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<h3 id="h-1470-q5-what-is-django-test-client">Q5. What is Django test client?</h3>
+<blockquote>It is a Python interface provided by Django for simulating HTTP requests to an application without using a real browser.</blockquote>
+<h3 id="h-1471-q6-how-do-you-send-a-get-request">Q6. How do you send a GET request?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client.get("/")</code></pre></div>
+<h3 id="h-1472-q7-how-do-you-send-a-post-request">Q7. How do you send a POST request?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client.post(
+    "/students/",
+    data
+)</code></pre></div>
+<hr>
+<h1 id="h-1473-46-viva-test-database">46. Viva — Test Database</h1>
+<h3 id="h-1474-teacher">Teacher:</h3>
+<blockquote>Does Django testing use the normal database?</blockquote>
+<p>Answer:</p>
+<blockquote>Django creates a separate test database for database-related tests, helping prevent tests from modifying normal application data.</blockquote>
+<hr>
+<h1 id="h-1475-47-viva-setup">47. Viva — <code>setUp()</code></h1>
+<h3 id="h-1476-teacher">Teacher:</h3>
+<blockquote>What is <code>setUp()</code>?</blockquote>
+<p>Answer:</p>
+<blockquote><code>setUp()</code> is a method used to prepare common test data or state before each test method runs.</blockquote>
+<hr>
+<h1 id="h-1477-48-viva-regression">48. Viva — Regression</h1>
+<h3 id="h-1478-teacher">Teacher:</h3>
+<blockquote>What is regression testing?</blockquote>
+<p>Answer:</p>
+<blockquote>Regression testing verifies that existing functionality continues to work after code changes.</blockquote>
+<hr>
+<h1 id="h-1479-49-viva-test-discovery">49. Viva — Test Discovery</h1>
+<h3 id="h-1480-teacher">Teacher:</h3>
+<blockquote>How does Django find tests?</blockquote>
+<p>Answer:</p>
+<blockquote>Django's test runner discovers tests according to Python/Django test discovery conventions, including test modules and test methods whose names begin with <code>test</code>.</blockquote>
+<hr>
+<h1 id="h-1481-50-coding-question">50. Coding Question</h1>
+<h3 id="h-1482-question">Question</h3>
+<p>Write a Django test that checks whether <code>/about/</code> returns HTTP 200.</p>
+<h3 id="h-1483-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+
+
+class AboutTest(TestCase):
+
+    def test_about_page(self):
+
+        response = self.client.get("/about/")
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )</code></pre></div>
+<hr>
+<h1 id="h-1484-51-coding-question">51. Coding Question</h1>
+<p>Test whether the response contains <code>"Welcome"</code>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+
+
+class HomeTest(TestCase):
+
+    def test_home_content(self):
+
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            "Welcome"
+        )</code></pre></div>
+<hr>
+<h1 id="h-1485-52-coding-question">52. Coding Question</h1>
+<p>Test whether <code>home.html</code> was used.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_home_template(self):
+
+    response = self.client.get("/")
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1486-53-coding-question">53. Coding Question</h1>
+<p>Test a redirect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test_create_student_redirect(self):
+
+    response = self.client.post(
+        "/students/create/",
+        {
+            "name": "Aman"
+        }
+    )
+
+    self.assertRedirects(
+        response,
+        "/students/"
+    )</code></pre></div>
+<p>The exact expected redirect depends on your application's URL configuration.</p>
+<hr>
+<h1 id="h-1487-54-testing-strategy-for-a-django-application">54. ⭐ Testing Strategy for a Django Application</h1>
+<p>For a typical Django project, you might test:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>              Django Application
+                     │
+       ┌─────────────┼─────────────┐
+       ↓             ↓             ↓
+      URLs          Views        Models
+       │             │             │
+       ↓             ↓             ↓
+    Routing       Responses      Database
+       │             │             │
+       └─────────────┼─────────────┘
+                     ↓
+                   Forms
+                     ↓
+              Authentication</code></pre></div>
+<p>For example:</p>
+<h3 id="h-1488-url-tests">URL tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Does /students/ resolve correctly?</code></pre></div>
+<h3 id="h-1489-view-tests">View tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Does the view return 200?</code></pre></div>
+<h3 id="h-1490-template-tests">Template tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Is students.html rendered?</code></pre></div>
+<h3 id="h-1491-content-tests">Content tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Does the response contain the student's name?</code></pre></div>
+<h3 id="h-1492-model-tests">Model tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can a Student be created correctly?</code></pre></div>
+<h3 id="h-1493-form-tests">Form tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Does invalid input get rejected?</code></pre></div>
+<h3 id="h-1494-authentication-tests">Authentication tests</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can a logged-in user access the dashboard?</code></pre></div>
+<hr>
+<h1 id="h-1495-module-19-cheat-sheet">🧠 Module 19 Cheat Sheet</h1>
+<h3 id="h-1496-import">Import:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase</code></pre></div>
+<h3 id="h-1497-get">GET:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.get("/")</code></pre></div>
+<h3 id="h-1498-post">POST:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = self.client.post(
+    "/students/",
+    {"name": "Aman"}
+)</code></pre></div>
+<h3 id="h-1499-status">Status:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertEqual(
+    response.status_code,
+    200
+)</code></pre></div>
+<h3 id="h-1500-content">Content:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertContains(
+    response,
+    "Welcome"
+)</code></pre></div>
+<h3 id="h-1501-template">Template:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertTemplateUsed(
+    response,
+    "home.html"
+)</code></pre></div>
+<h3 id="h-1502-redirect">Redirect:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.assertRedirects(
+    response,
+    "/students/"
+)</code></pre></div>
+<h3 id="h-1503-named-url">Named URL:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import reverse
+
+url = reverse("home")</code></pre></div>
+<h3 id="h-1504-run-tests">Run tests:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<h3 id="h-1505-app-tests">App tests:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test students</code></pre></div>
+<hr>
+<h1 id="h-1506-unit-iii-complete">🎯 Unit III Complete</h1>
+<p>You've now completed all of Unit III:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Module 12 → Templates
+Module 13 → DTL
+Module 14 → Template Tags
+Module 15 → Template Filters
+Module 16 → Dynamic Templates
+Module 17 → Template Inheritance
+Module 18 → Debugging
+Module 19 → Testing</code></pre></div>
+<p>You now understand the entire flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL
+ ↓
+View
+ ↓
+Context
+ ↓
+Template
+ ↓
+DTL
+ ↓
+HTML
+ ↓
+Response</code></pre></div>
+<p>And you can test that flow using:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TestCase
+ ↓
+Test Client
+ ↓
+GET / POST
+ ↓
+Assertions</code></pre></div>
+<hr>
+<h2 id="h-1507-next-module-20-html-forms-http">Next → Module 20: HTML Forms &amp; HTTP</h2>
+<p>Now we begin <strong>Unit IV — Forms</strong>.</p>
+<p>We'll start from the absolute basics before touching Django Forms:</p>
+<ul>
+<li>What is an HTML form?</li>
+<li><code>&lt;form&gt;</code></li>
+<li><code>&lt;input&gt;</code></li>
+<li><code>&lt;button&gt;</code></li>
+<li><code>name</code> attribute</li>
+<li>GET forms</li>
+<li>POST forms</li>
+<li>How browser sends form data</li>
+<li><code>request.GET</code></li>
+<li><code>request.POST</code></li>
+<li>Building a complete Django form manually</li>
+<li>Handling submitted data in a view</li>
+<li>Displaying submitted data</li>
+<li>GET vs POST in depth</li>
+<li>Why POST is preferred for sensitive/state-changing operations</li>
+<li>Common form mistakes</li>
+<li>Viva + coding questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-18.html">← Module 18: Debugging Django</a>
+<a class="pn-btn pn-next" href="module-20.html">Module 20: HTML Forms &amp; HTTP in Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

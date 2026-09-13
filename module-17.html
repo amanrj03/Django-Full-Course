@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 17: Template Inheritance — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 17 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 17 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Template Inheritance</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<span class="nav-item current">17. Template Inheritance</span>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-16.html">← Module 16: Dynamic Templates</a>
+<a class="pn-btn pn-next" href="module-18.html">Module 18: Debugging Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1236-module-17-template-inheritance-in-django">Module 17 — Template Inheritance in Django</h1>
+<p>Template inheritance is one of the <strong>most important Django template concepts</strong>.</p>
+<p>It solves a very common problem:</p>
+<blockquote>What if every page of our website has the same navbar, footer, CSS, and overall layout?</blockquote>
+<p>Instead of copying the same HTML into every file, we create <strong>one base template</strong> and let other templates inherit from it.</p>
+<hr>
+<h1 id="h-1237-1-the-problem-repeating-html">1. The Problem: Repeating HTML</h1>
+<p>Imagine your website has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Home
+About
+Students
+Contact</code></pre></div>
+<p>Every page needs:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;html&gt;
+&lt;head&gt;
+    ...
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;nav&gt;
+        Home | About | Students | Contact
+    &lt;/nav&gt;
+
+    &lt;!-- page-specific content --&gt;
+
+    &lt;footer&gt;
+        Copyright 2026
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>Without inheritance, you might copy this entire structure into:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html
+about.html
+students.html
+contact.html</code></pre></div>
+<p>This is bad.</p>
+<p>Why?</p>
+<p>If you change the navbar, you'd have to change it in <strong>four files</strong>.</p>
+<hr>
+<h1 id="h-1238-2-template-inheritance-solution">2. Template Inheritance Solution</h1>
+<p>Create one:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>base.html</code></pre></div>
+<p>It contains the common structure.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html
+about.html
+students.html</code></pre></div>
+<p>inherit from it.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                base.html
+                    │
+       ┌────────────┼────────────┐
+       ↓            ↓            ↓
+   home.html    about.html   students.html</code></pre></div>
+<p>The child templates only provide the content that changes.</p>
+<hr>
+<h1 id="h-1239-3-base-html">3. <code>base.html</code></h1>
+<p>Let's create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+└── base.html</code></pre></div>
+<p>Basic example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;My Website&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;nav&gt;
+        Home | About | Students
+    &lt;/nav&gt;
+
+    &lt;main&gt;
+        &lt;!-- changing content goes here --&gt;
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        Copyright 2026
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p>But how do we tell Django:</p>
+<blockquote>"The content inside <code>&lt;main&gt;</code> should be different for every page?"</blockquote>
+<p>We use <strong>blocks</strong>.</p>
+<hr>
+<h1 id="h-1240-4-block">4. <code>{% block %}</code></h1>
+<p>A block defines an area that child templates can replace.</p>
+<p>Change the <code>&lt;main&gt;</code> section:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;main&gt;
+
+    {% block content %}
+
+    {% endblock %}
+
+&lt;/main&gt;</code></pre></div>
+<p>Complete:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;My Website&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;nav&gt;
+        Home | About | Students
+    &lt;/nav&gt;
+
+    &lt;main&gt;
+
+        {% block content %}
+        {% endblock %}
+
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        Copyright 2026
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p>Now <code>content</code> is a <strong>block</strong>.</p>
+<hr>
+<h1 id="h-1241-5-creating-a-child-template">5. Creating a Child Template</h1>
+<p>Suppose we create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html</code></pre></div>
+<p>At the top:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}</code></pre></div>
+<p>This tells Django:</p>
+<blockquote>Use <code>base.html</code> as the parent template.</blockquote>
+<p>Then we define the content block:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+
+&lt;h1&gt;Welcome to Home Page&lt;/h1&gt;
+
+&lt;p&gt;This is the home page.&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p>That's it.</p>
+<hr>
+<h1 id="h-1242-6-what-does-django-actually-generate">6. What Does Django Actually Generate?</h1>
+<p>You wrote:</p>
+<h3 id="h-1243-base-html"><code>base.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;nav&gt;
+    Home | About | Students
+&lt;/nav&gt;
+
+{% block content %}
+{% endblock %}
+
+&lt;footer&gt;
+    Copyright 2026
+&lt;/footer&gt;</code></pre></div>
+<h3 id="h-1244-home-html"><code>home.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+
+&lt;h1&gt;Welcome&lt;/h1&gt;
+
+{% endblock %}</code></pre></div>
+<p>Django conceptually combines them into:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;nav&gt;
+    Home | About | Students
+&lt;/nav&gt;
+
+&lt;h1&gt;Welcome&lt;/h1&gt;
+
+&lt;footer&gt;
+    Copyright 2026
+&lt;/footer&gt;</code></pre></div>
+<p>So the child template supplies the block content while inheriting the surrounding structure.</p>
+<hr>
+<h1 id="h-1245-7-important-syntax">7. Important Syntax</h1>
+<h3 id="h-1246-parent">Parent:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+{% endblock %}</code></pre></div>
+<h3 id="h-1247-child">Child:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+    Page content
+{% endblock %}</code></pre></div>
+<p>Memorize this pattern.</p>
+<hr>
+<h1 id="h-1248-8-extends">8. <code>extends</code></h1>
+<p>The:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}</code></pre></div>
+<p>tag establishes template inheritance.</p>
+<p>Usually, it should appear at or near the beginning of the child template.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+    &lt;h1&gt;About Us&lt;/h1&gt;
+{% endblock %}</code></pre></div>
+<hr>
+<h1 id="h-1249-9-multiple-blocks">9. Multiple Blocks</h1>
+<p>You aren't limited to one block.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+
+    &lt;title&gt;
+        {% block title %}
+            My Website
+        {% endblock %}
+    &lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;header&gt;
+        {% block header %}
+        {% endblock %}
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        {% block content %}
+        {% endblock %}
+    &lt;/main&gt;
+
+    &lt;footer&gt;
+        {% block footer %}
+        {% endblock %}
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p>Now the child can customize each block.</p>
+<hr>
+<h1 id="h-1250-10-child-template-with-multiple-blocks">10. Child Template With Multiple Blocks</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;Welcome to Home&lt;/h1&gt;
+    &lt;p&gt;This is the home page.&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p>The <code>header</code> and <code>footer</code> blocks remain unchanged if they have no replacement.</p>
+<hr>
+<h1 id="h-1251-11-real-website-structure">11. Real Website Structure</h1>
+<p>A common Django project might look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+│
+├── base.html
+│
+├── home.html
+│
+├── about.html
+│
+└── students/
+    ├── list.html
+    └── detail.html</code></pre></div>
+<p><code>base.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+
+    &lt;title&gt;
+        {% block title %}
+            College Website
+        {% endblock %}
+    &lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;nav&gt;
+        &lt;a href="/"&gt;Home&lt;/a&gt;
+        &lt;a href="/about/"&gt;About&lt;/a&gt;
+        &lt;a href="/students/"&gt;Students&lt;/a&gt;
+    &lt;/nav&gt;
+
+    &lt;hr&gt;
+
+    {% block content %}
+    {% endblock %}
+
+    &lt;hr&gt;
+
+    &lt;footer&gt;
+        College Website
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<hr>
+<h1 id="h-1252-12-home-page">12. Home Page</h1>
+<p><code>home.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;Welcome&lt;/h1&gt;
+
+    &lt;p&gt;Welcome to our college website.&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<hr>
+<h1 id="h-1253-13-about-page">13. About Page</h1>
+<p><code>about.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    About
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;About Us&lt;/h1&gt;
+
+    &lt;p&gt;This is our college website.&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p>Notice how we don't repeat:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;body&gt;
+&lt;nav&gt;
+&lt;footer&gt;</code></pre></div>
+<p>That's the whole purpose of inheritance.</p>
+<hr>
+<h1 id="h-1254-14-view-functions">14. View Functions</h1>
+<p>Home:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+    return render(request, "home.html")</code></pre></div>
+<p>About:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def about(request):
+    return render(request, "about.html")</code></pre></div>
+<p>URLs:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+    path("about/", views.about, name="about"),
+]</code></pre></div>
+<hr>
+<h1 id="h-1255-15-complete-flow">15. Complete Flow</h1>
+<p>When the user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>Django:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL
+ ↓
+views.about
+ ↓
+render(request, "about.html")
+ ↓
+about.html
+ ↓
+extends base.html
+ ↓
+content block inserted
+ ↓
+final HTML response</code></pre></div>
+<hr>
+<h1 id="h-1256-16-passing-dynamic-data-with-inheritance">16. Passing Dynamic Data With Inheritance</h1>
+<p>Inheritance doesn't stop you from passing context.</p>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    student = {
+        "name": "Aman",
+        "course": "Computer Science"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )</code></pre></div>
+<p>Child:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Student
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+
+    &lt;p&gt;{{ student.course }}&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p>So we can combine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Inheritance
++
+Variables
++
+Loops
++
+Conditions
++
+Filters</code></pre></div>
+<hr>
+<h1 id="h-1257-17-template-inheritance-with-a-loop">17. Template Inheritance With a Loop</h1>
+<p>Suppose the view sends:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    {"name": "Aman", "marks": 85},
+    {"name": "Rahul", "marks": 45},
+]</code></pre></div>
+<p>Child template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Students
+{% endblock %}
+
+{% block content %}
+
+&lt;h1&gt;Students&lt;/h1&gt;
+
+{% for student in students %}
+
+    &lt;h2&gt;{{ student.name }}&lt;/h2&gt;
+
+    &lt;p&gt;Marks: {{ student.marks }}&lt;/p&gt;
+
+    {% if student.marks &gt;= 50 %}
+        &lt;p&gt;PASS&lt;/p&gt;
+    {% else %}
+        &lt;p&gt;FAIL&lt;/p&gt;
+    {% endif %}
+
+{% endfor %}
+
+{% endblock %}</code></pre></div>
+<p>This is a very realistic Django pattern.</p>
+<hr>
+<h1 id="h-1258-18-include">18. <code>{% include %}</code></h1>
+<p>Another important template feature is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "navbar.html" %}</code></pre></div>
+<p><code>include</code> allows you to reuse a separate template fragment.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+├── base.html
+├── navbar.html
+└── footer.html</code></pre></div>
+<p><code>navbar.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;nav&gt;
+
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+    &lt;a href="/about/"&gt;About&lt;/a&gt;
+    &lt;a href="/students/"&gt;Students&lt;/a&gt;
+
+&lt;/nav&gt;</code></pre></div>
+<p><code>footer.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;footer&gt;
+    Copyright 2026
+&lt;/footer&gt;</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;body&gt;
+
+    {% include "navbar.html" %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% include "footer.html" %}
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<hr>
+<h1 id="h-1259-19-extends-vs-include">19. <code>extends</code> vs <code>include</code></h1>
+<p>This is a <strong>very common viva question</strong>.</p>
+<h3 id="h-1260-extends"><code>{% extends %}</code></h3>
+<p>Used for:</p>
+<blockquote>Template inheritance / parent-child page structure.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}</code></pre></div>
+<h3 id="h-1261-include"><code>{% include %}</code></h3>
+<p>Used for:</p>
+<blockquote>Reusing a smaller template fragment.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "navbar.html" %}</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>extends → entire page layout
+
+include → reusable component/fragment</code></pre></div>
+<hr>
+<h1 id="h-1262-20-when-should-you-use-include">20. When Should You Use <code>include</code>?</h1>
+<p>Good examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>navbar
+footer
+sidebar
+login form
+alert message
+product card
+student card
+pagination</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "components/student_card.html" %}</code></pre></div>
+<hr>
+<h1 id="h-1263-21-passing-context-to-an-include">21. Passing Context to an Include</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "student_card.html" with student=student %}</code></pre></div>
+<p>The included template can use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h2&gt;{{ student.name }}&lt;/h2&gt;</code></pre></div>
+<p>This is useful when rendering reusable components with different data.</p>
+<hr>
+<h1 id="h-1264-22-only">22. <code>only</code></h1>
+<p>You can restrict the context passed to an included template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "student_card.html" with student=student only %}</code></pre></div>
+<p><code>only</code> means the included template receives only the explicitly supplied context rather than inheriting the surrounding context.</p>
+<p>This is useful for making reusable components more predictable.</p>
+<hr>
+<h1 id="h-1265-23-block-vs-include">23. <code>{% block %}</code> vs <code>{% include %}</code></h1>
+<p>Don't confuse these.</p>
+<h3 id="h-1266-block">Block</h3>
+<p>Defines an area that a child template can override:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+{% endblock %}</code></pre></div>
+<h3 id="h-1267-include">Include</h3>
+<p>Directly inserts another template fragment:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% include "navbar.html" %}</code></pre></div>
+<hr>
+<h1 id="h-1268-24-block-super">24. <code>block.super</code></h1>
+<p>This is a more advanced inheritance concept.</p>
+<p>Suppose <code>base.html</code> contains:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+
+&lt;p&gt;Default content&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p>Child:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+
+{{ block.super }}
+
+&lt;p&gt;Additional content&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<p><code>block.super</code> means:</p>
+<blockquote>Include the parent's block content here.</blockquote>
+<p>So the child gets:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Default content
+Additional content</code></pre></div>
+<p>instead of completely replacing the parent block.</p>
+<hr>
+<h1 id="h-1269-25-why-is-template-inheritance-useful">25. Why Is Template Inheritance Useful?</h1>
+<h3 id="h-1270-1-avoids-duplication">1. Avoids duplication</h3>
+<p>You don't repeat navbar/footer.</p>
+<h3 id="h-1271-2-easier-maintenance">2. Easier maintenance</h3>
+<p>Change the navbar once.</p>
+<h3 id="h-1272-3-consistent-design">3. Consistent design</h3>
+<p>All pages use the same layout.</p>
+<h3 id="h-1273-4-cleaner-templates">4. Cleaner templates</h3>
+<p>Child templates contain mostly page-specific content.</p>
+<h3 id="h-1274-5-scalable">5. Scalable</h3>
+<p>Works well when a website has many pages.</p>
+<hr>
+<h1 id="h-1275-26-common-mistake-wrong-block-name">26. Common Mistake — Wrong Block Name</h1>
+<p>Parent:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+{% endblock %}</code></pre></div>
+<p>Child:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block body %}
+    Hello
+{% endblock %}</code></pre></div>
+<p>This doesn't override the <code>content</code> block.</p>
+<p>The names must match:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}</code></pre></div>
+<hr>
+<h1 id="h-1276-27-common-mistake-forgetting-extends">27. Common Mistake — Forgetting <code>extends</code></h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+    Hello
+{% endblock %}</code></pre></div>
+<p>if the intention is to inherit from <code>base.html</code>.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+    Hello
+{% endblock %}</code></pre></div>
+<hr>
+<h1 id="h-1277-28-common-mistake-wrong-template-path">28. Common Mistake — Wrong Template Path</h1>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+└── base.html</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+└── students/
+    └── base.html</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "students/base.html" %}</code></pre></div>
+<p>The path is relative to the template search locations.</p>
+<hr>
+<h1 id="h-1278-29-common-mistake-putting-page-content-outside-blo">29. Common Mistake — Putting Page Content Outside Blocks</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+&lt;h1&gt;Hello&lt;/h1&gt;
+
+{% block content %}
+    Welcome
+{% endblock %}</code></pre></div>
+<p>The normal pattern is to put child-specific content inside defined blocks.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+    &lt;h1&gt;Hello&lt;/h1&gt;
+    &lt;p&gt;Welcome&lt;/p&gt;
+{% endblock %}</code></pre></div>
+<hr>
+<h1 id="h-1279-30-common-mistake-thinking-extends-copies-a-file-l">30. Common Mistake — Thinking <code>extends</code> Copies a File Literally</h1>
+<p>Conceptually, inheritance means Django uses the parent structure and resolves the child's blocks.</p>
+<p>It's better to think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Parent layout
++
+Child block overrides
+=
+Rendered template</code></pre></div>
+<p>rather than imagining simple text-file copying.</p>
+<hr>
+<h1 id="h-1280-31-exam-question">31. Exam Question</h1>
+<h3 id="h-1281-question">Question:</h3>
+<p>Create a <code>base.html</code> with:</p>
+<ul>
+<li>title block</li>
+<li>content block</li>
+<li>footer</li>
+</ul>
+<p>Then create <code>home.html</code> using inheritance.</p>
+<h3 id="h-1282-answer">Answer:</h3>
+<p><code>base.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+
+    &lt;title&gt;
+        {% block title %}
+            Website
+        {% endblock %}
+    &lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    {% block content %}
+    {% endblock %}
+
+    &lt;footer&gt;
+        Copyright 2026
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p><code>home.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;Welcome Home&lt;/h1&gt;
+    &lt;p&gt;This is the home page.&lt;/p&gt;
+
+{% endblock %}</code></pre></div>
+<hr>
+<h1 id="h-1283-32-viva-questions">32. Viva Questions</h1>
+<h3 id="h-1284-q1-what-is-template-inheritance">Q1. What is template inheritance?</h3>
+<blockquote>Template inheritance allows a child template to reuse a parent template's common structure and override specific blocks.</blockquote>
+<h3 id="h-1285-q2-which-tag-is-used-for-inheritance">Q2. Which tag is used for inheritance?</h3>
+<blockquote><code>{% extends %}</code>.</blockquote>
+<h3 id="h-1286-q3-which-tag-defines-replaceable-sections">Q3. Which tag defines replaceable sections?</h3>
+<blockquote><code>{% block %}</code>.</blockquote>
+<h3 id="h-1287-q4-what-is-base-html">Q4. What is <code>base.html</code>?</h3>
+<blockquote>A parent template containing common layout elements such as navigation, footer, CSS references, and blocks for page-specific content.</blockquote>
+<h3 id="h-1288-q5-what-is-include">Q5. What is <code>{% include %}</code>?</h3>
+<blockquote>It inserts another template into the current template and is commonly used for reusable template fragments.</blockquote>
+<h3 id="h-1289-q6-difference-between-extends-and-include">Q6. Difference between <code>extends</code> and <code>include</code>?</h3>
+<blockquote><code>extends</code> establishes parent-child template inheritance, while <code>include</code> inserts a reusable template fragment.</blockquote>
+<h3 id="h-1290-q7-what-happens-if-a-child-doesn-t-override-a-bloc">Q7. What happens if a child doesn't override a block?</h3>
+<blockquote>The parent block's content is used.</blockquote>
+<h3 id="h-1291-q8-what-is-block-super">Q8. What is <code>block.super</code>?</h3>
+<blockquote>It allows a child block to include the content defined by its parent block.</blockquote>
+<h3 id="h-1292-q9-can-a-base-template-have-multiple-blocks">Q9. Can a base template have multiple blocks?</h3>
+<blockquote>Yes.</blockquote>
+<h3 id="h-1293-q10-can-dynamic-data-be-used-in-inherited-template">Q10. Can dynamic data be used in inherited templates?</h3>
+<blockquote>Yes. Context passed by the view is available to the relevant templates and blocks.</blockquote>
+<hr>
+<h1 id="h-1294-33-the-pattern-you-must-memorize">33. ⭐ The Pattern You Must Memorize</h1>
+<h3 id="h-1295-base-html"><code>base.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+
+    &lt;title&gt;
+        {% block title %}
+        {% endblock %}
+    &lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;nav&gt;
+        Navbar
+    &lt;/nav&gt;
+
+    {% block content %}
+    {% endblock %}
+
+    &lt;footer&gt;
+        Footer
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<h3 id="h-1296-child">Child:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;Home Page&lt;/h1&gt;
+
+{% endblock %}</code></pre></div>
+<p>If you can write this from memory, you know the core of template inheritance.</p>
+<hr>
+<h1 id="h-1297-34-combined-real-world-structure">34. 🔥 Combined Real-World Structure</h1>
+<p>A clean Django template system might look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+│
+├── base.html
+│
+├── components/
+│   ├── navbar.html
+│   ├── footer.html
+│   └── student_card.html
+│
+├── home.html
+├── about.html
+│
+└── students/
+    ├── list.html
+    └── detail.html</code></pre></div>
+<p><code>base.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+
+    &lt;title&gt;
+        {% block title %}
+            College
+        {% endblock %}
+    &lt;/title&gt;
+
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    {% include "components/navbar.html" %}
+
+    &lt;main&gt;
+
+        {% block content %}
+        {% endblock %}
+
+    &lt;/main&gt;
+
+    {% include "components/footer.html" %}
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p>Then every page can simply do:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block title %}
+    Students
+{% endblock %}
+
+{% block content %}
+
+    &lt;h1&gt;Student List&lt;/h1&gt;
+
+    {% for student in students %}
+
+        {% include "components/student_card.html" %}
+
+    {% endfor %}
+
+{% endblock %}</code></pre></div>
+<p>This is much closer to how a real Django project is organized.</p>
+<hr>
+<h1 id="h-1298-module-17-summary">🧠 Module 17 Summary</h1>
+<p>Remember these four concepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% extends %}
+      ↓
+Parent-child relationship</code></pre></div>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% block %}
+      ↓
+Replaceable section</code></pre></div>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% include %}
+      ↓
+Reusable template component</code></pre></div>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ block.super }}
+      ↓
+Keep parent's block content</code></pre></div>
+<p>The most important architecture is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 base.html
+                /         \
+               /           \
+          home.html      students.html
+                              |
+                              ↓
+                         student_card</code></pre></div>
+<h3 id="h-1299-one-line-viva-answer">One-line viva answer:</h3>
+<blockquote><strong>Django template inheritance allows multiple child templates to reuse a common base layout while overriding specific blocks, reducing duplication and improving maintainability.</strong></blockquote>
+<hr>
+<h2 id="h-1300-next-module-18-debugging-django">Next → Module 18: Debugging Django</h2>
+<p>We'll learn how to <strong>find and fix Django errors systematically</strong>, including:</p>
+<ul>
+<li>Syntax errors</li>
+<li>URL errors</li>
+<li><code>TemplateDoesNotExist</code></li>
+<li><code>NoReverseMatch</code></li>
+<li><code>ViewDoesNotExist</code></li>
+<li><code>ImportError</code></li>
+<li><code>DoesNotExist</code></li>
+<li><code>AttributeError</code></li>
+<li><code>TypeError</code></li>
+<li><code>NameError</code></li>
+<li><code>OperationalError</code></li>
+<li>Django debug page</li>
+<li>Reading tracebacks</li>
+<li>Finding the exact line causing an error</li>
+<li>Common beginner mistakes</li>
+<li>Debugging techniques for viva and coding questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-16.html">← Module 16: Dynamic Templates</a>
+<a class="pn-btn pn-next" href="module-18.html">Module 18: Debugging Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

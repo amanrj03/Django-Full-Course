@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 37: Django Users — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 37 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 37 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Users</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<span class="nav-item current">37. Django Users</span>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-36.html">← Module 36: Sessions in Django</a>
+<a class="pn-btn pn-next" href="module-38.html">Module 38: Django Login &amp; Logout →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3139-module-37-django-users">Module 37 — Django Users</h1>
+<p>Now we move from <strong>Sessions → Users → Login</strong>.</p>
+<p>This module is extremely important because Django provides a built-in authentication system, so you usually <strong>don't need to create your own user table or password system from scratch</strong>.</p>
+<p>The main things you need to understand are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+Authentication
+Authorization
+request.user
+AnonymousUser
+is_authenticated
+is_staff
+is_superuser
+password handling</code></pre></div>
+<hr>
+<h1 id="h-3140-1-what-is-a-user-in-django">1. What Is a User in Django?</h1>
+<p>Django provides a built-in <strong>User model</strong> for representing people who interact with your application.</p>
+<p>It comes from:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.auth.models</code></pre></div>
+<p>You can import it using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<hr>
+<h1 id="h-3141-2-why-does-django-provide-a-user-model">2. Why Does Django Provide a User Model?</h1>
+<p>Without Django's authentication framework, you would need to build:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User table
+      ↓
+Registration
+      ↓
+Password hashing
+      ↓
+Login
+      ↓
+Logout
+      ↓
+Sessions
+      ↓
+Authentication checks
+      ↓
+Permissions</code></pre></div>
+<p>Django provides most of this infrastructure already.</p>
+<p>This is one reason Django is called a <strong>batteries-included framework</strong>.</p>
+<hr>
+<h1 id="h-3142-3-django-authentication-framework">3. Django Authentication Framework</h1>
+<p>The main application is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.auth</code></pre></div>
+<p>It provides functionality for:</p>
+<ul>
+<li>users</li>
+<li>passwords</li>
+<li>authentication</li>
+<li>login</li>
+<li>logout</li>
+<li>sessions integration</li>
+<li>permissions</li>
+<li>groups</li>
+</ul>
+<hr>
+<h1 id="h-3143-4-user-model-fields">4. User Model Fields</h1>
+<p>The built-in Django <code>User</code> model contains commonly used fields such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+first_name
+last_name
+email
+password
+is_active
+is_staff
+is_superuser
+last_login
+date_joined</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.username
+user.email
+user.first_name
+user.last_name</code></pre></div>
+<hr>
+<h1 id="h-3144-5-username">5. Username</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.username</code></pre></div>
+<p>Suppose the username is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(user.username)</code></pre></div>
+<p>outputs:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman</code></pre></div>
+<hr>
+<h1 id="h-3145-6-email">6. Email</h1>
+<p>You can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.email</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.email = "aman@example.com"</code></pre></div>
+<p>Important:</p>
+<blockquote>In the default Django <code>User</code> model, email is not automatically the login identifier just because the field exists.</blockquote>
+<p>The default authentication setup commonly uses the username.</p>
+<hr>
+<h1 id="h-3146-7-first-name-and-last-name">7. First Name and Last Name</h1>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.first_name
+user.last_name</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.first_name = "Aman"
+user.last_name = "Ranjan"</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(user.first_name)</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<hr>
+<h1 id="h-3147-8-password-very-important">8. Password — VERY IMPORTANT</h1>
+<p>A common beginner mistake is thinking:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.password</code></pre></div>
+<p>contains the original password.</p>
+<p>It does <strong>not</strong> contain the user's original plaintext password.</p>
+<p>Django stores a <strong>password hash</strong> rather than the plaintext password.</p>
+<hr>
+<h1 id="h-3148-9-never-store-plaintext-passwords">9. Never Store Plaintext Passwords</h1>
+<p>Never do this:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.password = "123456"
+user.save()</code></pre></div>
+<p>This is incorrect for normal password handling.</p>
+<p>Instead use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("123456")
+user.save()</code></pre></div>
+<p>Django hashes the password appropriately.</p>
+<hr>
+<h1 id="h-3149-10-creating-a-user">10. Creating a User</h1>
+<p>The easiest standard method is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>This handles password setup correctly.</p>
+<hr>
+<h1 id="h-3150-11-create-user">11. <code>create_user()</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>You can also provide:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>first_name="Aman"
+last_name="Ranjan"</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    first_name="Aman",
+    last_name="Ranjan",
+    password="StrongPassword123"
+)</code></pre></div>
+<hr>
+<h1 id="h-3151-12-set-password">12. <code>set_password()</code></h1>
+<p>Suppose you already have a user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.get(
+    username="aman"
+)</code></pre></div>
+<p>To change the password:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>set_password()
+      ↓
+hash password
+      ↓
+save()</code></pre></div>
+<hr>
+<h1 id="h-3152-13-checking-a-password">13. Checking a Password</h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password(
+    "password"
+)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user.check_password(
+    "StrongPassword123"
+):
+    print("Correct password")</code></pre></div>
+<p>It returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<p>This is much safer than comparing plaintext passwords manually.</p>
+<hr>
+<h1 id="h-3153-14-create-user-vs-set-password">14. <code>create_user()</code> vs <code>set_password()</code></h1>
+<h3 id="h-3154-create-new-user">Create new user</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<h3 id="h-3155-existing-user">Existing user</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password(
+    "NewPassword123"
+)
+user.save()</code></pre></div>
+<p>Both correctly handle password hashing.</p>
+<hr>
+<h1 id="h-3156-15-is-active">15. <code>is_active</code></h1>
+<p>The field:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active</code></pre></div>
+<p>indicates whether the account is active.</p>
+<p>Typically:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_active = True</code></pre></div>
+<p>means the account is active.</p>
+<p>If:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active = False</code></pre></div>
+<p>the account is inactive and Django's normal authentication mechanisms generally won't authenticate that user.</p>
+<hr>
+<h1 id="h-3157-16-is-staff">16. <code>is_staff</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff</code></pre></div>
+<p>determines whether the user is allowed to access the Django admin site, subject to permissions.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff = True</code></pre></div>
+<p>allows admin-site access if the necessary permissions are available.</p>
+<p>Important:</p>
+<blockquote><code>is_staff</code> does <strong>not</strong> mean the user automatically has every permission.</blockquote>
+<hr>
+<h1 id="h-3158-17-is-superuser">17. <code>is_superuser</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_superuser</code></pre></div>
+<p>indicates a superuser.</p>
+<p>A superuser has all permissions by default.</p>
+<p>Typical creation:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>Then Django asks for credentials interactively.</p>
+<hr>
+<h1 id="h-3159-18-is-staff-vs-is-superuser">18. <code>is_staff</code> vs <code>is_superuser</code></h1>
+<p>This is a very common viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Property</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>is_active</code></td>
+<td>Account is active</td>
+</tr>
+<tr>
+<td><code>is_staff</code></td>
+<td>Can access admin site, subject to permissions</td>
+</tr>
+<tr>
+<td><code>is_superuser</code></td>
+<td>Has all permissions by default</td>
+</tr>
+</tbody></table></div>
+<p>A useful mental model:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_staff
+   ↓
+Admin access
+
+is_superuser
+   ↓
+All permissions</code></pre></div>
+<p>But don't assume:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_staff = superuser</code></pre></div>
+<p>They are different.</p>
+<hr>
+<h1 id="h-3160-19-createsuperuser">19. <code>createsuperuser</code></h1>
+<p>Command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>Django asks you for information such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username:
+Email address:
+Password:
+Password (again):</code></pre></div>
+<p>The resulting account is a superuser.</p>
+<hr>
+<h1 id="h-3161-20-request-user">20. <code>request.user</code></h1>
+<p>This is one of the most important things in Django authentication.</p>
+<p>Inside a view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>represents the user associated with the current request.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def dashboard(request):
+
+    user = request.user
+
+    return HttpResponse(
+        f"Hello {user.username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3162-21-authenticated-user">21. Authenticated User</h1>
+<p>If the user is logged in:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>represents that authenticated user.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Session
+   ↓
+Django authentication
+   ↓
+request.user</code></pre></div>
+<hr>
+<h1 id="h-3163-22-anonymous-user">22. Anonymous User</h1>
+<p>What if someone is <strong>not logged in</strong>?</p>
+<p>Django doesn't simply give:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user = None</code></pre></div>
+<p>Instead, it generally gives an:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>AnonymousUser</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>is still available.</p>
+<hr>
+<h1 id="h-3164-23-is-authenticated">23. <code>is_authenticated</code></h1>
+<p>To check whether the current user is authenticated:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    return HttpResponse("Logged in")
+
+return HttpResponse("Not logged in")</code></pre></div>
+<hr>
+<h1 id="h-3165-24-important-trap-no-parentheses">24. Important Trap: No Parentheses</h1>
+<p>This is correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>This is incorrect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<p><code>is_authenticated</code> is an attribute/property-like boolean check, not a method you call.</p>
+<hr>
+<h1 id="h-3166-25-is-anonymous">25. <code>is_anonymous</code></h1>
+<p>You may also encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_anonymous</code></pre></div>
+<p>For a logged-out user, this is generally <code>True</code>.</p>
+<p>For an authenticated user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_anonymous</code></pre></div>
+<p>is generally <code>False</code>.</p>
+<p>Usually, prefer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>when your question is:</p>
+<blockquote>"Is the user logged in?"</blockquote>
+<hr>
+<h1 id="h-3167-26-authentication-vs-authorization">26. Authentication vs Authorization</h1>
+<p>This distinction is extremely important.</p>
+<h3 id="h-3168-authentication">Authentication</h3>
+<blockquote>Who are you?</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username + Password
+        ↓
+Identity verification</code></pre></div>
+<h3 id="h-3169-authorization">Authorization</h3>
+<blockquote>What are you allowed to do?</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can this user delete students?
+Can this user access admin?
+Can this user edit products?</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication = WHO
+Authorization = WHAT</code></pre></div>
+<hr>
+<h1 id="h-3170-27-example">27. Example</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman logs in</code></pre></div>
+<p>Authentication asks:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Is this really Aman?</code></pre></div>
+<p>After authentication:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request.user = Aman</code></pre></div>
+<p>Authorization asks:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can Aman delete Student #10?</code></pre></div>
+<p>These are two different questions.</p>
+<hr>
+<h1 id="h-3171-28-accessing-user-information">28. Accessing User Information</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def profile(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"""
+            Username: {request.user.username}
+            Email: {request.user.email}
+            """
+        )
+
+    return HttpResponse(
+        "Please login"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3172-29-checking-staff-status">29. Checking Staff Status</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_staff:
+    return HttpResponse(
+        "You are staff"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3173-30-checking-superuser-status">30. Checking Superuser Status</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_superuser:
+    return HttpResponse(
+        "You are a superuser"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3174-31-user-permissions">31. User Permissions</h1>
+<p>Every user can have permissions.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.view_student"
+)</code></pre></div>
+<p>This returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<p>We already studied permissions in Module 33, but now you should understand their connection with the user model.</p>
+<hr>
+<h1 id="h-3175-32-permission-format">32. Permission Format</h1>
+<p>The usual format is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>app_label.permission_codename</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"students.view_student"</code></pre></div>
+<p>Break it down:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+   ↓
+app label
+
+view_student
+   ↓
+permission codename</code></pre></div>
+<hr>
+<h1 id="h-3176-33-user-groups">33. User Groups</h1>
+<p>A user can belong to one or more groups.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.all()</code></pre></div>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+ ↓
+Teachers</code></pre></div>
+<p>The Teachers group may have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>view_student
+change_student</code></pre></div>
+<p>Then Aman can inherit those permissions through the group.</p>
+<hr>
+<h1 id="h-3177-34-user-creation-in-django-shell">34. User Creation in Django Shell</h1>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<p>Create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>Check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.username</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>'aman'</code></pre></div>
+<p>Check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active</code></pre></div>
+<p>Typically:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<hr>
+<h1 id="h-3178-35-find-a-user">35. Find a User</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.get(
+    username="aman"
+)</code></pre></div>
+<p>Or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.filter(
+    is_active=True
+)</code></pre></div>
+<hr>
+<h1 id="h-3179-36-update-user">36. Update User</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.first_name = "Aman"
+user.last_name = "Ranjan"
+
+user.save()</code></pre></div>
+<hr>
+<h1 id="h-3180-37-change-password">37. Change Password</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()</code></pre></div>
+<hr>
+<h1 id="h-3181-38-check-password">38. Check Password</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password(
+    "NewStrongPassword123"
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>Wrong password:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password(
+    "wrongpassword"
+)</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<hr>
+<h1 id="h-3182-39-deactivate-a-user">39. Deactivate a User</h1>
+<p>You can deactivate:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active = False
+user.save()</code></pre></div>
+<p>This is often preferable to immediately deleting an account when you simply want to prevent normal login.</p>
+<hr>
+<h1 id="h-3183-40-reactivate-user">40. Reactivate User</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active = True
+user.save()</code></pre></div>
+<hr>
+<h1 id="h-3184-41-user-deletion">41. User Deletion</h1>
+<p>You can technically do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.delete()</code></pre></div>
+<p>But be careful.</p>
+<p>Deleting a user can have consequences for related data depending on your application's relationships and configuration.</p>
+<p>For many applications, deactivation is more appropriate than permanent deletion.</p>
+<hr>
+<h1 id="h-3185-42-complete-user-example">42. Complete User Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+
+user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    first_name="Aman",
+    last_name="Ranjan",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(user.username)
+print(user.email)
+print(user.first_name)
+print(user.last_name)
+print(user.is_active)</code></pre></div>
+<hr>
+<h1 id="h-3186-43-user-request-example">43. User + Request Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def profile(request):
+
+    if not request.user.is_authenticated:
+        return HttpResponse(
+            "Please login first"
+        )
+
+    return HttpResponse(
+        f"Welcome {request.user.username}"
+    )</code></pre></div>
+<p>This is a very important pattern.</p>
+<hr>
+<h1 id="h-3187-44-why-does-request-user-work">44. Why Does <code>request.user</code> Work?</h1>
+<p>Django authentication middleware works together with the session system.</p>
+<p>A simplified flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   ↓
+SessionMiddleware
+   ↓
+AuthenticationMiddleware
+   ↓
+request.user
+   ↓
+View</code></pre></div>
+<p>So when your view runs, Django has already associated the request with an authenticated or anonymous user.</p>
+<hr>
+<h1 id="h-3188-45-middleware-connection">45. Middleware Connection</h1>
+<p>You normally see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>MIDDLEWARE = [
+    ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    ...
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    ...
+]</code></pre></div>
+<h3 id="h-3189-sessionmiddleware">SessionMiddleware</h3>
+<p>Provides access to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<h3 id="h-3190-authenticationmiddleware">AuthenticationMiddleware</h3>
+<p>Provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>This relationship is worth remembering.</p>
+<hr>
+<h1 id="h-3191-46-request-session-vs-request-user">46. <code>request.session</code> vs <code>request.user</code></h1>
+<h3 id="h-3192-session">Session</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<p>Contains session state.</p>
+<h3 id="h-3193-user">User</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>Represents the current user.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request
+ ├── session
+ │
+ └── user</code></pre></div>
+<hr>
+<h1 id="h-3194-47-authentication-flow">47. Authentication Flow</h1>
+<p>At a high level:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User enters username/password
+             ↓
+Django verifies credentials
+             ↓
+User authenticated
+             ↓
+Session established
+             ↓
+Future request
+             ↓
+AuthenticationMiddleware
+             ↓
+request.user</code></pre></div>
+<p>We'll implement the actual login flow in Module 38.</p>
+<hr>
+<h1 id="h-3195-48-important-security-rule">48. Important Security Rule</h1>
+<p>Never write your own password hashing system when Django's authentication system can handle it.</p>
+<p>Don't do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>password == stored_password</code></pre></div>
+<p>for raw plaintext passwords.</p>
+<p>Use Django's authentication APIs.</p>
+<p>For password creation/change:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password(...)</code></pre></div>
+<p>For password checking:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password(...)</code></pre></div>
+<p>For authentication:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(...)</code></pre></div>
+<p>We'll learn <code>authenticate()</code> in the next module.</p>
+<hr>
+<h1 id="h-3196-49-custom-user-model-advanced-viva-point">49. Custom User Model — Advanced Viva Point</h1>
+<p>Django allows you to create a <strong>custom user model</strong>.</p>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.auth.models.User</code></pre></div>
+<p>a project can define its own user model.</p>
+<p>This is useful when you need things like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>email as login identifier
+additional user fields
+different authentication requirements</code></pre></div>
+<p>A common approach is extending/customizing Django's authentication model using <code>AbstractUser</code> or <code>AbstractBaseUser</code>.</p>
+<p>This is an advanced topic, but remember:</p>
+<blockquote>If you know from the beginning that your application needs a custom user model, it's generally best to configure it at the start of the project rather than switching later.</blockquote>
+<p>For this syllabus, the built-in <code>User</code> model is sufficient unless your project specifically requires customization.</p>
+<hr>
+<h1 id="h-3197-50-auth-user-model">50. <code>AUTH_USER_MODEL</code></h1>
+<p>Django uses:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>AUTH_USER_MODEL</code></pre></div>
+<p>to specify the project's user model.</p>
+<p>For the default user model, Django uses its built-in authentication model.</p>
+<p>In a custom-user project, you might see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>AUTH_USER_MODEL = "accounts.User"</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>accounts app
+      ↓
+User model
+      ↓
+Project's user model</code></pre></div>
+<hr>
+<h1 id="h-3198-51-why-custom-user-models-matter">51. Why Custom User Models Matter</h1>
+<p>Suppose your application wants:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>email = login identifier</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username = login identifier</code></pre></div>
+<p>A custom user model may be appropriate.</p>
+<p>But don't create a custom user model just because you can.</p>
+<p>Use the built-in model when it satisfies the requirements.</p>
+<hr>
+<h1 id="h-3199-52-common-mistakes">52. Common Mistakes</h1>
+<h3 id="h-3200-mistake-1-storing-plaintext-passwords">Mistake 1 — Storing plaintext passwords</h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.password = "123456"</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("123456")
+user.save()</code></pre></div>
+<hr>
+<h3 id="h-3201-mistake-2-calling-is-authenticated">Mistake 2 — Calling <code>is_authenticated()</code></h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<hr>
+<h3 id="h-3202-mistake-3-assuming-email-is-automatically-username">Mistake 3 — Assuming email is automatically username</h3>
+<p>Wrong assumption:</p>
+<blockquote>"Django's default User model always logs in using email."</blockquote>
+<p>The default setup commonly uses username-based authentication.</p>
+<hr>
+<h3 id="h-3203-mistake-4-confusing-is-staff-and-is-superuser">Mistake 4 — Confusing <code>is_staff</code> and <code>is_superuser</code></h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_staff ≠ is_superuser</code></pre></div>
+<p>A staff user doesn't automatically have every permission.</p>
+<hr>
+<h3 id="h-3204-mistake-5-trusting-is-staff-as-the-only-authorizat">Mistake 5 — Trusting <code>is_staff</code> as the only authorization mechanism</h3>
+<p>For application functionality, use appropriate permissions/authorization checks rather than simply assuming staff users should have every capability.</p>
+<hr>
+<h1 id="h-3205-53-viva-masterclass">53. Viva Masterclass</h1>
+<h3 id="h-3206-q1-what-is-django-user-model">Q1. What is Django User model?</h3>
+<blockquote>It is Django's built-in model for representing users and supporting authentication-related functionality.</blockquote>
+<hr>
+<h3 id="h-3207-q2-where-is-the-default-user-model">Q2. Where is the default User model?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.auth.models.User</code></pre></div>
+<hr>
+<h3 id="h-3208-q3-how-do-you-create-a-user">Q3. How do you create a user?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<hr>
+<h3 id="h-3209-q4-how-does-django-store-passwords">Q4. How does Django store passwords?</h3>
+<blockquote>Django stores passwords as secure password hashes rather than plaintext passwords.</blockquote>
+<hr>
+<h3 id="h-3210-q5-how-do-you-set-a-password">Q5. How do you set a password?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("NewPassword123")
+user.save()</code></pre></div>
+<hr>
+<h3 id="h-3211-q6-how-do-you-check-a-password">Q6. How do you check a password?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password("NewPassword123")</code></pre></div>
+<hr>
+<h3 id="h-3212-q7-what-is-request-user">Q7. What is <code>request.user</code>?</h3>
+<blockquote>It represents the user associated with the current request, either an authenticated user or an anonymous user.</blockquote>
+<hr>
+<h3 id="h-3213-q8-how-do-you-check-whether-a-user-is-logged-in">Q8. How do you check whether a user is logged in?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<hr>
+<h3 id="h-3214-q9-what-is-anonymoususer">Q9. What is <code>AnonymousUser</code>?</h3>
+<blockquote>It represents a user who has not been authenticated.</blockquote>
+<hr>
+<h3 id="h-3215-q10-what-is-is-staff">Q10. What is <code>is_staff</code>?</h3>
+<blockquote>It indicates whether the user is allowed to access the Django admin site, subject to permissions.</blockquote>
+<hr>
+<h3 id="h-3216-q11-what-is-is-superuser">Q11. What is <code>is_superuser</code>?</h3>
+<blockquote>It indicates a user who has all permissions by default.</blockquote>
+<hr>
+<h3 id="h-3217-q12-difference-between-authentication-and-authoriz">Q12. Difference between authentication and authorization?</h3>
+<blockquote>Authentication determines who the user is, while authorization determines what the user is allowed to do.</blockquote>
+<hr>
+<h3 id="h-3218-q13-what-does-is-active-mean">Q13. What does <code>is_active</code> mean?</h3>
+<blockquote>It indicates whether the user account is active.</blockquote>
+<hr>
+<h3 id="h-3219-q14-what-middleware-provides-request-user">Q14. What middleware provides <code>request.user</code>?</h3>
+<blockquote><code>AuthenticationMiddleware</code>.</blockquote>
+<hr>
+<h3 id="h-3220-q15-what-middleware-provides-request-session">Q15. What middleware provides <code>request.session</code>?</h3>
+<blockquote><code>SessionMiddleware</code>.</blockquote>
+<hr>
+<h1 id="h-3221-54-coding-questions">54. Coding Questions</h1>
+<h3 id="h-3222-q1-create-a-user">Q1. Create a user.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<hr>
+<h3 id="h-3223-q2-change-a-user-s-password">Q2. Change a user's password.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()</code></pre></div>
+<hr>
+<h3 id="h-3224-q3-check-the-password">Q3. Check the password.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user.check_password(
+    "NewStrongPassword123"
+):
+    print("Correct")</code></pre></div>
+<hr>
+<h3 id="h-3225-q4-check-whether-the-current-user-is-authenticated">Q4. Check whether the current user is authenticated.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    print("Logged in")</code></pre></div>
+<hr>
+<h3 id="h-3226-q5-check-whether-the-user-is-a-superuser">Q5. Check whether the user is a superuser.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_superuser:
+    print("Superuser")</code></pre></div>
+<hr>
+<h3 id="h-3227-q6-check-whether-the-user-is-staff">Q6. Check whether the user is staff.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_staff:
+    print("Staff")</code></pre></div>
+<hr>
+<h3 id="h-3228-q7-get-the-current-username">Q7. Get the current username.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.user.username</code></pre></div>
+<hr>
+<h1 id="h-3229-55-one-very-important-coding-question">55. One Very Important Coding Question</h1>
+<h3 id="h-3230-write-a-view-that-only-displays-a-user-s-username-">Write a view that only displays a user's username if they are authenticated.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def profile(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"Welcome {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please login"
+    )</code></pre></div>
+<p>Understand this completely.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request
+   ↓
+request.user
+   ↓
+is_authenticated
+   ↓
+YES → username
+NO  → login message</code></pre></div>
+<p>In the next module we'll replace this manual check with Django's proper authentication/login tools.</p>
+<hr>
+<h1 id="h-3231-56-final-mental-model">56. Final Mental Model</h1>
+<p>You should now visualize Django authentication like this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                  USER
+                   │
+                   ↓
+             Authentication
+                   │
+                   ↓
+                Session
+                   │
+                   ↓
+            Session Cookie
+                   │
+                   ↓
+              Future Request
+                   │
+                   ↓
+          AuthenticationMiddleware
+                   │
+                   ↓
+              request.user
+                   │
+          ┌────────┴────────┐
+          ↓                 ↓
+   Authenticated        Anonymous
+       User               User
+          │
+          ↓
+    Permissions
+          │
+          ↓
+    Authorization</code></pre></div>
+<hr>
+<h1 id="h-3232-module-37-must-remember">Module 37 — Must Remember</h1>
+<h3 id="h-3233-user">User</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<h3 id="h-3234-create">Create</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<h3 id="h-3235-password">Password</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("password")
+user.save()</code></pre></div>
+<h3 id="h-3236-check-password">Check password</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.check_password("password")</code></pre></div>
+<h3 id="h-3237-current-user">Current user</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<h3 id="h-3238-authentication-check">Authentication check</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<h3 id="h-3239-staff">Staff</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_staff</code></pre></div>
+<h3 id="h-3240-superuser">Superuser</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_superuser</code></pre></div>
+<h3 id="h-3241-active">Active</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_active</code></pre></div>
+<h3 id="h-3242-most-important-distinction">Most important distinction</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication → Who are you?
+Authorization  → What can you do?</code></pre></div>
+<hr>
+<h2 id="h-3243-module-37-complete">Module 37 Complete ✅</h2>
+<p>The next module is one of the <strong>most important modules in the entire Django syllabus</strong>:</p>
+<h3 id="h-3244-module-38-login-logout"><strong>Module 38 — Login &amp; Logout</strong></h3>
+<p>We'll build the actual login system using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate()
+login()
+logout()</code></pre></div>
+<p>and learn:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login form
+     ↓
+POST
+     ↓
+authenticate()
+     ↓
+login()
+     ↓
+session
+     ↓
+request.user
+     ↓
+logout()</code></pre></div>
+<p>You'll also learn how to connect <strong>URLs + views + forms + sessions + users</strong> into a working Django authentication system.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-36.html">← Module 36: Sessions in Django</a>
+<a class="pn-btn pn-next" href="module-38.html">Module 38: Django Login &amp; Logout →</a>
+</div>
+
+</div>
+
+</body>
+</html>

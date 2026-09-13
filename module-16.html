@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 16: Dynamic Templates — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 16 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 16 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Dynamic Templates</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<span class="nav-item current">16. Dynamic Templates</span>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-15.html">← Module 15: Template Filters in Depth</a>
+<a class="pn-btn pn-next" href="module-17.html">Module 17: Template Inheritance →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1183-module-16-dynamic-templates-in-django">Module 16 — Dynamic Templates in Django</h1>
+<p>Now we move from individual template features to <strong>building real dynamic webpages</strong>.</p>
+<p>So far you know:</p>
+<ul>
+<li>Views</li>
+<li>URLs</li>
+<li>HTTP requests/responses</li>
+<li>URL parameters</li>
+<li>Templates</li>
+<li>DTL variables</li>
+<li><code>if/else</code></li>
+<li><code>for</code> loops</li>
+<li>filters</li>
+</ul>
+<p>Now we'll connect all of them.</p>
+<hr>
+<h1 id="h-1184-1-what-is-a-dynamic-template">1. What Is a Dynamic Template?</h1>
+<p>A <strong>static HTML page</strong> always displays the same content.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome Aman&lt;/h1&gt;
+&lt;p&gt;Computer Science&lt;/p&gt;</code></pre></div>
+<p>Every user sees the same thing.</p>
+<p>A <strong>dynamic template</strong> gets data from the Django view and generates the HTML based on that data.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome {{ name }}&lt;/h1&gt;
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre></div>
+<p>If the view sends:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'name': 'Aman',
+    'course': 'Computer Science'
+}</code></pre></div>
+<p>the browser displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome Aman
+Course: Computer Science</code></pre></div>
+<p>If another request sends different data, the same template can display different information.</p>
+<hr>
+<h1 id="h-1185-2-dynamic-template-flow">2. Dynamic Template Flow</h1>
+<p>The basic flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Data
+   ↓
+Template
+   ↓
+HTML Response
+   ↓
+Browser</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/101/
+      ↓
+student_detail()
+      ↓
+Student information
+      ↓
+student.html
+      ↓
+HTML</code></pre></div>
+<p>This is one of the most important Django concepts.</p>
+<hr>
+<h1 id="h-1186-3-passing-multiple-variables">3. Passing Multiple Variables</h1>
+<p>Suppose your view is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+
+    name = "Aman"
+    age = 21
+    course = "Computer Science"
+
+    return render(
+        request,
+        "home.html",
+        {
+            "name": name,
+            "age": age,
+            "course": course
+        }
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;
+
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;
+
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre></div>
+<p>The dictionary is called the <strong>context</strong>.</p>
+<hr>
+<h1 id="h-1187-4-understanding-context-properly">4. Understanding Context Properly</h1>
+<p>This:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "name": name,
+    "age": age,
+    "course": course
+}</code></pre></div>
+<p>is the context dictionary.</p>
+<p>Think of it as a bridge:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python View
+     ↓
+ context
+     ↓
+Template</code></pre></div>
+<p>The template can access the keys:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}
+{{ age }}
+{{ course }}</code></pre></div>
+<hr>
+<h1 id="h-1188-5-passing-a-dictionary">5. Passing a Dictionary</h1>
+<p>Instead of creating separate variables, you can create one dictionary.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21,
+        "course": "Computer Science"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+
+&lt;p&gt;Age: {{ student.age }}&lt;/p&gt;
+
+&lt;p&gt;Course: {{ student.course }}&lt;/p&gt;</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student.name
+student.age
+student.course</code></pre></div>
+<p>DTL uses dot notation to access dictionary values.</p>
+<hr>
+<h1 id="h-1189-6-complete-example">6. Complete Example</h1>
+<h3 id="h-1190-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21,
+        "course": "Computer Science",
+        "city": "Phagwara"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )</code></pre></div>
+<h3 id="h-1191-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("student/", views.student, name="student"),
+]</code></pre></div>
+<h3 id="h-1192-student-html"><code>student.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Student&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+
+    &lt;p&gt;Age: {{ student.age }}&lt;/p&gt;
+
+    &lt;p&gt;Course: {{ student.course }}&lt;/p&gt;
+
+    &lt;p&gt;City: {{ student.city }}&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>When the browser visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/</code></pre></div>
+<p>Django executes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student(request)</code></pre></div>
+<p>The view sends the dictionary to the template.</p>
+<p>The template generates HTML.</p>
+<hr>
+<h1 id="h-1193-7-dynamic-list">7. Dynamic List</h1>
+<p>Suppose we want to display multiple students.</p>
+<h3 id="h-1194-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = [
+        "Aman",
+        "Rahul",
+        "Rohit",
+        "Karan"
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Students&lt;/h1&gt;
+
+&lt;ul&gt;
+
+{% for student in students %}
+
+    &lt;li&gt;{{ student }}&lt;/li&gt;
+
+{% endfor %}
+
+&lt;/ul&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students
+
+• Aman
+• Rahul
+• Rohit
+• Karan</code></pre></div>
+<hr>
+<h1 id="h-1195-8-dynamic-list-of-dictionaries">8. Dynamic List of Dictionaries</h1>
+<p>This is much more important.</p>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = [
+        {
+            "name": "Aman",
+            "age": 21,
+            "course": "CSE"
+        },
+        {
+            "name": "Rahul",
+            "age": 22,
+            "course": "IT"
+        },
+        {
+            "name": "Rohit",
+            "age": 20,
+            "course": "CSE"
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+
+    &lt;h2&gt;{{ student.name }}&lt;/h2&gt;
+
+    &lt;p&gt;Age: {{ student.age }}&lt;/p&gt;
+
+    &lt;p&gt;Course: {{ student.course }}&lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>This pattern appears constantly in Django applications.</p>
+<hr>
+<h1 id="h-1196-9-dynamic-html-table">9. Dynamic HTML Table</h1>
+<p>We can make the same data into a table.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;table border="1"&gt;
+
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Age&lt;/th&gt;
+        &lt;th&gt;Course&lt;/th&gt;
+    &lt;/tr&gt;
+
+    {% for student in students %}
+
+    &lt;tr&gt;
+        &lt;td&gt;{{ student.name }}&lt;/td&gt;
+        &lt;td&gt;{{ student.age }}&lt;/td&gt;
+        &lt;td&gt;{{ student.course }}&lt;/td&gt;
+    &lt;/tr&gt;
+
+    {% endfor %}
+
+&lt;/table&gt;</code></pre></div>
+<p>The number of rows is automatically determined by the data.</p>
+<p>If there are 3 students → 3 rows.</p>
+<p>If there are 100 students → 100 rows.</p>
+<p>That's what makes the page dynamic.</p>
+<hr>
+<h1 id="h-1197-10-dynamic-conditions">10. Dynamic Conditions</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    {
+        "name": "Aman",
+        "marks": 85
+    },
+    {
+        "name": "Rahul",
+        "marks": 42
+    }
+]</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+
+    &lt;h3&gt;{{ student.name }}&lt;/h3&gt;
+
+    &lt;p&gt;Marks: {{ student.marks }}&lt;/p&gt;
+
+    {% if student.marks &gt;= 50 %}
+        &lt;p&gt;Result: Pass&lt;/p&gt;
+    {% else %}
+        &lt;p&gt;Result: Fail&lt;/p&gt;
+    {% endif %}
+
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Marks: 85
+Result: Pass
+
+Rahul
+Marks: 42
+Result: Fail</code></pre></div>
+<hr>
+<h1 id="h-1198-11-combining-loops-conditions-filters">11. Combining Loops + Conditions + Filters</h1>
+<p>This is the type of question that can appear in a coding exam.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+
+    &lt;h2&gt;{{ student.name|title }}&lt;/h2&gt;
+
+    &lt;p&gt;Marks: {{ student.marks|floatformat:2 }}&lt;/p&gt;
+
+    {% if student.marks &gt;= 50 %}
+        &lt;p&gt;PASS&lt;/p&gt;
+    {% else %}
+        &lt;p&gt;FAIL&lt;/p&gt;
+    {% endif %}
+
+{% empty %}
+
+    &lt;p&gt;No students found.&lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>Here we're using:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>for
+if
+else
+empty
+filters
+variables</code></pre></div>
+<p>all together.</p>
+<hr>
+<h1 id="h-1199-12-dynamic-url-parameters-templates">12. Dynamic URL Parameters + Templates</h1>
+<p>Now let's connect URL parameters with templates.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_detail(request, id):
+
+    return render(
+        request,
+        "student_detail.html",
+        {"student_id": id}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Student Details&lt;/h1&gt;
+
+&lt;p&gt;Student ID: {{ student_id }}&lt;/p&gt;</code></pre></div>
+<p>Visiting:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/101/</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ID: 101</code></pre></div>
+<p>Visiting:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/205/</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ID: 205</code></pre></div>
+<p>Same template, different data.</p>
+<hr>
+<h1 id="h-1200-13-url-parameter-can-be-used-to-select-data">13. URL Parameter Can Be Used to Select Data</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = {
+    101: {
+        "name": "Aman",
+        "course": "CSE"
+    },
+    102: {
+        "name": "Rahul",
+        "course": "IT"
+    }
+}</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_detail(request, id):
+
+    student = students.get(id)
+
+    return render(
+        request,
+        "student_detail.html",
+        {"student": student}
+    )</code></pre></div>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail
+)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/101/</code></pre></div>
+<p>selects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "name": "Aman",
+    "course": "CSE"
+}</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/102/</code></pre></div>
+<p>selects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "name": "Rahul",
+    "course": "IT"
+}</code></pre></div>
+<hr>
+<h1 id="h-1201-14-handling-missing-data">14. Handling Missing Data</h1>
+<p>What if:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/999/</code></pre></div>
+<p>doesn't exist?</p>
+<p>Our:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = students.get(id)</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>None</code></pre></div>
+<p>We can handle this in the template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if student %}
+
+    &lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+    &lt;p&gt;{{ student.course }}&lt;/p&gt;
+
+{% else %}
+
+    &lt;h1&gt;Student not found&lt;/h1&gt;
+
+{% endif %}</code></pre></div>
+<p>Later, when we use models, we'll learn the much better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404()</code></pre></div>
+<p>approach.</p>
+<hr>
+<h1 id="h-1202-15-dynamic-navigation">15. Dynamic Navigation</h1>
+<p>Templates can also generate links dynamically.</p>
+<p>Suppose we have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "about/",
+    views.about,
+    name="about"
+)</code></pre></div>
+<p>Instead of hardcoding:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="/about/"&gt;About&lt;/a&gt;</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'about' %}"&gt;About&lt;/a&gt;</code></pre></div>
+<p>This is called <strong>URL reversing</strong>.</p>
+<hr>
+<h1 id="h-1203-16-dynamic-url-with-parameters">16. Dynamic URL With Parameters</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' id=student.id %}"&gt;
+    View Student
+&lt;/a&gt;</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student.id = 101</code></pre></div>
+<p>Django generates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/101/</code></pre></div>
+<p>This is much better than manually constructing URLs.</p>
+<hr>
+<h1 id="h-1204-17-dynamic-student-list-with-links">17. Dynamic Student List With Links</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = [
+        {
+            "id": 101,
+            "name": "Aman"
+        },
+        {
+            "id": 102,
+            "name": "Rahul"
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+
+    &lt;h2&gt;{{ student.name }}&lt;/h2&gt;
+
+    &lt;a href="{% url 'student_detail' id=student.id %}"&gt;
+        View Details
+    &lt;/a&gt;
+
+{% endfor %}</code></pre></div>
+<p>This creates a dynamic list where every student has a different URL.</p>
+<hr>
+<h1 id="h-1205-18-nested-data">18. Nested Data</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    "name": "Aman",
+    "address": {
+        "city": "Phagwara",
+        "state": "Punjab"
+    }
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;{{ student.name }}&lt;/p&gt;
+
+&lt;p&gt;{{ student.address.city }}&lt;/p&gt;
+
+&lt;p&gt;{{ student.address.state }}&lt;/p&gt;</code></pre></div>
+<p>DTL supports nested access through dot notation.</p>
+<hr>
+<h1 id="h-1206-19-list-inside-dictionary">19. List Inside Dictionary</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    "name": "Aman",
+    "skills": [
+        "Python",
+        "Django",
+        "SQL"
+    ]
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+
+&lt;ul&gt;
+
+{% for skill in student.skills %}
+
+    &lt;li&gt;{{ skill }}&lt;/li&gt;
+
+{% endfor %}
+
+&lt;/ul&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+
+• Python
+• Django
+• SQL</code></pre></div>
+<hr>
+<h1 id="h-1207-20-dictionary-inside-a-list">20. Dictionary Inside a List</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>products = [
+    {
+        "name": "Laptop",
+        "price": 70000
+    },
+    {
+        "name": "Phone",
+        "price": 30000
+    }
+]</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for product in products %}
+
+    &lt;h2&gt;{{ product.name }}&lt;/h2&gt;
+    &lt;p&gt;₹{{ product.price }}&lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>Again, this is extremely common.</p>
+<hr>
+<h1 id="h-1208-21-dynamic-page-based-on-user">21. Dynamic Page Based on User</h1>
+<p>Suppose the view receives:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def profile(request):
+
+    user = {
+        "name": "Aman",
+        "is_admin": True
+    }
+
+    return render(
+        request,
+        "profile.html",
+        {"user": user}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome {{ user.name }}&lt;/h1&gt;
+
+{% if user.is_admin %}
+    &lt;p&gt;Administrator Panel&lt;/p&gt;
+{% else %}
+    &lt;p&gt;User Dashboard&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>The same template can render different interfaces based on data.</p>
+<hr>
+<h1 id="h-1209-22-dynamic-template-dynamic-database">22. Dynamic Template ≠ Dynamic Database</h1>
+<p>This is an important distinction.</p>
+<p>A template can be dynamic even without a database.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    "Aman",
+    "Rahul"
+]</code></pre></div>
+<p>is dynamic template data.</p>
+<p>Later we'll connect templates to actual database records through:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model → ORM → View → Template</code></pre></div>
+<p>That is where Django becomes a complete database-driven application.</p>
+<hr>
+<h1 id="h-1210-23-the-full-mvt-flow">23. The Full MVT Flow</h1>
+<p>At this stage, you should understand this architecture:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 Browser
+                    │
+                    │ Request
+                    ▼
+                  URL
+                    │
+                    ▼
+                  View
+                    │
+             ┌──────┴──────┐
+             │             │
+             ▼             ▼
+           Model        Business Logic
+             │
+             ▼
+          Database
+             │
+             ▼
+            Data
+             │
+             └──────┐
+                    ▼
+                 Template
+                    │
+                    ▼
+                  HTML
+                    │
+                    │ Response
+                    ▼
+                 Browser</code></pre></div>
+<p>Don't worry if the <strong>Model → Database</strong> part isn't fully clear yet.</p>
+<p>We'll cover it extensively in Unit V.</p>
+<hr>
+<h1 id="h-1211-24-view-should-prepare-data">24. View Should Prepare Data</h1>
+<p>A very important Django principle:</p>
+<h3 id="h-1212-don-t-put-complicated-application-logic-in-the-tem">Don't put complicated application logic in the template.</h3>
+<p>Bad approach:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if student.marks &gt; 50 and student.age &gt; 18 and ... %}</code></pre></div>
+<p>with huge amounts of business logic.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_eligible = ...</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if is_eligible %}
+    Eligible
+{% endif %}</code></pre></div>
+<p>Templates should primarily handle <strong>presentation</strong>.</p>
+<hr>
+<h1 id="h-1213-25-view-template-responsibility">25. View + Template Responsibility</h1>
+<p>A useful exam answer:</p>
+<h3 id="h-1214-view">View</h3>
+<p>Responsible for:</p>
+<ul>
+<li>Receiving request</li>
+<li>Application/business logic</li>
+<li>Getting data</li>
+<li>Preparing context</li>
+<li>Selecting template</li>
+<li>Returning response</li>
+</ul>
+<h3 id="h-1215-template">Template</h3>
+<p>Responsible for:</p>
+<ul>
+<li>Displaying data</li>
+<li>HTML structure</li>
+<li>Simple conditions</li>
+<li>Loops</li>
+<li>Presentation formatting</li>
+</ul>
+<hr>
+<h1 id="h-1216-26-complete-dynamic-student-example">26. Complete Dynamic Student Example</h1>
+<p>Let's combine everything.</p>
+<h3 id="h-1217-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def students(request):
+
+    students = [
+        {
+            "id": 101,
+            "name": "aman ranjan",
+            "course": "computer science",
+            "marks": 87.56
+        },
+        {
+            "id": 102,
+            "name": "rahul kumar",
+            "course": "information technology",
+            "marks": 42.50
+        },
+        {
+            "id": 103,
+            "name": "rohit sharma",
+            "course": "computer science",
+            "marks": 91.25
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<h3 id="h-1218-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "students/",
+        views.students,
+        name="students"
+    ),
+]</code></pre></div>
+<h3 id="h-1219-students-html"><code>students.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Students&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;h1&gt;Student List&lt;/h1&gt;
+
+{% for student in students %}
+
+    &lt;div&gt;
+
+        &lt;h2&gt;{{ student.name|title }}&lt;/h2&gt;
+
+        &lt;p&gt;
+            Course: {{ student.course|upper }}
+        &lt;/p&gt;
+
+        &lt;p&gt;
+            Marks: {{ student.marks|floatformat:2 }}
+        &lt;/p&gt;
+
+        {% if student.marks &gt;= 50 %}
+            &lt;p&gt;Result: PASS&lt;/p&gt;
+        {% else %}
+            &lt;p&gt;Result: FAIL&lt;/p&gt;
+        {% endif %}
+
+    &lt;/div&gt;
+
+{% empty %}
+
+    &lt;p&gt;No students available.&lt;/p&gt;
+
+{% endfor %}
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<p>This single example uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Context
+ ↓
+Template
+ ↓
+Variables
+ ↓
+Filters
+ ↓
+For loop
+ ↓
+If/else
+ ↓
+Empty</code></pre></div>
+<hr>
+<h1 id="h-1220-27-dynamic-template-coding-question">27. Dynamic Template Coding Question</h1>
+<h3 id="h-1221-question">Question</h3>
+<p>Create a Django view that sends three products to a template.</p>
+<p>Each product should contain:</p>
+<ul>
+<li>name</li>
+<li>price</li>
+<li>category</li>
+</ul>
+<p>Display them in an HTML table.</p>
+<h3 id="h-1222-solution">Solution</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def products(request):
+
+    products = [
+        {
+            "name": "Laptop",
+            "price": 70000,
+            "category": "Electronics"
+        },
+        {
+            "name": "Mouse",
+            "price": 1000,
+            "category": "Accessories"
+        },
+        {
+            "name": "Keyboard",
+            "price": 2000,
+            "category": "Accessories"
+        }
+    ]
+
+    return render(
+        request,
+        "products.html",
+        {"products": products}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;table border="1"&gt;
+
+&lt;tr&gt;
+    &lt;th&gt;Name&lt;/th&gt;
+    &lt;th&gt;Price&lt;/th&gt;
+    &lt;th&gt;Category&lt;/th&gt;
+&lt;/tr&gt;
+
+{% for product in products %}
+
+&lt;tr&gt;
+    &lt;td&gt;{{ product.name }}&lt;/td&gt;
+    &lt;td&gt;₹{{ product.price }}&lt;/td&gt;
+    &lt;td&gt;{{ product.category }}&lt;/td&gt;
+&lt;/tr&gt;
+
+{% empty %}
+
+&lt;tr&gt;
+    &lt;td colspan="3"&gt;No products available&lt;/td&gt;
+&lt;/tr&gt;
+
+{% endfor %}
+
+&lt;/table&gt;</code></pre></div>
+<hr>
+<h1 id="h-1223-28-common-viva-questions">28. Common Viva Questions</h1>
+<h3 id="h-1224-q1-what-is-a-dynamic-template">Q1. What is a dynamic template?</h3>
+<p>A template whose displayed content changes according to data supplied by the view.</p>
+<h3 id="h-1225-q2-how-does-a-view-send-data-to-a-template">Q2. How does a view send data to a template?</h3>
+<p>Using the context dictionary passed to <code>render()</code>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "home.html",
+    {"name": "Aman"}
+)</code></pre></div>
+<h3 id="h-1226-q3-what-is-context">Q3. What is context?</h3>
+<p>Context is the collection of data passed from a view to a template, commonly represented as a dictionary.</p>
+<h3 id="h-1227-q4-can-a-template-receive-a-list">Q4. Can a template receive a list?</h3>
+<p>Yes.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{"students": students}</code></pre></div>
+<h3 id="h-1228-q5-can-a-template-receive-dictionaries">Q5. Can a template receive dictionaries?</h3>
+<p>Yes.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}</code></pre></div>
+<h3 id="h-1229-q6-can-templates-contain-loops">Q6. Can templates contain loops?</h3>
+<p>Yes, using the <code>{% for %}</code> tag.</p>
+<h3 id="h-1230-q7-can-templates-contain-conditions">Q7. Can templates contain conditions?</h3>
+<p>Yes, using <code>{% if %}</code>, <code>{% elif %}</code>, and <code>{% else %}</code>.</p>
+<h3 id="h-1231-q8-can-url-parameters-be-passed-to-templates">Q8. Can URL parameters be passed to templates?</h3>
+<p>Yes. The view receives the URL parameter and can pass it through the context.</p>
+<h3 id="h-1232-q9-should-complex-business-logic-be-written-in-tem">Q9. Should complex business logic be written in templates?</h3>
+<p>No. Complex logic should generally be handled in the view/model layer, while templates should focus on presentation.</p>
+<h3 id="h-1233-q10-can-dynamic-templates-work-without-a-database">Q10. Can dynamic templates work without a database?</h3>
+<p>Yes. Data can come from Python variables, lists, dictionaries, APIs, files, etc. A database is not required.</p>
+<hr>
+<h1 id="h-1234-module-16-must-remember">⭐ Module 16 Must Remember</h1>
+<p>The most important pattern is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def view(request):
+
+    data = ...
+
+    return render(
+        request,
+        "template.html",
+        {"data": data}
+    )</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ data }}</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in data %}
+    {{ item }}
+{% endfor %}</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if data %}
+    ...
+{% endif %}</code></pre></div>
+<p>And with nested data:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}
+{{ student.address.city }}
+{{ student.skills }}</code></pre></div>
+<p>The core idea is:</p>
+<blockquote><strong>View prepares the data → Context carries the data → Template displays the data.</strong></blockquote>
+<hr>
+<h2 id="h-1235-next-module-17-template-inheritance">Next → Module 17: Template Inheritance</h2>
+<p>This is a <strong>very important Django topic</strong> for both exams and real projects.</p>
+<p>We'll learn:</p>
+<ul>
+<li>Why repeating HTML is bad</li>
+<li><code>base.html</code></li>
+<li><code>{% block %}</code></li>
+<li><code>{% extends %}</code></li>
+<li><code>{% include %}</code></li>
+<li>Navbar/footer reuse</li>
+<li>Child templates</li>
+<li>Multiple blocks</li>
+<li>How Django builds the final HTML</li>
+<li>Complete website layout using inheritance</li>
+<li>Common inheritance mistakes</li>
+<li>Viva + coding questions</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-15.html">← Module 15: Template Filters in Depth</a>
+<a class="pn-btn pn-next" href="module-17.html">Module 17: Template Inheritance →</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Python Environment & Installation — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 2 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 2 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Python Environment &amp; Installation</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<span class="nav-item current">2. Python Environment &amp; Installation</span>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-1.html">← Module 1: Web &amp; Django Fundamentals</a>
+<a class="pn-btn pn-next" href="module-3.html">Module 3: Creating Your First Django Project →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-70-module-2-python-environment-virtual-environment-dj">Module 2 — Python Environment, Virtual Environment &amp; Django Installation</h1>
+<p>In this module, we'll go from <strong>"I have Python installed" → "I have a proper Django development environment ready."</strong></p>
+<p>This module is mostly practical, so I'll explain the <strong>commands, what they do, why we use them, and viva questions</strong>.</p>
+<hr>
+<h1 id="h-71-1-what-do-we-need-before-django">1. What do we need before Django?</h1>
+<p>Django is a Python framework, so we need:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+   ↓
+pip
+   ↓
+Virtual Environment
+   ↓
+Django
+   ↓
+Code Editor</code></pre></div>
+<p>Usually you'll use something like:</p>
+<ul>
+<li>Python</li>
+<li>VS Code</li>
+<li>Terminal/Command Prompt</li>
+<li>Django</li>
+</ul>
+<hr>
+<h1 id="h-72-2-what-is-python">2. What is Python?</h1>
+<p>Python is a <strong>high-level, interpreted programming language</strong>.</p>
+<p>Django is built using Python, so your Django code will primarily be written in Python.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def hello():
+    print("Hello")</code></pre></div>
+<p>Django adds web-development functionality on top of Python.</p>
+<hr>
+<h1 id="h-73-3-check-whether-python-is-installed">3. Check Whether Python Is Installed</h1>
+<p>Open <strong>Command Prompt / PowerShell / VS Code Terminal</strong>.</p>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python --version</code></pre></div>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python 3.x.x</code></pre></div>
+<p>On some systems, especially Windows, this may also work:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>py --version</code></pre></div>
+<h3 id="h-74-viva-question">Viva question</h3>
+<p><strong>Q: How do you check the Python version?</strong></p>
+<p>Answer:</p>
+<blockquote>We can use <code>python --version</code> or, on Windows, <code>py --version</code>.</blockquote>
+<hr>
+<h1 id="h-75-4-what-is-pip">4. What is pip?</h1>
+<p>You will frequently see:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<p>So what is <code>pip</code>?</p>
+<p><strong>pip is Python's package installer.</strong></p>
+<p>It allows us to install Python packages.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<p>means:</p>
+<blockquote>Install the Django Python package.</blockquote>
+<p>You can check pip using:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip --version</code></pre></div>
+<hr>
+<h1 id="h-76-5-what-is-a-python-package">5. What is a Python Package?</h1>
+<p>A package is reusable code that can be installed and used in your Python programs.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+NumPy
+Pandas
+Requests
+Matplotlib</code></pre></div>
+<p>Instead of writing everything yourself, you can install packages containing functionality written by other developers.</p>
+<hr>
+<h1 id="h-77-6-why-do-we-need-a-virtual-environment">6. Why Do We Need a Virtual Environment?</h1>
+<p>This is <strong>very important</strong>.</p>
+<p>Suppose you have two Django projects.</p>
+<h3 id="h-78-project-a">Project A</h3>
+<p>Requires:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django 4.x</code></pre></div>
+<h3 id="h-79-project-b">Project B</h3>
+<p>Requires:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django 5.x</code></pre></div>
+<p>If both projects use the same global Python environment, you can run into dependency/version conflicts.</p>
+<p>A <strong>virtual environment</strong> creates an isolated Python environment for a project.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Computer
+│
+├── Project A
+│    └── Virtual Environment
+│         └── Django version A
+│
+└── Project B
+     └── Virtual Environment
+          └── Django version B</code></pre></div>
+<p>This keeps project dependencies separate.</p>
+<hr>
+<h1 id="h-80-7-what-exactly-does-a-virtual-environment-do">7. What Exactly Does a Virtual Environment Do?</h1>
+<p>It creates an isolated environment where you can install Python packages specifically for your project.</p>
+<p>Without virtual environment:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>System Python
+    |
+    +-- Django
+    +-- Package A
+    +-- Package B
+    +-- Package C</code></pre></div>
+<p>With virtual environments:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>System Python
+     |
+     +----------------+
+     |                |
+   Project A        Project B
+     |                |
+     ↓                ↓
+   venv A           venv B
+     |                |
+  Django A          Django B</code></pre></div>
+<p>This is one of the most important reasons virtual environments are used.</p>
+<hr>
+<h1 id="h-81-8-creating-a-virtual-environment">8. Creating a Virtual Environment</h1>
+<p>Suppose you create a folder for your Django work:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse</code></pre></div>
+<p>Open the terminal inside that folder.</p>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<p>Let's understand this command.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>python</code></pre></div>
+<p>Runs Python.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>-m</code></pre></div>
+<p>Tells Python to run a module.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>venv</code></pre></div>
+<p>Python's built-in module for creating virtual environments.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>venv</code></pre></div>
+<p>The name we're giving our virtual environment.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<p>means:</p>
+<blockquote>Use Python's <code>venv</code> module to create a virtual environment named <code>venv</code>.</blockquote>
+<hr>
+<h1 id="h-82-9-can-we-give-the-environment-another-name">9. Can We Give the Environment Another Name?</h1>
+<p>Yes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv myenv</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv django_env</code></pre></div>
+<p>But you'll commonly see:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<hr>
+<h1 id="h-83-10-activating-the-virtual-environment">10. Activating the Virtual Environment</h1>
+<p>Creating it isn't enough.</p>
+<p>You need to <strong>activate</strong> it.</p>
+<h2 id="h-84-windows-command-prompt">Windows — Command Prompt</h2>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">CMD</span><pre><code>venv\Scripts\activate</code></pre></div>
+<h2 id="h-85-windows-powershell">Windows — PowerShell</h2>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">POWERSHELL</span><pre><code>.\venv\Scripts\Activate.ps1</code></pre></div>
+<p>After activation, you may see something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv) C:\Users\...\DjangoCourse&gt;</code></pre></div>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv)</code></pre></div>
+<p>indicates that the virtual environment is active.</p>
+<hr>
+<h1 id="h-86-11-why-do-we-activate-it">11. Why Do We Activate It?</h1>
+<p>Because we want commands such as:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<p>to install Django into the project's virtual environment rather than relying on the global environment.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Activate venv
+       ↓
+pip install django
+       ↓
+Django installed in venv</code></pre></div>
+<hr>
+<h1 id="h-87-12-installing-django">12. Installing Django</h1>
+<p>Once your virtual environment is activated:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<p>pip downloads and installs Django and its required dependencies.</p>
+<p>After installation, check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin --version</code></pre></div>
+<p>You should get a Django version number.</p>
+<p>You can also use:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<hr>
+<h1 id="h-88-13-django-admin-vs-python-m-django">13. <code>django-admin</code> vs <code>python -m django</code></h1>
+<p>You'll encounter both.</p>
+<h3 id="h-89-django-admin"><code>django-admin</code></h3>
+<p>Django's command-line utility.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject</code></pre></div>
+<h3 id="h-90-python-m-django"><code>python -m django</code></h3>
+<p>Runs Django through the currently selected Python interpreter.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>Using <code>python -m django</code> can be useful when you want to make sure you're using Django associated with the Python environment you're currently working in.</p>
+<hr>
+<h1 id="h-91-14-why-is-python-m-useful">14. Why Is <code>python -m</code> Useful?</h1>
+<p>Suppose your computer has multiple Python installations or environments.</p>
+<p>Running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django</code></pre></div>
+<p>ties the command to the Python interpreter represented by <code>python</code>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip install django</code></pre></div>
+<p>is often a reliable alternative to:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<p>because it makes the Python environment relationship explicit.</p>
+<hr>
+<h1 id="h-92-15-verify-django-installation">15. Verify Django Installation</h1>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin --version</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>If it returns a version, Django is installed.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5.x.x</code></pre></div>
+<p>The exact version you see may differ from examples in your college material.</p>
+<hr>
+<h1 id="h-93-16-installing-vs-code">16. Installing VS Code</h1>
+<p>You can use any suitable editor, but we'll use <strong>VS Code</strong> throughout this course.</p>
+<p>You'll generally want the:</p>
+<p><strong>Python extension</strong></p>
+<p>installed in VS Code.</p>
+<p>Later, VS Code will help with:</p>
+<ul>
+<li>Syntax highlighting</li>
+<li>Autocomplete</li>
+<li>Error detection</li>
+<li>Running code</li>
+<li>Terminal</li>
+<li>Django project editing</li>
+</ul>
+<hr>
+<h1 id="h-94-17-selecting-the-correct-python-interpreter">17. Selecting the Correct Python Interpreter</h1>
+<p>This is a <strong>very common beginner problem</strong>.</p>
+<p>Suppose your project has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse/
+│
+└── venv/</code></pre></div>
+<p>Your VS Code should ideally use the Python interpreter from that virtual environment.</p>
+<p>In VS Code:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Ctrl + Shift + P
+       ↓
+Python: Select Interpreter
+       ↓
+Select your venv Python</code></pre></div>
+<p>On Windows it will typically be something similar to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>venv\Scripts\python.exe</code></pre></div>
+<p>The exact path depends on where your project is located.</p>
+<hr>
+<h1 id="h-95-18-why-does-the-interpreter-matter">18. Why Does the Interpreter Matter?</h1>
+<p>Imagine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python A
+   ↓
+No Django installed
+
+Python B
+   ↓
+Django installed</code></pre></div>
+<p>If VS Code uses Python A, you might get an error such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError: No module named 'django'</code></pre></div>
+<p>even though you installed Django.</p>
+<p>Why?</p>
+<p>Because you installed Django in one Python environment, while VS Code is using another.</p>
+<p>That's why:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Virtual Environment
+        +
+Correct Interpreter</code></pre></div>
+<p>is important.</p>
+<hr>
+<h1 id="h-96-19-typical-project-setup">19. Typical Project Setup</h1>
+<p>A clean setup can look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse/
+│
+├── venv/
+│
+└── project/</code></pre></div>
+<p>Eventually, after creating the Django project, you'll have more files and folders.</p>
+<p>Don't worry about the exact project structure yet—we'll cover it in <strong>Module 4</strong>.</p>
+<hr>
+<h1 id="h-97-20-the-complete-setup-process">20. The Complete Setup Process</h1>
+<p>For your practical exam, remember this sequence:</p>
+<h3 id="h-98-step-1">Step 1</h3>
+<p>Create a folder:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse</code></pre></div>
+<h3 id="h-99-step-2">Step 2</h3>
+<p>Open terminal in it.</p>
+<h3 id="h-100-step-3">Step 3</h3>
+<p>Create virtual environment:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<h3 id="h-101-step-4">Step 4</h3>
+<p>Activate it:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>venv\Scripts\activate</code></pre></div>
+<h3 id="h-102-step-5">Step 5</h3>
+<p>Install Django:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<h3 id="h-103-step-6">Step 6</h3>
+<p>Check Django:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin --version</code></pre></div>
+<h3 id="h-104-step-7">Step 7</h3>
+<p>Open the folder in VS Code.</p>
+<h3 id="h-105-step-8">Step 8</h3>
+<p>Select the virtual environment's Python interpreter.</p>
+<p>Now your Django environment is ready.</p>
+<hr>
+<h1 id="h-106-21-important-commands-to-memorize">21. Important Commands to Memorize</h1>
+<p>These are worth memorizing:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Purpose</th>
+<th>Command</th>
+</tr></thead><tbody>
+<tr>
+<td>Check Python</td>
+<td><code>python --version</code></td>
+</tr>
+<tr>
+<td>Check pip</td>
+<td><code>pip --version</code></td>
+</tr>
+<tr>
+<td>Create venv</td>
+<td><code>python -m venv venv</code></td>
+</tr>
+<tr>
+<td>Activate venv — Windows CMD</td>
+<td><code>venv\Scripts\activate</code></td>
+</tr>
+<tr>
+<td>Install Django</td>
+<td><code>pip install django</code></td>
+</tr>
+<tr>
+<td>Check Django</td>
+<td><code>django-admin --version</code></td>
+</tr>
+<tr>
+<td>Check Django through Python</td>
+<td><code>python -m django --version</code></td>
+</tr>
+<tr>
+<td>Deactivate venv</td>
+<td><code>deactivate</code></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-107-22-deactivating-the-virtual-environment">22. Deactivating the Virtual Environment</h1>
+<p>When you're finished working:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>deactivate</code></pre></div>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv)</code></pre></div>
+<p>prefix disappears.</p>
+<p>Important:</p>
+<blockquote>Deactivating the environment does <strong>not delete it</strong>.</blockquote>
+<p>It simply stops using that virtual environment in the current terminal session.</p>
+<p>You can activate it again later.</p>
+<hr>
+<h1 id="h-108-23-common-mistake-1-python-not-recognized">23. Common Mistake #1 — <code>python</code> Not Recognized</h1>
+<p>You might get something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>'python' is not recognized...</code></pre></div>
+<p>Possible causes include:</p>
+<ul>
+<li>Python isn't installed</li>
+<li>Python isn't on PATH</li>
+<li>Terminal needs to be restarted</li>
+<li>Windows Python launcher may be available as <code>py</code></li>
+</ul>
+<p>Try:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>py --version</code></pre></div>
+<hr>
+<h1 id="h-109-24-common-mistake-2-django-not-found">24. Common Mistake #2 — Django Not Found</h1>
+<p>You run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin --version</code></pre></div>
+<p>and get an error.</p>
+<p>Check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>Also check whether your virtual environment is active:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip show django</code></pre></div>
+<p>This can help determine whether Django is installed in the Python environment you're currently using.</p>
+<hr>
+<h1 id="h-110-25-common-mistake-3-vs-code-uses-wrong-python">25. Common Mistake #3 — VS Code Uses Wrong Python</h1>
+<p>You installed Django successfully but your Python file says:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError: No module named 'django'</code></pre></div>
+<p>Check the selected interpreter.</p>
+<p>You may have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>VS Code → Global Python</code></pre></div>
+<p>while Django is installed in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>VS Code → venv Python</code></pre></div>
+<p>Select:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>venv\Scripts\python.exe</code></pre></div>
+<hr>
+<h1 id="h-111-26-common-mistake-4-powershell-execution-policy">26. Common Mistake #4 — PowerShell Execution Policy</h1>
+<p>Sometimes Windows PowerShell can block activation scripts.</p>
+<p>You may see an execution-policy error.</p>
+<p>Don't panic. This is a Windows shell configuration issue, not a Django issue.</p>
+<p>For your college practical, you can also use <strong>Command Prompt</strong> and activate with:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">CMD</span><pre><code>venv\Scripts\activate</code></pre></div>
+<p>We'll troubleshoot such errors if you encounter them while actually setting up your environment.</p>
+<hr>
+<h1 id="h-112-27-viva-questions">27. Viva Questions</h1>
+<p>Now let's make this viva-ready.</p>
+<h3 id="h-113-q1-what-is-pip">Q1. What is pip?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>pip is Python's package installer used to install and manage Python packages.</blockquote>
+<hr>
+<h3 id="h-114-q2-why-do-we-use-a-virtual-environment">Q2. Why do we use a virtual environment?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>A virtual environment creates an isolated Python environment for a project, allowing project-specific packages and versions without interfering with other projects.</blockquote>
+<hr>
+<h3 id="h-115-q3-how-do-you-create-a-virtual-environment">Q3. How do you create a virtual environment?</h3>
+<p><strong>Answer:</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<hr>
+<h3 id="h-116-q4-how-do-you-activate-a-virtual-environment-in-wi">Q4. How do you activate a virtual environment in Windows?</h3>
+<p><strong>Answer:</strong></p>
+<p>For Command Prompt:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">CMD</span><pre><code>venv\Scripts\activate</code></pre></div>
+<p>For PowerShell:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">POWERSHELL</span><pre><code>.\venv\Scripts\Activate.ps1</code></pre></div>
+<hr>
+<h3 id="h-117-q5-how-do-you-deactivate-it">Q5. How do you deactivate it?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>deactivate</code></pre></div>
+<hr>
+<h3 id="h-118-q6-how-do-you-install-django">Q6. How do you install Django?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>pip install django</code></pre></div>
+<hr>
+<h3 id="h-119-q7-how-do-you-check-the-django-version">Q7. How do you check the Django version?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin --version</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<hr>
+<h3 id="h-120-q8-why-should-we-use-a-virtual-environment-for-dja">Q8. Why should we use a virtual environment for Django?</h3>
+<p>A strong answer:</p>
+<blockquote>We use a virtual environment to isolate the dependencies of a Django project. This prevents package and version conflicts between different projects.</blockquote>
+<hr>
+<h3 id="h-121-q9-what-is-django-admin">Q9. What is <code>django-admin</code>?</h3>
+<blockquote><code>django-admin</code> is Django's command-line utility used to perform administrative tasks such as creating projects and other Django-related operations.</blockquote>
+<hr>
+<h3 id="h-122-q10-what-does-python-m-venv-venv-mean">Q10. What does <code>python -m venv venv</code> mean?</h3>
+<blockquote>It runs Python's built-in <code>venv</code> module and creates a virtual environment named <code>venv</code>.</blockquote>
+<hr>
+<h1 id="h-123-28-viva-trap-question">28. Viva Trap Question ⚠️</h1>
+<h3 id="h-124-teacher">Teacher:</h3>
+<blockquote>"If I deactivate my virtual environment, is Django deleted?"</blockquote>
+<p><strong>Wrong:</strong></p>
+<blockquote>Yes.</blockquote>
+<p><strong>Correct:</strong></p>
+<blockquote>No. Deactivation only stops using the virtual environment in the current terminal session. The environment and its installed packages remain on the system until they are explicitly deleted.</blockquote>
+<hr>
+<h1 id="h-125-29-another-viva-trap">29. Another Viva Trap</h1>
+<h3 id="h-126-teacher">Teacher:</h3>
+<blockquote>"Can I install Django globally without a virtual environment?"</blockquote>
+<p><strong>Answer:</strong></p>
+<blockquote>Yes, technically Django can be installed globally, but using a virtual environment is recommended because it isolates project dependencies and avoids version conflicts.</blockquote>
+<p>That's a much better answer than simply saying "No."</p>
+<hr>
+<h1 id="h-127-30-practical-question">30. Practical Question</h1>
+<p>Your teacher may say:</p>
+<blockquote><strong>"Set up Django and verify that it is installed."</strong></blockquote>
+<p>Your answer/action sequence should be:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python --version</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>venv\Scripts\activate</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip install django</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>If the version appears, Django is installed.</p>
+<hr>
+<h1 id="h-128-module-2-what-you-should-remember">🧠 Module 2 — What You Should Remember</h1>
+<p>The complete chain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+  ↓
+Virtual Environment
+  ↓
+Activate
+  ↓
+Install Django
+  ↓
+Verify Django
+  ↓
+Select correct VS Code interpreter</code></pre></div>
+<p>Most important commands:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv
+venv\Scripts\activate
+python -m pip install django
+python -m django --version
+deactivate</code></pre></div>
+<p>And understand this distinction:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+   ↓
+Programming language
+
+pip
+   ↓
+Package installer
+
+venv
+   ↓
+Isolated environment
+
+Django
+   ↓
+Python web framework</code></pre></div>
+<hr>
+<h1 id="h-129-mini-practical-test">🎯 Mini Practical Test</h1>
+<p>Before we move to Module 3, try these <strong>without looking above</strong>:</p>
+<h3 id="h-130-part-a-viva">Part A — Viva</h3>
+<ol>
+<li>What is pip?</li>
+<li>What is a virtual environment?</li>
+<li>Why do we need a virtual environment?</li>
+<li>What does <code>python -m venv venv</code> do?</li>
+<li>How do you activate a venv in Windows?</li>
+<li>How do you install Django?</li>
+<li>How do you check the Django version?</li>
+<li>What is <code>django-admin</code>?</li>
+<li>What happens when you run <code>deactivate</code>?</li>
+<li>Why might VS Code show <code>No module named django</code> even after installing Django?</li>
+</ol>
+<h3 id="h-131-part-b-practical">Part B — Practical</h3>
+<p>Imagine your teacher gives you a completely empty folder and says:</p>
+<blockquote><strong>"Create a Python virtual environment, install Django, and verify the installation."</strong></blockquote>
+<p>Write the <strong>exact commands in the correct order</strong>.</p>
+<p>Send me your answers if you want me to check them. Otherwise, say <strong>“next”</strong> and we'll start <strong>Module 3 — Creating Your First Django Project</strong>, where we'll actually create and run a Django application.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-1.html">← Module 1: Web &amp; Django Fundamentals</a>
+<a class="pn-btn pn-next" href="module-3.html">Module 3: Creating Your First Django Project →</a>
+</div>
+
+</div>
+
+</body>
+</html>

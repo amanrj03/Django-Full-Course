@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 18: Debugging Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 18 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 18 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Debugging Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<span class="nav-item current">18. Debugging Django</span>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-17.html">← Module 17: Template Inheritance</a>
+<a class="pn-btn pn-next" href="module-19.html">Module 19: Testing in Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1301-module-18-debugging-django">Module 18 — Debugging Django</h1>
+<p>Now we start an extremely practical topic: <strong>Debugging</strong>.</p>
+<p>In a Django project, knowing how to write code is only half the skill.</p>
+<p>You also need to know:</p>
+<blockquote><strong>When my code doesn't work, how do I find exactly what is wrong?</strong></blockquote>
+<p>This is what debugging means.</p>
+<hr>
+<h1 id="h-1302-1-what-is-debugging">1. What Is Debugging?</h1>
+<p><strong>Debugging</strong> is the process of:</p>
+<ol>
+<li>Finding an error/problem</li>
+<li>Understanding why it happened</li>
+<li>Locating the problematic code</li>
+<li>Fixing it</li>
+<li>Testing again</li>
+</ol>
+<p>Example:</p>
+<p>You visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>and Django shows:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist</code></pre></div>
+<p>Debugging means determining:</p>
+<blockquote>Which template is Django looking for, where is it searching, and why can't it find it?</blockquote>
+<hr>
+<h1 id="h-1303-2-error-vs-bug">2. Error vs Bug</h1>
+<p>These terms are related but different.</p>
+<h3 id="h-1304-error">Error</h3>
+<p>A problem that prevents code from working correctly.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(name</code></pre></div>
+<p>Missing <code>)</code> → syntax error.</p>
+<h3 id="h-1305-bug">Bug</h3>
+<p>The program runs but behaves incorrectly.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = 100
+quantity = 5
+
+total = price + quantity</code></pre></div>
+<p>The program runs, but the correct calculation should be:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>total = price * quantity</code></pre></div>
+<p>So:</p>
+<blockquote><strong>Error = problem in execution/code.</strong><br><strong>Bug = incorrect behavior or result.</strong></blockquote>
+<hr>
+<h1 id="h-1306-3-django-debug-mode">3. Django Debug Mode</h1>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>settings.py</code></pre></div>
+<p>You'll find:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>During development, Django gives detailed error information when something goes wrong.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist at /students/</code></pre></div>
+<p>and below it you'll get a traceback showing where the error occurred.</p>
+<hr>
+<h1 id="h-1307-4-why-is-debug-true-useful">4. Why Is <code>DEBUG=True</code> Useful?</h1>
+<p>Because Django can show:</p>
+<ul>
+<li>Exception type</li>
+<li>Error message</li>
+<li>File name</li>
+<li>Line number</li>
+<li>Code around the error</li>
+<li>Traceback</li>
+<li>Request information</li>
+<li>Django/Python information</li>
+</ul>
+<p>This makes debugging much easier.</p>
+<hr>
+<h1 id="h-1308-5-never-use-debug-true-in-production">5. ⚠️ Never Use <code>DEBUG=True</code> in Production</h1>
+<p>Suppose your production website crashes.</p>
+<p>If:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>Django can expose sensitive internal information through the detailed error page.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<p>should normally be used in production.</p>
+<p>This is both an exam question and an important security concept.</p>
+<hr>
+<h1 id="h-1309-6-reading-a-django-error-page">6. Reading a Django Error Page</h1>
+<p>Suppose Django displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist at /students/
+
+students/list.html</code></pre></div>
+<p>Don't panic.</p>
+<p>Read the error from top to bottom.</p>
+<p>The important information is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Exception:
+TemplateDoesNotExist
+
+Message:
+students/list.html</code></pre></div>
+<p>This immediately tells you:</p>
+<blockquote>Django couldn't find the requested template.</blockquote>
+<hr>
+<h1 id="h-1310-7-traceback">7. Traceback</h1>
+<p>A traceback shows the chain of function calls that led to the error.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Traceback
+
+File ".../urls.py", line 10
+    path("students/", views.students)
+
+File ".../views.py", line 15
+    return render(...)
+
+TemplateDoesNotExist</code></pre></div>
+<p>The most useful part is usually the <strong>last exception shown</strong>, along with the file/line information around where it occurred.</p>
+<hr>
+<h1 id="h-1311-8-debugging-strategy">8. Debugging Strategy</h1>
+<p>When Django gives an error, follow this sequence:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Read exception type
+        ↓
+2. Read error message
+        ↓
+3. Find file and line number
+        ↓
+4. Inspect surrounding code
+        ↓
+5. Check related configuration
+        ↓
+6. Fix
+        ↓
+7. Run again</code></pre></div>
+<p>Don't randomly change multiple files.</p>
+<hr>
+<h1 id="h-1312-9-error-1-syntaxerror">9. Error #1 — SyntaxError</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request)
+    return HttpResponse("Hello")</code></pre></div>
+<p>There's a missing <code>:</code>.</p>
+<p>Python reports something similar to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SyntaxError: expected ':'</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello")</code></pre></div>
+<hr>
+<h1 id="h-1313-10-syntax-errors-in-templates">10. Syntax Errors in Templates</h1>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if user %}
+    Hello</code></pre></div>
+<p>You forgot:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% endif %}</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if user %}
+    Hello
+{% endif %}</code></pre></div>
+<p>Template syntax errors can appear when Django compiles the template.</p>
+<hr>
+<h1 id="h-1314-11-error-2-nameerror">11. Error #2 — NameError</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(message)</code></pre></div>
+<p>But <code>message</code> was never defined.</p>
+<p>You may get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NameError: name 'message' is not defined</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    message = "Hello"
+    return HttpResponse(message)</code></pre></div>
+<hr>
+<h1 id="h-1315-12-error-3-importerror">12. Error #3 — ImportError</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpRespons</code></pre></div>
+<p>The actual class is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>HttpResponse</code></pre></div>
+<p>You may get an import-related error.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse</code></pre></div>
+<p>Common causes:</p>
+<ul>
+<li>Typo in import</li>
+<li>Wrong module</li>
+<li>Missing package</li>
+<li>Circular imports in more advanced projects</li>
+</ul>
+<hr>
+<h1 id="h-1316-13-error-4-modulenotfounderror">13. Error #4 — ModuleNotFoundError</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>import some_package</code></pre></div>
+<p>but the package isn't installed.</p>
+<p>Python may report:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError</code></pre></div>
+<p>For third-party packages, check the active virtual environment and installation.</p>
+<p>For Django itself:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<hr>
+<h1 id="h-1317-14-error-5-templatedoesnotexist">14. Error #5 — TemplateDoesNotExist</h1>
+<p>This is one of the <strong>most common Django beginner errors</strong>.</p>
+<p>Suppose your view says:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(request, "home.html")</code></pre></div>
+<p>but Django can't find it.</p>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist at /
+home.html</code></pre></div>
+<hr>
+<h1 id="h-1318-15-why-does-templatedoesnotexist-happen">15. Why Does <code>TemplateDoesNotExist</code> Happen?</h1>
+<p>Common reasons:</p>
+<h3 id="h-1319-reason-1-wrong-folder">Reason 1 — Wrong folder</h3>
+<p>You might have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+    home.htm</code></pre></div>
+<p>but requested:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html</code></pre></div>
+<h3 id="h-1320-reason-2-wrong-filename">Reason 2 — Wrong filename</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, "home.html")</code></pre></div>
+<p>but file is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>homepage.html</code></pre></div>
+<h3 id="h-1321-reason-3-app-not-installed">Reason 3 — App not installed</h3>
+<p>If using app-level templates:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<p>must include the app.</p>
+<h3 id="h-1322-reason-4-wrong-path">Reason 4 — Wrong path</h3>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── templates/
+    └── students/
+        └── home.html</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, "students/home.html")</code></pre></div>
+<p>not:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, "home.html")</code></pre></div>
+<hr>
+<h1 id="h-1323-16-correct-app-template-structure">16. Correct App Template Structure</h1>
+<p>Recommended:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── templates/
+│   └── students/
+│       └── home.html
+│
+├── views.py
+└── ...</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "students/home.html"
+)</code></pre></div>
+<p>The extra <code>students/</code> directory helps avoid template-name collisions between apps.</p>
+<hr>
+<h1 id="h-1324-17-error-6-noreversematch">17. Error #6 — NoReverseMatch</h1>
+<p>This is another very important Django error.</p>
+<p>Suppose URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>But template says:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<p>Django needs the <code>id</code> parameter.</p>
+<p>You might get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NoReverseMatch</code></pre></div>
+<hr>
+<h1 id="h-1325-18-fixing-noreversematch">18. Fixing <code>NoReverseMatch</code></h1>
+<p>Provide the required parameter:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' id=101 %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<p>Or dynamically:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' id=student.id %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<hr>
+<h1 id="h-1326-19-noreversematch-common-causes">19. <code>NoReverseMatch</code> Common Causes</h1>
+<h3 id="h-1327-wrong-url-name">Wrong URL name</h3>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name="student_detail"</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% url 'student' %}</code></pre></div>
+<p>Wrong.</p>
+<hr>
+<h3 id="h-1328-missing-parameter">Missing parameter</h3>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% url 'student_detail' %}</code></pre></div>
+<p>Missing <code>id</code>.</p>
+<hr>
+<h3 id="h-1329-wrong-parameter-name">Wrong parameter name</h3>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;int:id&gt;</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% url 'student_detail' student_id=101 %}</code></pre></div>
+<p>Wrong keyword.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% url 'student_detail' id=101 %}</code></pre></div>
+<hr>
+<h1 id="h-1330-20-error-7-viewdoesnotexist">20. Error #7 — ViewDoesNotExist</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "home/",
+    views.hom
+)</code></pre></div>
+<p>but the actual function is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>Django can't find the specified view.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "home/",
+    views.home
+)</code></pre></div>
+<hr>
+<h1 id="h-1331-21-error-8-attributeerror">21. Error #8 — AttributeError</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    "name": "Aman"
+}
+
+print(student.name)</code></pre></div>
+<p>A dictionary doesn't provide that access pattern in normal Python.</p>
+<p>You'd use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student["name"]</code></pre></div>
+<p>or in a Django template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}</code></pre></div>
+<p>A Python error may look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AttributeError</code></pre></div>
+<hr>
+<h1 id="h-1332-22-error-9-typeerror">22. Error #9 — TypeError</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = 20
+
+print(age + " years")</code></pre></div>
+<p>Python cannot add an integer and string directly.</p>
+<p>You'll get a <code>TypeError</code>.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(str(age) + " years")</code></pre></div>
+<p>or use an f-string:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(f"{age} years")</code></pre></div>
+<hr>
+<h1 id="h-1333-23-error-10-doesnotexist">23. Error #10 — <code>DoesNotExist</code></h1>
+<p>This becomes especially important when we start using models.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=100)</code></pre></div>
+<p>If no matching student exists, Django raises something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.DoesNotExist</code></pre></div>
+<p>Later, you'll learn the cleaner solution:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404
+
+student = get_object_or_404(Student, id=100)</code></pre></div>
+<p>which converts the missing object into an HTTP 404 response.</p>
+<hr>
+<h1 id="h-1334-24-error-11-operationalerror">24. Error #11 — <code>OperationalError</code></h1>
+<p>You may encounter database errors such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django.db.utils.OperationalError</code></pre></div>
+<p>Common causes can include:</p>
+<ul>
+<li>Database configuration problems</li>
+<li>Missing database table</li>
+<li>Migration not applied</li>
+<li>Database connection failure</li>
+</ul>
+<p>For example, if you create a model but haven't applied migrations, you may encounter a missing-table problem.</p>
+<p>We'll understand this much better in the Models/Migrations modules.</p>
+<hr>
+<h1 id="h-1335-25-error-12-404-page-not-found">25. Error #12 — <code>404 Page Not Found</code></h1>
+<p>Suppose your URL configuration contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path("students/", views.students)</code></pre></div>
+<p>but you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/</code></pre></div>
+<p>vs:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student/</code></pre></div>
+<p>Django doesn't find a matching URL and returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404 Not Found</code></pre></div>
+<hr>
+<h1 id="h-1336-26-url-404-vs-object-404">26. URL 404 vs Object 404</h1>
+<p>Very important distinction.</p>
+<h3 id="h-1337-url-doesn-t-exist">URL doesn't exist:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/abc/</code></pre></div>
+<p>doesn't match your URL pattern.</p>
+<p>That's a <strong>URL routing 404</strong>.</p>
+<h3 id="h-1338-url-exists-but-object-doesn-t">URL exists but object doesn't:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/999/</code></pre></div>
+<p>matches:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;int:id&gt;</code></pre></div>
+<p>but student 999 doesn't exist.</p>
+<p>That's an <strong>object/data 404</strong>.</p>
+<p>These are different problems even though both result in HTTP 404.</p>
+<hr>
+<h1 id="h-1339-27-error-13-csrf-error">27. Error #13 — <code>CSRF</code> Error</h1>
+<p>You'll encounter this in the Forms module.</p>
+<p>A POST form may produce:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden
+CSRF verification failed</code></pre></div>
+<p>Often this means the template doesn't contain the required CSRF token.</p>
+<p>Typical Django form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    ...
+    
+&lt;/form&gt;</code></pre></div>
+<p>We'll study CSRF properly in Unit IV.</p>
+<hr>
+<h1 id="h-1340-28-error-14-port-already-in-use">28. Error #14 — Port Already in Use</h1>
+<p>Suppose you start:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>but another process is already using port 8000.</p>
+<p>You can use another port:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 8001</code></pre></div>
+<p>Then visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8001/</code></pre></div>
+<hr>
+<h1 id="h-1341-29-error-15-wrong-virtual-environment">29. Error #15 — Wrong Virtual Environment</h1>
+<p>Suppose Django was installed inside:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>venv</code></pre></div>
+<p>but VS Code is using another Python interpreter.</p>
+<p>You might see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError: No module named 'django'</code></pre></div>
+<p>even though you installed Django.</p>
+<p>Check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>and verify that the correct virtual environment/interpreter is active.</p>
+<hr>
+<h1 id="h-1342-30-django-debug-toolbar-vs-django-debug-mode">30. Django Debug Toolbar vs Django Debug Mode</h1>
+<p>Don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DEBUG = True</code></pre></div>
+<p>with a separate debugging tool such as Django Debug Toolbar.</p>
+<p><code>DEBUG=True</code> is a Django setting controlling development behavior and error reporting.</p>
+<p>A debug toolbar is an additional development package/tool used for inspecting things such as:</p>
+<ul>
+<li>SQL queries</li>
+<li>request information</li>
+<li>templates</li>
+<li>performance</li>
+</ul>
+<p>For your syllabus, the important concept is primarily:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<hr>
+<h1 id="h-1343-31-using-print-for-debugging">31. Using <code>print()</code> for Debugging</h1>
+<p>A beginner-friendly technique:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+
+    name = "Aman"
+
+    print(name)
+
+    return render(
+        request,
+        "home.html",
+        {"name": name}
+    )</code></pre></div>
+<p>The value appears in the terminal running Django.</p>
+<p>You can inspect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(request.method)
+print(request.GET)
+print(request.POST)</code></pre></div>
+<p>during development.</p>
+<hr>
+<h1 id="h-1344-32-better-debugging-with-breakpoint">32. Better Debugging With <code>breakpoint()</code></h1>
+<p>Python provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>breakpoint()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    students = ["Aman", "Rahul"]
+
+    breakpoint()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>Execution pauses at that point when using a suitable debugger/terminal environment.</p>
+<p>You can inspect variables.</p>
+<p>This is more advanced than <code>print()</code> debugging.</p>
+<hr>
+<h1 id="h-1345-33-debugging-in-vs-code">33. Debugging in VS Code</h1>
+<p>VS Code provides a debugger where you can:</p>
+<ul>
+<li>Set breakpoints</li>
+<li>Run code step-by-step</li>
+<li>Inspect variables</li>
+<li>Watch expressions</li>
+<li>See the call stack</li>
+</ul>
+<p>A breakpoint is a point where program execution pauses so you can inspect what's happening.</p>
+<hr>
+<h1 id="h-1346-34-example-debugging-process">34. Example Debugging Process</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21
+    }
+
+    return render(
+        request,
+        "students/detail.html",
+        {"student": student}
+    )</code></pre></div>
+<p>You get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist
+students/detail.html</code></pre></div>
+<h3 id="h-1347-step-1">Step 1</h3>
+<p>Read exception:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist</code></pre></div>
+<h3 id="h-1348-step-2">Step 2</h3>
+<p>Read requested path:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/detail.html</code></pre></div>
+<h3 id="h-1349-step-3">Step 3</h3>
+<p>Check filesystem:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── templates/
+    └── students/
+        └── detail.html</code></pre></div>
+<p>If instead you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── templates/
+    └── detail.html</code></pre></div>
+<p>the requested path is wrong for that structure.</p>
+<h3 id="h-1350-step-4">Step 4</h3>
+<p>Fix either the path or template location.</p>
+<h3 id="h-1351-step-5">Step 5</h3>
+<p>Reload.</p>
+<p>That's systematic debugging.</p>
+<hr>
+<h1 id="h-1352-35-don-t-change-everything-at-once">35. Don't Change Everything at Once</h1>
+<p>A common beginner mistake is:</p>
+<blockquote>"It doesn't work, so I'll change views.py, urls.py, settings.py, and HTML simultaneously."</blockquote>
+<p>Don't.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Error
+ ↓
+Identify exact error
+ ↓
+Identify responsible layer
+ ↓
+Change minimum necessary code
+ ↓
+Test</code></pre></div>
+<hr>
+<h1 id="h-1353-36-identify-the-layer">36. Identify the Layer</h1>
+<p>Django applications can be thought of as layers:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Model/Database
+   ↓
+Template
+   ↓
+Response</code></pre></div>
+<p>If the error is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NoReverseMatch</code></pre></div>
+<p>look first at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URLs + template URL tag</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist</code></pre></div>
+<p>look at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template path + settings + installed app</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DoesNotExist</code></pre></div>
+<p>look at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database query/object retrieval</code></pre></div>
+<p>This saves enormous time.</p>
+<hr>
+<h1 id="h-1354-37-error-diagnosis-table">37. Error Diagnosis Table</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Error</th>
+<th>Usually means</th>
+</tr></thead><tbody>
+<tr>
+<td><code>SyntaxError</code></td>
+<td>Invalid Python syntax</td>
+</tr>
+<tr>
+<td><code>NameError</code></td>
+<td>Variable/name doesn't exist</td>
+</tr>
+<tr>
+<td><code>ImportError</code></td>
+<td>Import problem</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError</code></td>
+<td>Module/package can't be found</td>
+</tr>
+<tr>
+<td><code>TemplateDoesNotExist</code></td>
+<td>Template can't be found</td>
+</tr>
+<tr>
+<td><code>NoReverseMatch</code></td>
+<td>URL reversing failed</td>
+</tr>
+<tr>
+<td><code>ViewDoesNotExist</code></td>
+<td>Referenced view can't be found</td>
+</tr>
+<tr>
+<td><code>AttributeError</code></td>
+<td>Object doesn't have requested attribute</td>
+</tr>
+<tr>
+<td><code>TypeError</code></td>
+<td>Wrong/incompatible type operation</td>
+</tr>
+<tr>
+<td><code>DoesNotExist</code></td>
+<td>Requested model object doesn't exist</td>
+</tr>
+<tr>
+<td><code>OperationalError</code></td>
+<td>Database/SQL-related operational issue</td>
+</tr>
+<tr>
+<td><code>404</code></td>
+<td>URL/resource not found</td>
+</tr>
+<tr>
+<td><code>403</code></td>
+<td>Permission/CSRF/access forbidden</td>
+</tr>
+<tr>
+<td><code>500</code></td>
+<td>Server-side application error</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-1355-38-very-important-read-the-last-exception">38. ⭐ Very Important: Read the Last Exception</h1>
+<p>Suppose the traceback contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>File ...
+File ...
+File ...
+File ...
+
+TemplateDoesNotExist</code></pre></div>
+<p>Don't get overwhelmed by the entire traceback.</p>
+<p>Start with:</p>
+<blockquote><strong>What exception occurred?</strong></blockquote>
+<p>Then:</p>
+<blockquote><strong>What message accompanies it?</strong></blockquote>
+<p>Then:</p>
+<blockquote><strong>Which line in my code triggered it?</strong></blockquote>
+<hr>
+<h1 id="h-1356-39-example-viva-question">39. Example Viva Question</h1>
+<h3 id="h-1357-teacher">Teacher:</h3>
+<blockquote>What is debugging?</blockquote>
+<p>Answer:</p>
+<blockquote>Debugging is the systematic process of identifying, locating, analyzing, and fixing errors or unexpected behavior in a program.</blockquote>
+<hr>
+<h1 id="h-1358-40-viva-question">40. Viva Question</h1>
+<h3 id="h-1359-teacher">Teacher:</h3>
+<blockquote>What is <code>DEBUG</code> in Django?</blockquote>
+<p>Answer:</p>
+<blockquote><code>DEBUG</code> is a Django setting that controls development debugging behavior. When <code>DEBUG=True</code>, Django provides detailed error information. It should not be enabled in production.</blockquote>
+<hr>
+<h1 id="h-1360-41-viva-question">41. Viva Question</h1>
+<h3 id="h-1361-teacher">Teacher:</h3>
+<blockquote>Why shouldn't <code>DEBUG=True</code> be used in production?</blockquote>
+<p>Answer:</p>
+<blockquote>Because detailed error pages can expose sensitive application and environment information.</blockquote>
+<hr>
+<h1 id="h-1362-42-viva-question">42. Viva Question</h1>
+<h3 id="h-1363-teacher">Teacher:</h3>
+<blockquote>What is <code>TemplateDoesNotExist</code>?</blockquote>
+<p>Answer:</p>
+<blockquote>It occurs when Django cannot locate the template requested by the application.</blockquote>
+<hr>
+<h1 id="h-1364-43-viva-question">43. Viva Question</h1>
+<h3 id="h-1365-teacher">Teacher:</h3>
+<blockquote>What is <code>NoReverseMatch</code>?</blockquote>
+<p>Answer:</p>
+<blockquote>It occurs when Django cannot construct a URL from a named URL pattern, commonly because the URL name or required parameters are incorrect or missing.</blockquote>
+<hr>
+<h1 id="h-1366-44-viva-question">44. Viva Question</h1>
+<h3 id="h-1367-teacher">Teacher:</h3>
+<blockquote>What is a traceback?</blockquote>
+<p>Answer:</p>
+<blockquote>A traceback is a report showing the sequence of function calls that led to an exception, along with information about where the error occurred.</blockquote>
+<hr>
+<h1 id="h-1368-45-viva-question">45. Viva Question</h1>
+<h3 id="h-1369-teacher">Teacher:</h3>
+<blockquote>Difference between 404 and 500?</blockquote>
+<p>Answer:</p>
+<blockquote>A 404 indicates that the requested resource or URL was not found, while a 500 indicates an unexpected server-side error occurred while processing the request.</blockquote>
+<hr>
+<h1 id="h-1370-46-viva-question">46. Viva Question</h1>
+<h3 id="h-1371-teacher">Teacher:</h3>
+<blockquote>How can you debug a variable in a Django view?</blockquote>
+<p>Answer:</p>
+<blockquote>During development, I can use <code>print()</code> statements, Python's <code>breakpoint()</code>, or an IDE debugger to inspect the variable and program execution.</blockquote>
+<hr>
+<h1 id="h-1372-47-coding-question">47. Coding Question</h1>
+<h3 id="h-1373-question">Question:</h3>
+<p>This code gives an error:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return render(request, "home.html")</code></pre></div>
+<p>The file actually exists at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html</code></pre></div>
+<p>What should you change?</p>
+<h3 id="h-1374-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return render(request, "students/home.html")</code></pre></div>
+<p>assuming the app is correctly installed and template discovery is configured.</p>
+<hr>
+<h1 id="h-1375-48-coding-question">48. Coding Question</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>This template causes <code>NoReverseMatch</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<p>Fix it.</p>
+<h3 id="h-1376-answer">Answer:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' id=101 %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<p>Or dynamically:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'student_detail' id=student.id %}"&gt;
+    Student
+&lt;/a&gt;</code></pre></div>
+<hr>
+<h1 id="h-1377-49-coding-question">49. Coding Question</h1>
+<p>Find the error:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request)
+    return HttpResponse("Hello")</code></pre></div>
+<h3 id="h-1378-answer">Answer:</h3>
+<p>Missing colon:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello")</code></pre></div>
+<hr>
+<h1 id="h-1379-50-coding-question">50. Coding Question</h1>
+<p>Find the error:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpRespons</code></pre></div>
+<h3 id="h-1380-answer">Answer:</h3>
+<p>The class name is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>HttpResponse</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse</code></pre></div>
+<hr>
+<h1 id="h-1381-51-debugging-checklist">51. Debugging Checklist ⭐</h1>
+<p>Whenever your Django application isn't working:</p>
+<h3 id="h-1382-1-check-terminal">1. Check terminal</h3>
+<p>Look for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Exception
+Error
+Traceback</code></pre></div>
+<h3 id="h-1383-2-check-browser">2. Check browser</h3>
+<p>Look at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404
+403
+500</code></pre></div>
+<h3 id="h-1384-3-read-the-exception">3. Read the exception</h3>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist</code></pre></div>
+<h3 id="h-1385-4-check-exact-line">4. Check exact line</h3>
+<p>Don't just read the filename.</p>
+<h3 id="h-1386-5-check-spelling">5. Check spelling</h3>
+<p>Especially:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URLs
+view names
+template names
+variable names
+imports</code></pre></div>
+<h3 id="h-1387-6-check-configuration">6. Check configuration</h3>
+<p>Especially:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>INSTALLED_APPS
+TEMPLATES
+DATABASES
+URL patterns</code></pre></div>
+<h3 id="h-1388-7-test-again">7. Test again</h3>
+<p>Don't assume the fix worked until you reload/test.</p>
+<hr>
+<h1 id="h-1389-52-master-debugging-flow">52. ⭐ Master Debugging Flow</h1>
+<p>Memorize this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    ERROR
+                      ↓
+             Read exception type
+                      ↓
+             Read error message
+                      ↓
+             Find file + line
+                      ↓
+              Identify Django layer
+                      ↓
+             Check relevant code
+                      ↓
+                 Fix it
+                      ↓
+                  Test again</code></pre></div>
+<p>This is much better than randomly modifying code.</p>
+<hr>
+<h1 id="h-1390-module-18-summary">🧠 Module 18 Summary</h1>
+<p>You should now know:</p>
+<ul>
+<li>What debugging means</li>
+<li>Error vs bug</li>
+<li><code>DEBUG=True</code></li>
+<li>Why production uses <code>DEBUG=False</code></li>
+<li>Tracebacks</li>
+<li><code>SyntaxError</code></li>
+<li><code>NameError</code></li>
+<li><code>ImportError</code></li>
+<li><code>ModuleNotFoundError</code></li>
+<li><code>TemplateDoesNotExist</code></li>
+<li><code>NoReverseMatch</code></li>
+<li><code>ViewDoesNotExist</code></li>
+<li><code>AttributeError</code></li>
+<li><code>TypeError</code></li>
+<li><code>DoesNotExist</code></li>
+<li><code>OperationalError</code></li>
+<li>404/403/500</li>
+<li><code>print()</code></li>
+<li><code>breakpoint()</code></li>
+<li>VS Code debugging</li>
+<li>Systematic debugging</li>
+</ul>
+<h3 id="h-1391-the-most-important-exam-answer">The most important exam answer:</h3>
+<blockquote><strong>Debugging is the systematic process of identifying, locating, analyzing, and correcting errors or unexpected behavior in a program.</strong></blockquote>
+<p>And the most important practical rule:</p>
+<blockquote><strong>Always read the exception type, error message, and traceback before changing your code.</strong></blockquote>
+<hr>
+<h2 id="h-1392-next-module-19-testing-in-django">Next → Module 19: Testing in Django</h2>
+<p>We'll cover <strong>Django testing from beginner to coding/viva level</strong>:</p>
+<ul>
+<li>Why testing is required</li>
+<li>Unit testing</li>
+<li>Django <code>TestCase</code></li>
+<li><code>tests.py</code></li>
+<li>Testing views</li>
+<li>Testing URLs</li>
+<li>Django test client</li>
+<li>GET/POST testing</li>
+<li>Status codes</li>
+<li><code>assertEqual</code></li>
+<li><code>assertContains</code></li>
+<li><code>assertRedirects</code></li>
+<li>Testing templates</li>
+<li>Running tests</li>
+<li>Test discovery</li>
+<li>Test database</li>
+<li>Common testing mistakes</li>
+<li>Viva + coding questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-17.html">← Module 17: Template Inheritance</a>
+<a class="pn-btn pn-next" href="module-19.html">Module 19: Testing in Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

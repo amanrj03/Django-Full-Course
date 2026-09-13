@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 32: Django Admin — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 32 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 32 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Admin</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<span class="nav-item current">32. Django Admin</span>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-31.html">← Module 31: Relationships &amp; Foreign Keys</a>
+<a class="pn-btn pn-next" href="module-33.html">Module 33: Users, Groups &amp; Permissions →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2622-module-32-django-admin">Module 32 — Django Admin</h1>
+<p>Django Admin is one of Django's biggest advantages.</p>
+<p>Instead of building a separate interface to manage database records, Django can automatically provide an <strong>administration panel</strong> where authorized users can:</p>
+<ul>
+<li>Add records</li>
+<li>View records</li>
+<li>Edit records</li>
+<li>Delete records</li>
+<li>Search records</li>
+<li>Filter records</li>
+<li>Manage users</li>
+<li>Manage permissions</li>
+</ul>
+<hr>
+<h1 id="h-2623-1-what-is-django-admin">1. What Is Django Admin?</h1>
+<p>Django Admin is a <strong>built-in web-based administration interface</strong> provided by Django.</p>
+<p>It works with your Django models.</p>
+<p>For example, if you have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    marks = models.IntegerField()</code></pre></div>
+<p>you can register <code>Student</code> with Django Admin and manage students through a browser.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model
+  ↓
+Register in Admin
+  ↓
+Django generates admin interface
+  ↓
+Browser
+  ↓
+/admin/</code></pre></div>
+<hr>
+<h1 id="h-2624-2-why-is-django-admin-useful">2. Why Is Django Admin Useful?</h1>
+<p>Imagine your application has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1000 students
+500 courses
+50 teachers</code></pre></div>
+<p>You don't want to create custom CRUD pages just for administrators to manage all this data.</p>
+<p>Django Admin gives you a ready-made interface.</p>
+<p>This is why Django is often described as having:</p>
+<blockquote><strong>"Batteries included."</strong></blockquote>
+<hr>
+<h1 id="h-2625-3-admin-url">3. Admin URL</h1>
+<p>In your project's <code>urls.py</code>, Django normally includes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+]</code></pre></div>
+<p>So the admin panel is available at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/admin/</code></pre></div>
+<p>assuming your development server is running.</p>
+<hr>
+<h1 id="h-2626-4-default-admin-setup">4. Default Admin Setup</h1>
+<p>When you create a Django project, Django normally already includes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'django.contrib.admin'</code></pre></div>
+<p>in:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>It also includes the necessary admin-related middleware and URL configuration in a standard project.</p>
+<p>So you generally don't have to build the admin system yourself.</p>
+<hr>
+<h1 id="h-2627-5-create-a-superuser">5. Create a Superuser</h1>
+<p>To log into the admin panel, create an administrative user.</p>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>Django will ask for details such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username:
+Email address:
+Password:
+Password (again):</code></pre></div>
+<p>After successful creation:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Superuser created successfully.</code></pre></div>
+<hr>
+<h1 id="h-2628-6-run-the-server">6. Run the Server</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>Then open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/admin/</code></pre></div>
+<p>Log in using the superuser credentials.</p>
+<hr>
+<h1 id="h-2629-7-what-is-a-superuser">7. What Is a Superuser?</h1>
+<p>A superuser is a user with all permissions by default.</p>
+<p>Typically, a superuser has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_staff = True
+is_superuser = True</code></pre></div>
+<p>and can access the admin site and perform administrative operations according to Django's permission system.</p>
+<hr>
+<h1 id="h-2630-8-create-your-first-admin-model">8. Create Your First Admin Model</h1>
+<p>Suppose your model is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)</code></pre></div>
+<p>Go to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/admin.py</code></pre></div>
+<p>Import the model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<p>That's enough to make the model appear in the admin interface.</p>
+<hr>
+<h1 id="h-2631-9-complete-basic-admin-py">9. Complete Basic <code>admin.py</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)</code></pre></div>
+<p>Now restart/refresh the admin page.</p>
+<p>You should see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students</code></pre></div>
+<hr>
+<h1 id="h-2632-10-why-admin-site-register">10. Why <code>admin.site.register()</code>?</h1>
+<p>This tells Django:</p>
+<blockquote>Make this model available in the Django Admin site.</blockquote>
+<p>Without registration:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    ...</code></pre></div>
+<p>the model exists in the database, but it won't automatically appear in the default admin interface.</p>
+<hr>
+<h1 id="h-2633-11-adding-a-student-through-admin">11. Adding a Student Through Admin</h1>
+<p>Once registered:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Admin
+ ↓
+Students
+ ↓
+Add Student</code></pre></div>
+<p>You can enter:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman
+Age: 21
+Email: aman@gmail.com
+Course: CSE
+Marks: 85</code></pre></div>
+<p>Then click:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Save</code></pre></div>
+<p>Django saves the object to the database.</p>
+<p>So Admin is effectively giving you a UI over Django's model/database functionality.</p>
+<hr>
+<h1 id="h-2634-12-admin-and-orm">12. Admin and ORM</h1>
+<p>Remember what you learned earlier.</p>
+<p>When you use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Admin → Add Student</code></pre></div>
+<p>Django ultimately uses its model/database machinery to persist the data.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Admin Form
+    ↓
+Validation
+    ↓
+Model
+    ↓
+ORM
+    ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-2635-13-basic-admin-is-often-not-enough">13. Basic Admin Is Often Not Enough</h1>
+<p>Suppose your Student model has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id
+name
+age
+email
+course
+marks
+is_active</code></pre></div>
+<p>The default admin interface works, but perhaps you want:</p>
+<ul>
+<li>Name visible in list</li>
+<li>Course visible</li>
+<li>Marks visible</li>
+<li>Search by name/email</li>
+<li>Filter by course</li>
+<li>Sort by marks</li>
+<li>Make ID readonly</li>
+<li>Customize how records are displayed</li>
+</ul>
+<p>For that, use <code>ModelAdmin</code>.</p>
+<hr>
+<h1 id="h-2636-14-modeladmin">14. <code>ModelAdmin</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+
+class StudentAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+
+admin.site.register(Student, StudentAdmin)</code></pre></div>
+<p>Now the student list page displays those fields.</p>
+<hr>
+<h1 id="h-2637-15-list-display">15. <code>list_display</code></h1>
+<p><code>list_display</code> controls the columns shown on the model's list page.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_display = (
+    "name",
+    "course",
+    "marks",
+)</code></pre></div>
+<p>Instead of showing only a generic representation, the admin list can show:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Name</th>
+<th>Course</th>
+<th>Marks</th>
+</tr></thead><tbody>
+<tr>
+<td>Aman</td>
+<td>CSE</td>
+<td>85</td>
+</tr>
+<tr>
+<td>Rahul</td>
+<td>ECE</td>
+<td>75</td>
+</tr>
+<tr>
+<td>Priya</td>
+<td>CSE</td>
+<td>92</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2638-16-list-display-with-str">16. <code>list_display</code> With <code>__str__()</code></h1>
+<p>If you have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def __str__(self):
+    return self.name</code></pre></div>
+<p>Django has a human-readable representation for each object.</p>
+<p>But <code>list_display</code> lets you show multiple fields in the list.</p>
+<hr>
+<h1 id="h-2639-17-search-fields">17. <code>search_fields</code></h1>
+<p>Suppose you want administrators to search students.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )</code></pre></div>
+<p>Now the admin page provides a search box.</p>
+<p>Searching:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>can find matching students.</p>
+<hr>
+<h1 id="h-2640-18-what-can-search-fields-search">18. What Can <code>search_fields</code> Search?</h1>
+<p>It can search fields such as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>search_fields = (
+    "name",
+    "email",
+    "course",
+)</code></pre></div>
+<p>It can also traverse relationships.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>search_fields = (
+    "name",
+    "department__name",
+)</code></pre></div>
+<p>This uses the same double-underscore relationship traversal you learned in ORM.</p>
+<hr>
+<h1 id="h-2641-19-list-filter">19. <code>list_filter</code></h1>
+<p>Suppose you want filters on the right side of the admin page.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_filter = (
+    "course",
+    "is_active",
+)</code></pre></div>
+<p>Now administrators can filter records based on those fields.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Filter
+ ├── CSE
+ ├── ECE
+ └── IT</code></pre></div>
+<hr>
+<h1 id="h-2642-20-ordering">20. <code>ordering</code></h1>
+<p>You can control default ordering:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>ordering = (
+    "-marks",
+)</code></pre></div>
+<p>This means:</p>
+<blockquote>Show highest marks first.</blockquote>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks</code></pre></div>
+<p>means ascending.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>-marks</code></pre></div>
+<p>means descending.</p>
+<hr>
+<h1 id="h-2643-21-list-per-page">21. <code>list_per_page</code></h1>
+<p>Suppose there are thousands of students.</p>
+<p>You can control how many appear per page:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_per_page = 20</code></pre></div>
+<p>Now the admin list shows 20 records per page.</p>
+<hr>
+<h1 id="h-2644-22-list-editable">22. <code>list_editable</code></h1>
+<p>Some fields can be edited directly from the list page.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_display = (
+    "name",
+    "course",
+    "marks",
+)
+
+list_editable = (
+    "marks",
+)</code></pre></div>
+<p>Now marks can be edited directly in the list view.</p>
+<h3 id="h-2645-important">Important:</h3>
+<p>A field in <code>list_editable</code> must also be present in <code>list_display</code>.</p>
+<hr>
+<h1 id="h-2646-23-important-list-editable-rule">23. Important <code>list_editable</code> Rule</h1>
+<p>This is a common viva/trick question.</p>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_display = (
+    "name",
+    "course",
+)
+
+list_editable = (
+    "marks",
+)</code></pre></div>
+<p>because <code>marks</code> isn't displayed.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_display = (
+    "name",
+    "course",
+    "marks",
+)
+
+list_editable = (
+    "marks",
+)</code></pre></div>
+<hr>
+<h1 id="h-2647-24-readonly-fields">24. <code>readonly_fields</code></h1>
+<p>Suppose you don't want administrators to change a field manually.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>readonly_fields = (
+    "id",
+)</code></pre></div>
+<p>Now <code>id</code> is displayed but cannot be edited through the admin form.</p>
+<p>You can also make timestamp fields read-only.</p>
+<hr>
+<h1 id="h-2648-25-fieldsets">25. <code>fieldsets</code></h1>
+<p>For more control over the add/edit form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>fieldsets = (
+    (
+        "Personal Information",
+        {
+            "fields": (
+                "name",
+                "age",
+                "email",
+            )
+        }
+    ),
+    (
+        "Academic Information",
+        {
+            "fields": (
+                "course",
+                "marks",
+            )
+        }
+    ),
+)</code></pre></div>
+<p>This groups fields into sections.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Personal Information
+--------------------
+Name
+Age
+Email
+
+Academic Information
+--------------------
+Course
+Marks</code></pre></div>
+<hr>
+<h1 id="h-2649-26-exclude">26. <code>exclude</code></h1>
+<p>You can exclude a field from the admin form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>exclude = (
+    "is_active",
+)</code></pre></div>
+<p>The field won't appear in the admin form.</p>
+<p>Be careful: this is a UI/form configuration; it doesn't remove the field from the database.</p>
+<hr>
+<h1 id="h-2650-27-complete-modeladmin">27. Complete <code>ModelAdmin</code></h1>
+<p>A useful example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+        "is_active",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )
+
+    list_per_page = 20
+
+    readonly_fields = (
+        "id",
+    )</code></pre></div>
+<p>This is a very useful pattern to remember.</p>
+<hr>
+<h1 id="h-2651-28-admin-register">28. <code>@admin.register()</code></h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student, StudentAdmin)</code></pre></div>
+<p>you can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    ...</code></pre></div>
+<p>This decorator registers the model with the admin site.</p>
+<p>Both approaches are valid.</p>
+<hr>
+<h1 id="h-2652-29-two-registration-styles">29. Two Registration Styles</h1>
+<h3 id="h-2653-style-1">Style 1</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentAdmin(admin.ModelAdmin):
+    list_display = ("name", "marks")
+
+
+admin.site.register(Student, StudentAdmin)</code></pre></div>
+<h3 id="h-2654-style-2">Style 2</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ("name", "marks")</code></pre></div>
+<p>The second is concise and commonly used in modern Django code.</p>
+<hr>
+<h1 id="h-2655-30-admin-with-foreignkey">30. Admin With ForeignKey</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )</code></pre></div>
+<p>In the Student admin form, Django can provide a selection for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department:
+[ CSE ▼ ]</code></pre></div>
+<p>You don't manually enter <code>department_id</code> in the normal admin form.</p>
+<hr>
+<h1 id="h-2656-31-admin-for-department">31. Admin for Department</h1>
+<p>You can also register:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+    )
+
+    search_fields = (
+        "name",
+    )</code></pre></div>
+<p>Now both models can be managed.</p>
+<hr>
+<h1 id="h-2657-32-admin-and-str">32. Admin and <code>__str__()</code></h1>
+<p>This is another reason <code>__str__()</code> matters.</p>
+<p>Suppose Department has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def __str__(self):
+    return self.name</code></pre></div>
+<p>Then in the Student admin form, instead of seeing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department object (1)
+Department object (2)</code></pre></div>
+<p>you can see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ECE
+IT</code></pre></div>
+<p>Much easier for administrators.</p>
+<hr>
+<h1 id="h-2658-33-custom-admin-methods">33. Custom Admin Methods</h1>
+<p>You can display calculated information.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "marks",
+        "result",
+    )
+
+    def result(self, obj):
+        if obj.marks &gt;= 40:
+            return "Pass"
+        return "Fail"</code></pre></div>
+<p>Now the admin list can show:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Name</th>
+<th>Marks</th>
+<th>Result</th>
+</tr></thead><tbody>
+<tr>
+<td>Aman</td>
+<td>85</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Rahul</td>
+<td>32</td>
+<td>Fail</td>
+</tr>
+</tbody></table></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>result(self, obj)</code></pre></div>
+<p>is an admin display method.</p>
+<hr>
+<h1 id="h-2659-34-admin-display">34. <code>@admin.display</code></h1>
+<p>Modern Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.display(description="Result")
+def result(self, obj):
+    if obj.marks &gt;= 40:
+        return "Pass"
+    return "Fail"</code></pre></div>
+<p>Now the column heading can be:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Result</code></pre></div>
+<p>instead of the method name.</p>
+<hr>
+<h1 id="h-2660-35-admin-display-method-example">35. Admin Display Method Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "marks",
+        "result",
+    )
+
+    @admin.display(description="Result")
+    def result(self, obj):
+        if obj.marks &gt;= 40:
+            return "Pass"
+
+        return "Fail"</code></pre></div>
+<hr>
+<h1 id="h-2661-36-admin-actions">36. Admin Actions</h1>
+<p>Django Admin allows administrators to perform an action on multiple selected records.</p>
+<p>For example:</p>
+<blockquote>Mark selected students as active.</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.action(description="Mark selected students as active")
+def make_active(modeladmin, request, queryset):
+    queryset.update(is_active=True)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    actions = (
+        make_active,
+    )</code></pre></div>
+<p>Now administrators can select multiple students and apply the action.</p>
+<hr>
+<h1 id="h-2662-37-why-admin-actions-are-useful">37. Why Admin Actions Are Useful</h1>
+<p>Imagine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>10,000 students</code></pre></div>
+<p>You don't want to edit them individually.</p>
+<p>An admin action can perform a bulk operation:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Select students
+      ↓
+Choose action
+      ↓
+Update selected records</code></pre></div>
+<p>This connects directly with the ORM:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>queryset.update(...)</code></pre></div>
+<p>which you learned in Module 29/30.</p>
+<hr>
+<h1 id="h-2663-38-admin-permissions">38. Admin Permissions</h1>
+<p>Django's authentication system includes permissions.</p>
+<p>Typical model permissions include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>add
+change
+delete
+view</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can add student
+Can change student
+Can delete student
+Can view student</code></pre></div>
+<p>These permissions can be assigned to users and groups.</p>
+<p>We'll go deeper into this in <strong>Module 33</strong>.</p>
+<hr>
+<h1 id="h-2664-39-staff-user-vs-superuser">39. Staff User vs Superuser</h1>
+<p>This distinction is important.</p>
+<h3 id="h-2665-staff">Staff</h3>
+<p>A user with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_staff = True</code></pre></div>
+<p>can access the Django admin interface, but their actual permissions determine what they can do.</p>
+<h3 id="h-2666-superuser">Superuser</h3>
+<p>A user with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_superuser = True</code></pre></div>
+<p>has all permissions by default.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Staff ≠ automatically full access
+Superuser = full permissions</code></pre></div>
+<hr>
+<h1 id="h-2667-40-django-admin-does-not-replace-your-frontend">40. Django Admin Does Not Replace Your Frontend</h1>
+<p>This is important conceptually.</p>
+<p>Django Admin is mainly designed for:</p>
+<blockquote><strong>trusted/internal administration</strong></blockquote>
+<p>It is not normally intended to be the public-facing interface of your application.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Public website
+    ↓
+Custom templates/views
+
+Admin
+    ↓
+Internal management</code></pre></div>
+<hr>
+<h1 id="h-2668-41-admin-security">41. Admin Security</h1>
+<p>Never treat the admin panel as something that should be exposed carelessly.</p>
+<p>Important practices include:</p>
+<ul>
+<li>Use strong passwords</li>
+<li>Use HTTPS in production</li>
+<li>Restrict administrative access appropriately</li>
+<li>Use least-privilege permissions for staff</li>
+<li>Keep Django and dependencies updated</li>
+<li>Don't expose sensitive information unnecessarily</li>
+</ul>
+<hr>
+<h1 id="h-2669-42-common-admin-error">42. Common Admin Error</h1>
+<h3 id="h-2670-error">Error:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student doesn't appear in admin.</code></pre></div>
+<p>Check:</p>
+<h3 id="h-2671-1-is-the-model-registered">1. Is the model registered?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<h3 id="h-2672-2-is-the-app-installed">2. Is the app installed?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<h3 id="h-2673-3-is-the-admin-url-configured">3. Is the admin URL configured?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path("admin/", admin.site.urls)</code></pre></div>
+<h3 id="h-2674-4-is-the-server-running">4. Is the server running?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<h3 id="h-2675-5-are-you-logged-in-with-a-user-who-can-access-adm">5. Are you logged in with a user who can access admin?</h3>
+<hr>
+<h1 id="h-2676-43-another-common-error">43. Another Common Error</h1>
+<p>You registered:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<p>but get an import error.</p>
+<p>Check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from .models import Student</code></pre></div>
+<p>The model must be imported correctly.</p>
+<hr>
+<h1 id="h-2677-44-admin-workflow">44. Admin Workflow</h1>
+<p>Remember this complete process:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create Model
+     ↓
+Run migrations
+     ↓
+Register Model
+     ↓
+Create Superuser
+     ↓
+Run Server
+     ↓
+/admin/
+     ↓
+Login
+     ↓
+Manage Model</code></pre></div>
+<p>Commands:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver</code></pre></div>
+<hr>
+<h1 id="h-2678-45-practical-admin-setup">45. Practical Admin Setup</h1>
+<p>Suppose your <code>Student</code> model is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name</code></pre></div>
+<p>Your <code>admin.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+        "is_active",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )</code></pre></div>
+<p>This is a very good exam/interview example.</p>
+<hr>
+<h1 id="h-2679-46-what-happens-behind-the-scenes">46. What Happens Behind the Scenes?</h1>
+<p>Suppose you click:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Add Student</code></pre></div>
+<p>and submit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+21
+CSE
+85</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Admin URL
+   ↓
+Django Admin
+   ↓
+Admin form
+   ↓
+Validation
+   ↓
+Student model
+   ↓
+ORM
+   ↓
+Database</code></pre></div>
+<p>When you open the list:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+   ↓
+ORM
+   ↓
+Admin
+   ↓
+HTML
+   ↓
+Browser</code></pre></div>
+<p>So Django Admin is built on top of Django's existing framework machinery.</p>
+<hr>
+<h1 id="h-2680-47-viva-masterclass">47. Viva Masterclass</h1>
+<h3 id="h-2681-q1-what-is-django-admin">Q1. What is Django Admin?</h3>
+<blockquote>Django Admin is Django's built-in web-based administrative interface for managing application data and users.</blockquote>
+<hr>
+<h3 id="h-2682-q2-how-do-you-register-a-model">Q2. How do you register a model?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<hr>
+<h3 id="h-2683-q3-where-do-you-normally-register-models">Q3. Where do you normally register models?</h3>
+<blockquote>In the app's <code>admin.py</code> file.</blockquote>
+<hr>
+<h3 id="h-2684-q4-how-do-you-create-a-superuser">Q4. How do you create a superuser?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<hr>
+<h3 id="h-2685-q5-what-url-is-commonly-used-for-admin">Q5. What URL is commonly used for admin?</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/admin/</code></pre></div>
+<p>For a local development server:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/admin/</code></pre></div>
+<hr>
+<h3 id="h-2686-q6-what-is-modeladmin">Q6. What is <code>ModelAdmin</code>?</h3>
+<blockquote><code>ModelAdmin</code> is used to customize how a model is displayed and managed in Django Admin.</blockquote>
+<hr>
+<h3 id="h-2687-q7-what-is-list-display">Q7. What is <code>list_display</code>?</h3>
+<blockquote>It specifies the fields or display methods shown as columns in the model's admin list page.</blockquote>
+<hr>
+<h3 id="h-2688-q8-what-is-search-fields">Q8. What is <code>search_fields</code>?</h3>
+<blockquote>It specifies fields that Django Admin should search when the administrator uses the search box.</blockquote>
+<hr>
+<h3 id="h-2689-q9-what-is-list-filter">Q9. What is <code>list_filter</code>?</h3>
+<blockquote>It specifies fields that can be used to filter records in the admin list page.</blockquote>
+<hr>
+<h3 id="h-2690-q10-what-is-ordering">Q10. What is <code>ordering</code>?</h3>
+<blockquote>It specifies the default ordering of records in the admin list.</blockquote>
+<hr>
+<h3 id="h-2691-q11-what-is-readonly-fields">Q11. What is <code>readonly_fields</code>?</h3>
+<blockquote>It specifies fields displayed in the admin form that cannot be edited through that form.</blockquote>
+<hr>
+<h3 id="h-2692-q12-what-is-list-editable">Q12. What is <code>list_editable</code>?</h3>
+<blockquote>It allows specified fields to be edited directly from the admin list page.</blockquote>
+<hr>
+<h3 id="h-2693-q13-what-is-fieldsets">Q13. What is <code>fieldsets</code>?</h3>
+<blockquote>It allows fields in the admin form to be organized into sections.</blockquote>
+<hr>
+<h3 id="h-2694-q14-what-is-related-name-useful-for-in-admin">Q14. What is <code>related_name</code> useful for in Admin?</h3>
+<blockquote>It defines the reverse relationship name and can make related-object access and queries clearer.</blockquote>
+<hr>
+<h3 id="h-2695-q15-difference-between-staff-and-superuser">Q15. Difference between staff and superuser?</h3>
+<blockquote>A staff user can access the admin if permitted, while a superuser has all permissions by default.</blockquote>
+<hr>
+<h1 id="h-2696-48-common-interview-question">48. Common Interview Question</h1>
+<h3 id="h-2697-question">Question:</h3>
+<p>How would you customize Django Admin to display name, email and marks, add search and filtering?</p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+    )</code></pre></div>
+<p>You should be able to write this without looking.</p>
+<hr>
+<h1 id="h-2698-49-another-coding-question">49. Another Coding Question</h1>
+<h3 id="h-2699-question">Question:</h3>
+<p>Create an admin interface where students are sorted by highest marks first.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "marks",
+    )
+
+    ordering = (
+        "-marks",
+    )</code></pre></div>
+<hr>
+<h1 id="h-2700-50-another-coding-question">50. Another Coding Question</h1>
+<h3 id="h-2701-question">Question:</h3>
+<p>Make student IDs read-only.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    readonly_fields = (
+        "id",
+    )</code></pre></div>
+<hr>
+<h1 id="h-2702-51-another-coding-question">51. Another Coding Question</h1>
+<h3 id="h-2703-question">Question:</h3>
+<p>Allow administrators to search by student name and email.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>search_fields = (
+    "name",
+    "email",
+)</code></pre></div>
+<hr>
+<h1 id="h-2704-52-another-coding-question">52. Another Coding Question</h1>
+<h3 id="h-2705-question">Question:</h3>
+<p>Allow filtering by course and active status.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_filter = (
+    "course",
+    "is_active",
+)</code></pre></div>
+<hr>
+<h1 id="h-2706-53-most-important-admin-cheat-sheet">53. Most Important Admin Cheat Sheet</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student</code></pre></div>
+<h3 id="h-2707-basic-registration">Basic registration</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<h3 id="h-2708-customized-registration">Customized registration</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )</code></pre></div>
+<h3 id="h-2709-superuser">Superuser</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<h3 id="h-2710-admin-url">Admin URL</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/admin/</code></pre></div>
+<hr>
+<h1 id="h-2711-54-final-mental-map">54. Final Mental Map</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    DJANGO ADMIN
+                         │
+             ┌───────────┴───────────┐
+             ↓                       ↓
+         Authentication           Models
+             │                       │
+       Superuser/Staff          Register model
+             │                       │
+             └───────────┬───────────┘
+                         ↓
+                    ModelAdmin
+                         │
+        ┌────────────────┼────────────────┐
+        ↓                ↓                ↓
+ list_display       search_fields     list_filter
+        │
+        ├── ordering
+        ├── readonly_fields
+        ├── list_editable
+        ├── fieldsets
+        └── actions</code></pre></div>
+<h2 id="h-2712-what-you-absolutely-need-to-remember">What you absolutely need to remember</h2>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>createsuperuser
+      ↓
+login to /admin/
+      ↓
+admin.site.register(Model)
+      ↓
+ModelAdmin
+      ↓
+list_display
+search_fields
+list_filter
+ordering
+readonly_fields
+list_editable
+fieldsets
+actions</code></pre></div>
+<p>And one very important conceptual distinction:</p>
+<blockquote><strong>Django Admin is an internal management interface generated around your models; it is not the same thing as the public UI of your application.</strong></blockquote>
+<p><strong>Next → Module 33: Django Users, Groups &amp; Permissions</strong></p>
+<p>We'll learn Django's authentication/authorization system in depth: <strong>User model, staff vs superuser, groups, permissions, <code>has_perm()</code>, <code>user.is_authenticated</code>, <code>login_required</code>, assigning permissions, and restricting what different users can do.</strong></p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-31.html">← Module 31: Relationships &amp; Foreign Keys</a>
+<a class="pn-btn pn-next" href="module-33.html">Module 33: Users, Groups &amp; Permissions →</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 39: Protecting Views — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 39 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 39 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Protecting Views</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<span class="nav-item current">39. Protecting Views</span>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-38.html">← Module 38: Django Login &amp; Logout</a>
+<a class="pn-btn pn-next" href="module-40.html">Module 40: Complete CRUD Project →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3347-module-39-protecting-views-in-django">Module 39 — Protecting Views in Django</h1>
+<p>This module completes the <strong>authentication + authorization</strong> part of the syllabus.</p>
+<p>You already know how to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+Session
+ ↓
+request.user
+ ↓
+logout()</code></pre></div>
+<p>But there's a problem:</p>
+<blockquote>What prevents an unauthenticated user from directly visiting <code>/dashboard/</code>?</blockquote>
+<p>For example, someone could simply type:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/dashboard/</code></pre></div>
+<p>into the browser.</p>
+<p>We need to <strong>protect the view</strong>.</p>
+<hr>
+<h1 id="h-3348-1-what-does-protect-a-view-mean">1. What Does "Protect a View" Mean?</h1>
+<p>Protecting a view means controlling <strong>who can access it</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/</code></pre></div>
+<p>should only be accessible to logged-in users.</p>
+<p>Or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/admin-panel/</code></pre></div>
+<p>might only be accessible to users with a particular permission.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   ↓
+Check user
+   ↓
+Allowed? ── No ──→ Deny / Redirect
+   │
+  Yes
+   ↓
+View executes</code></pre></div>
+<hr>
+<h1 id="h-3349-2-authentication-vs-authorization">2. Authentication vs Authorization</h1>
+<p>Again, this distinction is extremely important.</p>
+<h3 id="h-3350-authentication">Authentication</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>WHO are you?</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<h3 id="h-3351-authorization">Authorization</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>WHAT are you allowed to do?</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication → Identity
+Authorization  → Access</code></pre></div>
+<hr>
+<h1 id="h-3352-3-the-simplest-way-to-protect-a-view">3. The Simplest Way to Protect a View</h1>
+<p>You can manually check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def dashboard(request):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<p>This works.</p>
+<p>But Django provides a much cleaner solution:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<hr>
+<h1 id="h-3353-4-login-required">4. <code>login_required</code></h1>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<p>That's it.</p>
+<hr>
+<h1 id="h-3354-5-how-login-required-works">5. How <code>@login_required</code> Works</h1>
+<p>Suppose an unauthenticated user requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/</code></pre></div>
+<p>Django checks:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>the view executes.</p>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<p>Django redirects the user to the configured login page.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/
+     ↓
+@login_required
+     ↓
+Authenticated?
+  ┌──┴──┐
+ YES    NO
+  ↓      ↓
+View    Login</code></pre></div>
+<hr>
+<h1 id="h-3355-6-complete-example">6. Complete Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<p>Now the dashboard requires authentication.</p>
+<hr>
+<h1 id="h-3356-7-what-happens-to-an-unauthenticated-user">7. What Happens to an Unauthenticated User?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/</code></pre></div>
+<p>requires login.</p>
+<p>A user who isn't logged in may be redirected to something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/?next=/dashboard/</code></pre></div>
+<p>The important part is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>next=/dashboard/</code></pre></div>
+<hr>
+<h1 id="h-3357-8-what-is-next">8. What Is <code>next</code>?</h1>
+<p><code>next</code> tells Django:</p>
+<blockquote>"After successful login, return the user to the page they originally requested."</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User requests:
+/dashboard/</code></pre></div>
+<p>Not logged in.</p>
+<p>Django redirects:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/?next=/dashboard/</code></pre></div>
+<p>After login:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/</code></pre></div>
+<p>This gives a much better user experience.</p>
+<hr>
+<h1 id="h-3358-9-login-url">9. <code>LOGIN_URL</code></h1>
+<p>Django needs to know where your login page is.</p>
+<p>In <code>settings.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "/login/"</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<p>will redirect unauthenticated users toward:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/</code></pre></div>
+<hr>
+<h1 id="h-3359-10-using-a-named-url">10. Using a Named URL</h1>
+<p>You can also configure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "login"</code></pre></div>
+<p>if <code>login</code> is the name of your URL pattern and the URL is resolvable in your project's URL configuration.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "login/",
+    views.login_view,
+    name="login"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "login"</code></pre></div>
+<hr>
+<h1 id="h-3360-11-login-redirect-url">11. <code>LOGIN_REDIRECT_URL</code></h1>
+<p>After successful login, Django's authentication views can redirect users to a configured default destination.</p>
+<p>In <code>settings.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_REDIRECT_URL = "/dashboard/"</code></pre></div>
+<p>Or using a named URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_REDIRECT_URL = "dashboard"</code></pre></div>
+<hr>
+<h1 id="h-3361-12-logout-redirect-url">12. <code>LOGOUT_REDIRECT_URL</code></h1>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGOUT_REDIRECT_URL = "/login/"</code></pre></div>
+<p>can specify where users should be redirected after logout when using Django's authentication logout mechanisms.</p>
+<hr>
+<h1 id="h-3362-13-important-settings">13. Important Settings</h1>
+<p>Remember these:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "/login/"
+
+LOGIN_REDIRECT_URL = "/dashboard/"
+
+LOGOUT_REDIRECT_URL = "/login/"</code></pre></div>
+<p>Mental model:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>LOGIN_URL
+     ↓
+Where to go to login
+
+LOGIN_REDIRECT_URL
+     ↓
+Where to go after login
+
+LOGOUT_REDIRECT_URL
+     ↓
+Where to go after logout</code></pre></div>
+<hr>
+<h1 id="h-3363-14-protecting-multiple-views">14. Protecting Multiple Views</h1>
+<p>You can use the decorator on multiple views:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...
+
+
+@login_required
+def profile(request):
+    ...
+
+
+@login_required
+def orders(request):
+    ...</code></pre></div>
+<p>Every decorated view requires authentication.</p>
+<hr>
+<h1 id="h-3364-15-login-required-does-not-check-permissions">15. <code>@login_required</code> Does Not Check Permissions</h1>
+<p>This is VERY important.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>This only means:</p>
+<blockquote>The user must be logged in.</blockquote>
+<p>It does <strong>not</strong> mean:</p>
+<blockquote>The user has permission to delete students.</blockquote>
+<p>An authenticated normal user could potentially access it if there are no further checks.</p>
+<hr>
+<h1 id="h-3365-16-authentication-vs-permission">16. Authentication vs Permission</h1>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>@login_required
+       ↓
+"Are you logged in?"</code></pre></div>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student"
+)</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Do you have this specific permission?"</code></pre></div>
+<hr>
+<h1 id="h-3366-17-permission-required">17. <code>permission_required</code></h1>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import permission_required</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+
+    ...</code></pre></div>
+<p>Now Django checks whether the current user has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students.delete_student</code></pre></div>
+<hr>
+<h1 id="h-3367-18-combining-authentication-and-permission">18. Combining Authentication and Permission</h1>
+<p>A very common pattern is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+
+    ...</code></pre></div>
+<p>This gives two layers:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Logged in?
+ ↓
+Has delete permission?
+ ↓
+Execute</code></pre></div>
+<hr>
+<h1 id="h-3368-19-permission-required-and-unauthenticated-users">19. <code>permission_required</code> and Unauthenticated Users</h1>
+<p>Django's permission decorator can handle access based on permissions.</p>
+<p>For unauthenticated users, you commonly want them directed to login.</p>
+<p>For authenticated users without the permission, you may want a <strong>403 Forbidden</strong> response.</p>
+<p>This distinction is important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Not authenticated
+       ↓
+Login required
+
+Authenticated but not authorized
+       ↓
+403 Forbidden</code></pre></div>
+<hr>
+<h1 id="h-3369-20-raise-exception-true">20. <code>raise_exception=True</code></h1>
+<p>You can explicitly tell <code>permission_required</code> to raise <code>PermissionDenied</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>Then a logged-in user without the permission gets a <strong>403 Forbidden</strong> rather than being redirected to login.</p>
+<hr>
+<h1 id="h-3370-21-302-vs-403">21. 302 vs 403</h1>
+<p>This is a common interview/viva question.</p>
+<h3 id="h-3371-unauthenticated-user">Unauthenticated user</h3>
+<p>Often redirected to login:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>302 Redirect</code></pre></div>
+<h3 id="h-3372-authenticated-but-unauthorized-user">Authenticated but unauthorized user</h3>
+<p>Typically:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Not logged in
+    ↓
+Login
+
+Logged in but no permission
+    ↓
+403</code></pre></div>
+<hr>
+<h1 id="h-3373-22-has-perm">22. <code>has_perm()</code></h1>
+<p>You can manually check permissions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.has_perm(
+    "students.delete_student"
+):
+    ...</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_student(request, id):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    if not request.user.has_perm(
+        "students.delete_student"
+    ):
+        return HttpResponse(
+            "Permission denied",
+            status=403
+        )
+
+    ...</code></pre></div>
+<p>This works, but decorators often make simple view-level checks cleaner.</p>
+<hr>
+<h1 id="h-3374-23-has-perm-returns-boolean">23. <code>has_perm()</code> Returns Boolean</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.has_perm(
+    "students.change_student"
+):
+    print("Allowed")</code></pre></div>
+<hr>
+<h1 id="h-3375-24-permission-comes-from-user-or-group">24. Permission Comes From User or Group</h1>
+<p>A user can get a permission directly:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Permission</code></pre></div>
+<p>or through a group:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Group
+ ↓
+Permission</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+ ↓
+Teachers
+ ↓
+students.change_student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.change_student"
+)</code></pre></div>
+<p>can return:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<hr>
+<h1 id="h-3376-25-protecting-a-delete-view">25. Protecting a Delete View</h1>
+<p>Suppose we have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    student.delete()
+
+    return redirect(
+        "student_list"
+    )</code></pre></div>
+<p>This is a good example combining multiple concepts we've learned.</p>
+<hr>
+<h1 id="h-3377-26-let-s-break-it-down">26. Let's Break It Down</h1>
+<h3 id="h-3378-first">First:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<p>User must be authenticated.</p>
+<h3 id="h-3379-second">Second:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)</code></pre></div>
+<p>User must have delete permission.</p>
+<h3 id="h-3380-third">Third:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404(...)</code></pre></div>
+<p>Retrieve the student or return 404.</p>
+<h3 id="h-3381-fourth">Fourth:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>Delete the object.</p>
+<h3 id="h-3382-fifth">Fifth:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect("student_list")</code></pre></div>
+<p>Follow POST-Redirect-GET if this operation is performed through POST.</p>
+<hr>
+<h1 id="h-3383-27-decorator-order">27. Decorator Order</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>The decorators are applied from the bottom upward.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>permission_required
+       ↓
+login_required
+       ↓
+view</code></pre></div>
+<p>For simple Django usage, the common combination above is understandable and useful.</p>
+<hr>
+<h1 id="h-3384-28-protecting-crud-operations">28. Protecting CRUD Operations</h1>
+<p>Suppose your application has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student CRUD</code></pre></div>
+<p>You may want:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create → authenticated + add permission
+Read   → authenticated + view permission
+Update → authenticated + change permission
+Delete → authenticated + delete permission</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.add_student",
+    raise_exception=True
+)
+def create_student(request):
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3385-29-default-model-permissions">29. Default Model Permissions</h1>
+<p>As covered earlier, Django normally creates permissions such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>add_student
+change_student
+delete_student
+view_student</code></pre></div>
+<p>with the appropriate app label.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"students.add_student"</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"students.change_student"</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"students.delete_student"</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"students.view_student"</code></pre></div>
+<hr>
+<h1 id="h-3386-30-permission-naming">30. Permission Naming</h1>
+<p>The standard format:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>app_label.codename</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students.delete_student</code></pre></div>
+<p>Break it down:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+   ↓
+app label
+
+delete_student
+   ↓
+permission codename</code></pre></div>
+<hr>
+<h1 id="h-3387-31-class-based-views">31. Class-Based Views</h1>
+<p>So far we've used function-based views.</p>
+<p>For class-based views, Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LoginRequiredMixin</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+
+
+class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+
+    template_name = "dashboard.html"</code></pre></div>
+<p>Now authentication is required.</p>
+<hr>
+<h1 id="h-3388-32-loginrequiredmixin">32. <code>LoginRequiredMixin</code></h1>
+<p>Think of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LoginRequiredMixin</code></pre></div>
+<p>as the class-based-view equivalent of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Function-based view
+        ↓
+@login_required</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Class-based view
+        ↓
+LoginRequiredMixin</code></pre></div>
+<hr>
+<h1 id="h-3389-33-example-cbv-with-permission">33. Example CBV With Permission</h1>
+<p>Django also provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>PermissionRequiredMixin</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+)
+
+
+class DeleteStudentView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.delete_student"
+    )</code></pre></div>
+<p>This gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login required
++
+Permission required</code></pre></div>
+<hr>
+<h1 id="h-3390-34-permissionrequiredmixin">34. <code>PermissionRequiredMixin</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.delete_student"
+    )</code></pre></div>
+<p>This is the class-based-view equivalent of using permission checks/decorators.</p>
+<hr>
+<h1 id="h-3391-35-userpassestestmixin">35. <code>UserPassesTestMixin</code></h1>
+<p>Django also provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>UserPassesTestMixin</code></pre></div>
+<p>It lets you define custom access rules.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import (
+    UserPassesTestMixin
+)
+
+
+class TeacherView(UserPassesTestMixin):
+
+    def test_func(self):
+
+        return self.request.user.is_staff</code></pre></div>
+<p>The view is accessible only when:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_staff</code></pre></div>
+<p>is true.</p>
+<hr>
+<h1 id="h-3392-36-decorator-vs-mixin">36. Decorator vs Mixin</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Function-Based View</th>
+<th>Class-Based View</th>
+</tr></thead><tbody>
+<tr>
+<td><code>@login_required</code></td>
+<td><code>LoginRequiredMixin</code></td>
+</tr>
+<tr>
+<td><code>@permission_required</code></td>
+<td><code>PermissionRequiredMixin</code></td>
+</tr>
+<tr>
+<td>custom decorator/test</td>
+<td><code>UserPassesTestMixin</code></td>
+</tr>
+</tbody></table></div>
+<p>You should definitely know this for interviews.</p>
+<hr>
+<h1 id="h-3393-37-protecting-a-view-with-user-passes-test">37. Protecting a View With <code>user_passes_test</code></h1>
+<p>Django also provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user_passes_test</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import (
+    user_passes_test
+)
+
+
+def is_staff(user):
+    return user.is_staff
+
+
+@user_passes_test(is_staff)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )</code></pre></div>
+<p>Now only users satisfying:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff</code></pre></div>
+<p>can access the view.</p>
+<hr>
+<h1 id="h-3394-38-combining-login-required-and-user-passes-test">38. Combining <code>login_required</code> and <code>user_passes_test</code></h1>
+<p>You can write custom conditions.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+@user_passes_test(
+    lambda user: user.is_staff
+)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Must be logged in
++
+Must be staff</code></pre></div>
+<hr>
+<h1 id="h-3395-39-important-security-principle">39. Important Security Principle</h1>
+<p>Never rely only on hiding buttons.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% if user.is_staff %}
+    &lt;button&gt;Delete&lt;/button&gt;
+{% endif %}</code></pre></div>
+<p>This is useful for UI.</p>
+<p>But it is <strong>not sufficient security</strong>.</p>
+<p>A user can manually send a request to your delete URL.</p>
+<p>Therefore the server-side view must enforce authorization.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>UI restriction
+     +
+Server-side authorization</code></pre></div>
+<p>Both are useful, but the second is the actual security boundary.</p>
+<hr>
+<h1 id="h-3396-40-example-of-the-wrong-approach">40. Example of the Wrong Approach</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% if user.is_staff %}
+    &lt;a href="/delete/10/"&gt;Delete&lt;/a&gt;
+{% endif %}</code></pre></div>
+<p>You think:</p>
+<blockquote>"Only staff can delete."</blockquote>
+<p>Not necessarily.</p>
+<p>A malicious user could manually request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/delete/10/</code></pre></div>
+<p>Therefore your view should check permissions too.</p>
+<hr>
+<h1 id="h-3397-41-correct-approach">41. Correct Approach</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>Now the server itself enforces the rule.</p>
+<hr>
+<h1 id="h-3398-42-login-required-and-http-methods">42. <code>login_required</code> and HTTP Methods</h1>
+<p>Remember from Module 20:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+POST</code></pre></div>
+<p><code>@login_required</code> doesn't itself decide whether GET or POST is appropriate.</p>
+<p>You still need to design state-changing operations correctly.</p>
+<p>For example, deletion should normally be performed through POST:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+    &lt;button type="submit"&gt;
+        Delete
+    &lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3399-43-secure-delete-example">43. Secure Delete Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    if request.method == "POST":
+
+        student = get_object_or_404(
+            Student,
+            id=id
+        )
+
+        student.delete()
+
+        return redirect(
+            "student_list"
+        )
+
+    return HttpResponse(
+        "POST required",
+        status=405
+    )</code></pre></div>
+<p>This combines:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication
++
+Authorization
++
+CSRF
++
+POST
++
+404 handling
++
+Delete
++
+Redirect</code></pre></div>
+<p>That's a very strong Django example.</p>
+<hr>
+<h1 id="h-3400-44-login-url-example">44. <code>LOGIN_URL</code> Example</h1>
+<p>In <code>settings.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "login"</code></pre></div>
+<p>URLs:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "login/",
+    views.login_view,
+    name="login"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<p>Unauthenticated users are directed toward the login URL.</p>
+<hr>
+<h1 id="h-3401-45-next-parameter">45. <code>next</code> Parameter</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/dashboard/</code></pre></div>
+<p>requires login.</p>
+<p>The user isn't logged in.</p>
+<p>Django may produce:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/?next=/dashboard/</code></pre></div>
+<p>After successful login, the authentication system can use that information to return the user to the originally requested location, depending on the login flow.</p>
+<p>This is one reason <code>next</code> is useful.</p>
+<hr>
+<h1 id="h-3402-46-security-concern-with-next">46. Security Concern With <code>next</code></h1>
+<p>You should not blindly redirect users to arbitrary URLs supplied by request parameters.</p>
+<p>Django's built-in authentication mechanisms include protections around redirect destinations.</p>
+<p>When implementing custom login logic, be careful with user-controlled redirect URLs to avoid <strong>open redirect vulnerabilities</strong>.</p>
+<p>For a basic project, using Django's built-in authentication views/mechanisms is preferable.</p>
+<hr>
+<h1 id="h-3403-47-redirect-authenticated-user">47. <code>redirect_authenticated_user</code></h1>
+<p>You may encounter this option with Django's built-in <code>LoginView</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect_authenticated_user = True</code></pre></div>
+<p>It means an already-authenticated user can be redirected away from the login page.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.views import LoginView
+
+
+class MyLoginView(LoginView):
+
+    template_name = "login.html"
+
+    redirect_authenticated_user = True</code></pre></div>
+<p>This is more advanced, but useful to recognize.</p>
+<hr>
+<h1 id="h-3404-48-built-in-loginview">48. Built-in <code>LoginView</code></h1>
+<p>Django actually provides authentication views, so you don't always have to write the complete login logic yourself.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.views import LoginView</code></pre></div>
+<p>You can configure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "login/",
+    LoginView.as_view(
+        template_name="login.html"
+    ),
+    name="login"
+)</code></pre></div>
+<p>Then Django handles the standard login process.</p>
+<hr>
+<h1 id="h-3405-49-built-in-logoutview">49. Built-in <code>LogoutView</code></h1>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.views import LogoutView</code></pre></div>
+<p>can provide logout functionality.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "logout/",
+    LogoutView.as_view(),
+    name="logout"
+)</code></pre></div>
+<p>This is an important Django feature to know.</p>
+<hr>
+<h1 id="h-3406-50-custom-login-vs-built-in-login">50. Custom Login vs Built-In Login</h1>
+<h3 id="h-3407-custom-login">Custom login</h3>
+<p>You write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate()
+login()</code></pre></div>
+<p>yourself.</p>
+<p>Useful for learning and custom behavior.</p>
+<h3 id="h-3408-built-in-loginview">Built-in <code>LoginView</code></h3>
+<p>Django handles standard login flow.</p>
+<p>Useful when you want conventional authentication with less custom code.</p>
+<p>Both approaches are valid.</p>
+<hr>
+<h1 id="h-3409-51-complete-architecture">51. Complete Architecture</h1>
+<p>At this point, your understanding should look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                     USER
+                       │
+                       ↓
+                Login Form
+                       │
+                       ↓
+                 authenticate()
+                       │
+                       ↓
+                    login()
+                       │
+                       ↓
+                   SESSION
+                       │
+                       ↓
+                 request.user
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+       is_authenticated      has_perm()
+              ↓                 ↓
+       Authentication       Authorization
+              │                 │
+              └────────┬────────┘
+                       ↓
+                  Protected View</code></pre></div>
+<hr>
+<h1 id="h-3410-52-authentication-authorization-example">52. Authentication + Authorization Example</h1>
+<p>Suppose we have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student Management System</code></pre></div>
+<p>Rules:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Everyone → Can see login page
+
+Authenticated users → Dashboard
+
+Teachers → Edit students
+
+Admins → Delete students</code></pre></div>
+<p>Implementation concept:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<p>Teacher:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+def edit_student(request, id):
+    ...</code></pre></div>
+<p>Admin:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3411-53-common-viva-questions">53. Common Viva Questions</h1>
+<h3 id="h-3412-q1-what-is-login-required">Q1. What is <code>@login_required</code>?</h3>
+<blockquote>It is a Django decorator that restricts a view to authenticated users.</blockquote>
+<hr>
+<h3 id="h-3413-q2-what-happens-when-an-unauthenticated-user-acces">Q2. What happens when an unauthenticated user accesses a <code>login_required</code> view?</h3>
+<blockquote>Django redirects the user to the configured login URL, commonly including a <code>next</code> parameter containing the originally requested URL.</blockquote>
+<hr>
+<h3 id="h-3414-q3-what-is-login-url">Q3. What is <code>LOGIN_URL</code>?</h3>
+<blockquote>It specifies the URL or named URL where unauthenticated users should be sent to log in.</blockquote>
+<hr>
+<h3 id="h-3415-q4-what-is-login-redirect-url">Q4. What is <code>LOGIN_REDIRECT_URL</code>?</h3>
+<blockquote>It specifies the default destination after successful login for the relevant authentication flow.</blockquote>
+<hr>
+<h3 id="h-3416-q5-what-is-logout-redirect-url">Q5. What is <code>LOGOUT_REDIRECT_URL</code>?</h3>
+<blockquote>It specifies the default destination after logout for Django's authentication logout mechanisms.</blockquote>
+<hr>
+<h3 id="h-3417-q6-does-login-required-check-permissions">Q6. Does <code>@login_required</code> check permissions?</h3>
+<blockquote>No. It checks authentication, not specific permissions.</blockquote>
+<hr>
+<h3 id="h-3418-q7-how-do-you-check-a-permission">Q7. How do you check a permission?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<hr>
+<h3 id="h-3419-q8-what-is-permission-required">Q8. What is <code>@permission_required</code>?</h3>
+<blockquote>It is a Django decorator that restricts a view based on a user's permission.</blockquote>
+<hr>
+<h3 id="h-3420-q9-what-does-raise-exception-true-do">Q9. What does <code>raise_exception=True</code> do?</h3>
+<blockquote>It causes a permission failure to raise <code>PermissionDenied</code>, resulting in a 403 response rather than redirecting to the login page.</blockquote>
+<hr>
+<h3 id="h-3421-q10-what-is-the-difference-between-401-and-403">Q10. What is the difference between 401 and 403?</h3>
+<p>For Django web applications, be precise:</p>
+<ul>
+<li><strong>403 Forbidden</strong> means the server understood the request but refuses to authorize access.</li>
+<li><strong>401 Unauthorized</strong> in HTTP terminology generally means authentication is required or invalid and carries an authentication challenge; it is not simply a synonym for "user isn't logged in."</li>
+</ul>
+<p>For Django's typical <code>login_required</code> browser flow, unauthenticated users are commonly <strong>redirected to login</strong>, rather than receiving a 401 response.</p>
+<hr>
+<h1 id="h-3422-54-interview-question">54. Interview Question</h1>
+<h3 id="h-3423-how-would-you-protect-a-django-view">"How would you protect a Django view?"</h3>
+<p>Strong answer:</p>
+<blockquote>"For authentication-only protection, I would use Django's <code>login_required</code> decorator for function-based views or <code>LoginRequiredMixin</code> for class-based views. If the view requires a specific permission, I would use <code>permission_required</code> or <code>PermissionRequiredMixin</code>. I would enforce authorization on the server side rather than relying only on hiding UI elements."</blockquote>
+<p>Excellent answer.</p>
+<hr>
+<h1 id="h-3424-55-interview-question">55. Interview Question</h1>
+<h3 id="h-3425-what-s-the-difference-between-authentication-and-a">"What's the difference between authentication and authorization?"</h3>
+<p>Strong answer:</p>
+<blockquote>"Authentication verifies the identity of a user, while authorization determines whether that authenticated user has permission to perform a particular action or access a resource."</blockquote>
+<hr>
+<h1 id="h-3426-56-interview-question">56. Interview Question</h1>
+<h3 id="h-3427-why-isn-t-hiding-a-delete-button-enough">"Why isn't hiding a Delete button enough?"</h3>
+<p>Strong answer:</p>
+<blockquote>"Because UI restrictions are not security boundaries. A user can manually send the HTTP request to the delete endpoint. The server-side view must independently verify authentication and authorization before performing the operation."</blockquote>
+<p>Very important.</p>
+<hr>
+<h1 id="h-3428-57-coding-question">57. Coding Question</h1>
+<h3 id="h-3429-protect-a-dashboard">Protect a dashboard.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3430-58-coding-question">58. Coding Question</h1>
+<h3 id="h-3431-require-a-specific-permission">Require a specific permission.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import (
+    permission_required
+)
+
+
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+def edit_student(request, id):
+
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3432-59-coding-question">59. Coding Question</h1>
+<h3 id="h-3433-manually-check-permission">Manually check permission.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def edit_student(request, id):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    if not request.user.has_perm(
+        "students.change_student"
+    ):
+        return HttpResponse(
+            "Permission denied",
+            status=403
+        )
+
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3434-60-coding-question">60. Coding Question</h1>
+<h3 id="h-3435-protect-a-cbv">Protect a CBV.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import (
+    LoginRequiredMixin
+)
+from django.views.generic import TemplateView
+
+
+class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+
+    template_name = "dashboard.html"</code></pre></div>
+<hr>
+<h1 id="h-3436-61-coding-question">61. Coding Question</h1>
+<h3 id="h-3437-protect-a-cbv-with-a-permission">Protect a CBV with a permission.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+)
+
+
+class StudentEditView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.change_student"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3438-62-coding-question">62. Coding Question</h1>
+<h3 id="h-3439-allow-only-staff-users">Allow only staff users.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import (
+    user_passes_test
+)
+
+
+@user_passes_test(
+    lambda user: user.is_staff
+)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )</code></pre></div>
+<p>For an application with more complex rules, you may want a named test function rather than a lambda.</p>
+<hr>
+<h1 id="h-3440-63-most-important-code-to-memorize">63. Most Important Code to Memorize</h1>
+<h3 id="h-3441-authentication">Authentication:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<h3 id="h-3442-permission">Permission:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<h3 id="h-3443-manual-permission">Manual permission:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.has_perm(
+    "students.delete_student"
+):
+    ...</code></pre></div>
+<h3 id="h-3444-cbv">CBV:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+    ...</code></pre></div>
+<hr>
+<h1 id="h-3445-64-complete-django-security-flow">64. Complete Django Security Flow</h1>
+<p>You have now covered almost the entire authentication foundation:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 USER
+                  │
+                  ↓
+             Registration
+                  │
+                  ↓
+              User Model
+                  │
+                  ↓
+               Login
+                  │
+                  ↓
+           authenticate()
+                  │
+                  ↓
+               login()
+                  │
+                  ↓
+              Session
+                  │
+                  ↓
+            session cookie
+                  │
+                  ↓
+             request.user
+                  │
+          ┌───────┴────────┐
+          ↓                ↓
+   is_authenticated      has_perm()
+          ↓                ↓
+ Authentication        Authorization
+          │                │
+          └───────┬────────┘
+                  ↓
+            Protected View
+                  │
+                  ↓
+                CRUD</code></pre></div>
+<hr>
+<h1 id="h-3446-65-final-cheat-sheet">65. Final Cheat Sheet</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Authentication protection
+@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Permission protection
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Manual permission check
+request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># CBV authentication
+LoginRequiredMixin</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># CBV permission
+PermissionRequiredMixin</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Custom condition
+UserPassesTestMixin</code></pre></div>
+<p>Settings:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/login/"</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>@login_required
+       ↓
+Authentication
+
+@permission_required
+       ↓
+Authorization</code></pre></div>
+<hr>
+<h1 id="h-3447-module-39-complete">Module 39 Complete ✅</h1>
+<p>You have now finished the entire <strong>Cookies → Sessions → Users → Login → Logout → Protected Views</strong> chain.</p>
+<p>The next module is:</p>
+<h2 id="h-3448-module-40-complete-django-crud-project"><strong>Module 40 — Complete Django CRUD Project</strong></h2>
+<p>This will be a major practical module where we'll combine almost everything you've learned:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Models
+Migrations
+ORM
+URLs
+Views
+Templates
+Template inheritance
+Forms
+Validation
+CSRF
+POST-Redirect-GET
+CRUD
+Foreign Keys
+Admin
+Authentication
+Permissions</code></pre></div>
+<p>We'll build a complete <strong>Student Management System</strong> step-by-step, so you can handle a practical/coding question where the teacher asks you to build a Django application from scratch.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-38.html">← Module 38: Django Login &amp; Logout</a>
+<a class="pn-btn pn-next" href="module-40.html">Module 40: Complete CRUD Project →</a>
+</div>
+
+</div>
+
+</body>
+</html>

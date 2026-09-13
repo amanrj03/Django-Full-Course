@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10: Regular Expressions in URLs — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 10 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 10 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Regular Expressions in URLs</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<span class="nav-item current">10. Regular Expressions in URLs</span>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-9.html">← Module 9: URL Parameters in Depth</a>
+<a class="pn-btn pn-next" href="module-11.html">Module 11: Error Handling in Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-681-module-10-regular-expressions-in-django-urls">Module 10 — Regular Expressions in Django URLs</h1>
+<p>This is the <strong>Regular Expressions in URLs</strong> topic from your syllabus.</p>
+<p>Don't worry if you've never studied regex before. We'll start from zero and then connect it directly to Django.</p>
+<hr>
+<h1 id="h-682-1-what-is-a-regular-expression">1. What Is a Regular Expression?</h1>
+<p>A <strong>regular expression (regex)</strong> is a pattern used to describe and match text.</p>
+<p>For example, suppose we want a URL that accepts <strong>only numbers</strong>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>but rejects:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/abc/</code></pre></div>
+<p>We can describe the required pattern using regex.</p>
+<p>Think of regex as:</p>
+<blockquote><strong>A set of rules that defines what text is allowed.</strong></blockquote>
+<hr>
+<h1 id="h-683-2-why-does-django-need-regex">2. Why Does Django Need Regex?</h1>
+<p>Django's <code>path()</code> already gives us converters:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;int:id&gt;
+&lt;str:name&gt;
+&lt;slug:slug&gt;</code></pre></div>
+<p>But sometimes your requirements are more specific.</p>
+<p>For example:</p>
+<blockquote>Allow exactly 4 digits.</blockquote>
+<p>You might want:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/product/1234/</code></pre></div>
+<p>but reject:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/product/12/</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/product/12345/</code></pre></div>
+<p>Regex can express this precisely.</p>
+<hr>
+<h1 id="h-684-3-path-vs-re-path">3. <code>path()</code> vs <code>re_path()</code></h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path()</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path()</code></pre></div>
+<p><code>path()</code> uses Django's path converters.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<p><code>re_path()</code> uses regular expressions.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<hr>
+<h1 id="h-685-4-importing-re-path">4. Importing <code>re_path</code></h1>
+<p>In <code>urls.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, re_path</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    re_path(
+        r'^student/(?P&lt;id&gt;\d+)/$',
+        views.student
+    ),
+]</code></pre></div>
+<hr>
+<h1 id="h-686-5-understanding-our-first-regex">5. Understanding Our First Regex</h1>
+<p>Look at:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'^student/(?P&lt;id&gt;\d+)/$'</code></pre></div>
+<p>This looks complicated, but we'll break it apart.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>^
+student/
+(?P&lt;id&gt;
+\d+
+)
+/
+$</code></pre></div>
+<p>Each part has a meaning.</p>
+<hr>
+<h1 id="h-687-6">6. <code>^</code></h1>
+<p>The symbol:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>^</code></pre></div>
+<p>means:</p>
+<blockquote>Start of the string.</blockquote>
+<p>So:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>^student/</code></pre></div>
+<p>means the pattern should start with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student/</code></pre></div>
+<hr>
+<h1 id="h-688-7">7. <code>$</code></h1>
+<p>The symbol:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>$</code></pre></div>
+<p>means:</p>
+<blockquote>End of the string.</blockquote>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>^student/$</code></pre></div>
+<p>means the entire string should be:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student/</code></pre></div>
+<hr>
+<h1 id="h-689-8-d">8. <code>\d</code></h1>
+<p>This is one of the most important regex symbols.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>\d</code></pre></div>
+<p>means:</p>
+<blockquote>A digit.</blockquote>
+<p>Generally:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0 1 2 3 4 5 6 7 8 9</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d</code></pre></div>
+<p>matches:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5</code></pre></div>
+<p>but doesn't match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>A</code></pre></div>
+<hr>
+<h1 id="h-690-9">9. <code>+</code></h1>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>+</code></pre></div>
+<p>symbol means:</p>
+<blockquote>One or more occurrences.</blockquote>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>means:</p>
+<blockquote>One or more digits.</blockquote>
+<p>It can match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5
+25
+100
+12345</code></pre></div>
+<hr>
+<h1 id="h-691-10-d">10. <code>\d+</code></h1>
+<p>This is extremely common.</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>one or more digits</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>25</code></pre></div>
+<p>matches.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>123456</code></pre></div>
+<p>matches.</p>
+<p>But:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>abc</code></pre></div>
+<p>doesn't.</p>
+<hr>
+<h1 id="h-692-11-named-capturing-group">11. Named Capturing Group</h1>
+<p>Now look at:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>(?P&lt;id&gt;\d+)</code></pre></div>
+<p>This means:</p>
+<blockquote>Capture the matched value and give it the name <code>id</code>.</blockquote>
+<p>Suppose URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student/25/</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(?P&lt;id&gt;\d+)</code></pre></div>
+<p>captures:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>25</code></pre></div>
+<p>and gives it the name:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id</code></pre></div>
+<p>Django can then pass it to the view.</p>
+<hr>
+<h1 id="h-693-12-complete-example">12. Complete Example</h1>
+<h3 id="h-694-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(
+        r'^student/(?P&lt;id&gt;\d+)/$',
+        views.student
+    ),
+]</code></pre></div>
+<h3 id="h-695-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def student(request, id):
+    return HttpResponse(
+        f"Student ID: {id}"
+    )</code></pre></div>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ID: 25</code></pre></div>
+<hr>
+<h1 id="h-696-13-breaking-the-pattern-completely">13. Breaking the Pattern Completely</h1>
+<p>Let's analyze:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'^student/(?P&lt;id&gt;\d+)/$'</code></pre></div>
+<div class="table-wrapper"><table><thead><tr>
+<th>Part</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>^</code></td>
+<td>Start</td>
+</tr>
+<tr>
+<td><code>student/</code></td>
+<td>Exact text</td>
+</tr>
+<tr>
+<td><code>(?P&lt;id&gt;...)</code></td>
+<td>Named capture called <code>id</code></td>
+</tr>
+<tr>
+<td><code>\d</code></td>
+<td>Digit</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>One or more</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>Slash</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>End</td>
+</tr>
+</tbody></table></div>
+<p>So the pattern means:</p>
+<blockquote>Start with <code>student/</code>, followed by one or more digits, followed by <code>/</code>, and then end.</blockquote>
+<hr>
+<h1 id="h-697-14-why-the-r-before-the-string">14. Why the <code>r</code> Before the String?</h1>
+<p>We wrote:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'^student/(?P&lt;id&gt;\d+)/$'</code></pre></div>
+<p>The <code>r</code> means <strong>raw string</strong> in Python.</p>
+<p>Regular expressions frequently use backslashes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>\d
+\s
+\w</code></pre></div>
+<p>Using a raw string makes it easier to write regex patterns without Python interpreting backslashes as escape sequences.</p>
+<p>For Django regex URLs, this is the standard style:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'...'</code></pre></div>
+<hr>
+<h1 id="h-698-15-what-does-w-mean">15. What Does <code>\w</code> Mean?</h1>
+<p>Another useful regex symbol:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>\w</code></pre></div>
+<p>matches a word character.</p>
+<p>It generally includes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>letters
+digits
+underscore</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\w+</code></pre></div>
+<p>can match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Aman123
+student_25</code></pre></div>
+<hr>
+<h1 id="h-699-16-what-does-s-mean">16. What Does <code>\s</code> Mean?</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>\s</code></pre></div>
+<p>matches whitespace characters such as spaces.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>hello\sworld</code></pre></div>
+<p>can match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>hello world</code></pre></div>
+<p>This is less common for URL routing because URLs generally aren't designed around spaces.</p>
+<hr>
+<h1 id="h-700-17-character-classes">17. Character Classes <code>[ ]</code></h1>
+<p>Square brackets let you specify allowed characters.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[0-9]</code></pre></div>
+<p>means:</p>
+<blockquote>One character between 0 and 9.</blockquote>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5</code></pre></div>
+<p>matches.</p>
+<hr>
+<h1 id="h-701-18-a-z">18. <code>[a-z]</code></h1>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[a-z]</code></pre></div>
+<p>means:</p>
+<blockquote>One lowercase letter from a through z.</blockquote>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>a
+m
+z</code></pre></div>
+<p>match.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>A
+7</code></pre></div>
+<p>don't match.</p>
+<hr>
+<h1 id="h-702-19-a-z">19. <code>[A-Z]</code></h1>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[A-Z]</code></pre></div>
+<p>means one uppercase letter.</p>
+<hr>
+<h1 id="h-703-20-0-9">20. <code>[0-9]+</code></h1>
+<p>This:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[0-9]+</code></pre></div>
+<p>means:</p>
+<blockquote>One or more digits.</blockquote>
+<p>It is similar to:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>For basic digit matching, either can often be used.</p>
+<hr>
+<h1 id="h-704-21-exact-number-of-characters">21. Exact Number of Characters — <code>{}</code></h1>
+<p>Suppose we want <strong>exactly 4 digits</strong>.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d{4}</code></pre></div>
+<p>This means:</p>
+<blockquote>Exactly four digits.</blockquote>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1234   ✓
+2026   ✓
+25     ✗
+12345  ✗</code></pre></div>
+<hr>
+<h1 id="h-705-22-example-four-digit-student-year">22. Example: Four-Digit Student Year</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^year/(?P&lt;year&gt;\d{4})/$',
+    views.year
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def year(request, year):
+    return HttpResponse(
+        f"Year: {year}"
+    )</code></pre></div>
+<p>Matches:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/year/2026/</code></pre></div>
+<p>but not:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/year/26/</code></pre></div>
+<hr>
+<h1 id="h-706-23-m-n">23. <code>{m,n}</code></h1>
+<p>You can specify a range.</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d{2,4}</code></pre></div>
+<p>means:</p>
+<blockquote>Between 2 and 4 digits.</blockquote>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>12      ✓
+123     ✓
+1234    ✓
+1       ✗
+12345   ✗</code></pre></div>
+<hr>
+<h1 id="h-707-24">24. <code>*</code></h1>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>*</code></pre></div>
+<p>symbol means:</p>
+<blockquote>Zero or more occurrences.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d*</code></pre></div>
+<p>can match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>nothing
+1
+25
+12345</code></pre></div>
+<p>Be careful with <code>*</code> because it allows <strong>zero</strong> occurrences.</p>
+<hr>
+<h1 id="h-708-25">25. <code>?</code></h1>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>?</code></pre></div>
+<p>symbol generally means:</p>
+<blockquote>Zero or one occurrence.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d?</code></pre></div>
+<p>can match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>nothing
+5</code></pre></div>
+<p>but not:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>25</code></pre></div>
+<p>For Django URL design, don't confuse regex <code>?</code> with the <code>?</code> that starts a URL query string.</p>
+<hr>
+<h1 id="h-709-26-vs">26. <code>+</code> vs <code>*</code></h1>
+<p>Very important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>+ → one or more
+* → zero or more</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>requires at least one digit.</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d*</code></pre></div>
+<p>allows no digits.</p>
+<hr>
+<h1 id="h-710-27-parentheses">27. Parentheses <code>( )</code></h1>
+<p>Parentheses create a group.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>(\d+)</code></pre></div>
+<p>This captures/group-matches one or more digits.</p>
+<p>But Django needs to know the parameter name to pass it to your view.</p>
+<p>That's why named groups are especially useful.</p>
+<hr>
+<h1 id="h-711-28-named-group-syntax">28. Named Group Syntax</h1>
+<p>Django regex URLs commonly use:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>(?P&lt;name&gt;pattern)</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>(?P&lt;id&gt;\d+)</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = id
+pattern = \d+</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>id = 25</code></pre></div>
+<hr>
+<h1 id="h-712-29-named-group-must-match-view-argument">29. Named Group Must Match View Argument</h1>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):</code></pre></div>
+<p>Correct.</p>
+<p>But if you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<p>the parameter name doesn't correspond to the named group.</p>
+<p>Instead, make the regex:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;student_id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<hr>
+<h1 id="h-713-30-multiple-regex-parameters">30. Multiple Regex Parameters</h1>
+<p>You can capture multiple values.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/(?P&lt;name&gt;[A-Za-z]+)/$',
+    views.student
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id, name):
+    return HttpResponse(
+        f"ID: {id}, Name: {name}"
+    )</code></pre></div>
+<p>URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/Aman/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ID: 25, Name: Aman</code></pre></div>
+<hr>
+<h1 id="h-714-31-restricting-a-name">31. Restricting a Name</h1>
+<p>Our pattern:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[A-Za-z]+</code></pre></div>
+<p>means:</p>
+<blockquote>One or more uppercase/lowercase English letters.</blockquote>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+John</code></pre></div>
+<p>match.</p>
+<p>But:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman123</code></pre></div>
+<p>doesn't match that particular pattern.</p>
+<hr>
+<h1 id="h-715-32-regex-for-a-two-digit-number">32. Regex for a Two-Digit Number</h1>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d{2}</code></pre></div>
+<p>Matches:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>10
+25
+99</code></pre></div>
+<p>Doesn't match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5
+100</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^room/(?P&lt;number&gt;\d{2})/$',
+    views.room
+)</code></pre></div>
+<hr>
+<h1 id="h-716-33-regex-for-exactly-6-digits">33. Regex for Exactly 6 Digits</h1>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d{6}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^code/(?P&lt;code&gt;\d{6})/$',
+    views.code
+)</code></pre></div>
+<p>Matches:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/code/123456/</code></pre></div>
+<p>Doesn't match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/code/12345/
+/code/1234567/</code></pre></div>
+<hr>
+<h1 id="h-717-34-regex-for-lowercase-slug-like-text">34. Regex for Lowercase Slug-Like Text</h1>
+<p>You could write:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>[a-z0-9-]+</code></pre></div>
+<p>This allows:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django
+django-2026
+python3</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^blog/(?P&lt;slug&gt;[a-z0-9-]+)/$',
+    views.blog
+)</code></pre></div>
+<hr>
+<h1 id="h-718-35-path-is-usually-preferred">35. <code>path()</code> Is Usually Preferred</h1>
+<p>Modern Django provides path converters:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<p>For ordinary cases, this is cleaner than:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>So:</p>
+<blockquote>Use <code>path()</code> when its converters are sufficient. Use <code>re_path()</code> when you need regex-level control.</blockquote>
+<p>This is an excellent viva answer.</p>
+<hr>
+<h1 id="h-719-36-path-vs-re-path">36. <code>path()</code> vs <code>re_path()</code></h1>
+<div class="table-wrapper"><table><thead><tr>
+<th><code>path()</code></th>
+<th><code>re_path()</code></th>
+</tr></thead><tbody>
+<tr>
+<td>Uses path converters</td>
+<td>Uses regular expressions</td>
+</tr>
+<tr>
+<td>Easier to read</td>
+<td>More powerful/flexible</td>
+</tr>
+<tr>
+<td>Usually preferred for normal routing</td>
+<td>Useful for complex patterns</td>
+</tr>
+<tr>
+<td><code>&lt;int:id&gt;</code></td>
+<td><code>(?P&lt;id&gt;\d+)</code></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-720-37-same-url-two-ways">37. Same URL — Two Ways</h1>
+<h3 id="h-721-using-path">Using <code>path()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<h3 id="h-722-using-re-path">Using <code>re_path()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>Both can represent the same basic requirement:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>For this simple case, <code>path()</code> is much easier.</p>
+<hr>
+<h1 id="h-723-38-regex-and-query-strings">38. Regex and Query Strings</h1>
+<p>Be careful here.</p>
+<p>A Django URL pattern generally matches the URL path, not the query string.</p>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/?course=django</code></pre></div>
+<p>the path is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course=django</code></pre></div>
+<p>is the query string.</p>
+<p>You access it using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get('course')</code></pre></div>
+<p>So don't try to use <code>re_path()</code> to process ordinary query parameters.</p>
+<hr>
+<h1 id="h-724-39-common-regex-symbols-to-memorize">39. Common Regex Symbols to Memorize</h1>
+<p>For your exam, learn these:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Regex</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>^</code></td>
+<td>Start</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>End</td>
+</tr>
+<tr>
+<td><code>\d</code></td>
+<td>Digit</td>
+</tr>
+<tr>
+<td><code>\w</code></td>
+<td>Word character</td>
+</tr>
+<tr>
+<td><code>\s</code></td>
+<td>Whitespace</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>One or more</td>
+</tr>
+<tr>
+<td><code>*</code></td>
+<td>Zero or more</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>Zero or one</td>
+</tr>
+<tr>
+<td><code>{4}</code></td>
+<td>Exactly 4</td>
+</tr>
+<tr>
+<td><code>{2,4}</code></td>
+<td>2 to 4</td>
+</tr>
+<tr>
+<td><code>[0-9]</code></td>
+<td>One digit</td>
+</tr>
+<tr>
+<td><code>[a-z]</code></td>
+<td>Lowercase letter</td>
+</tr>
+<tr>
+<td><code>[A-Z]</code></td>
+<td>Uppercase letter</td>
+</tr>
+<tr>
+<td><code>( )</code></td>
+<td>Group</td>
+</tr>
+<tr>
+<td><code>(?P&lt;id&gt;...)</code></td>
+<td>Named capture</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-725-40-important-coding-question">40. Important Coding Question</h1>
+<h3 id="h-726-requirement">Requirement:</h3>
+<p>Create a URL that accepts exactly <strong>5 digits</strong> as an employee ID.</p>
+<h3 id="h-727-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(
+        r'^employee/(?P&lt;id&gt;\d{5})/$',
+        views.employee
+    ),
+]</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def employee(request, id):
+    return HttpResponse(
+        f"Employee ID: {id}"
+    )</code></pre></div>
+<p>Valid:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/employee/12345/</code></pre></div>
+<p>Invalid:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/employee/1234/
+/employee/123456/</code></pre></div>
+<hr>
+<h1 id="h-728-41-coding-question-two-parameters">41. Coding Question — Two Parameters</h1>
+<p>Requirement:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/course/2026/python/</code></pre></div>
+<p>where:</p>
+<ul>
+<li>year = exactly 4 digits</li>
+<li>course = lowercase letters</li>
+</ul>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^course/(?P&lt;year&gt;\d{4})/(?P&lt;course&gt;[a-z]+)/$',
+    views.course
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def course(request, year, course):
+    return HttpResponse(
+        f"Year: {year}&lt;br&gt;"
+        f"Course: {course}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-729-42-coding-question-id-username">42. Coding Question — ID + Username</h1>
+<p>Requirement:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/user/25/Aman/</code></pre></div>
+<p>ID must be numeric and username can contain letters and numbers.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^user/(?P&lt;id&gt;\d+)/(?P&lt;username&gt;\w+)/$',
+    views.user
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def user(request, id, username):
+    return HttpResponse(
+        f"ID: {id}&lt;br&gt;"
+        f"Username: {username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-730-43-common-mistake-forgetting-r">43. Common Mistake — Forgetting <code>r</code></h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'^student/(?P&lt;id&gt;\d+)/$'</code></pre></div>
+<p>you may see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'^student/(?P&lt;id&gt;\d+)/$'</code></pre></div>
+<p>Python's string escaping can make regex backslashes confusing.</p>
+<p>For regex patterns, use raw strings:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>r'...'</code></pre></div>
+<p>It's the standard and clearer approach.</p>
+<hr>
+<h1 id="h-731-44-common-mistake-wrong-parameter-name">44. Common Mistake — Wrong Parameter Name</h1>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<p>Problem:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL gives id
+View expects student_id</code></pre></div>
+<p>Make them consistent.</p>
+<hr>
+<h1 id="h-732-45-common-mistake-forgetting">45. Common Mistake — Forgetting <code>+</code></h1>
+<p>Suppose you write:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d</code></pre></div>
+<p>This matches only <strong>one digit</strong>.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/5/</code></pre></div>
+<p>matches.</p>
+<p>But:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>doesn't match that particular pattern.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>for one or more digits.</p>
+<hr>
+<h1 id="h-733-46-common-mistake-4-vs">46. Common Mistake — <code>{4}</code> vs <code>+</code></h1>
+<p>These are different:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d+</code></pre></div>
+<p>means:</p>
+<blockquote>Any positive number of digits.</blockquote>
+<p>While:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">REGEX</span><pre><code>\d{4}</code></pre></div>
+<p>means:</p>
+<blockquote>Exactly four digits.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>123      matches \d+
+123      does NOT match \d{4}</code></pre></div>
+<hr>
+<h1 id="h-734-47-viva-questions">47. Viva Questions</h1>
+<h3 id="h-735-q1-what-is-regex">Q1. What is regex?</h3>
+<blockquote>A regular expression is a pattern used to match and validate text.</blockquote>
+<h3 id="h-736-q2-what-is-re-path">Q2. What is <code>re_path()</code>?</h3>
+<blockquote><code>re_path()</code> is a Django URL routing function that allows URL patterns to be defined using regular expressions.</blockquote>
+<h3 id="h-737-q3-difference-between-path-and-re-path">Q3. Difference between <code>path()</code> and <code>re_path()</code>?</h3>
+<blockquote><code>path()</code> uses Django's path converters, while <code>re_path()</code> uses regular expressions.</blockquote>
+<h3 id="h-738-q4-what-does-d-mean">Q4. What does <code>\d</code> mean?</h3>
+<blockquote>A digit.</blockquote>
+<h3 id="h-739-q5-what-does-mean">Q5. What does <code>+</code> mean?</h3>
+<blockquote>One or more occurrences.</blockquote>
+<h3 id="h-740-q6-what-does-mean">Q6. What does <code>*</code> mean?</h3>
+<blockquote>Zero or more occurrences.</blockquote>
+<h3 id="h-741-q7-what-does-d-4-mean">Q7. What does <code>\d{4}</code> mean?</h3>
+<blockquote>Exactly four digits.</blockquote>
+<h3 id="h-742-q8-what-does-mean">Q8. What does <code>^</code> mean?</h3>
+<blockquote>Start of the pattern.</blockquote>
+<h3 id="h-743-q9-what-does-mean">Q9. What does <code>$</code> mean?</h3>
+<blockquote>End of the pattern.</blockquote>
+<h3 id="h-744-q10-what-is-p-id-d">Q10. What is <code>(?P&lt;id&gt;\d+)</code>?</h3>
+<blockquote>A named capturing group called <code>id</code> that captures one or more digits.</blockquote>
+<hr>
+<h1 id="h-745-48-most-important-viva-question">48. ⭐ Most Important Viva Question</h1>
+<h3 id="h-746-teacher">Teacher:</h3>
+<blockquote>Why would you use <code>re_path()</code> when Django already provides <code>path()</code>?</blockquote>
+<p>Best answer:</p>
+<blockquote><code>path()</code> is preferred for normal URL patterns because its converters are simpler and more readable. <code>re_path()</code> is useful when the URL requires more complex matching rules that cannot be conveniently expressed using the built-in path converters.</blockquote>
+<p>That's a strong interview/viva answer.</p>
+<hr>
+<h1 id="h-747-49-exam-level-question">49. Exam-Level Question</h1>
+<p><strong>Write a Django URL pattern that accepts a 4-digit year and a lowercase course name.</strong></p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^course/(?P&lt;year&gt;\d{4})/(?P&lt;course&gt;[a-z]+)/$',
+    views.course
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def course(request, year, course):
+    return HttpResponse(
+        f"Year: {year}, Course: {course}"
+    )</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/course/2026/python/</code></pre></div>
+<hr>
+<h1 id="h-748-module-10-cheat-sheet">🧠 Module 10 Cheat Sheet</h1>
+<p>If you remember only this, remember:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import re_path</code></pre></div>
+<p>Basic regex URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r'^student/(?P&lt;id&gt;\d+)/$',
+    views.student
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):
+    ...</code></pre></div>
+<p>Regex:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>^        start
+$        end
+\d       digit
+\w       word character
++        one or more
+*        zero or more
+?        zero or one
+{4}      exactly 4
+{2,4}    2 to 4
+[]       allowed character set
+(?P&lt;id&gt;) named group</code></pre></div>
+<p>And the key principle:</p>
+<blockquote><strong>Use <code>path()</code> for normal URL patterns; use <code>re_path()</code> when you need complex regex matching.</strong></blockquote>
+<hr>
+<h3 id="h-749-next-module-11-error-handling-in-django">Next → Module 11: Error Handling in Django</h3>
+<p>We'll cover:</p>
+<ul>
+<li>What happens when a URL doesn't exist</li>
+<li>404 errors</li>
+<li>400 errors</li>
+<li>500 errors</li>
+<li><code>Http404</code></li>
+<li><code>get_object_or_404()</code></li>
+<li><code>try/except</code> in views</li>
+<li>Custom error pages</li>
+<li><code>DEBUG=True</code> vs <code>DEBUG=False</code></li>
+<li><code>404.html</code>, <code>500.html</code></li>
+<li>Common Django errors and how to debug them</li>
+<li>Viva + coding questions</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-9.html">← Module 9: URL Parameters in Depth</a>
+<a class="pn-btn pn-next" href="module-11.html">Module 11: Error Handling in Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

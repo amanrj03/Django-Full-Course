@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 36: Sessions in Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 36 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 36 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Sessions in Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<span class="nav-item current">36. Sessions in Django</span>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-35.html">← Module 35: Cookies in Django</a>
+<a class="pn-btn pn-next" href="module-37.html">Module 37: Django Users →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3047-module-36-sessions-in-django">Module 36 — Sessions in Django</h1>
+<p>In Module 35, we learned <strong>Cookies</strong>. Now we learn <strong>Sessions</strong>, which are one of the most important concepts for Django authentication and login systems.</p>
+<p>The key idea is:</p>
+<blockquote><strong>A cookie is mainly client/browser-side data, while a Django session normally stores session data on the server side and uses a cookie to identify the session.</strong></blockquote>
+<hr>
+<h1 id="h-3048-1-why-do-we-need-sessions">1. Why Do We Need Sessions?</h1>
+<p>Remember that HTTP is <strong>stateless</strong>.</p>
+<p>Suppose a user logs in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /login/
+username = Aman
+password = ********</code></pre></div>
+<p>The server verifies the credentials.</p>
+<p>Now the user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /dashboard/</code></pre></div>
+<p>How does Django know:</p>
+<blockquote>"This is the same user who just logged in?"</blockquote>
+<p>A session provides a way to maintain this state across requests.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login
+  ↓
+Create session
+  ↓
+Browser receives session identifier
+  ↓
+Browser sends identifier on future requests
+  ↓
+Django retrieves session data
+  ↓
+Django knows the user's state</code></pre></div>
+<hr>
+<h1 id="h-3049-2-what-is-a-session">2. What Is a Session?</h1>
+<p>A <strong>session</strong> is a mechanism for storing information associated with a particular user's interaction with your website across multiple requests.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>user_id = 25
+cart_items = 4
+language = "en"</code></pre></div>
+<p>Django provides a session framework so you don't have to manually build this mechanism.</p>
+<hr>
+<h1 id="h-3050-3-cookie-vs-session">3. Cookie vs Session</h1>
+<p>This distinction is extremely important.</p>
+<h3 id="h-3051-cookie">Cookie</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+ └── stores cookie</code></pre></div>
+<h3 id="h-3052-django-session">Django session</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+ └── stores session identifier
+          ↓
+       Django
+          ↓
+    session data</code></pre></div>
+<p>With Django's default database-backed session engine, the session data is stored in the database.</p>
+<hr>
+<h1 id="h-3053-4-django-s-session-framework">4. Django's Session Framework</h1>
+<p>Django includes sessions through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.sessions</code></pre></div>
+<p>A typical Django project has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "django.contrib.sessions",
+]</code></pre></div>
+<p>And session middleware:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>MIDDLEWARE = [
+    ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    ...
+]</code></pre></div>
+<p>These are normally included in a project created with Django's standard project template.</p>
+<hr>
+<h1 id="h-3054-5-why-is-sessionmiddleware-important">5. Why Is <code>SessionMiddleware</code> Important?</h1>
+<p>It connects Django's session framework to incoming requests and outgoing responses.</p>
+<p>It allows you to use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<p>inside views.</p>
+<p>Without the required session configuration/middleware, session handling won't work normally.</p>
+<hr>
+<h1 id="h-3055-6-accessing-the-session">6. Accessing the Session</h1>
+<p>Inside a Django view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def home(request):
+
+    request.session["username"] = "Aman"
+
+    return HttpResponse("Session created")</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"]</code></pre></div>
+<p>stores a session value.</p>
+<hr>
+<h1 id="h-3056-7-setting-session-data">7. Setting Session Data</h1>
+<p>Syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["key"] = value</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<p>Another example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["age"] = 21</code></pre></div>
+<p>Another:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["course"] = "CSE"</code></pre></div>
+<p>You can store multiple session values:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"
+request.session["course"] = "CSE"
+request.session["age"] = 21</code></pre></div>
+<hr>
+<h1 id="h-3057-8-reading-session-data">8. Reading Session Data</h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.get("key")</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.session.get("username")</code></pre></div>
+<p>You can provide a default:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.session.get(
+    "username",
+    "Guest"
+)</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Session exists → actual value
+Session missing → Guest</code></pre></div>
+<hr>
+<h1 id="h-3058-9-complete-set-read-example">9. Complete Set + Read Example</h1>
+<h3 id="h-3059-view-1-set">View 1 — Set</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def set_session(request):
+
+    request.session["username"] = "Aman"
+
+    return HttpResponse(
+        "Session data saved"
+    )</code></pre></div>
+<h3 id="h-3060-view-2-read">View 2 — Read</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def get_session(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3061-10-session-data-is-dictionary-like">10. Session Data Is Dictionary-Like</h1>
+<p>You can think of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<p>as a dictionary-like object.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["name"] = "Aman"
+request.session["age"] = 21</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.session.get("name")
+age = request.session.get("age")</code></pre></div>
+<hr>
+<h1 id="h-3062-11-updating-session-data">11. Updating Session Data</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<p>Later:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Rahul"</code></pre></div>
+<p>The session value is updated.</p>
+<p>There is no separate:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>update_session()</code></pre></div>
+<p>method needed.</p>
+<hr>
+<h1 id="h-3063-12-deleting-one-session-value">12. Deleting One Session Value</h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>del request.session["username"]</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_username(request):
+
+    if "username" in request.session:
+        del request.session["username"]
+
+    return HttpResponse(
+        "Username removed"
+    )</code></pre></div>
+<p>A safer alternative is often:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.pop(
+    "username",
+    None
+)</code></pre></div>
+<p>This avoids an error if the key doesn't exist.</p>
+<hr>
+<h1 id="h-3064-13-pop">13. <code>pop()</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.pop(
+    "username",
+    None
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Remove <code>username</code> if it exists; otherwise return <code>None</code>.</blockquote>
+<hr>
+<h1 id="h-3065-14-clear-the-entire-session">14. Clear the Entire Session</h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<p>This is very important.</p>
+<p><code>flush()</code>:</p>
+<ul>
+<li>removes the current session data</li>
+<li>clears the session</li>
+<li>creates a new session identifier as needed for future use</li>
+</ul>
+<p>It is commonly useful when completely ending a user's session state.</p>
+<hr>
+<h1 id="h-3066-15-flush-vs-del">15. <code>flush()</code> vs <code>del</code></h1>
+<p>This is a common viva question.</p>
+<h3 id="h-3067-delete-one-value">Delete one value</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>del request.session["username"]</code></pre></div>
+<p>Only one key is removed.</p>
+<h3 id="h-3068-clear-the-session">Clear the session</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<p>The current session is completely cleared.</p>
+<hr>
+<h1 id="h-3069-16-clear">16. <code>clear()</code></h1>
+<p>You may also encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.clear()</code></pre></div>
+<p>This clears the session data while retaining the current session key.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<p>clears the session data <strong>and</strong> removes the current session key, providing a stronger session reset.</p>
+<p>For logout/security-sensitive situations, Django's authentication logout mechanism is preferred rather than manually trying to reproduce it.</p>
+<hr>
+<h1 id="h-3070-17-session-expiry">17. Session Expiry</h1>
+<p>Django allows you to control session expiry.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(3600)</code></pre></div>
+<p>This means the session should expire after:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>3600 seconds
+=
+1 hour</code></pre></div>
+<hr>
+<h1 id="h-3071-18-set-expiry">18. <code>set_expiry()</code></h1>
+<p>Syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(value)</code></pre></div>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(300)</code></pre></div>
+<p>5 minutes.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(3600)</code></pre></div>
+<p>1 hour.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(86400)</code></pre></div>
+<p>1 day.</p>
+<hr>
+<h1 id="h-3072-19-session-expiry-with-datetime">19. Session Expiry With Datetime</h1>
+<p>You can also provide a <code>datetime</code> value.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from datetime import datetime, timedelta
+
+request.session.set_expiry(
+    datetime.now() + timedelta(hours=1)
+)</code></pre></div>
+<p>This specifies an expiration time rather than simply a number of seconds.</p>
+<hr>
+<h1 id="h-3073-20-session-expiry-of-0">20. Session Expiry of <code>0</code></h1>
+<p>A particularly important value:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(0)</code></pre></div>
+<p>This means the session cookie should expire when the user's browser is closed.</p>
+<p>This is useful when you want a "session-only" browser cookie behavior.</p>
+<hr>
+<h1 id="h-3074-21-set-expiry-none">21. <code>set_expiry(None)</code></h1>
+<p>You can also use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(None)</code></pre></div>
+<p>to return to the configured default session expiry behavior.</p>
+<hr>
+<h1 id="h-3075-22-session-cookie">22. Session Cookie</h1>
+<p>Django commonly uses a cookie called:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>sessionid</code></pre></div>
+<p>The browser might conceptually have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>sessionid = abc123...</code></pre></div>
+<p>That identifier allows Django to associate the browser's requests with the appropriate session.</p>
+<p>Important:</p>
+<blockquote>Don't assume that the session cookie contains all of your session data.</blockquote>
+<p>With the default database-backed session engine, the browser generally holds the session identifier while the session data is stored server-side.</p>
+<hr>
+<h1 id="h-3076-23-default-session-storage">23. Default Session Storage</h1>
+<p>Django's default session engine uses the database.</p>
+<p>You will typically see a database table related to sessions after migrations.</p>
+<p>The session system uses the database to maintain session records.</p>
+<p>So the conceptual flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   │
+   │ sessionid
+   ↓
+Django
+   │
+   │ lookup session
+   ↓
+Database
+   │
+   │ session data
+   ↓
+Django</code></pre></div>
+<hr>
+<h1 id="h-3077-24-why-did-we-run-migrate">24. Why Did We Run <code>migrate</code>?</h1>
+<p>You may remember:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>from earlier modules.</p>
+<p>Django's built-in applications, including the sessions framework, have migrations.</p>
+<p>That's why running migrations is important.</p>
+<p>You can inspect migrations with:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<hr>
+<h1 id="h-3078-25-session-example-shopping-cart">25. Session Example: Shopping Cart</h1>
+<p>Imagine an e-commerce application.</p>
+<p>A user adds a product:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["cart"] = [
+    10,
+    25,
+    31
+]</code></pre></div>
+<p>Now the user visits another page.</p>
+<p>You can retrieve:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cart = request.session.get(
+    "cart",
+    []
+)</code></pre></div>
+<p>The cart can persist across requests.</p>
+<hr>
+<h1 id="h-3079-26-complete-cart-example">26. Complete Cart Example</h1>
+<h3 id="h-3080-add-product">Add product</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def add_product(request, product_id):
+
+    cart = request.session.get(
+        "cart",
+        []
+    )
+
+    cart.append(product_id)
+
+    request.session["cart"] = cart
+
+    return HttpResponse(
+        "Product added"
+    )</code></pre></div>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>product_id = 10</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>cart = [10]</code></pre></div>
+<p>Later:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>product_id = 20</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>cart = [10, 20]</code></pre></div>
+<hr>
+<h1 id="h-3081-27-important-issue-with-mutable-session-data">27. Important Issue With Mutable Session Data</h1>
+<p>Suppose you do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cart = request.session.get(
+    "cart",
+    []
+)
+
+cart.append(product_id)</code></pre></div>
+<p>When modifying mutable data such as lists or dictionaries, it is safest to assign it back:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["cart"] = cart</code></pre></div>
+<p>This makes the session change explicit.</p>
+<p>Alternatively, you can mark the session as modified:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.modified = True</code></pre></div>
+<p>But assigning the changed object back is generally straightforward.</p>
+<hr>
+<h1 id="h-3082-28-session-modified">28. Session Modified</h1>
+<p>Django tracks whether session data has changed.</p>
+<p>You may explicitly mark:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.modified = True</code></pre></div>
+<p>This can matter when modifying nested mutable objects in place.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cart = request.session["cart"]
+cart.append(10)
+
+request.session.modified = True</code></pre></div>
+<p>But the simpler approach is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cart.append(10)
+request.session["cart"] = cart</code></pre></div>
+<hr>
+<h1 id="h-3083-29-session-data-and-templates">29. Session Data and Templates</h1>
+<p>You can pass session data from a view to a template:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def dashboard(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    return render(
+        request,
+        "dashboard.html",
+        {"username": username}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome {{ username }}&lt;/h1&gt;</code></pre></div>
+<hr>
+<h1 id="h-3084-30-can-templates-access-session-data-directly">30. Can Templates Access Session Data Directly?</h1>
+<p>Django's template context can include session information through context processors in the standard setup.</p>
+<p>For example, you may see:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ request.session.username }}</code></pre></div>
+<p>when the request context processor is enabled.</p>
+<p>However, for clean architecture, it is often better to explicitly pass important data from the view when appropriate.</p>
+<hr>
+<h1 id="h-3085-31-session-and-login">31. Session and Login</h1>
+<p>This is where sessions become extremely important.</p>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User enters username/password
+              ↓
+         Django verifies
+              ↓
+             login
+              ↓
+       Session established
+              ↓
+      Browser gets session cookie
+              ↓
+      Future requests carry it
+              ↓
+          request.user</code></pre></div>
+<p>Django's authentication system uses sessions to maintain login state.</p>
+<p>We'll study the actual <code>login()</code> and <code>logout()</code> functions in <strong>Module 38</strong>.</p>
+<hr>
+<h1 id="h-3086-32-session-vs-authentication">32. Session vs Authentication</h1>
+<p>Don't confuse them.</p>
+<h3 id="h-3087-session">Session</h3>
+<p>Provides a mechanism to maintain state across requests.</p>
+<h3 id="h-3088-authentication">Authentication</h3>
+<p>Determines who the user is.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session</code></pre></div>
+<p>is about session state.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>represents the currently authenticated user (or an anonymous user).</p>
+<p>Django authentication commonly uses sessions to maintain that authenticated state between requests.</p>
+<hr>
+<h1 id="h-3089-33-session-vs-cookie-vs-authentication">33. Session vs Cookie vs Authentication</h1>
+<p>Remember this three-way distinction:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>COOKIE
+   ↓
+Browser-side storage/transmission mechanism
+
+
+SESSION
+   ↓
+Maintains state across requests
+
+
+AUTHENTICATION
+   ↓
+Identifies the user</code></pre></div>
+<p>They work together but are not the same thing.</p>
+<hr>
+<h1 id="h-3090-34-session-security">34. Session Security</h1>
+<p>Sessions are very important for security because they may represent authenticated state.</p>
+<p>Django provides protections around session handling, but you should still follow security best practices.</p>
+<p>Important ideas include:</p>
+<ul>
+<li>use HTTPS</li>
+<li>protect session cookies</li>
+<li>don't expose session identifiers</li>
+<li>don't put passwords into session data</li>
+<li>don't trust arbitrary client-controlled values for authorization</li>
+<li>use Django's authentication system</li>
+<li>rotate/invalidate sessions appropriately when security-sensitive state changes</li>
+</ul>
+<hr>
+<h1 id="h-3091-35-session-cookie-security-settings">35. Session Cookie Security Settings</h1>
+<p>Django has settings such as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_COOKIE_SECURE = True</code></pre></div>
+<p>This means the session cookie should only be sent over HTTPS.</p>
+<p>Another important setting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_COOKIE_HTTPONLY = True</code></pre></div>
+<p>This prevents normal JavaScript access to the session cookie.</p>
+<p>And:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_COOKIE_SAMESITE = "Lax"</code></pre></div>
+<p>controls cross-site cookie behavior.</p>
+<p>These settings are configured in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>settings.py</code></pre></div>
+<hr>
+<h1 id="h-3092-36-example-production-oriented-settings">36. Example Production-Oriented Settings</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True
+
+SESSION_COOKIE_SAMESITE = "Lax"</code></pre></div>
+<p>These are especially relevant when deploying a site over HTTPS.</p>
+<p>Don't blindly copy production settings into every local-development environment without understanding their effects.</p>
+<hr>
+<h1 id="h-3093-37-session-expiry-settings">37. Session Expiry Settings</h1>
+<p>Django also has a global setting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_COOKIE_AGE = 1209600</code></pre></div>
+<p>The default is commonly:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1209600 seconds
+=
+2 weeks</code></pre></div>
+<p>This controls the default age of session cookies.</p>
+<p>You can override expiry for an individual session with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(...)</code></pre></div>
+<hr>
+<h1 id="h-3094-38-session-expire-at-browser-close">38. <code>SESSION_EXPIRE_AT_BROWSER_CLOSE</code></h1>
+<p>You may encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_EXPIRE_AT_BROWSER_CLOSE = True</code></pre></div>
+<p>This configures sessions so the session cookie expires when the browser closes.</p>
+<p>This is a <strong>global configuration</strong>.</p>
+<p>Compare:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_EXPIRE_AT_BROWSER_CLOSE = True</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(0)</code></pre></div>
+<p>The first is a project-wide setting; the second is applied to a particular session.</p>
+<hr>
+<h1 id="h-3095-39-session-backends">39. Session Backends</h1>
+<p>Django supports different ways of storing session data.</p>
+<p>Common options include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+Cached database
+Cache
+File
+Signed cookies</code></pre></div>
+<p>The default is generally database-backed sessions.</p>
+<hr>
+<h1 id="h-3096-40-signed-cookie-sessions">40. Signed-Cookie Sessions</h1>
+<p>Django can also use a cookie-based session backend:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>SESSION_ENGINE = (
+    "django.contrib.sessions.backends.signed_cookies"
+)</code></pre></div>
+<p>This is different from the default database-backed session system.</p>
+<p>In this backend, session data is stored in the cookie in a signed format.</p>
+<p>Important:</p>
+<blockquote>Signed does not mean encrypted.</blockquote>
+<p>The signature helps detect tampering, but it should not be treated as a way to hide confidential data.</p>
+<hr>
+<h1 id="h-3097-41-database-sessions-vs-signed-cookies">41. Database Sessions vs Signed Cookies</h1>
+<h3 id="h-3098-database-backend">Database backend</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+session ID
+   ↓
+Database
+   ↓
+session data</code></pre></div>
+<h3 id="h-3099-signed-cookie-backend">Signed-cookie backend</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+signed session data</code></pre></div>
+<p>The second approach has different size, privacy, and operational characteristics.</p>
+<p>For normal Django applications, you'll commonly encounter the default database-backed approach.</p>
+<hr>
+<h1 id="h-3100-42-session-key">42. Session Key</h1>
+<p>A session has a session key.</p>
+<p>You can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.session_key</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def session_info(request):
+
+    return HttpResponse(
+        str(request.session.session_key)
+    )</code></pre></div>
+<p>Don't expose session keys unnecessarily in real applications.</p>
+<p>A session key is sensitive because possession of a valid session identifier can potentially allow session impersonation depending on the circumstances.</p>
+<hr>
+<h1 id="h-3101-43-session-lifecycle">43. Session Lifecycle</h1>
+<p>Understand this flow for your exam:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. User makes request
+        ↓
+2. Django checks session cookie
+        ↓
+3. Django identifies session
+        ↓
+4. Session data becomes available
+        ↓
+5. View accesses request.session
+        ↓
+6. View modifies session if needed
+        ↓
+7. Django saves session
+        ↓
+8. Response sent</code></pre></div>
+<hr>
+<h1 id="h-3102-44-complete-mini-example">44. Complete Mini Example</h1>
+<h3 id="h-3103-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def set_session(request):
+
+    request.session["username"] = "Aman"
+    request.session["course"] = "CSE"
+
+    return HttpResponse(
+        "Session created"
+    )
+
+
+def get_session(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    course = request.session.get(
+        "course",
+        "Unknown"
+    )
+
+    return HttpResponse(
+        f"Name: {username}, Course: {course}"
+    )
+
+
+def delete_session(request):
+
+    request.session.flush()
+
+    return HttpResponse(
+        "Session cleared"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3104-45-url-configuration">45. URL Configuration</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "set-session/",
+        views.set_session,
+        name="set_session"
+    ),
+
+    path(
+        "get-session/",
+        views.get_session,
+        name="get_session"
+    ),
+
+    path(
+        "delete-session/",
+        views.delete_session,
+        name="delete_session"
+    ),
+]</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/set-session/</code></pre></div>
+<p>creates data.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/get-session/</code></pre></div>
+<p>reads data.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/delete-session/</code></pre></div>
+<p>clears the session.</p>
+<hr>
+<h1 id="h-3105-46-important-difference-flush-vs-logout">46. Important Difference: <code>flush()</code> vs Logout</h1>
+<p>In a real Django authentication application, don't implement logout merely as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import logout</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<p>The authentication framework handles logout appropriately.</p>
+<p>We'll cover this in detail in Module 38.</p>
+<hr>
+<h1 id="h-3106-47-common-mistakes">47. Common Mistakes</h1>
+<h3 id="h-3107-mistake-1">Mistake 1</h3>
+<p>Writing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session("username")</code></pre></div>
+<p>Wrong.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.get("username")</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"]</code></pre></div>
+<hr>
+<h3 id="h-3108-mistake-2">Mistake 2</h3>
+<p>Forgetting migrations.</p>
+<p>If using the default database session backend:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>should have been run.</p>
+<hr>
+<h3 id="h-3109-mistake-3">Mistake 3</h3>
+<p>Confusing cookie with session.</p>
+<p>Wrong:</p>
+<blockquote>"The session is stored entirely inside the session cookie."</blockquote>
+<p>For the default database-backed session engine, the browser normally stores the session identifier while session data is stored in the database.</p>
+<hr>
+<h3 id="h-3110-mistake-4">Mistake 4</h3>
+<p>Storing passwords:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["password"] = password</code></pre></div>
+<p>Don't do this.</p>
+<hr>
+<h3 id="h-3111-mistake-5">Mistake 5</h3>
+<p>Trusting session values for authorization without considering how they are established and maintained.</p>
+<p>Use Django's authentication and permission framework for authorization.</p>
+<hr>
+<h1 id="h-3112-48-viva-questions">48. Viva Questions</h1>
+<h3 id="h-3113-q1-what-is-a-session">Q1. What is a session?</h3>
+<blockquote>A session is a mechanism for maintaining user-specific state across multiple HTTP requests.</blockquote>
+<hr>
+<h3 id="h-3114-q2-how-do-you-set-session-data">Q2. How do you set session data?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<hr>
+<h3 id="h-3115-q3-how-do-you-retrieve-session-data">Q3. How do you retrieve session data?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.get("username")</code></pre></div>
+<hr>
+<h3 id="h-3116-q4-how-do-you-delete-one-session-key">Q4. How do you delete one session key?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>del request.session["username"]</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.pop("username", None)</code></pre></div>
+<hr>
+<h3 id="h-3117-q5-how-do-you-clear-a-session">Q5. How do you clear a session?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<hr>
+<h3 id="h-3118-q6-how-do-you-set-session-expiry">Q6. How do you set session expiry?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(3600)</code></pre></div>
+<hr>
+<h3 id="h-3119-q7-what-does-set-expiry-0-mean">Q7. What does <code>set_expiry(0)</code> mean?</h3>
+<blockquote>It causes the session cookie to expire when the browser is closed.</blockquote>
+<hr>
+<h3 id="h-3120-q8-what-is-request-session">Q8. What is <code>request.session</code>?</h3>
+<blockquote>It is Django's dictionary-like interface for accessing the current request's session data.</blockquote>
+<hr>
+<h3 id="h-3121-q9-what-is-sessionid">Q9. What is <code>sessionid</code>?</h3>
+<blockquote>It is the commonly used name of Django's session cookie, which identifies the user's session.</blockquote>
+<hr>
+<h3 id="h-3122-q10-where-is-django-s-session-data-stored">Q10. Where is Django's session data stored?</h3>
+<blockquote>With the default database-backed session engine, session data is stored in the database and the browser generally stores a session identifier.</blockquote>
+<hr>
+<h3 id="h-3123-q11-does-a-session-mean-authentication">Q11. Does a session mean authentication?</h3>
+<blockquote>No. Sessions maintain state, while authentication identifies the user. Django authentication commonly uses sessions to maintain login state.</blockquote>
+<hr>
+<h3 id="h-3124-q12-what-is-sessionmiddleware">Q12. What is <code>SessionMiddleware</code>?</h3>
+<blockquote>Middleware that enables Django's session framework to associate session data with requests and responses.</blockquote>
+<hr>
+<h3 id="h-3125-q13-what-is-session-cookie-secure">Q13. What is <code>SESSION_COOKIE_SECURE</code>?</h3>
+<blockquote>A setting that makes the session cookie sent only over HTTPS.</blockquote>
+<hr>
+<h3 id="h-3126-q14-what-is-session-cookie-httponly">Q14. What is <code>SESSION_COOKIE_HTTPONLY</code>?</h3>
+<blockquote>A setting that prevents normal client-side JavaScript from accessing the session cookie.</blockquote>
+<hr>
+<h3 id="h-3127-q15-what-is-session-cookie-age">Q15. What is <code>SESSION_COOKIE_AGE</code>?</h3>
+<blockquote>It specifies the default age of the session cookie in seconds.</blockquote>
+<hr>
+<h1 id="h-3128-49-coding-questions-you-should-be-able-to-write">49. Coding Questions You Should Be Able to Write</h1>
+<h3 id="h-3129-question-1">Question 1</h3>
+<p><strong>Store username in a session.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<h3 id="h-3130-question-2">Question 2</h3>
+<p><strong>Read username from session.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.session.get(
+    "username",
+    "Guest"
+)</code></pre></div>
+<h3 id="h-3131-question-3">Question 3</h3>
+<p><strong>Delete username.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.pop(
+    "username",
+    None
+)</code></pre></div>
+<h3 id="h-3132-question-4">Question 4</h3>
+<p><strong>Clear entire session.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<h3 id="h-3133-question-5">Question 5</h3>
+<p><strong>Set session expiry to one hour.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(3600)</code></pre></div>
+<h3 id="h-3134-question-6">Question 6</h3>
+<p><strong>Get session ID.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>session_id = request.session.session_key</code></pre></div>
+<hr>
+<h1 id="h-3135-50-the-most-important-diagram">50. The Most Important Diagram</h1>
+<p>Memorize this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    HTTP
+                     │
+                     ↓
+                  Browser
+                     │
+              sessionid cookie
+                     │
+                     ↓
+                  Django
+                     │
+              SessionMiddleware
+                     │
+                     ↓
+              request.session
+                     │
+                     ↓
+             Session Backend
+                     │
+                     ↓
+              Session Data</code></pre></div>
+<p>For the default database backend:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   │
+   │ sessionid
+   ↓
+Django
+   │
+   ↓
+Database
+   │
+   └── session data</code></pre></div>
+<hr>
+<h1 id="h-3136-51-cookie-vs-session-final-revision">51. Cookie vs Session — Final Revision</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Feature</th>
+<th>Cookie</th>
+<th>Session</th>
+</tr></thead><tbody>
+<tr>
+<td>Main purpose</td>
+<td>Store/send browser data</td>
+<td>Maintain state across requests</td>
+</tr>
+<tr>
+<td>Main data location</td>
+<td>Browser</td>
+<td>Usually server</td>
+</tr>
+<tr>
+<td>Django API</td>
+<td><code>request.COOKIES</code></td>
+<td><code>request.session</code></td>
+</tr>
+<tr>
+<td>Set</td>
+<td><code>response.set_cookie()</code></td>
+<td><code>request.session[key] = value</code></td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>request.COOKIES.get()</code></td>
+<td><code>request.session.get()</code></td>
+</tr>
+<tr>
+<td>Delete</td>
+<td><code>response.delete_cookie()</code></td>
+<td><code>del</code>, <code>pop()</code>, <code>flush()</code></td>
+</tr>
+<tr>
+<td>Login state</td>
+<td>Can participate</td>
+<td>Commonly used</td>
+</tr>
+<tr>
+<td>Sensitive data</td>
+<td>Don't trust plain client values</td>
+<td>Better suited to server-side state</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-3137-52-what-you-must-remember-for-exams">52. What You Must Remember for Exams</h1>
+<p>If the teacher asks:</p>
+<p><strong>"How do you store data in a Django session?"</strong></p>
+<p>Write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<p><strong>"How do you retrieve it?"</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.session.get("username")</code></pre></div>
+<p><strong>"How do you remove it?"</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.pop("username", None)</code></pre></div>
+<p><strong>"How do you clear the session?"</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<p><strong>"How do you set expiry?"</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.set_expiry(3600)</code></pre></div>
+<p><strong>"What is the difference between cookie and session?"</strong></p>
+<blockquote>A cookie is stored by the browser, whereas Django sessions normally store session data on the server and use a session cookie to identify the session.</blockquote>
+<hr>
+<h2 id="h-3138-module-36-complete">Module 36 Complete ✅</h2>
+<p>You now have the foundation for <strong>Django login systems</strong>.</p>
+<p>The remaining authentication sequence is especially important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Module 35 → Cookies
+Module 36 → Sessions
+Module 37 → Django Users
+Module 38 → Login &amp; Logout
+Module 39 → Protecting Views</code></pre></div>
+<p><strong>Next → Module 37: Django Users</strong></p>
+<p>We'll learn the built-in <code>User</code> model, creating users, passwords, <code>request.user</code>, <code>is_authenticated</code>, <code>is_staff</code>, <code>is_superuser</code>, user management, and how Django represents anonymous vs authenticated users.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-35.html">← Module 35: Cookies in Django</a>
+<a class="pn-btn pn-next" href="module-37.html">Module 37: Django Users →</a>
+</div>
+
+</div>
+
+</body>
+</html>

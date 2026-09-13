@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6: Your First Django View — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 6 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 6 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Your First Django View</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<span class="nav-item current">6. Your First Django View</span>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-5.html">← Module 5: Creating a Django App</a>
+<a class="pn-btn pn-next" href="module-7.html">Module 7: URL Routing in Depth →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-336-module-6-your-first-django-view">Module 6 — Your First Django View</h1>
+<p>Now we are entering the <strong>core of Django</strong>.</p>
+<p>You already know:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Project
+   ↓
+App
+   ↓
+views.py</code></pre></div>
+<p>Now we'll connect everything:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Response
+   ↓
+Browser</code></pre></div>
+<p>By the end of this module, you should be able to independently write a basic Django view and understand exactly what happens when the browser requests a page.</p>
+<hr>
+<h1 id="h-337-1-what-is-a-view">1. What is a View?</h1>
+<p>A <strong>view</strong> is the part of a Django application that receives an HTTP request and returns an HTTP response.</p>
+<p>In simple words:</p>
+<blockquote><strong>View = code that decides what response the user should receive.</strong></blockquote>
+<p>For example, if a user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>Django can call an <code>about</code> view, which might return:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to About Page</code></pre></div>
+<hr>
+<h1 id="h-338-2-where-do-we-write-views">2. Where Do We Write Views?</h1>
+<p>For an app called:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>the views normally go in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/views.py</code></pre></div>
+<p>Initially Django generates something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+# Create your views here.</code></pre></div>
+<p>We'll modify this file.</p>
+<hr>
+<h1 id="h-339-3-your-first-view">3. Your First View</h1>
+<p>Replace/add the following:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>That's a complete basic Django view.</p>
+<p>Let's understand every part.</p>
+<hr>
+<h1 id="h-340-4-importing-httpresponse">4. Importing <code>HttpResponse</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse</code></pre></div>
+<p>We're importing <code>HttpResponse</code> from:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django.http</code></pre></div>
+<p><code>HttpResponse</code> allows us to send a response back to the browser.</p>
+<hr>
+<h1 id="h-341-5-creating-the-view-function">5. Creating the View Function</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>This is a normal Python function.</p>
+<p>The function name is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home</code></pre></div>
+<p>The parameter:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request</code></pre></div>
+<p>represents the incoming HTTP request.</p>
+<hr>
+<h1 id="h-342-6-why-does-the-view-have-request">6. Why Does the View Have <code>request</code>?</h1>
+<p>When Django calls your view, it passes an <code>HttpRequest</code> object containing information about the incoming request.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | Request
+   ↓
+Django
+   |
+   | request object
+   ↓
+home(request)</code></pre></div>
+<p>The request can contain information such as:</p>
+<ul>
+<li>HTTP method</li>
+<li>URL/path</li>
+<li>GET parameters</li>
+<li>POST data</li>
+<li>cookies</li>
+<li>authenticated user</li>
+<li>headers</li>
+</ul>
+<p>We'll explore these in Unit II and Unit VI.</p>
+<hr>
+<h1 id="h-343-7-returning-a-response">7. Returning a Response</h1>
+<p>Our code:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello World")</code></pre></div>
+<p>creates an HTTP response.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home(request)
+      ↓
+HttpResponse("Hello World")
+      ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-344-8-is-request-a-string">8. Is <code>request</code> a String?</h1>
+<p>No.</p>
+<p>This is important.</p>
+<p><code>request</code> is an object representing the HTTP request.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    print(request.method)
+    return HttpResponse("Hello")</code></pre></div>
+<p>If the browser makes a GET request, this could print:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET</code></pre></div>
+<p>We'll learn more about this later.</p>
+<hr>
+<h1 id="h-345-9-now-we-have-a-problem">9. Now We Have a Problem</h1>
+<p>We created:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>But if you open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>Django doesn't automatically know that <code>/students/</code> should call <code>home()</code>.</p>
+<p>We need <strong>URL routing</strong>.</p>
+<p>This is the next important concept.</p>
+<hr>
+<h1 id="h-346-10-url-routing">10. URL Routing</h1>
+<p>URL routing means:</p>
+<blockquote>Connecting a URL pattern to a view.</blockquote>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/
+     ↓
+home()</code></pre></div>
+<p>Django's URL system performs this mapping.</p>
+<hr>
+<h1 id="h-347-11-create-urls-py-inside-the-app">11. Create <code>urls.py</code> Inside the App</h1>
+<p>Django does not automatically create <code>urls.py</code> when using <code>startapp</code>.</p>
+<p>So create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── urls.py
+├── views.py
+├── models.py
+└── ...</code></pre></div>
+<p>Now our app has its own URL configuration.</p>
+<hr>
+<h1 id="h-348-12-write-the-app-s-urls-py">12. Write the App's <code>urls.py</code></h1>
+<p>Inside:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home),
+]</code></pre></div>
+<p>Don't worry if this looks confusing.</p>
+<p>We'll break it down.</p>
+<hr>
+<h1 id="h-349-13-from-django-urls-import-path">13. <code>from django.urls import path</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path</code></pre></div>
+<p>We're importing Django's <code>path()</code> function.</p>
+<p><code>path()</code> is used to define URL patterns.</p>
+<hr>
+<h1 id="h-350-14-from-import-views">14. <code>from . import views</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from . import views</code></pre></div>
+<p>The <code>.</code> means:</p>
+<blockquote>Current package/app.</blockquote>
+<p>So this means:</p>
+<blockquote>Import the <code>views</code> module from the current app.</blockquote>
+<p>Our structure is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── urls.py
+└── views.py</code></pre></div>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from . import views</code></pre></div>
+<p>imports:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/views.py</code></pre></div>
+<hr>
+<h1 id="h-351-15-urlpatterns">15. <code>urlpatterns</code></h1>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+]</code></pre></div>
+<p>Django expects URL patterns to be placed in <code>urlpatterns</code>.</p>
+<p>This is a special convention used by Django's URL dispatcher.</p>
+<hr>
+<h1 id="h-352-16-our-first-url-pattern">16. Our First URL Pattern</h1>
+<p>We write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>This means:</p>
+<blockquote>When this URL configuration receives the empty path, call <code>views.home</code>.</blockquote>
+<p>The empty string:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>''</code></pre></div>
+<p>represents the root of the URL configuration being included.</p>
+<hr>
+<h1 id="h-353-17-but-how-does-django-reach-students-urls-py">17. But How Does Django Reach <code>students/urls.py</code>?</h1>
+<p>Excellent question.</p>
+<p>Currently Django primarily knows about:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py</code></pre></div>
+<p>It doesn't automatically know that:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>exists.</p>
+<p>So we need to connect the app URLs to the project URLs.</p>
+<hr>
+<h1 id="h-354-18-open-project-urls-py">18. Open Project <code>urls.py</code></h1>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py</code></pre></div>
+<p>You'll initially have something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+]</code></pre></div>
+<p>We'll modify it.</p>
+<hr>
+<h1 id="h-355-19-import-include">19. Import <code>include</code></h1>
+<p>Change:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path</code></pre></div>
+<p>to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include</code></pre></div>
+<p>Now we can use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>include()</code></pre></div>
+<hr>
+<h1 id="h-356-20-connect-the-app">20. Connect the App</h1>
+<p>Change <code>urlpatterns</code> to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<p>Now we have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+     ↓
+students.urls
+     ↓
+views.home</code></pre></div>
+<hr>
+<h1 id="h-357-21-complete-code">21. Complete Code</h1>
+<p>Let's see all three files.</p>
+<h2 id="h-358-students-views-py"><code>students/views.py</code></h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<hr>
+<h2 id="h-359-students-urls-py"><code>students/urls.py</code></h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home),
+]</code></pre></div>
+<hr>
+<h2 id="h-360-college-urls-py"><code>College/urls.py</code></h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<hr>
+<h1 id="h-361-22-now-run-the-server">22. Now Run the Server</h1>
+<p>From the directory containing <code>manage.py</code>:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/students/</code></pre></div>
+<p>You should see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello World</code></pre></div>
+<p>🎉 You have just created your first URL → View → Response Django application.</p>
+<hr>
+<h1 id="h-362-23-understand-the-entire-flow">23. Understand the Entire Flow</h1>
+<p>This is <strong>VERY IMPORTANT</strong>.</p>
+<p>You visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/students/</code></pre></div>
+<h3 id="h-363-step-1-browser">Step 1 — Browser</h3>
+<p>Browser sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /students/</code></pre></div>
+<h3 id="h-364-step-2-project-urls-py">Step 2 — Project <code>urls.py</code></h3>
+<p>Django finds:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>So Django says:</p>
+<blockquote><code>/students/</code> belongs to <code>students.urls</code>.</blockquote>
+<hr>
+<h3 id="h-365-step-3-app-urls-py">Step 3 — App <code>urls.py</code></h3>
+<p>Django enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>and sees:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>The remaining path is empty:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>''</code></pre></div>
+<p>So Django calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.home(request)</code></pre></div>
+<hr>
+<h3 id="h-366-step-4-view">Step 4 — View</h3>
+<p>The view executes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello World")</code></pre></div>
+<hr>
+<h3 id="h-367-step-5-browser">Step 5 — Browser</h3>
+<p>Django sends the HTTP response back.</p>
+<p>Browser displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello World</code></pre></div>
+<hr>
+<h1 id="h-368-24-complete-diagram">24. Complete Diagram</h1>
+<p>Memorize the <strong>concept</strong>, not just the code:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | GET /students/
+   ↓
+College/urls.py
+   |
+   | students/
+   ↓
+students/urls.py
+   |
+   | ''
+   ↓
+views.home(request)
+   |
+   ↓
+HttpResponse("Hello World")
+   |
+   ↓
+Browser</code></pre></div>
+<p>This is the foundation of Django URL routing.</p>
+<hr>
+<h1 id="h-369-25-why-do-we-use-include">25. Why Do We Use <code>include()</code>?</h1>
+<p>Suppose we have many apps:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+teachers
+courses
+accounts</code></pre></div>
+<p>Instead of putting every URL in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py</code></pre></div>
+<p>we can organize them:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py
+     |
+     +-- students/urls.py
+     |
+     +-- teachers/urls.py
+     |
+     +-- courses/urls.py
+     |
+     +-- accounts/urls.py</code></pre></div>
+<p>This keeps the project organized.</p>
+<hr>
+<h1 id="h-370-26-why-is-include-better">26. Why Is <code>include()</code> Better?</h1>
+<p>Imagine 100 URLs.</p>
+<p>Without app-level organization:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('students/', ...),
+    path('students/add/', ...),
+    path('students/delete/', ...),
+    path('teachers/', ...),
+    path('teachers/add/', ...),
+    path('courses/', ...),
+    ...
+]</code></pre></div>
+<p>The project URL file becomes huge.</p>
+<p>With <code>include()</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('students/', include('students.urls')),
+    path('teachers/', include('teachers.urls')),
+    path('courses/', include('courses.urls')),
+]</code></pre></div>
+<p>Each app manages its own URLs.</p>
+<hr>
+<h1 id="h-371-27-url-prefix-concept">27. URL Prefix Concept</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>and inside <code>students/urls.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>The final URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>If we instead write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('list/', views.home)</code></pre></div>
+<p>the final URL becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/list/</code></pre></div>
+<p>So Django effectively combines:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
++
+list/
+=
+students/list/</code></pre></div>
+<hr>
+<h1 id="h-372-28-another-example">28. Another Example</h1>
+<p>Suppose:</p>
+<h3 id="h-373-project-url">Project URL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('products/', include('products.urls'))</code></pre></div>
+<h3 id="h-374-app-url">App URL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('all/', views.all_products)</code></pre></div>
+<p>Then the final URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/products/all/</code></pre></div>
+<p>and it calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.all_products</code></pre></div>
+<hr>
+<h1 id="h-375-29-does-the-url-have-to-match-the-function-name">29. Does the URL Have to Match the Function Name?</h1>
+<p>No.</p>
+<p>You can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>The URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>calls:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home()</code></pre></div>
+<p>The function name and URL don't have to be identical.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('abc/', views.home)</code></pre></div>
+<p>would mean:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/abc/</code></pre></div>
+<p>calls:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home()</code></pre></div>
+<hr>
+<h1 id="h-376-30-multiple-urls">30. Multiple URLs</h1>
+<p>We can have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('', views.home),
+    path('about/', views.about),
+    path('contact/', views.contact),
+]</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/          → home()
+/students/about/    → about()
+/students/contact/  → contact()</code></pre></div>
+<hr>
+<h1 id="h-377-31-multiple-views">31. Multiple Views</h1>
+<p>Our <code>views.py</code> could contain:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Home Page")
+
+def about(request):
+    return HttpResponse("About Page")
+
+def contact(request):
+    return HttpResponse("Contact Page")</code></pre></div>
+<p>And URLs:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home),
+    path('about/', views.about),
+    path('contact/', views.contact),
+]</code></pre></div>
+<p>Now you have three pages.</p>
+<hr>
+<h1 id="h-378-32-important-why-request-comes-first">32. Important: Why <code>request</code> Comes First</h1>
+<p>You'll generally see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>not:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home():</code></pre></div>
+<p>Django passes the HTTP request object to the view.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+   ↓
+home(request)</code></pre></div>
+<p>If you omit the required parameter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home():</code></pre></div>
+<p>Django will not be able to call it in the expected way.</p>
+<hr>
+<h1 id="h-379-33-can-we-name-it-something-other-than-request">33. Can We Name It Something Other Than <code>request</code>?</h1>
+<p>Technically, yes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(req):
+    return HttpResponse("Hello")</code></pre></div>
+<p>Python doesn't require the variable to be called <code>request</code>.</p>
+<p>But conventionally, use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request</code></pre></div>
+<p>because it clearly communicates what the object represents.</p>
+<hr>
+<h1 id="h-380-34-what-is-httpresponse">34. What is <code>HttpResponse</code>?</h1>
+<p><code>HttpResponse</code> represents an HTTP response that Django can send back to the client.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello")</code></pre></div>
+<p>You can return HTML too:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("&lt;h1&gt;Hello&lt;/h1&gt;")</code></pre></div>
+<p>The browser can render the HTML.</p>
+<p>However, in real Django applications, we'll generally use <strong>templates</strong> for HTML rather than putting large HTML strings inside views.</p>
+<hr>
+<h1 id="h-381-35-common-mistake-forgetting-include">35. Common Mistake — Forgetting <code>include</code></h1>
+<p>Suppose you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>but don't import <code>include</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path</code></pre></div>
+<p>You'll get an error because <code>include</code> isn't defined.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include</code></pre></div>
+<hr>
+<h1 id="h-382-36-common-mistake-wrong-app-url">36. Common Mistake — Wrong App URL</h1>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>but write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('student.urls'))</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>Django won't find the specified module.</p>
+<p>The name must match your app/module structure.</p>
+<hr>
+<h1 id="h-383-37-common-mistake-wrong-view-name">37. Common Mistake — Wrong View Name</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>but URL says:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home_page)</code></pre></div>
+<p>There is no:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home_page</code></pre></div>
+<p>view.</p>
+<p>So Django will produce an error.</p>
+<p>The referenced view must exist.</p>
+<hr>
+<h1 id="h-384-38-common-mistake-missing-trailing-slash">38. Common Mistake — Missing Trailing Slash</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('about/', views.about)</code></pre></div>
+<p>The conventional URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>Django's handling of missing trailing slashes can depend on configuration, especially <code>APPEND_SLASH</code> and middleware, but don't rely on automatic behavior in exam code.</p>
+<p>For now, write the URL exactly as defined.</p>
+<hr>
+<h1 id="h-385-39-viva-questions">39. Viva Questions</h1>
+<h3 id="h-386-q1-what-is-a-view">Q1. What is a view?</h3>
+<blockquote>A view is a function or class that receives a request and returns a response.</blockquote>
+<hr>
+<h3 id="h-387-q2-where-are-function-based-views-generally-writte">Q2. Where are function-based views generally written?</h3>
+<blockquote>In the app's <code>views.py</code> file.</blockquote>
+<hr>
+<h3 id="h-388-q3-what-is-httpresponse">Q3. What is <code>HttpResponse</code>?</h3>
+<blockquote><code>HttpResponse</code> is a Django class used to construct an HTTP response that can be returned to the client.</blockquote>
+<hr>
+<h3 id="h-389-q4-why-does-a-view-accept-request">Q4. Why does a view accept <code>request</code>?</h3>
+<blockquote>Django passes the incoming HTTP request object to the view so the view can access information about the request.</blockquote>
+<hr>
+<h3 id="h-390-q5-what-is-urlpatterns">Q5. What is <code>urlpatterns</code>?</h3>
+<blockquote><code>urlpatterns</code> is the list containing URL patterns that Django's URL dispatcher uses for routing requests.</blockquote>
+<hr>
+<h3 id="h-391-q6-what-is-path">Q6. What is <code>path()</code>?</h3>
+<blockquote><code>path()</code> is a Django function used to define URL patterns.</blockquote>
+<hr>
+<h3 id="h-392-q7-what-is-include">Q7. What is <code>include()</code>?</h3>
+<blockquote><code>include()</code> allows one URL configuration to include URL patterns from another URL configuration, commonly an app's <code>urls.py</code>.</blockquote>
+<hr>
+<h3 id="h-393-q8-why-do-we-use-app-level-urls-py">Q8. Why do we use app-level <code>urls.py</code>?</h3>
+<blockquote>It helps organize URL patterns by application and keeps the project URL configuration maintainable.</blockquote>
+<hr>
+<h1 id="h-394-40-viva-trap-question">40. Viva Trap Question ⚠️</h1>
+<h3 id="h-395-teacher">Teacher:</h3>
+<blockquote>"Does <code>views.py</code> automatically connect a function to a URL?"</blockquote>
+<p><strong>Answer:</strong></p>
+<blockquote>No. Defining a view only creates the request-handling logic. We must map a URL pattern to that view using Django's URL configuration.</blockquote>
+<p>Excellent distinction.</p>
+<hr>
+<h1 id="h-396-41-viva-trap-question">41. Viva Trap Question</h1>
+<h3 id="h-397-teacher">Teacher:</h3>
+<blockquote>"Can a view return something other than <code>HttpResponse</code>?"</blockquote>
+<p>Yes.</p>
+<p>A view can return an appropriate HTTP response, including responses produced by helpers such as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render()</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect()</code></pre></div>
+<p>and other response types.</p>
+<p>We'll learn <code>render()</code> in the Templates section and <code>redirect()</code> when we study forms/POST handling.</p>
+<hr>
+<h1 id="h-398-42-coding-questions">42. Coding Questions</h1>
+<h2 id="h-399-question-1">Question 1</h2>
+<p>Create a view called <code>welcome</code> that returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to Django</code></pre></div>
+<h3 id="h-400-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def welcome(request):
+    return HttpResponse("Welcome to Django")</code></pre></div>
+<hr>
+<h2 id="h-401-question-2">Question 2</h2>
+<p>Map <code>/welcome/</code> to the <code>welcome</code> view.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('welcome/', views.welcome),
+]</code></pre></div>
+<hr>
+<h2 id="h-402-question-3">Question 3</h2>
+<p>Create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/hello/</code></pre></div>
+<p>that returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Student</code></pre></div>
+<h3 id="h-403-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def hello(request):
+    return HttpResponse("Hello Student")</code></pre></div>
+<h3 id="h-404-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('hello/', views.hello),
+]</code></pre></div>
+<hr>
+<h1 id="h-405-43-challenge-predict-the-url">43. Challenge: Predict the URL</h1>
+<p>Suppose project <code>urls.py</code> contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>and <code>students/urls.py</code> contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('profile/', views.profile)</code></pre></div>
+<p>What URL calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.profile</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/profile/</code></pre></div>
+<p>Because:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
++
+profile/
+=
+students/profile/</code></pre></div>
+<hr>
+<h1 id="h-406-44-challenge-predict-the-view">44. Challenge: Predict the View</h1>
+<p>Suppose:</p>
+<h3 id="h-407-project">Project:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('shop/', include('products.urls'))</code></pre></div>
+<h3 id="h-408-app">App:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('list/', views.product_list)</code></pre></div>
+<p>A user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/shop/list/</code></pre></div>
+<p>Which view executes?</p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>views.product_list</code></pre></div>
+<hr>
+<h1 id="h-409-module-6-what-you-must-remember">⭐ Module 6 — What You Must Remember</h1>
+<p>The most important flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Project urls.py
+   ↓
+include()
+   ↓
+App urls.py
+   ↓
+View
+   ↓
+HttpResponse
+   ↓
+Browser</code></pre></div>
+<h3 id="h-410-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<h3 id="h-411-app-url">App URL:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('', views.home),
+]</code></pre></div>
+<h3 id="h-412-project-url">Project URL:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/
+      ↓
+students.urls
+      ↓
+views.home
+      ↓
+"Hello World"</code></pre></div>
+<hr>
+<h1 id="h-413-module-6-practical-test">🎯 Module 6 Practical Test</h1>
+<p>Don't look back while attempting this.</p>
+<h3 id="h-414-task">Task</h3>
+<p>You have a Django project named <code>College</code> and an app named <code>students</code>.</p>
+<p>Create a page:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/students/</code></pre></div>
+<p>that displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to College Students</code></pre></div>
+<p>You need to write:</p>
+<h3 id="h-415-students-views-py"><code>students/views.py</code></h3>
+<h3 id="h-416-students-urls-py"><code>students/urls.py</code></h3>
+<h3 id="h-417-college-urls-py"><code>College/urls.py</code></h3>
+<p>Also answer:</p>
+<ol>
+<li>What does <code>request</code> represent?</li>
+<li>What does <code>HttpResponse</code> do?</li>
+<li>What is the purpose of <code>include()</code>?</li>
+<li>Why do we use <code>urlpatterns</code>?</li>
+<li>What is the complete request flow when <code>/students/</code> is opened?</li>
+<li>What happens if the view exists but there is no URL mapping?</li>
+<li>What happens if the URL references a view that doesn't exist?</li>
+</ol>
+<p><strong>Don't worry if you can't write it perfectly yet.</strong> The next modules will build on exactly this code.</p>
+<p>Say <strong>“next”</strong> when you're ready for <strong>Module 7 — URL Routing in Depth</strong>, where we'll go beyond simple URLs and learn <code>path()</code>, multiple routes, named URLs, <code>include()</code>, URL namespaces, and how Django chooses which URL pattern to execute.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-5.html">← Module 5: Creating a Django App</a>
+<a class="pn-btn pn-next" href="module-7.html">Module 7: URL Routing in Depth →</a>
+</div>
+
+</div>
+
+</body>
+</html>

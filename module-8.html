@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 8: HTTP Requests & Responses — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 8 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 8 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">HTTP Requests &amp; Responses</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<span class="nav-item current">8. HTTP Requests &amp; Responses</span>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-7.html">← Module 7: URL Routing in Depth</a>
+<a class="pn-btn pn-next" href="module-9.html">Module 9: URL Parameters in Depth →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-506-module-8-http-requests-responses-in-django">Module 8 — HTTP Requests &amp; Responses in Django</h1>
+<p>Now we're going deeper into something you've already used:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>You know that <code>request</code> represents the incoming HTTP request.</p>
+<p>Now we'll learn <strong>what is actually inside <code>request</code></strong>, how to read it, and how Django sends responses back.</p>
+<p>This module is very important because it connects directly to:</p>
+<ul>
+<li><strong>Unit II — HTTP requests</strong></li>
+<li><strong>Unit IV — GET/POST</strong></li>
+<li>Forms</li>
+<li>Authentication</li>
+<li>Cookies</li>
+<li>Sessions</li>
+<li>APIs</li>
+</ul>
+<hr>
+<h1 id="h-507-1-what-is-an-http-request">1. What Is an HTTP Request?</h1>
+<p>Whenever a browser communicates with a web server, it sends a <strong>request</strong>.</p>
+<p>For example, when you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/students/</code></pre></div>
+<p>the browser sends an HTTP request to Django.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | HTTP Request
+   ↓
+Django</code></pre></div>
+<p>The request contains information about what the browser wants.</p>
+<hr>
+<h1 id="h-508-2-what-is-an-http-response">2. What Is an HTTP Response?</h1>
+<p>After processing the request, Django sends a response.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | Request
+   ↓
+Django
+   |
+   | Response
+   ↓
+Browser</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>The:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>HttpResponse("Hello World")</code></pre></div>
+<p>is the response.</p>
+<hr>
+<h1 id="h-509-3-request-response-cycle">3. Request-Response Cycle</h1>
+<p>The basic cycle is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. User opens URL
+        ↓
+2. Browser creates HTTP request
+        ↓
+3. Django receives request
+        ↓
+4. URL routing finds view
+        ↓
+5. View processes request
+        ↓
+6. View creates response
+        ↓
+7. Django sends response
+        ↓
+8. Browser displays result</code></pre></div>
+<p>Remember this flow for your viva.</p>
+<hr>
+<h1 id="h-510-4-the-request-object">4. The <code>request</code> Object</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    ...</code></pre></div>
+<p>The <code>request</code> parameter is an instance of Django's <code>HttpRequest</code> class.</p>
+<p>It contains information about the incoming request.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user</code></pre></div>
+<p>We'll look at these one by one.</p>
+<hr>
+<h1 id="h-511-5-request-method">5. <code>request.method</code></h1>
+<p>This tells you which HTTP method was used.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(request.method)</code></pre></div>
+<p>If you visit the page normally in your browser, you'll usually get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET</code></pre></div>
+<p>because browsers commonly use GET when retrieving a page.</p>
+<hr>
+<h1 id="h-512-6-get-request">6. GET Request</h1>
+<p>GET is generally used when the client wants to <strong>retrieve data</strong>.</p>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/products/
+students/10/
+search/?q=django</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | GET /products/
+   ↓
+Django
+   |
+   ↓
+Return products</code></pre></div>
+<hr>
+<h1 id="h-513-7-post-request">7. POST Request</h1>
+<p>POST is generally used when the client wants to <strong>submit data to the server</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Registration form
+      ↓
+POST
+      ↓
+Django
+      ↓
+Create user</code></pre></div>
+<p>Example data:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name = Aman
+Email = aman@example.com</code></pre></div>
+<p>We'll study POST extensively in the Forms unit.</p>
+<hr>
+<h1 id="h-514-8-get-vs-post">8. GET vs POST</h1>
+<p>This is a <strong>very common viva question</strong>.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>GET</th>
+<th>POST</th>
+</tr></thead><tbody>
+<tr>
+<td>Usually retrieves data</td>
+<td>Usually submits data</td>
+</tr>
+<tr>
+<td>Data often appears in URL query string</td>
+<td>Data is sent in request body</td>
+</tr>
+<tr>
+<td>Can be bookmarked/shared with query parameters</td>
+<td>Usually not represented by URL</td>
+</tr>
+<tr>
+<td>Should not be relied on for sensitive data</td>
+<td>Better suited for submitting sensitive form data, though HTTPS is still required</td>
+</tr>
+<tr>
+<td>Common for searches/filtering</td>
+<td>Common for login/forms/create operations</td>
+</tr>
+</tbody></table></div>
+<p>Important:</p>
+<blockquote><strong>POST is not automatically secure.</strong></blockquote>
+<p>For example, passwords should still be sent over <strong>HTTPS</strong>.</p>
+<hr>
+<h1 id="h-515-9-request-get">9. <code>request.GET</code></h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET</code></pre></div>
+<p>to access query parameters sent using GET.</p>
+<p>Suppose the URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?name=Aman</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def search(request):
+    name = request.GET.get('name')
+    return HttpResponse(f"Searching for {name}")</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Searching for Aman</code></pre></div>
+<hr>
+<h1 id="h-516-10-why-use-get">10. Why Use <code>.get()</code>?</h1>
+<p>You might write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.GET.get('name')</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.GET['name']</code></pre></div>
+<p>The <code>.get()</code> approach is generally safer when the parameter might be missing.</p>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/</code></pre></div>
+<p>is requested without <code>name</code>, then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get('name')</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>None</code></pre></div>
+<p>whereas:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET['name']</code></pre></div>
+<p>can raise a <code>KeyError</code>.</p>
+<hr>
+<h1 id="h-517-11-example-simple-search">11. Example: Simple Search</h1>
+<h3 id="h-518-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def search(request):
+    name = request.GET.get('name')
+
+    if name:
+        return HttpResponse(f"Searching for {name}")
+
+    return HttpResponse("Please enter a name")</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?name=Aman</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Searching for Aman</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Please enter a name</code></pre></div>
+<hr>
+<h1 id="h-519-12-multiple-get-parameters">12. Multiple GET Parameters</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?name=Aman&amp;age=21</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def search(request):
+    name = request.GET.get('name')
+    age = request.GET.get('age')
+
+    return HttpResponse(
+        f"Name: {name}, Age: {age}"
+    )</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman, Age: 21</code></pre></div>
+<hr>
+<h1 id="h-520-13-query-string">13. Query String</h1>
+<p>The part after <code>?</code> is called the <strong>query string</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?name=Aman&amp;age=21</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/</code></pre></div>
+<p>is the path.</p>
+<p>And:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name=Aman&amp;age=21</code></pre></div>
+<p>is the query string.</p>
+<hr>
+<h1 id="h-521-14-request-path">14. <code>request.path</code></h1>
+<p>You can get the requested path using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.path</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(request.path)</code></pre></div>
+<p>If you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>you'll get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<hr>
+<h1 id="h-522-15-request-method-request-path">15. <code>request.method</code> + <code>request.path</code></h1>
+<p>You can combine them:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(
+        f"Method: {request.method}, Path: {request.path}"
+    )</code></pre></div>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>you might see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Method: GET, Path: /students/</code></pre></div>
+<hr>
+<h1 id="h-523-16-request-headers">16. <code>request.headers</code></h1>
+<p>HTTP requests contain headers.</p>
+<p>Django exposes them through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.headers</code></pre></div>
+<p>For example, you can inspect a specific header:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user_agent = request.headers.get('User-Agent')</code></pre></div>
+<p>This can tell you information about the browser/client.</p>
+<p>Don't rely on browser-provided headers as proof of identity or security.</p>
+<hr>
+<h1 id="h-524-17-request-cookies">17. <code>request.COOKIES</code></h1>
+<p>Django allows you to read cookies using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cookie_value = request.COOKIES.get('username')</code></pre></div>
+<p>We'll study cookies in detail in Unit VI.</p>
+<p>For now:</p>
+<blockquote><code>request.COOKIES</code> contains cookies sent by the browser with the request.</blockquote>
+<hr>
+<h1 id="h-525-18-request-user">18. <code>request.user</code></h1>
+<p>Django's authentication system provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>This represents the current user associated with the request.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def profile(request):
+    return HttpResponse(
+        f"Hello {request.user}"
+    )</code></pre></div>
+<p>If the user is authenticated, this can represent that user.</p>
+<p>We'll study authentication later.</p>
+<hr>
+<h1 id="h-526-19-request-get-vs-request-post">19. <code>request.GET</code> vs <code>request.POST</code></h1>
+<p>Very important.</p>
+<h3 id="h-527-get-data">GET data</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?q=django</code></pre></div>
+<h3 id="h-528-post-data">POST data</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Form submission
+Name = Aman</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def register(request):
+    name = request.POST.get('name')</code></pre></div>
+<hr>
+<h1 id="h-529-20-handling-get-and-post-in-the-same-view">20. Handling GET and POST in the Same View</h1>
+<p>A common pattern is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def register(request):
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(f"Registered: {name}")
+
+    return HttpResponse("Registration form")</code></pre></div>
+<p>The logic is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   |
+   ├── GET
+   |    ↓
+   |  Show form
+   |
+   └── POST
+        ↓
+      Process data</code></pre></div>
+<p>This pattern will become very important when we learn Django Forms.</p>
+<hr>
+<h1 id="h-530-21-important-security-point">21. Important Security Point</h1>
+<p>Never assume:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<p>means the data is automatically safe.</p>
+<p>User input can be malicious.</p>
+<p>Django provides tools for:</p>
+<ul>
+<li>Validation</li>
+<li>CSRF protection</li>
+<li>ORM parameterization</li>
+<li>Authentication</li>
+<li>Password hashing</li>
+</ul>
+<p>We'll study these throughout the course.</p>
+<hr>
+<h1 id="h-531-22-httpresponse">22. <code>HttpResponse</code></h1>
+<p>We've already used:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def hello(request):
+    return HttpResponse("Hello")</code></pre></div>
+<p>This creates an HTTP response.</p>
+<hr>
+<h1 id="h-532-23-returning-html">23. Returning HTML</h1>
+<p><code>HttpResponse</code> can contain HTML.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("&lt;h1&gt;Hello&lt;/h1&gt;")</code></pre></div>
+<p>The browser can render:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello</code></pre></div>
+<p>as a heading.</p>
+<p>But don't build large webpages this way.</p>
+<p>Instead, Django provides <strong>templates</strong>.</p>
+<p>We'll learn templates in Unit III.</p>
+<hr>
+<h1 id="h-533-24-http-status-codes">24. HTTP Status Codes</h1>
+<p>An HTTP response includes a status code.</p>
+<p>Common codes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200 → OK
+201 → Created
+400 → Bad Request
+401 → Unauthorized
+403 → Forbidden
+404 → Not Found
+500 → Internal Server Error</code></pre></div>
+<p>These are extremely useful in web development.</p>
+<hr>
+<h1 id="h-534-25-status-code-200">25. Status Code 200</h1>
+<p><code>200 OK</code> generally means the request was successfully processed.</p>
+<p>A normal:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello")</code></pre></div>
+<p>usually produces a response with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200</code></pre></div>
+<hr>
+<h1 id="h-535-26-status-code-404">26. Status Code 404</h1>
+<p><code>404 Not Found</code> means the requested resource could not be found.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/does-not-exist/</code></pre></div>
+<p>if there is no matching URL.</p>
+<p>Django can return a 404 response.</p>
+<hr>
+<h1 id="h-536-27-creating-a-custom-status-code">27. Creating a Custom Status Code</h1>
+<p>You can specify a status code:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse(
+    "Page not found",
+    status=404
+)</code></pre></div>
+<p>Now the response has status:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<hr>
+<h1 id="h-537-28-status-code-201">28. Status Code 201</h1>
+<p><code>201 Created</code> is commonly used when a request successfully creates a resource.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse(
+    "Student created",
+    status=201
+)</code></pre></div>
+<hr>
+<h1 id="h-538-29-status-code-400">29. Status Code 400</h1>
+<p><code>400 Bad Request</code> generally means the server cannot process the request because it is invalid.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse(
+    "Invalid request",
+    status=400
+)</code></pre></div>
+<hr>
+<h1 id="h-539-30-status-code-403">30. Status Code 403</h1>
+<p><code>403 Forbidden</code> means the server understood the request but refuses to authorize it.</p>
+<p>Example situations include access to a resource the current user isn't allowed to access.</p>
+<hr>
+<h1 id="h-540-31-status-code-401">31. Status Code 401</h1>
+<p><code>401 Unauthorized</code> traditionally indicates that authentication is required or failed.</p>
+<p>The exact semantics are important:</p>
+<blockquote><code>401</code> is about authentication, while <code>403</code> is about refusing access despite understanding the request.</blockquote>
+<p>Django authentication views and APIs can use these statuses depending on the situation.</p>
+<hr>
+<h1 id="h-541-32-jsonresponse">32. <code>JsonResponse</code></h1>
+<p>Django also provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import JsonResponse</code></pre></div>
+<p>This is used for returning JSON data.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+    data = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return JsonResponse(data)</code></pre></div>
+<p>The response is JSON-like:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">JSON</span><pre><code>{
+    "name": "Aman",
+    "age": 21
+}</code></pre></div>
+<p>This is especially useful when creating APIs.</p>
+<hr>
+<h1 id="h-542-33-httpresponse-vs-jsonresponse">33. <code>HttpResponse</code> vs <code>JsonResponse</code></h1>
+<div class="table-wrapper"><table><thead><tr>
+<th><code>HttpResponse</code></th>
+<th><code>JsonResponse</code></th>
+</tr></thead><tbody>
+<tr>
+<td>General HTTP response</td>
+<td>JSON response</td>
+</tr>
+<tr>
+<td>Can return text/HTML</td>
+<td>Designed for JSON</td>
+</tr>
+<tr>
+<td>Common for simple views</td>
+<td>Common for APIs</td>
+</tr>
+</tbody></table></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>HttpResponse("Hello")</code></pre></div>
+<p>vs:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>JsonResponse({
+    "message": "Hello"
+})</code></pre></div>
+<hr>
+<h1 id="h-543-34-returning-json-lists">34. Returning JSON Lists</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>data = [
+    {"id": 1, "name": "Aman"},
+    {"id": 2, "name": "Rahul"}
+]</code></pre></div>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return JsonResponse(data, safe=False)</code></pre></div>
+<p>Why <code>safe=False</code>?</p>
+<p>By default, <code>JsonResponse</code> expects a dictionary-like object.</p>
+<p>For a top-level list, <code>safe=False</code> is needed.</p>
+<hr>
+<h1 id="h-544-35-important-viva-question">35. Important Viva Question</h1>
+<h3 id="h-545-what-is-the-difference-between-httpresponse-and-js">What is the difference between <code>HttpResponse</code> and <code>JsonResponse</code>?</h3>
+<p>Strong answer:</p>
+<blockquote><code>HttpResponse</code> is a general-purpose Django response class for returning content such as text or HTML, while <code>JsonResponse</code> is specifically designed to return JSON-encoded data.</blockquote>
+<hr>
+<h1 id="h-546-36-request-object-important-attributes">36. Request Object — Important Attributes</h1>
+<p>You should remember these:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request
+   |
+   ├── method
+   ├── path
+   ├── GET
+   ├── POST
+   ├── COOKIES
+   ├── headers
+   └── user</code></pre></div>
+<hr>
+<h1 id="h-547-37-practical-example">37. Practical Example</h1>
+<p>Let's create a view that tells us how the request arrived.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def request_info(request):
+    method = request.method
+    path = request.path
+
+    return HttpResponse(
+        f"Method: {method}&lt;br&gt;"
+        f"Path: {path}"
+    )</code></pre></div>
+<p>If you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/request-info/</code></pre></div>
+<p>you might get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Method: GET
+Path: /request-info/</code></pre></div>
+<hr>
+<h1 id="h-548-38-practical-get-example">38. Practical GET Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def greet(request):
+    name = request.GET.get('name', 'Guest')
+
+    return HttpResponse(
+        f"Hello {name}"
+    )</code></pre></div>
+<p>URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/greet/?name=Aman</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Aman</code></pre></div>
+<p>Without a name:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/greet/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Guest</code></pre></div>
+<p>The second argument to <code>.get()</code> provides a default value.</p>
+<hr>
+<h1 id="h-549-39-practical-post-example">39. Practical POST Example</h1>
+<p>Suppose later we have an HTML form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+    &lt;input type="text" name="name"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+<p>Our view can do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def submit(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(f"Hello {name}")
+
+    return HttpResponse("Submit the form")</code></pre></div>
+<p>We'll build the full version later.</p>
+<hr>
+<h1 id="h-550-40-get-request-flow">40. GET Request Flow</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/greet/?name=Aman</code></pre></div>
+<p>The flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+GET /greet/?name=Aman
+   ↓
+Django
+   ↓
+greet(request)
+   ↓
+request.GET.get('name')
+   ↓
+"Aman"
+   ↓
+HttpResponse("Hello Aman")
+   ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-551-41-post-request-flow">41. POST Request Flow</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+POST /register/
+   ↓
+Django
+   ↓
+register(request)
+   ↓
+request.POST.get('name')
+   ↓
+Process data
+   ↓
+Response
+   ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-552-42-get-vs-url-parameters">42. GET vs URL Parameters</h1>
+<p>This is an important distinction.</p>
+<h3 id="h-553-dynamic-url">Dynamic URL:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>defined with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<p>The <code>25</code> is passed directly as a URL argument.</p>
+<hr>
+<h3 id="h-554-query-parameter">Query parameter:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/?id=25</code></pre></div>
+<p>The <code>25</code> is retrieved using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get('id')</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/
+      ↓
+URL parameter
+
+/student/?id=25
+      ↓
+GET query parameter</code></pre></div>
+<hr>
+<h1 id="h-555-43-common-mistake">43. Common Mistake</h1>
+<p>Don't write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.get('name')</code></pre></div>
+<p>For GET query parameters, use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get('name')</code></pre></div>
+<p>For POST data:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get('name')</code></pre></div>
+<hr>
+<h1 id="h-556-44-common-mistake-using-get-for-passwords">44. Common Mistake — Using GET for Passwords</h1>
+<p>Don't design a login form like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/?username=Aman&amp;password=1234</code></pre></div>
+<p>because query parameters can appear in URLs, browser history, logs, analytics, etc.</p>
+<p>Use POST for submitting credentials, and use HTTPS.</p>
+<p>Later Django's authentication system will handle this properly.</p>
+<hr>
+<h1 id="h-557-45-common-mistake-assuming-post-is-automatically-s">45. Common Mistake — Assuming POST Is Automatically Secure</h1>
+<p>This is another viva trap.</p>
+<p>Teacher:</p>
+<blockquote>"Is POST secure?"</blockquote>
+<p>Correct answer:</p>
+<blockquote>POST does not by itself provide encryption or security. HTTPS is required to protect data in transit, and the application must also use appropriate validation and security protections.</blockquote>
+<p>Excellent answer.</p>
+<hr>
+<h1 id="h-558-46-viva-questions">46. Viva Questions</h1>
+<h3 id="h-559-q1-what-is-an-http-request">Q1. What is an HTTP request?</h3>
+<blockquote>An HTTP request is a message sent by a client to a server asking it to perform an operation or return a resource.</blockquote>
+<h3 id="h-560-q2-what-is-an-http-response">Q2. What is an HTTP response?</h3>
+<blockquote>An HTTP response is the message sent by the server back to the client after processing the request.</blockquote>
+<h3 id="h-561-q3-what-is-request-method">Q3. What is <code>request.method</code>?</h3>
+<blockquote>It contains the HTTP method used for the request, such as GET or POST.</blockquote>
+<h3 id="h-562-q4-what-is-request-get">Q4. What is <code>request.GET</code>?</h3>
+<blockquote>It provides access to query parameters submitted through the GET request.</blockquote>
+<h3 id="h-563-q5-what-is-request-post">Q5. What is <code>request.POST</code>?</h3>
+<blockquote>It provides access to form data submitted through a POST request.</blockquote>
+<h3 id="h-564-q6-what-is-request-path">Q6. What is <code>request.path</code>?</h3>
+<blockquote>It contains the path portion of the requested URL.</blockquote>
+<h3 id="h-565-q7-what-is-request-cookies">Q7. What is <code>request.COOKIES</code>?</h3>
+<blockquote>It contains cookies sent by the client with the request.</blockquote>
+<h3 id="h-566-q8-what-is-request-user">Q8. What is <code>request.user</code>?</h3>
+<blockquote>It represents the user associated with the request through Django's authentication system.</blockquote>
+<hr>
+<h1 id="h-567-47-status-code-viva">47. Status Code Viva</h1>
+<h3 id="h-568-q-what-does-200-mean">Q: What does 200 mean?</h3>
+<blockquote>Successful request.</blockquote>
+<h3 id="h-569-q-what-does-201-mean">Q: What does 201 mean?</h3>
+<blockquote>A resource was successfully created.</blockquote>
+<h3 id="h-570-q-what-does-400-mean">Q: What does 400 mean?</h3>
+<blockquote>Bad/invalid request.</blockquote>
+<h3 id="h-571-q-what-does-401-mean">Q: What does 401 mean?</h3>
+<blockquote>Authentication is required or has failed.</blockquote>
+<h3 id="h-572-q-what-does-403-mean">Q: What does 403 mean?</h3>
+<blockquote>The server understood the request but refuses access.</blockquote>
+<h3 id="h-573-q-what-does-404-mean">Q: What does 404 mean?</h3>
+<blockquote>Requested resource was not found.</blockquote>
+<h3 id="h-574-q-what-does-500-mean">Q: What does 500 mean?</h3>
+<blockquote>Internal server error.</blockquote>
+<hr>
+<h1 id="h-575-48-coding-viva">48. Coding Viva</h1>
+<h3 id="h-576-question">Question:</h3>
+<p>Write a Django view that returns the HTTP method.</p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def method(request):
+    return HttpResponse(request.method)</code></pre></div>
+<hr>
+<h3 id="h-577-question">Question:</h3>
+<p>Get a <code>name</code> from the URL query string.</p>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/greet/?name=Aman</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def greet(request):
+    name = request.GET.get('name')
+    return HttpResponse(f"Hello {name}")</code></pre></div>
+<hr>
+<h3 id="h-578-question">Question:</h3>
+<p>Return a JSON response.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import JsonResponse
+
+def student(request):
+    data = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return JsonResponse(data)</code></pre></div>
+<hr>
+<h1 id="h-579-49-predict-the-output">49. Predict the Output</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test(request):
+    name = request.GET.get('name', 'Guest')
+    return HttpResponse(f"Hello {name}")</code></pre></div>
+<h3 id="h-580-request">Request:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/test/?name=Rahul</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Rahul</code></pre></div>
+<h3 id="h-581-request">Request:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/test/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Guest</code></pre></div>
+<hr>
+<h1 id="h-582-50-predict-the-output-post">50. Predict the Output — POST</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def test(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(name)
+
+    return HttpResponse("GET request")</code></pre></div>
+<h3 id="h-583-get">GET:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/test/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET request</code></pre></div>
+<h3 id="h-584-post-with">POST with:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name=Aman</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<hr>
+<h1 id="h-585-module-8-what-you-must-remember">⭐ Module 8 — What You Must Remember</h1>
+<p>The most important concepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTP Request
+      ↓
+Django View
+      ↓
+HTTP Response</code></pre></div>
+<h3 id="h-586-request">Request:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user</code></pre></div>
+<h3 id="h-587-get">GET:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get('name')</code></pre></div>
+<h3 id="h-588-post">POST:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get('name')</code></pre></div>
+<h3 id="h-589-response">Response:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>HttpResponse("Hello")</code></pre></div>
+<h3 id="h-590-json">JSON:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>JsonResponse({"name": "Aman"})</code></pre></div>
+<h3 id="h-591-important-status-codes">Important status codes:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200 → OK
+201 → Created
+400 → Bad Request
+401 → Authentication required/failed
+403 → Forbidden
+404 → Not Found
+500 → Server Error</code></pre></div>
+<hr>
+<h1 id="h-592-module-8-practical-test">🎯 Module 8 Practical Test</h1>
+<p>Try solving these <strong>without looking above</strong>.</p>
+<h3 id="h-593-q1">Q1</h3>
+<p>Write a view that displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTP Method: GET</code></pre></div>
+<p>when the browser sends a GET request.</p>
+<hr>
+<h3 id="h-594-q2">Q2</h3>
+<p>Create a view that accepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/greet/?name=Aman</code></pre></div>
+<p>and displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Aman</code></pre></div>
+<hr>
+<h3 id="h-595-q3">Q3</h3>
+<p>Create a view that accepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>and displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ID: 25</code></pre></div>
+<p><strong>Hint:</strong> This one uses a URL parameter, not <code>request.GET</code>.</p>
+<hr>
+<h3 id="h-596-q4">Q4</h3>
+<p>Create a view that returns:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">JSON</span><pre><code>{
+    "name": "Aman",
+    "course": "Django"
+}</code></pre></div>
+<p>using <code>JsonResponse</code>.</p>
+<hr>
+<h3 id="h-597-q5">Q5</h3>
+<p>Explain the difference between:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/?id=25</code></pre></div>
+<hr>
+<h3 id="h-598-q6">Q6</h3>
+<p>What is the difference between:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<hr>
+<h3 id="h-599-q7">Q7</h3>
+<p>Teacher asks:</p>
+<blockquote>"Is POST secure?"</blockquote>
+<p>Give the technically correct answer.</p>
+<hr>
+<h3 id="h-600-q8">Q8</h3>
+<p>Teacher asks:</p>
+<blockquote>"What happens if I access <code>/abc/</code> but no URL pattern matches it?"</blockquote>
+<p>Explain what Django does.</p>
+<hr>
+<p>When you're ready, say <strong>“next”</strong>.</p>
+<h2 id="h-601-module-9-url-parameters-in-depth">Module 9 — URL Parameters in Depth</h2>
+<p>We'll go deeper into your syllabus topic <strong>"Mapping URLs with Params"</strong>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>&lt;int:id&gt;
+&lt;str:name&gt;
+&lt;slug:slug&gt;
+&lt;uuid:id&gt;
+&lt;path:path&gt;</code></pre></div>
+<p>We'll also learn:</p>
+<ul>
+<li>Multiple parameters</li>
+<li>Passing parameters to views</li>
+<li>Optional-looking URL designs</li>
+<li>URL reversing</li>
+<li>Named URLs</li>
+<li><code>reverse()</code></li>
+<li><code>redirect()</code></li>
+<li>Practical coding questions</li>
+<li>Tricky viva questions on URL parameters</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-7.html">← Module 7: URL Routing in Depth</a>
+<a class="pn-btn pn-next" href="module-9.html">Module 9: URL Parameters in Depth →</a>
+</div>
+
+</div>
+
+</body>
+</html>

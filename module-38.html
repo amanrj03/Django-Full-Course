@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 38: Django Login & Logout — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 38 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 38 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Login &amp; Logout</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<span class="nav-item current">38. Django Login &amp; Logout</span>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-37.html">← Module 37: Django Users</a>
+<a class="pn-btn pn-next" href="module-39.html">Module 39: Protecting Views →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3245-module-38-django-login-logout">Module 38 — Django Login &amp; Logout</h1>
+<p>This is one of the <strong>most important modules</strong> in the entire Django syllabus.</p>
+<p>By now you know:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Cookies
+Sessions
+Users
+Authentication
+Authorization</code></pre></div>
+<p>Now we're going to connect them together and build an actual <strong>login/logout system</strong>.</p>
+<p>The three most important Django functions are:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate()
+login()
+logout()</code></pre></div>
+<hr>
+<h1 id="h-3246-1-what-happens-during-login">1. What Happens During Login?</h1>
+<p>Suppose a user enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username: aman
+Password: StrongPassword123</code></pre></div>
+<p>The flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login Form
+    ↓
+POST Request
+    ↓
+authenticate()
+    ↓
+Are credentials valid?
+    ↓
+YES
+    ↓
+login()
+    ↓
+Session established
+    ↓
+User is logged in
+    ↓
+request.user</code></pre></div>
+<p>If credentials are incorrect:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>authenticate()
+    ↓
+None</code></pre></div>
+<hr>
+<h1 id="h-3247-2-authentication-vs-login">2. Authentication vs Login</h1>
+<p>These two are related but <strong>not the same thing</strong>.</p>
+<h3 id="h-3248-authenticate"><code>authenticate()</code></h3>
+<p>Checks credentials.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    username=username,
+    password=password
+)</code></pre></div>
+<p>It essentially asks:</p>
+<blockquote>"Are these credentials valid?"</blockquote>
+<hr>
+<h3 id="h-3249-login"><code>login()</code></h3>
+<p>Logs the authenticated user into the current session.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>It essentially says:</p>
+<blockquote>"Associate this authenticated user with this request/session."</blockquote>
+<hr>
+<h1 id="h-3250-3-logout">3. <code>logout()</code></h1>
+<p>Logs the user out.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<p>It ends the user's authenticated session state.</p>
+<hr>
+<h1 id="h-3251-4-required-imports">4. Required Imports</h1>
+<p>A typical login view uses:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import authenticate, login, logout</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import authenticate, login, logout</code></pre></div>
+<p>Memorize this.</p>
+<hr>
+<h1 id="h-3252-5-basic-authenticate">5. Basic <code>authenticate()</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>If credentials are valid:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>user → User object</code></pre></div>
+<p>If credentials are invalid:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>user → None</code></pre></div>
+<hr>
+<h1 id="h-3253-6-why-does-authenticate-return-none">6. Why Does <code>authenticate()</code> Return <code>None</code>?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    username="aman",
+    password="wrongpassword"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user is None</code></pre></div>
+<p>because Django couldn't authenticate the credentials.</p>
+<p>So the common pattern is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user is not None:
+    # authentication successful
+else:
+    # authentication failed</code></pre></div>
+<hr>
+<h1 id="h-3254-7-basic-login">7. Basic Login</h1>
+<p>Once you have a valid user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
+
+
+def login_view(request):
+
+    user = authenticate(
+        username="aman",
+        password="StrongPassword123"
+    )
+
+    if user is not None:
+
+        login(request, user)
+
+        return HttpResponse(
+            "Login successful"
+        )
+
+    return HttpResponse(
+        "Invalid credentials"
+    )</code></pre></div>
+<p>This is the basic concept.</p>
+<hr>
+<h1 id="h-3255-8-but-we-don-t-hardcode-credentials">8. But We Don't Hardcode Credentials</h1>
+<p>Obviously, in a real application we don't write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username="aman"
+password="StrongPassword123"</code></pre></div>
+<p>Instead, the user submits a form.</p>
+<p>The form sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+password</code></pre></div>
+<p>to the server.</p>
+<hr>
+<h1 id="h-3256-9-login-form">9. Login Form</h1>
+<p>HTML:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;label&gt;Username:&lt;/label&gt;
+    &lt;input
+        type="text"
+        name="username"
+    &gt;
+
+    &lt;label&gt;Password:&lt;/label&gt;
+    &lt;input
+        type="password"
+        name="password"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Login
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>The important part is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>name="username"</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>name="password"</code></pre></div>
+<p>because Django reads these from:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<hr>
+<h1 id="h-3257-10-reading-login-data">10. Reading Login Data</h1>
+<p>Inside the view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.POST.get(
+    "username"
+)
+
+password = request.POST.get(
+    "password"
+)</code></pre></div>
+<p>Now we have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+password</code></pre></div>
+<hr>
+<h1 id="h-3258-11-complete-login-view">11. Complete Login View</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error": "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )</code></pre></div>
+<p>This is a <strong>very important piece of Django code</strong>.</p>
+<p>Let's understand every part.</p>
+<hr>
+<h1 id="h-3259-12-step-by-step-login">12. Step-by-Step Login</h1>
+<h2 id="h-3260-step-1-check-http-method">Step 1 — Check HTTP method</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":</code></pre></div>
+<p>If user submitted the form, it is POST.</p>
+<p>Otherwise, it's probably the initial GET request.</p>
+<hr>
+<h1 id="h-3261-13-step-2-get-username">13. Step 2 — Get Username</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.POST.get(
+    "username"
+)</code></pre></div>
+<p>The HTML:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input name="username"&gt;</code></pre></div>
+<p>matches:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get("username")</code></pre></div>
+<hr>
+<h1 id="h-3262-14-step-3-get-password">14. Step 3 — Get Password</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>password = request.POST.get(
+    "password"
+)</code></pre></div>
+<p>This comes from:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="password"
+    name="password"
+&gt;</code></pre></div>
+<hr>
+<h1 id="h-3263-15-step-4-authenticate">15. Step 4 — Authenticate</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<p>Django checks the credentials against its authentication system.</p>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Correct → User object
+Wrong   → None</code></pre></div>
+<hr>
+<h1 id="h-3264-16-step-5-check-result">16. Step 5 — Check Result</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user is not None:</code></pre></div>
+<p>This means authentication succeeded.</p>
+<hr>
+<h1 id="h-3265-17-step-6-login">17. Step 6 — Login</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>This associates the user with the current session.</p>
+<p>Now future requests can identify the user through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<hr>
+<h1 id="h-3266-18-step-7-redirect">18. Step 7 — Redirect</h1>
+<p>After successful login:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("dashboard")</code></pre></div>
+<p>This follows the <strong>POST → Redirect → GET</strong> pattern from Module 24.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /login/
+     ↓
+authenticate()
+     ↓
+login()
+     ↓
+redirect()
+     ↓
+GET /dashboard/</code></pre></div>
+<p>This is excellent Django practice.</p>
+<hr>
+<h1 id="h-3267-19-failed-login">19. Failed Login</h1>
+<p>If:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user is None</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "login.html",
+    {
+        "error": "Invalid username or password"
+    }
+)</code></pre></div>
+<p>The user stays on the login page and sees an error.</p>
+<hr>
+<h1 id="h-3268-20-login-template">20. Login Template</h1>
+<p><code>login.html</code>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Login&lt;/h1&gt;
+
+{% if error %}
+    &lt;p&gt;{{ error }}&lt;/p&gt;
+{% endif %}
+
+&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;label&gt;Username:&lt;/label&gt;
+
+    &lt;input
+        type="text"
+        name="username"
+        required
+    &gt;
+
+    &lt;br&gt;
+
+    &lt;label&gt;Password:&lt;/label&gt;
+
+    &lt;input
+        type="password"
+        name="password"
+        required
+    &gt;
+
+    &lt;br&gt;
+
+    &lt;button type="submit"&gt;
+        Login
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-3269-21-dashboard-view">21. Dashboard View</h1>
+<p>After login:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def dashboard(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"Welcome {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please login first"
+    )</code></pre></div>
+<p>So the complete flow becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login page
+    ↓
+Submit username/password
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+Dashboard
+    ↓
+request.user</code></pre></div>
+<hr>
+<h1 id="h-3270-22-why-does-request-user-now-work">22. Why Does <code>request.user</code> Now Work?</h1>
+<p>Before login:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>is generally:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AnonymousUser</code></pre></div>
+<p>After successful:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>the authenticated user becomes available as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<hr>
+<h1 id="h-3271-23-login-session">23. Login + Session</h1>
+<p>Remember Module 36.</p>
+<p>When:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>runs, Django uses the session framework to maintain the user's authenticated state across subsequent requests.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>authenticate()
+      ↓
+User verified
+      ↓
+login()
+      ↓
+Session
+      ↓
+session cookie
+      ↓
+future requests
+      ↓
+request.user</code></pre></div>
+<hr>
+<h1 id="h-3272-24-authenticate-does-not-log-you-in">24. <code>authenticate()</code> Does NOT Log You In</h1>
+<p>This is a common viva question.</p>
+<p>Wrong understanding:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(...)</code></pre></div>
+<p>means the user is now logged in.</p>
+<p>No.</p>
+<p><code>authenticate()</code> verifies credentials and returns a user object if successful.</p>
+<p>You still need:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>to establish the login session.</p>
+<hr>
+<h1 id="h-3273-25-login-requires-a-user">25. <code>login()</code> Requires a User</h1>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+    login(request, user)</code></pre></div>
+<p>Don't do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, None)</code></pre></div>
+<p>for a normal login flow.</p>
+<hr>
+<h1 id="h-3274-26-logout">26. Logout</h1>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import logout</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def logout_view(request):
+
+    logout(request)
+
+    return redirect("login")</code></pre></div>
+<p>This is the standard basic pattern.</p>
+<hr>
+<h1 id="h-3275-27-logout-flow">27. Logout Flow</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User clicks Logout
+       ↓
+GET/POST logout request
+       ↓
+logout(request)
+       ↓
+Authentication state removed
+       ↓
+Redirect to login/home</code></pre></div>
+<hr>
+<h1 id="h-3276-28-complete-login-logout">28. Complete Login + Logout</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error":
+                "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+
+
+def logout_view(request):
+
+    logout(request)
+
+    return redirect("login")</code></pre></div>
+<p>This is a very important code pattern to remember.</p>
+<hr>
+<h1 id="h-3277-29-urls">29. URLs</h1>
+<p>In <code>urls.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
+
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
+
+    path(
+        "dashboard/",
+        views.dashboard,
+        name="dashboard"
+    ),
+]</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/
+/logout/
+/dashboard/</code></pre></div>
+<hr>
+<h1 id="h-3278-30-login-link">30. Login Link</h1>
+<p>In a template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'login' %}"&gt;
+    Login
+&lt;/a&gt;</code></pre></div>
+<hr>
+<h1 id="h-3279-31-logout-link">31. Logout Link</h1>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;a href="{% url 'logout' %}"&gt;
+    Logout
+&lt;/a&gt;</code></pre></div>
+<p>But for a real application, <strong>state-changing logout is often better implemented as a POST action</strong>, with CSRF protection, rather than exposing logout as a simple GET link.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"
+      action="{% url 'logout' %}"&gt;
+
+    {% csrf_token %}
+
+    &lt;button type="submit"&gt;
+        Logout
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Then the view can perform logout on POST.</p>
+<hr>
+<h1 id="h-3280-32-secure-logout-view">32. Secure Logout View</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect("login")
+
+    return redirect("dashboard")</code></pre></div>
+<p>This follows the principle that state-changing operations should not casually be triggered by GET requests.</p>
+<hr>
+<h1 id="h-3281-33-login-form-with-django-forms">33. Login Form With Django Forms</h1>
+<p>You can also create a Django form.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class LoginForm(forms.Form):
+
+    username = forms.CharField(
+        max_length=150
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+
+            username = form.cleaned_data[
+                "username"
+            ]
+
+            password = form.cleaned_data[
+                "password"
+            ]
+
+            user = authenticate(
+                request,
+                username=username,
+                password=password
+            )
+
+            if user is not None:
+
+                login(request, user)
+
+                return redirect(
+                    "dashboard"
+                )
+
+            form.add_error(
+                None,
+                "Invalid username or password"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "login.html",
+        {"form": form}
+    )</code></pre></div>
+<hr>
+<h1 id="h-3282-34-template-for-django-login-form">34. Template for Django Login Form</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Login&lt;/h1&gt;
+
+&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Login
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>This is cleaner than manually processing every field.</p>
+<hr>
+<h1 id="h-3283-35-authenticate-with-request">35. <code>authenticate()</code> With Request</h1>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<p>The request is useful because Django's authentication system can use request information when needed, especially with custom authentication backends.</p>
+<p>You may also encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(
+    username=username,
+    password=password
+)</code></pre></div>
+<p>Both forms exist.</p>
+<hr>
+<h1 id="h-3284-36-authentication-backends">36. Authentication Backends</h1>
+<p>Django authentication can use <strong>authentication backends</strong>.</p>
+<p>Configured through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>AUTHENTICATION_BACKENDS</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>authenticate()
+       ↓
+Authentication backend(s)
+       ↓
+Check credentials
+       ↓
+User / None</code></pre></div>
+<p>The default backend supports normal username/password authentication for the standard User model.</p>
+<p>This becomes especially useful if you want custom authentication behavior.</p>
+<hr>
+<h1 id="h-3285-37-failed-login-should-not-reveal-too-much">37. Failed Login Should Not Reveal Too Much</h1>
+<p>A good login error is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Invalid username or password.</code></pre></div>
+<p>Rather than:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username exists but password is wrong.</code></pre></div>
+<p>Why?</p>
+<p>Because revealing whether an account exists can help attackers enumerate valid usernames.</p>
+<p>So a generic error message is generally preferable.</p>
+<hr>
+<h1 id="h-3286-38-login-security">38. Login Security</h1>
+<p>A login system should use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTPS
++
+CSRF protection
++
+secure password handling
++
+Django authentication
++
+session security
++
+authorization</code></pre></div>
+<p>Do not build authentication by simply doing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if username == "aman" and password == "1234":</code></pre></div>
+<p>That's not a real authentication system.</p>
+<hr>
+<h1 id="h-3287-39-why-https-matters">39. Why HTTPS Matters</h1>
+<p>Suppose the login form submits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+password</code></pre></div>
+<p>Without HTTPS, credentials could potentially be exposed while traveling between browser and server.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTP ❌
+HTTPS ✅</code></pre></div>
+<p>for production authentication.</p>
+<hr>
+<h1 id="h-3288-40-csrf-and-login">40. CSRF and Login</h1>
+<p>Your POST login form should normally contain:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    ...
+    
+&lt;/form&gt;</code></pre></div>
+<p>This protects the POST request against CSRF attacks.</p>
+<hr>
+<h1 id="h-3289-41-login-csrf-session">41. Login + CSRF + Session</h1>
+<p>You should now understand how several previous modules connect:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML Form
+    ↓
+POST
+    ↓
+CSRF validation
+    ↓
+request.POST
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+session cookie
+    ↓
+request.user</code></pre></div>
+<p>This is a major Django concept.</p>
+<hr>
+<h1 id="h-3290-42-login-vs-registration">42. Login vs Registration</h1>
+<p>Don't confuse:</p>
+<h3 id="h-3291-registration">Registration</h3>
+<p>Creates a new user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.create_user(...)</code></pre></div>
+<h3 id="h-3292-login">Login</h3>
+<p>Verifies an existing user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(...)
+login(...)</code></pre></div>
+<h3 id="h-3293-logout">Logout</h3>
+<p>Ends authentication state:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Registration → Create account
+Login        → Authenticate account
+Logout       → End login state</code></pre></div>
+<hr>
+<h1 id="h-3294-43-login-vs-permission">43. Login vs Permission</h1>
+<p>Suppose Aman logs in.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>But can Aman delete students?</p>
+<p>Not necessarily.</p>
+<p>You still need authorization:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<p>Thus:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Logged in
+   ≠
+Allowed to do everything</code></pre></div>
+<p>This distinction is extremely important.</p>
+<hr>
+<h1 id="h-3295-44-protecting-dashboard-manually">44. Protecting Dashboard Manually</h1>
+<p>You could write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def dashboard(request):
+
+    if not request.user.is_authenticated:
+
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<p>This works.</p>
+<p>But Django provides a cleaner mechanism, which we'll study in Module 39.</p>
+<hr>
+<h1 id="h-3296-45-complete-mini-authentication-system">45. Complete Mini Authentication System</h1>
+<h3 id="h-3297-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect(
+                "dashboard"
+            )
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error":
+                "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+
+
+def dashboard(request):
+
+    if not request.user.is_authenticated:
+
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+
+
+def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect("login")
+
+    return redirect("dashboard")</code></pre></div>
+<hr>
+<h1 id="h-3298-46-login-html">46. <code>login.html</code></h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Login&lt;/h1&gt;
+
+{% if error %}
+    &lt;p&gt;{{ error }}&lt;/p&gt;
+{% endif %}
+
+&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;label&gt;Username&lt;/label&gt;
+
+    &lt;input
+        type="text"
+        name="username"
+        required
+    &gt;
+
+    &lt;br&gt;
+
+    &lt;label&gt;Password&lt;/label&gt;
+
+    &lt;input
+        type="password"
+        name="password"
+        required
+    &gt;
+
+    &lt;br&gt;
+
+    &lt;button type="submit"&gt;
+        Login
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-3299-47-dashboard-html">47. <code>dashboard.html</code></h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;
+    Welcome {{ request.user.username }}
+&lt;/h1&gt;
+
+&lt;form method="POST"
+      action="{% url 'logout' %}"&gt;
+
+    {% csrf_token %}
+
+    &lt;button type="submit"&gt;
+        Logout
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-3300-48-url-configuration">48. URL Configuration</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
+
+    path(
+        "dashboard/",
+        views.dashboard,
+        name="dashboard"
+    ),
+
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
+]</code></pre></div>
+<hr>
+<h1 id="h-3301-49-full-flow">49. Full Flow</h1>
+<p>Now visualize the entire application:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 LOGIN
+                   │
+                   ↓
+          login.html form
+                   │
+                   ↓
+              POST /login/
+                   │
+                   ↓
+             CSRF check
+                   │
+                   ↓
+             request.POST
+                   │
+                   ↓
+             authenticate()
+                   │
+             ┌─────┴─────┐
+             ↓           ↓
+          Valid        Invalid
+             ↓           ↓
+          User          Error
+             ↓
+          login()
+             ↓
+          Session
+             ↓
+       session cookie
+             ↓
+       redirect dashboard
+             ↓
+      request.user = User
+             ↓
+          Dashboard
+             │
+             ↓
+          logout()
+             ↓
+       Login page</code></pre></div>
+<hr>
+<h1 id="h-3302-50-very-important-viva-questions">50. Very Important Viva Questions</h1>
+<h3 id="h-3303-q1-what-is-authenticate">Q1. What is <code>authenticate()</code>?</h3>
+<blockquote><code>authenticate()</code> verifies the supplied credentials using Django's authentication system and returns a user object if authentication succeeds, otherwise <code>None</code>.</blockquote>
+<hr>
+<h3 id="h-3304-q2-does-authenticate-log-the-user-in">Q2. Does <code>authenticate()</code> log the user in?</h3>
+<blockquote>No. It verifies credentials. <code>login(request, user)</code> establishes the authenticated session.</blockquote>
+<hr>
+<h3 id="h-3305-q3-what-does-login-do">Q3. What does <code>login()</code> do?</h3>
+<blockquote>It associates the authenticated user with the current request/session so that subsequent requests can identify the user.</blockquote>
+<hr>
+<h3 id="h-3306-q4-how-do-you-log-out">Q4. How do you log out?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<hr>
+<h3 id="h-3307-q5-what-is-request-user">Q5. What is <code>request.user</code>?</h3>
+<blockquote>It represents the user associated with the current request.</blockquote>
+<hr>
+<h3 id="h-3308-q6-what-is-request-user-before-login">Q6. What is <code>request.user</code> before login?</h3>
+<blockquote>It is generally an <code>AnonymousUser</code>.</blockquote>
+<hr>
+<h3 id="h-3309-q7-what-is-request-user-after-successful-login">Q7. What is <code>request.user</code> after successful login?</h3>
+<blockquote>It represents the authenticated User object.</blockquote>
+<hr>
+<h3 id="h-3310-q8-how-do-you-check-whether-the-user-is-logged-in">Q8. How do you check whether the user is logged in?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<hr>
+<h3 id="h-3311-q9-why-use-redirect-after-successful-login">Q9. Why use <code>redirect()</code> after successful login?</h3>
+<blockquote>It follows the POST-Redirect-GET pattern, preventing accidental form resubmission when the user refreshes the resulting page.</blockquote>
+<hr>
+<h3 id="h-3312-q10-why-use-csrf-token-on-login-post-forms">Q10. Why use <code>{% csrf_token %}</code> on login POST forms?</h3>
+<blockquote>To provide Django's CSRF protection for the state-changing POST request.</blockquote>
+<hr>
+<h3 id="h-3313-q11-where-is-login-state-maintained">Q11. Where is login state maintained?</h3>
+<blockquote>Django commonly maintains authenticated login state using the session framework, with a session identifier stored in a cookie.</blockquote>
+<hr>
+<h3 id="h-3314-q12-difference-between-authenticate-and-login">Q12. Difference between <code>authenticate()</code> and <code>login()</code>?</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>authenticate()
+       ↓
+Verify credentials
+
+login()
+       ↓
+Establish authenticated session</code></pre></div>
+<hr>
+<h1 id="h-3315-51-interview-question">51. Interview Question</h1>
+<h3 id="h-3316-what-happens-internally-when-a-user-logs-in">"What happens internally when a user logs in?"</h3>
+<p>A strong answer:</p>
+<blockquote>"The submitted credentials are passed to Django's <code>authenticate()</code> function. If authentication succeeds, it returns the user object. I then call <code>login(request, user)</code>, which establishes the user's authenticated session. The browser subsequently sends the session identifier with future requests, allowing Django to populate <code>request.user</code>."</blockquote>
+<p>That's a very good interview-level answer.</p>
+<hr>
+<h1 id="h-3317-52-another-interview-question">52. Another Interview Question</h1>
+<h3 id="h-3318-can-i-use-authenticate-without-login">"Can I use <code>authenticate()</code> without <code>login()</code>?"</h3>
+<p>Yes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<p>You could use the result to determine whether credentials are valid.</p>
+<p>But the user won't be logged into the normal Django session unless you subsequently call:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<hr>
+<h1 id="h-3319-53-another-interview-question">53. Another Interview Question</h1>
+<h3 id="h-3320-can-i-call-login-without-authentication">"Can I call <code>login()</code> without authentication?"</h3>
+<p>Technically the function takes a user object, but your application should only establish authenticated state for a properly authenticated/trusted user.</p>
+<p>Normal flow:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(...)
+
+if user is not None:
+    login(request, user)</code></pre></div>
+<hr>
+<h1 id="h-3321-54-coding-questions">54. Coding Questions</h1>
+<h3 id="h-3322-q1-authenticate-a-user">Q1. Authenticate a user.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<hr>
+<h3 id="h-3323-q2-check-authentication-result">Q2. Check authentication result.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user is not None:
+    print("Valid credentials")
+else:
+    print("Invalid credentials")</code></pre></div>
+<hr>
+<h3 id="h-3324-q3-log-in">Q3. Log in.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<hr>
+<h3 id="h-3325-q4-log-out">Q4. Log out.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<hr>
+<h3 id="h-3326-q5-check-logged-in-user">Q5. Check logged-in user.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    print(request.user.username)</code></pre></div>
+<hr>
+<h3 id="h-3327-q6-redirect-after-login">Q6. Redirect after login.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)
+
+return redirect("dashboard")</code></pre></div>
+<hr>
+<h3 id="h-3328-q7-create-a-complete-basic-login">Q7. Create a complete basic login.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect(
+                "dashboard"
+            )
+
+    return render(
+        request,
+        "login.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3329-55-common-mistakes">55. Common Mistakes</h1>
+<h3 id="h-3330-mistake-1">Mistake 1</h3>
+<p>Using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(username, password)</code></pre></div>
+<p>instead of keyword arguments.</p>
+<p>Prefer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<hr>
+<h3 id="h-3331-mistake-2">Mistake 2</h3>
+<p>Forgetting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<p>Authentication alone doesn't establish the normal login session.</p>
+<hr>
+<h3 id="h-3332-mistake-3">Mistake 3</h3>
+<p>Forgetting CSRF:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>on a normal POST form.</p>
+<hr>
+<h3 id="h-3333-mistake-4">Mistake 4</h3>
+<p>Writing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<p>Wrong.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<hr>
+<h3 id="h-3334-mistake-5">Mistake 5</h3>
+<p>Using plaintext password comparisons.</p>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if password == user.password:</code></pre></div>
+<p>Use Django's authentication system.</p>
+<hr>
+<h3 id="h-3335-mistake-6">Mistake 6</h3>
+<p>Assuming login means unlimited access.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authenticated ≠ Authorized</code></pre></div>
+<hr>
+<h1 id="h-3336-56-module-38-cheat-sheet">56. Module 38 Cheat Sheet</h1>
+<h3 id="h-3337-import">Import</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)</code></pre></div>
+<h3 id="h-3338-authenticate">Authenticate</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<h3 id="h-3339-check">Check</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user is not None:</code></pre></div>
+<h3 id="h-3340-login">Login</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<h3 id="h-3341-logout">Logout</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<h3 id="h-3342-current-user">Current user</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<h3 id="h-3343-logged-in-check">Logged-in check</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<h3 id="h-3344-redirect">Redirect</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("dashboard")</code></pre></div>
+<hr>
+<h1 id="h-3345-57-the-three-functions-you-must-memorize">57. The Three Functions You MUST Memorize</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>authenticate()
+      ↓
+"Are these credentials valid?"
+
+login()
+      ↓
+"Establish the user's authenticated session."
+
+logout()
+      ↓
+"End the user's authenticated session."</code></pre></div>
+<p>And the complete sequence:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+    login(request, user)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<hr>
+<h2 id="h-3346-module-38-complete">Module 38 Complete ✅</h2>
+<p>You have now connected:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Password
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+Session
+ ↓
+Cookie
+ ↓
+request.user</code></pre></div>
+<p>The next module is <strong>Module 39 — Protecting Views</strong>.</p>
+<p>There we'll learn the proper Django way to prevent unauthenticated users from accessing pages using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<p>plus:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(...)</code></pre></div>
+<p><code>LoginRequiredMixin</code>, <code>LOGIN_URL</code>, <code>LOGIN_REDIRECT_URL</code>, <code>LOGOUT_REDIRECT_URL</code>, 403 vs 302, and how to protect CRUD operations.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-37.html">← Module 37: Django Users</a>
+<a class="pn-btn pn-next" href="module-39.html">Module 39: Protecting Views →</a>
+</div>
+
+</div>
+
+</body>
+</html>

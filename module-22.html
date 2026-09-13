@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 22: Form Validation — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 22 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 22 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Form Validation</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<span class="nav-item current">22. Form Validation</span>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-21.html">← Module 21: Django Forms</a>
+<a class="pn-btn pn-next" href="module-23.html">Module 23: CSRF &amp; CSRF Protection →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1716-module-22-form-validation-in-django">Module 22 — Form Validation in Django</h1>
+<p>This module is <strong>very important for coding questions and viva</strong>, because teachers often ask:</p>
+<ul>
+<li>How does Django validate form data?</li>
+<li>What is <code>cleaned_data</code>?</li>
+<li>Difference between <code>clean_&lt;field&gt;()</code> and <code>clean()</code>.</li>
+<li>How do you create custom validation?</li>
+<li>How do you validate two fields together?</li>
+<li>How do you display validation errors?</li>
+<li>How do <code>min_length</code>, <code>max_length</code>, <code>min_value</code>, etc. work?</li>
+</ul>
+<hr>
+<h1 id="h-1717-1-what-is-form-validation">1. What is Form Validation?</h1>
+<p><strong>Form validation</strong> means checking whether the data entered by the user is:</p>
+<ol>
+<li>Present when required</li>
+<li>Of the correct type</li>
+<li>Within allowed limits</li>
+<li>In the correct format</li>
+<li>Logically valid according to our application's rules</li>
+</ol>
+<p>For example, suppose we have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()
+    email = forms.EmailField()</code></pre></div>
+<p>A user might enter:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman
+Age: abc
+Email: hello</code></pre></div>
+<p>The form should reject this data.</p>
+<p>Django automatically performs many basic validations for us.</p>
+<hr>
+<h1 id="h-1718-2-the-most-important-line-is-valid">2. The Most Important Line: <code>is_valid()</code></h1>
+<p>When a form receives submitted data:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<p>we check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_form(request):
+
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+            print("Valid data")
+        else:
+            print("Invalid data")
+
+    else:
+        form = StudentForm()
+
+    return render(request, "student_form.html", {"form": form})</code></pre></div>
+<h3 id="h-1719-important">Important</h3>
+<p><code>is_valid()</code> does much more than simply return <code>True</code> or <code>False</code>.</p>
+<p>It triggers Django's validation process.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request.POST
+     ↓
+Bound Form
+     ↓
+form.is_valid()
+     ↓
+Validation
+     ↓
+Valid? ─────── No ──→ form.errors
+   │
+  Yes
+   ↓
+form.cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-1720-3-what-is-cleaned-data">3. What is <code>cleaned_data</code>?</h1>
+<p>After successful validation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<p>contains the <strong>cleaned and converted data</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()</code></pre></div>
+<p>User submits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = "Aman"
+age = "21"</code></pre></div>
+<p>Notice that HTTP form data arrives essentially as strings.</p>
+<p>Django converts the age into an integer.</p>
+<p>After:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>we can do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["name"]</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["age"]</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>21</code></pre></div>
+<p>which is an integer.</p>
+<h3 id="h-1721-very-important-rule">Very important rule</h3>
+<p>Do <strong>not</strong> use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<p>before:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+    age = form.cleaned_data["age"]</code></pre></div>
+<hr>
+<h1 id="h-1722-4-built-in-validation">4. Built-in Validation</h1>
+<p>Django fields already provide many validators.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    name = forms.CharField(
+        min_length=3,
+        max_length=30
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()</code></pre></div>
+<p>Django automatically checks:</p>
+<h3 id="h-1723-name">Name</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Minimum 3 characters
+Maximum 30 characters</code></pre></div>
+<h3 id="h-1724-age">Age</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Minimum 18
+Maximum 60</code></pre></div>
+<h3 id="h-1725-email">Email</h3>
+<p>Checks whether the value has a valid email format.</p>
+<hr>
+<h1 id="h-1726-5-required">5. <code>required</code></h1>
+<p>By default, Django form fields are required.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField()</code></pre></div>
+<p>means the user cannot leave it empty.</p>
+<p>You can explicitly write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(required=True)</code></pre></div>
+<p>Both mean essentially the same thing.</p>
+<hr>
+<h2 id="h-1727-making-a-field-optional">Making a field optional</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>phone = forms.CharField(required=False)</code></pre></div>
+<p>Now the user may leave the phone field empty.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    name = forms.CharField()
+    phone = forms.CharField(required=False)</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name → required
+phone → optional</code></pre></div>
+<h3 id="h-1728-viva-question">Viva question</h3>
+<p><strong>Q: What is the default value of <code>required</code>?</strong></p>
+<p><strong>Answer:</strong></p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<hr>
+<h1 id="h-1729-6-min-length">6. <code>min_length</code></h1>
+<p>Used with fields such as <code>CharField</code>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = forms.CharField(min_length=5)</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username must contain at least 5 characters</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>abc       ❌
+aman      ❌
+aman123   ✅</code></pre></div>
+<hr>
+<h1 id="h-1730-7-max-length">7. <code>max_length</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = forms.CharField(max_length=20)</code></pre></div>
+<p>Maximum 20 characters are allowed.</p>
+<p>You can combine them:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = forms.CharField(
+    min_length=5,
+    max_length=20
+)</code></pre></div>
+<hr>
+<h1 id="h-1731-8-min-value">8. <code>min_value</code></h1>
+<p>Used for numeric fields.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(min_value=18)</code></pre></div>
+<p>Allowed:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>18
+19
+20
+...</code></pre></div>
+<p>Rejected:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>17
+16
+10</code></pre></div>
+<hr>
+<h1 id="h-1732-9-max-value">9. <code>max_value</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(max_value=60)</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>18 → valid
+40 → valid
+60 → valid
+61 → invalid</code></pre></div>
+<p>Combine both:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)</code></pre></div>
+<hr>
+<h1 id="h-1733-10-email-validation">10. Email Validation</h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>forms.EmailField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = forms.EmailField()</code></pre></div>
+<p>This provides built-in email validation.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman@gmail.com       ✅
+student@example.com  ✅
+hello               ❌
+abc@                ❌</code></pre></div>
+<hr>
+<h1 id="h-1734-11-choicefield-validation">11. ChoiceField Validation</h1>
+<p>Suppose we only allow:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>COURSES = [
+    ("cse", "Computer Science"),
+    ("ece", "Electronics"),
+    ("me", "Mechanical"),
+]</code></pre></div>
+<p>Form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    course = forms.ChoiceField(
+        choices=COURSES
+    )</code></pre></div>
+<p>The first value is what is submitted:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>cse</code></pre></div>
+<p>The second value is displayed:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Computer Science</code></pre></div>
+<p>Django also validates that the submitted choice belongs to the allowed choices.</p>
+<hr>
+<h1 id="h-1735-12-booleanfield">12. <code>BooleanField</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>agree = forms.BooleanField()</code></pre></div>
+<p>The user must check the checkbox.</p>
+<p>You can make it optional:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>agree = forms.BooleanField(required=False)</code></pre></div>
+<hr>
+<h1 id="h-1736-13-validation-errors">13. Validation Errors</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    age = forms.IntegerField(min_value=18)</code></pre></div>
+<p>User enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>15</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<p>The errors are available through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.errors</code></pre></div>
+<p>You can inspect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>print(form.errors)</code></pre></div>
+<hr>
+<h1 id="h-1737-14-displaying-errors-in-template">14. Displaying Errors in Template</h1>
+<p>Suppose we have:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+<p>Django automatically displays field errors when the bound form is invalid.</p>
+<p>You can also explicitly display them:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.name.errors }}</code></pre></div>
+<p>For age:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.age.errors }}</code></pre></div>
+<p>Or all errors:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.errors }}</code></pre></div>
+<hr>
+<h1 id="h-1738-15-field-level-custom-validation">15. Field-Level Custom Validation</h1>
+<p>Now we reach one of the <strong>most important topics</strong>.</p>
+<p>Suppose Django's built-in validators are not enough.</p>
+<p>For example:</p>
+<blockquote>Student name should not contain numbers.</blockquote>
+<p>We can create custom validation.</p>
+<hr>
+<h1 id="h-1739-16-clean-field">16. <code>clean_&lt;field&gt;()</code></h1>
+<p>For validating a specific field, use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>clean_&lt;fieldname&gt;()</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>clean_name()</code></pre></div>
+<p>Complete example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+    age = forms.IntegerField()
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+
+        if any(char.isdigit() for char in name):
+            raise forms.ValidationError(
+                "Name should not contain numbers."
+            )
+
+        return name</code></pre></div>
+<p>Let's understand this carefully.</p>
+<hr>
+<h1 id="h-1740-17-how-clean-name-works">17. How <code>clean_name()</code> Works</h1>
+<p>Suppose user enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman123</code></pre></div>
+<p>Django first performs the normal validation for the field.</p>
+<p>Then Django calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>clean_name()</code></pre></div>
+<p>Inside:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = self.cleaned_data["name"]</code></pre></div>
+<p>we get the already cleaned name.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if any(char.isdigit() for char in name):</code></pre></div>
+<p>checks whether any character is a digit.</p>
+<p>If yes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError(
+    "Name should not contain numbers."
+)</code></pre></div>
+<p>The form becomes invalid.</p>
+<p>If everything is fine:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return name</code></pre></div>
+<p>The returned value becomes the cleaned value for that field.</p>
+<hr>
+<h1 id="h-1741-18-why-must-we-return-the-value">18. Why Must We Return the Value?</h1>
+<p>This is a common viva/coding question.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) &lt; 3:
+        raise forms.ValidationError("Too short")
+
+    return name</code></pre></div>
+<p>The <code>return</code> is important because Django uses the returned value as the cleaned value.</p>
+<p>You can even modify it:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+    name = self.cleaned_data["name"]
+    return name.strip().title()</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"  aman ranjan  "</code></pre></div>
+<p>can become:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Aman Ranjan"</code></pre></div>
+<hr>
+<h1 id="h-1742-19-another-clean-field-example">19. Another <code>clean_&lt;field&gt;()</code> Example</h1>
+<p>Suppose username cannot contain spaces.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class RegisterForm(forms.Form):
+
+    username = forms.CharField()
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+
+        if " " in username:
+            raise forms.ValidationError(
+                "Username cannot contain spaces."
+            )
+
+        return username</code></pre></div>
+<hr>
+<h1 id="h-1743-20-password-validation-example">20. Password Validation Example</h1>
+<p>Suppose password must contain at least one digit.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class RegisterForm(forms.Form):
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+
+        if not any(char.isdigit() for char in password):
+            raise forms.ValidationError(
+                "Password must contain at least one digit."
+            )
+
+        return password</code></pre></div>
+<hr>
+<h1 id="h-1744-21-clean-cross-field-validation">21. <code>clean()</code> — Cross-Field Validation</h1>
+<p>This is another <strong>very important viva question</strong>.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>clean()</code></pre></div>
+<p>when validation depends on <strong>multiple fields together</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Password
+Confirm Password</code></pre></div>
+<p>We need to compare both.</p>
+<hr>
+<h1 id="h-1745-22-password-confirmation-example">22. Password Confirmation Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+class RegisterForm(forms.Form):
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password:
+            if password != confirm_password:
+                raise forms.ValidationError(
+                    "Passwords do not match."
+                )
+
+        return cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-1746-23-why-super-clean">23. Why <code>super().clean()</code>?</h1>
+<p>This line:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cleaned_data = super().clean()</code></pre></div>
+<p>calls Django's parent implementation of <code>clean()</code>.</p>
+<p>It gives us the cleaned field data that has already passed field-level validation.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>password = cleaned_data.get("password")</code></pre></div>
+<p>gets the password.</p>
+<p>And:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>confirm_password = cleaned_data.get("confirm_password")</code></pre></div>
+<p>gets the confirmation.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if password != confirm_password:</code></pre></div>
+<p>compares them.</p>
+<hr>
+<h1 id="h-1747-24-clean-field-vs-clean">24. <code>clean_&lt;field&gt;()</code> vs <code>clean()</code></h1>
+<p>This is <strong>extremely important for viva</strong>.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Method</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>clean_name()</code></td>
+<td>Validate one specific field</td>
+</tr>
+<tr>
+<td><code>clean_email()</code></td>
+<td>Validate one specific field</td>
+</tr>
+<tr>
+<td><code>clean_age()</code></td>
+<td>Validate one specific field</td>
+</tr>
+<tr>
+<td><code>clean()</code></td>
+<td>Validate multiple fields together</td>
+</tr>
+</tbody></table></div>
+<h3 id="h-1748-easy-rule">Easy rule</h3>
+<blockquote><strong>One field → <code>clean_&lt;field&gt;()</code></strong></blockquote>
+<blockquote><strong>Multiple fields → <code>clean()</code></strong></blockquote>
+<hr>
+<h1 id="h-1749-25-example-age-validation">25. Example: Age Validation</h1>
+<p>Built-in validation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)</code></pre></div>
+<p>This is preferable when the rule is simple.</p>
+<p>But suppose:</p>
+<blockquote>Students under 18 cannot register for a particular course.</blockquote>
+<p>Now validation depends on both:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age
+course</code></pre></div>
+<p>So we use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean(self):</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    age = forms.IntegerField()
+    course = forms.ChoiceField(
+        choices=[
+            ("cse", "CSE"),
+            ("mba", "MBA")
+        ]
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        age = cleaned_data.get("age")
+        course = cleaned_data.get("course")
+
+        if age is not None and course == "mba" and age &lt; 18:
+            raise forms.ValidationError(
+                "Student must be at least 18 for MBA."
+            )
+
+        return cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-1750-26-add-error">26. <code>add_error()</code></h1>
+<p>Sometimes you want to add an error to a <strong>specific field</strong>.</p>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.add_error()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    age = forms.IntegerField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        age = cleaned_data.get("age")
+
+        if age is not None and age &lt; 18:
+            self.add_error(
+                "age",
+                "Student must be at least 18."
+            )
+
+        return cleaned_data</code></pre></div>
+<p>Now the error belongs specifically to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age</code></pre></div>
+<p>rather than being a non-field/form-wide error.</p>
+<hr>
+<h1 id="h-1751-27-validationerror">27. <code>ValidationError</code></h1>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError("Invalid data")</code></pre></div>
+<p>You can also import it directly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.exceptions import ValidationError</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise ValidationError("Invalid data")</code></pre></div>
+<p>Both approaches are commonly seen.</p>
+<hr>
+<h1 id="h-1752-28-field-error-vs-non-field-error">28. Field Error vs Non-Field Error</h1>
+<p>Suppose we have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>password
+confirm_password</code></pre></div>
+<p>and they don't match.</p>
+<p>This error doesn't belong naturally to only one field.</p>
+<p>Using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError(
+    "Passwords do not match."
+)</code></pre></div>
+<p>creates a <strong>non-field/form-level error</strong>.</p>
+<p>In the template, you can display:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.non_field_errors }}</code></pre></div>
+<hr>
+<h1 id="h-1753-29-using-add-error-instead">29. Using <code>add_error()</code> Instead</h1>
+<p>If you want the error associated with a specific field:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.add_error(
+    "confirm_password",
+    "Passwords do not match."
+)</code></pre></div>
+<p>Now the error appears against:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>confirm_password</code></pre></div>
+<p>This can make the UI clearer.</p>
+<hr>
+<h1 id="h-1754-30-complete-validation-example">30. Complete Validation Example</h1>
+<p>Let's build a realistic registration form.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class RegisterForm(forms.Form):
+
+    username = forms.CharField(
+        min_length=5,
+        max_length=20
+    )
+
+    email = forms.EmailField()
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    password = forms.CharField(
+        min_length=8,
+        widget=forms.PasswordInput
+    )
+
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+
+        if " " in username:
+            raise forms.ValidationError(
+                "Username cannot contain spaces."
+            )
+
+        return username
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+
+        if not any(char.isdigit() for char in password):
+            raise forms.ValidationError(
+                "Password must contain at least one digit."
+            )
+
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password:
+            if password != confirm_password:
+                self.add_error(
+                    "confirm_password",
+                    "Passwords do not match."
+                )
+
+        return cleaned_data</code></pre></div>
+<p>This one form demonstrates:</p>
+<ul>
+<li><code>min_length</code></li>
+<li><code>max_length</code></li>
+<li><code>EmailField</code></li>
+<li><code>min_value</code></li>
+<li><code>max_value</code></li>
+<li><code>PasswordInput</code></li>
+<li><code>clean_&lt;field&gt;()</code></li>
+<li><code>clean()</code></li>
+<li>custom validation</li>
+<li><code>ValidationError</code></li>
+<li><code>add_error()</code></li>
+</ul>
+<hr>
+<h1 id="h-1755-31-validation-pipeline-very-important">31. Validation Pipeline — Very Important</h1>
+<p>You should understand what happens internally.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = RegisterForm(request.POST)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>starts the validation process.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>             request.POST
+                  ↓
+             Bound Form
+                  ↓
+             is_valid()
+                  ↓
+        Field-level processing
+                  ↓
+      Field type/required checks
+                  ↓
+          Built-in validators
+                  ↓
+        clean_&lt;field&gt;() methods
+                  ↓
+             clean()
+                  ↓
+          Validation complete
+             ↙          ↘
+          valid         invalid
+            ↓              ↓
+    cleaned_data       form.errors</code></pre></div>
+<p>This flow is worth remembering for viva.</p>
+<hr>
+<h1 id="h-1756-32-what-happens-when-validation-fails">32. What Happens When Validation Fails?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(min_value=18)</code></pre></div>
+<p>User enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>15</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.errors</code></pre></div>
+<p>contains the error.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+    # process data
+else:
+    # display form again with errors</code></pre></div>
+<hr>
+<h1 id="h-1757-33-important-don-t-process-invalid-data">33. Important: Don't Process Invalid Data</h1>
+<p>Bad:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)
+
+name = form.cleaned_data["name"]</code></pre></div>
+<p>Why bad?</p>
+<p>Because validation has not happened.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)
+
+if form.is_valid():
+    name = form.cleaned_data["name"]</code></pre></div>
+<hr>
+<h1 id="h-1758-34-complete-view-form-template">34. Complete View + Form + Template</h1>
+<h3 id="h-1759-forms-py"><code>forms.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3,
+        max_length=30
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+
+        if any(char.isdigit() for char in name):
+            raise forms.ValidationError(
+                "Name cannot contain numbers."
+            )
+
+        return name</code></pre></div>
+<h3 id="h-1760-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+
+            return render(
+                request,
+                "success.html",
+                {
+                    "name": name,
+                    "age": age,
+                    "email": email
+                }
+            )
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<h3 id="h-1761-student-form-html"><code>student_form.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Student Registration&lt;/h1&gt;
+
+&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Register
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>If validation fails, Django renders the same form again with errors.</p>
+<hr>
+<h1 id="h-1762-35-built-in-vs-custom-validation">35. Built-in vs Custom Validation</h1>
+<h3 id="h-1763-built-in-validation">Built-in validation</h3>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)</code></pre></div>
+<p>when Django already provides the rule.</p>
+<h3 id="h-1764-custom-validation">Custom validation</h3>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_age(self):</code></pre></div>
+<p>when your application's specific rule isn't covered by built-in field options.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_age(self):
+    age = self.cleaned_data["age"]
+
+    if age % 2 != 0:
+        raise forms.ValidationError(
+            "Age must be an even number."
+        )
+
+    return age</code></pre></div>
+<hr>
+<h1 id="h-1765-36-common-mistakes">36. Common Mistakes</h1>
+<h3 id="h-1766-mistake-1">Mistake 1</h3>
+<p>Using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>clean_data</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cleaned_data</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.cleaned_data</code></pre></div>
+<hr>
+<h3 id="h-1767-mistake-2">Mistake 2</h3>
+<p>Using cleaned data before validation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+    form.cleaned_data</code></pre></div>
+<hr>
+<h3 id="h-1768-mistake-3">Mistake 3</h3>
+<p>Forgetting <code>return</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) &lt; 3:
+        raise forms.ValidationError("Too short")</code></pre></div>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) &lt; 3:
+        raise forms.ValidationError("Too short")
+
+    return name</code></pre></div>
+<hr>
+<h3 id="h-1769-mistake-4">Mistake 4</h3>
+<p>Using <code>clean()</code> for a single-field rule unnecessarily.</p>
+<p>For:</p>
+<blockquote>Username cannot contain spaces.</blockquote>
+<p>Prefer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_username(self):</code></pre></div>
+<p>not:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean(self):</code></pre></div>
+<hr>
+<h3 id="h-1770-mistake-5">Mistake 5</h3>
+<p>Forgetting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>super().clean()</code></pre></div>
+<p>when writing a custom <code>clean()</code>.</p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cleaned_data = super().clean()</code></pre></div>
+<hr>
+<h3 id="h-1771-mistake-6">Mistake 6</h3>
+<p>Using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<p>incorrectly.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<hr>
+<h3 id="h-1772-mistake-7">Mistake 7</h3>
+<p>Forgetting CSRF protection in a POST template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% csrf_token %}</code></pre></div>
+<hr>
+<h1 id="h-1773-37-clean-field-vs-validator-functions">37. <code>clean_&lt;field&gt;()</code> vs Validator Functions</h1>
+<p>Django also supports validators.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.validators import MinValueValidator</code></pre></div>
+<p>You can define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    validators=[MinValueValidator(18)]
+)</code></pre></div>
+<p>This is useful when you want a reusable validation rule.</p>
+<p>For simple field-specific logic, <code>clean_&lt;field&gt;()</code> is often easier to understand.</p>
+<hr>
+<h1 id="h-1774-38-very-important-viva-questions">38. Very Important Viva Questions</h1>
+<h3 id="h-1775-q1-what-is-form-validation">Q1. What is form validation?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>Form validation is the process of checking whether submitted form data is present, correctly formatted, type-correct, within allowed limits, and satisfies application-specific rules.</blockquote>
+<hr>
+<h3 id="h-1776-q2-what-does-is-valid-do">Q2. What does <code>is_valid()</code> do?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote><code>is_valid()</code> runs the form's validation process and returns <code>True</code> if the submitted data is valid, otherwise <code>False</code>.</blockquote>
+<hr>
+<h3 id="h-1777-q3-what-is-cleaned-data">Q3. What is <code>cleaned_data</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote><code>cleaned_data</code> is a dictionary containing validated and cleaned form data after successful form validation.</blockquote>
+<hr>
+<h3 id="h-1778-q4-when-is-cleaned-data-available">Q4. When is <code>cleaned_data</code> available?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It should be accessed after <code>form.is_valid()</code> has been called.</blockquote>
+<hr>
+<h3 id="h-1779-q5-what-is-clean-field">Q5. What is <code>clean_&lt;field&gt;()</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It is a custom validation method used to validate or transform a specific form field.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_email(self):
+    ...</code></pre></div>
+<hr>
+<h3 id="h-1780-q6-what-is-clean">Q6. What is <code>clean()</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote><code>clean()</code> is used for form-wide or cross-field validation when the validation rule depends on multiple fields.</blockquote>
+<hr>
+<h3 id="h-1781-q7-difference-between-clean-name-and-clean">Q7. Difference between <code>clean_name()</code> and <code>clean()</code>?</h3>
+<p><strong>Answer:</strong></p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>clean_name() → validates name only
+clean()      → validates multiple fields/form-wide rules</code></pre></div>
+<hr>
+<h3 id="h-1782-q8-what-is-validationerror">Q8. What is <code>ValidationError</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote><code>ValidationError</code> is raised when submitted data does not satisfy a validation rule.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError("Invalid name")</code></pre></div>
+<hr>
+<h3 id="h-1783-q9-what-is-add-error">Q9. What is <code>add_error()</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote><code>add_error()</code> manually adds a validation error to a particular form field.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.add_error("age", "Age is invalid.")</code></pre></div>
+<hr>
+<h3 id="h-1784-q10-why-do-we-use-super-clean">Q10. Why do we use <code>super().clean()</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It calls Django's parent <code>clean()</code> implementation and provides the cleaned data needed for further form-wide validation.</blockquote>
+<hr>
+<h3 id="h-1785-q11-what-does-required-false-mean">Q11. What does <code>required=False</code> mean?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It makes a form field optional.</blockquote>
+<hr>
+<h3 id="h-1786-q12-what-is-min-length">Q12. What is <code>min_length</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It specifies the minimum number of characters allowed for a field.</blockquote>
+<hr>
+<h3 id="h-1787-q13-what-is-min-value">Q13. What is <code>min_value</code>?</h3>
+<p><strong>Answer:</strong></p>
+<blockquote>It specifies the minimum numeric value accepted by a field.</blockquote>
+<hr>
+<h3 id="h-1788-q14-does-is-valid-return-cleaned-data">Q14. Does <code>is_valid()</code> return cleaned data?</h3>
+<p>No.</p>
+<p>It returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<p>The cleaned data is accessed through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-1789-39-coding-questions-you-should-be-able-to-write">39. Coding Questions You Should Be Able to Write</h1>
+<h3 id="h-1790-question-1">Question 1</h3>
+<p>Create a form with:</p>
+<ul>
+<li>Name: minimum 3 characters</li>
+<li>Age: 18–60</li>
+<li>Email: valid email</li>
+</ul>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()</code></pre></div>
+<hr>
+<h3 id="h-1791-question-2">Question 2</h3>
+<p>Create custom validation so that a username cannot contain spaces.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_username(self):
+    username = self.cleaned_data["username"]
+
+    if " " in username:
+        raise forms.ValidationError(
+            "Username cannot contain spaces."
+        )
+
+    return username</code></pre></div>
+<hr>
+<h3 id="h-1792-question-3">Question 3</h3>
+<p>Validate password confirmation.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean(self):
+    cleaned_data = super().clean()
+
+    password = cleaned_data.get("password")
+    confirm = cleaned_data.get("confirm_password")
+
+    if password != confirm:
+        raise forms.ValidationError(
+            "Passwords do not match."
+        )
+
+    return cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-1793-40-the-most-important-things-to-memorize">40. The Most Important Things to Memorize</h1>
+<p>If you have limited time before an exam, remember these:</p>
+<h3 id="h-1794-built-in-validation">Built-in validation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>required=True
+required=False
+min_length=3
+max_length=20
+min_value=18
+max_value=60</code></pre></div>
+<h3 id="h-1795-validation">Validation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():</code></pre></div>
+<h3 id="h-1796-cleaned-data">Cleaned data</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<h3 id="h-1797-field-specific-validation">Field-specific validation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+    value = self.cleaned_data["name"]
+
+    # validation
+
+    return value</code></pre></div>
+<h3 id="h-1798-form-wide-validation">Form-wide validation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean(self):
+    cleaned_data = super().clean()
+
+    # cross-field validation
+
+    return cleaned_data</code></pre></div>
+<h3 id="h-1799-error">Error</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError("Invalid data")</code></pre></div>
+<h3 id="h-1800-field-specific-error">Field-specific error</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.add_error(
+    "field_name",
+    "Error message"
+)</code></pre></div>
+<hr>
+<h1 id="h-1801-module-22-summary">Module 22 Summary</h1>
+<p>The complete concept is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User submits form
+       ↓
+request.POST
+       ↓
+Form(request.POST)
+       ↓
+form.is_valid()
+       ↓
+Built-in validation
+       ↓
+clean_&lt;field&gt;()
+       ↓
+clean()
+       ↓
+ ┌───────────────┐
+ │               │
+Valid          Invalid
+ │               │
+ ↓               ↓
+cleaned_data   form.errors</code></pre></div>
+<p>And the golden rule is:</p>
+<blockquote><strong>Use built-in field options for simple validation, <code>clean_&lt;field&gt;()</code> for one-field custom validation, and <code>clean()</code> for validation involving multiple fields.</strong></blockquote>
+<p><strong>Next → Module 23: CSRF &amp; CSRF Protection</strong> We'll cover exactly why <code>{% csrf_token %}</code> is required, how CSRF attacks work, Django's CSRF middleware/token mechanism, common CSRF errors, AJAX/POST considerations, and the viva questions around CSRF.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-21.html">← Module 21: Django Forms</a>
+<a class="pn-btn pn-next" href="module-23.html">Module 23: CSRF &amp; CSRF Protection →</a>
+</div>
+
+</div>
+
+</body>
+</html>

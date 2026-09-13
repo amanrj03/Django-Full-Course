@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 33: Users, Groups & Permissions — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 33 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 33 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Users, Groups &amp; Permissions</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<span class="nav-item current">33. Users, Groups &amp; Permissions</span>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-32.html">← Module 32: Django Admin</a>
+<a class="pn-btn pn-next" href="module-34.html">Module 34: Database Configuration →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2713-module-33-django-users-groups-permissions">Module 33 — Django Users, Groups &amp; Permissions</h1>
+<p>This module is extremely important because it explains <strong>who can access your Django application and what they are allowed to do</strong>.</p>
+<p>You already learned Django Admin. Now we'll understand the system behind it:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication → Who are you?
+Authorization  → What are you allowed to do?</code></pre></div>
+<p>By the end, you should be able to answer common viva questions and write permission-based Django code.</p>
+<hr>
+<h1 id="h-2714-1-authentication-vs-authorization">1. Authentication vs Authorization</h1>
+<p>This is the <strong>first thing to memorize</strong>.</p>
+<h3 id="h-2715-authentication">Authentication</h3>
+<p>Authentication answers:</p>
+<blockquote><strong>Who are you?</strong></blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username: Aman
+Password: ********</code></pre></div>
+<p>Django checks whether the credentials are valid.</p>
+<hr>
+<h3 id="h-2716-authorization">Authorization</h3>
+<p>Authorization answers:</p>
+<blockquote><strong>What are you allowed to do?</strong></blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+    ↓
+Can view students
+Can add students
+Cannot delete students</code></pre></div>
+<h3 id="h-2717-memorize">Memorize:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication → Identity
+Authorization  → Permissions</code></pre></div>
+<hr>
+<h1 id="h-2718-2-django-user-system">2. Django User System</h1>
+<p>Django provides a built-in authentication framework.</p>
+<p>It includes functionality for:</p>
+<ul>
+<li>Users</li>
+<li>Passwords</li>
+<li>Sessions</li>
+<li>Login/logout</li>
+<li>Groups</li>
+<li>Permissions</li>
+<li>Authentication helpers</li>
+<li>Password hashing</li>
+<li>Admin integration</li>
+</ul>
+<p>The main model is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User</code></pre></div>
+<p>Django provides it through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>django.contrib.auth</code></pre></div>
+<hr>
+<h1 id="h-2719-3-importing-user">3. Importing User</h1>
+<p>A common way to import Django's default User model is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<p>Then you can work with it using the ORM.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>User.objects.all()</code></pre></div>
+<hr>
+<h1 id="h-2720-4-user-fields">4. User Fields</h1>
+<p>The built-in Django User model contains fields such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+first_name
+last_name
+email
+password
+is_staff
+is_active
+is_superuser
+last_login
+date_joined</code></pre></div>
+<p>You don't need to memorize every internal field for basic exams, but these are especially important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+password
+email
+is_staff
+is_active
+is_superuser</code></pre></div>
+<hr>
+<h1 id="h-2721-5-never-store-passwords-as-plain-text">5. Never Store Passwords as Plain Text</h1>
+<p>This is very important.</p>
+<p>You should <strong>never</strong> do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.password = "123456"</code></pre></div>
+<p>as your normal password-setting approach.</p>
+<p>Instead use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("123456")</code></pre></div>
+<p>Django hashes the password.</p>
+<hr>
+<h1 id="h-2722-6-creating-a-user">6. Creating a User</h1>
+<p>You can create a regular user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>This is the preferred approach.</p>
+<p>Django handles password hashing.</p>
+<hr>
+<h1 id="h-2723-7-creating-a-superuser">7. Creating a Superuser</h1>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>Django asks for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username
+Email
+Password</code></pre></div>
+<p>The resulting user has superuser privileges.</p>
+<hr>
+<h1 id="h-2724-8-is-active">8. <code>is_active</code></h1>
+<p>A user has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active</code></pre></div>
+<p>Normally:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>An inactive user is generally prevented from authenticating normally.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_active = False
+user.save()</code></pre></div>
+<p>This can effectively disable the user's account without deleting the user record.</p>
+<hr>
+<h1 id="h-2725-9-is-staff">9. <code>is_staff</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff</code></pre></div>
+<p>determines whether the user is allowed to access the Django Admin site, subject to the admin's authentication/permission checks.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff = True
+user.save()</code></pre></div>
+<p>But remember:</p>
+<blockquote><code>is_staff=True</code> does <strong>not</strong> mean the user has every permission.</blockquote>
+<hr>
+<h1 id="h-2726-10-is-superuser">10. <code>is_superuser</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_superuser</code></pre></div>
+<p>A superuser has all permissions by default.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_superuser = True</code></pre></div>
+<p>means Django treats the user as having all permissions without requiring each individual permission to be assigned.</p>
+<hr>
+<h1 id="h-2727-11-staff-vs-superuser">11. Staff vs Superuser</h1>
+<p>Very common viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Property</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>is_active</code></td>
+<td>Account is active</td>
+</tr>
+<tr>
+<td><code>is_staff</code></td>
+<td>Can access admin site</td>
+</tr>
+<tr>
+<td><code>is_superuser</code></td>
+<td>Has all permissions</td>
+</tr>
+</tbody></table></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_active
+    ↓
+Can account be used normally?
+
+is_staff
+    ↓
+Can access admin?
+
+is_superuser
+    ↓
+All permissions</code></pre></div>
+<p>A staff user can have limited permissions.</p>
+<p>A superuser has all permissions by default.</p>
+<hr>
+<h1 id="h-2728-12-django-permissions">12. Django Permissions</h1>
+<p>Django automatically creates model-level permissions for models.</p>
+<p>The standard permissions are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>add
+change
+delete
+view</code></pre></div>
+<p>For a <code>Student</code> model, you may see permissions conceptually like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can add student
+Can change student
+Can delete student
+Can view student</code></pre></div>
+<hr>
+<h1 id="h-2729-13-why-permissions">13. Why Permissions?</h1>
+<p>Imagine your application has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Admin
+Teacher
+Student</code></pre></div>
+<p>You might want:</p>
+<h3 id="h-2730-admin">Admin</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+Add
+Change
+Delete</code></pre></div>
+<h3 id="h-2731-teacher">Teacher</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+Add
+Change</code></pre></div>
+<h3 id="h-2732-student">Student</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View</code></pre></div>
+<p>Permissions allow you to implement this kind of access control.</p>
+<hr>
+<h1 id="h-2733-14-permission-object">14. Permission Object</h1>
+<p>Django stores permissions as permission records.</p>
+<p>You can access them through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import Permission</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Permission.objects.all()</code></pre></div>
+<p>You generally don't manually create the standard CRUD permissions because Django creates them as part of its model permission system.</p>
+<hr>
+<h1 id="h-2734-15-checking-a-permission">15. Checking a Permission</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user</code></pre></div>
+<p>is a User object.</p>
+<p>You can check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm("students.view_student")</code></pre></div>
+<p>This returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<p>The format is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>app_label.permission_codename</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students.view_student</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>App: students
+Permission: view_student</code></pre></div>
+<hr>
+<h1 id="h-2735-16-permission-naming">16. Permission Naming</h1>
+<p>For a model called:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student</code></pre></div>
+<p>Django's standard permission codenames are generally:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>add_student
+change_student
+delete_student
+view_student</code></pre></div>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm("students.add_student")</code></pre></div>
+<p>checks whether the user can add students.</p>
+<hr>
+<h1 id="h-2736-17-examples-of-has-perm">17. Examples of <code>has_perm()</code></h1>
+<h3 id="h-2737-view">View</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.view_student"
+)</code></pre></div>
+<h3 id="h-2738-add">Add</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.add_student"
+)</code></pre></div>
+<h3 id="h-2739-change">Change</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.change_student"
+)</code></pre></div>
+<h3 id="h-2740-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<hr>
+<h1 id="h-2741-18-using-has-perm-in-a-view">18. Using <code>has_perm()</code> in a View</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_student(request, id):
+
+    if not request.user.has_perm(
+        "students.delete_student"
+    ):
+        return HttpResponseForbidden(
+            "You do not have permission."
+        )
+
+    ...</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   ↓
+User
+   ↓
+Check permission
+   ↓
+Allowed?
+ ┌───────┴───────┐
+Yes              No
+ ↓                ↓
+Continue       403</code></pre></div>
+<hr>
+<h1 id="h-2742-19-groups">19. Groups</h1>
+<p>Suppose you have 100 teachers.</p>
+<p>You don't want to individually assign the same permissions to every teacher.</p>
+<p>Instead create a group:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teachers</code></pre></div>
+<p>and assign permissions to the group.</p>
+<p>Then add users to the group.</p>
+<hr>
+<h1 id="h-2743-20-group-concept">20. Group Concept</h1>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Group
+  ↓
+Permissions
+  ↓
+Users</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teachers
+   ├── view_student
+   ├── add_student
+   └── change_student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Priya</code></pre></div>
+<p>are members of the Teachers group.</p>
+<p>They inherit the group's permissions.</p>
+<hr>
+<h1 id="h-2744-21-creating-a-group">21. Creating a Group</h1>
+<p>You can use Django Admin, or programmatically:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import Group
+
+teachers = Group.objects.create(
+    name="Teachers"
+)</code></pre></div>
+<p>Then assign permissions.</p>
+<hr>
+<h1 id="h-2745-22-adding-a-permission-to-a-group">22. Adding a Permission to a Group</h1>
+<p>Suppose we retrieve a permission:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import Permission
+
+permission = Permission.objects.get(
+    codename="view_student"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>teachers.permissions.add(
+    permission
+)</code></pre></div>
+<p>Now the group has that permission.</p>
+<hr>
+<h1 id="h-2746-23-adding-a-user-to-a-group">23. Adding a User to a Group</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.get(
+    username="aman"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.add(
+    teachers
+)</code></pre></div>
+<p>Now Aman belongs to the Teachers group.</p>
+<hr>
+<h1 id="h-2747-24-removing-a-user-from-a-group">24. Removing a User From a Group</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.remove(
+    teachers
+)</code></pre></div>
+<hr>
+<h1 id="h-2748-25-check-user-s-groups">25. Check User's Groups</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.all()</code></pre></div>
+<p>This returns the groups the user belongs to.</p>
+<hr>
+<h1 id="h-2749-26-user-permissions-vs-group-permissions">26. User Permissions vs Group Permissions</h1>
+<p>Permissions can effectively come from:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Direct permissions
+
+OR
+
+Group
+ ↓
+Group permissions
+ ↓
+User</code></pre></div>
+<p>So a user can receive permissions directly or through groups.</p>
+<hr>
+<h1 id="h-2750-27-user-permissions">27. <code>user_permissions</code></h1>
+<p>Django User has a relationship for permissions assigned directly to that user.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.user_permissions.all()</code></pre></div>
+<p>This gives directly assigned permissions.</p>
+<p>While:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.all()</code></pre></div>
+<p>gives their groups.</p>
+<hr>
+<h1 id="h-2751-28-checking-permissions-from-groups">28. Checking Permissions From Groups</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teachers
+    ↓
+view_student</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+    ↓
+Teachers</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.view_student"
+)</code></pre></div>
+<p>can return:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>because the permission is inherited through the group.</p>
+<hr>
+<h1 id="h-2752-29-custom-permissions">29. Custom Permissions</h1>
+<p>Django can also define permissions beyond the standard four.</p>
+<p>In a model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        permissions = [
+            (
+                "can_publish_student",
+                "Can publish student"
+            ),
+        ]</code></pre></div>
+<p>Now you have a custom permission.</p>
+<hr>
+<h1 id="h-2753-30-why-custom-permissions">30. Why Custom Permissions?</h1>
+<p>Suppose your application has a blog.</p>
+<p>Standard permissions:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>view
+add
+change
+delete</code></pre></div>
+<p>But perhaps you need:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>publish_article</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>approve_application</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>export_student_data</code></pre></div>
+<p>Custom permissions allow application-specific authorization rules.</p>
+<hr>
+<h1 id="h-2754-31-checking-custom-permission">31. Checking Custom Permission</h1>
+<p>If app is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>blog</code></pre></div>
+<p>and permission codename is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>can_publish_student</code></pre></div>
+<p>you can check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.can_publish_student"
+)</code></pre></div>
+<p>The exact app label and codename must match your model's permission definition.</p>
+<hr>
+<h1 id="h-2755-32-request-user">32. <code>request.user</code></h1>
+<p>In a Django view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    print(request.user)</code></pre></div>
+<p>Django attaches the current user to the request.</p>
+<p>You can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.username</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.email</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_staff</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_superuser</code></pre></div>
+<hr>
+<h1 id="h-2756-33-anonymoususer">33. AnonymousUser</h1>
+<p>What if the visitor isn't logged in?</p>
+<p>Django uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AnonymousUser</code></pre></div>
+<p>for the unauthenticated request.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>always gives you a user-like object, but it may represent an anonymous visitor.</p>
+<hr>
+<h1 id="h-2757-34-is-authenticated">34. <code>is_authenticated</code></h1>
+<p>You can check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    ...</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Is the current request associated with an authenticated user?</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def profile(request):
+
+    if request.user.is_authenticated:
+        return HttpResponse(
+            f"Hello {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please log in."
+    )</code></pre></div>
+<hr>
+<h1 id="h-2758-35-important-is-authenticated-is-not-a-function">35. Important: <code>is_authenticated</code> Is Not a Function</h1>
+<p>This is a common beginner mistake.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>Not:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<p>It's a property-like attribute.</p>
+<hr>
+<h1 id="h-2759-36-protecting-a-view">36. Protecting a View</h1>
+<p>Suppose you want only logged-in users to access:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/profile/</code></pre></div>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def profile(request):
+    return HttpResponse(
+        "Welcome to your profile"
+    )</code></pre></div>
+<hr>
+<h1 id="h-2760-37-what-does-login-required-do">37. What Does <code>login_required</code> Do?</h1>
+<p>If the user is authenticated:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View executes</code></pre></div>
+<p>If the user isn't authenticated:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Redirect to login page</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/profile/
+    ↓
+Authenticated?
+   / \
+ Yes  No
+ ↓     ↓
+View  Login</code></pre></div>
+<hr>
+<h1 id="h-2761-38-setting-the-login-url">38. Setting the Login URL</h1>
+<p>You can configure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>LOGIN_URL = "/login/"</code></pre></div>
+<p>in <code>settings.py</code>.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def profile(request):
+    ...</code></pre></div>
+<p>will redirect unauthenticated users to the configured login URL.</p>
+<hr>
+<h1 id="h-2762-39-login-url-with-next">39. Login URL With <code>next</code></h1>
+<p>Django commonly preserves the original destination using a <code>next</code> query parameter.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/login/?next=/profile/</code></pre></div>
+<p>After successful authentication, your login flow can use that destination to send the user back to the page they originally requested.</p>
+<p>This is an important authentication concept.</p>
+<hr>
+<h1 id="h-2763-40-permission-based-view-protection">40. Permission-Based View Protection</h1>
+<p><code>login_required</code> checks:</p>
+<blockquote>Is the user logged in?</blockquote>
+<p>It does <strong>not</strong> check whether they have a particular permission.</p>
+<p>For permissions, you can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.change_student"
+)
+def edit_student(request, id):
+    ...</code></pre></div>
+<p>Now Django checks the required permission.</p>
+<hr>
+<h1 id="h-2764-41-permission-required">41. <code>permission_required</code></h1>
+<p>General syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "app_label.permission_codename"
+)
+def my_view(request):
+    ...</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<hr>
+<h1 id="h-2765-42-permission-required-and-login">42. <code>permission_required</code> and Login</h1>
+<p>By default, permission checks work together with Django authentication.</p>
+<p>For a user who isn't authenticated, Django can redirect them to the login page according to the decorator's configuration.</p>
+<p>If an authenticated user lacks the permission, access is denied.</p>
+<hr>
+<h1 id="h-2766-43-raise-exception-true">43. <code>raise_exception=True</code></h1>
+<p>You can configure the decorator:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>Now if the authenticated user doesn't have the permission, Django raises a permission-denied condition rather than redirecting them to the login page.</p>
+<p>This generally results in a <strong>403 Forbidden</strong> response.</p>
+<hr>
+<h1 id="h-2767-44-login-required-vs-permission-required">44. <code>login_required</code> vs <code>permission_required</code></h1>
+<p>Very important:</p>
+<h3 id="h-2768-login-required"><code>login_required</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<p>asks:</p>
+<blockquote>Is the user authenticated?</blockquote>
+<h3 id="h-2769-permission-required"><code>permission_required</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.change_student"
+)</code></pre></div>
+<p>asks:</p>
+<blockquote>Does the user have this specific permission?</blockquote>
+<hr>
+<h1 id="h-2770-45-authentication-vs-authorization-in-code">45. Authentication vs Authorization in Code</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authenticated?</code></pre></div>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authenticated + authorized?</code></pre></div>
+<hr>
+<h1 id="h-2771-46-checking-staff-status">46. Checking Staff Status</h1>
+<p>You can also manually check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_staff:
+    ...</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def admin_area(request):
+
+    if not request.user.is_staff:
+        return HttpResponseForbidden(
+            "Staff only"
+        )
+
+    return HttpResponse(
+        "Welcome staff member"
+    )</code></pre></div>
+<p>But for specific permissions, permission checks are usually more precise than simply checking <code>is_staff</code>.</p>
+<hr>
+<h1 id="h-2772-47-checking-superuser">47. Checking Superuser</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_superuser:
+    ...</code></pre></div>
+<p>This checks whether the user is a superuser.</p>
+<p>Again, don't use superuser status as a substitute for every authorization rule in a normal application. Specific permissions are usually better when you want least-privilege access.</p>
+<hr>
+<h1 id="h-2773-48-template-permission-checks">48. Template Permission Checks</h1>
+<p>You can also check permissions in templates.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if perms.students.add_student %}
+    &lt;a href="{% url 'student_create' %}"&gt;
+        Add Student
+    &lt;/a&gt;
+{% endif %}</code></pre></div>
+<p>This means:</p>
+<blockquote>Show the Add Student link if the current user has that permission.</blockquote>
+<hr>
+<h1 id="h-2774-49-important-security-point">49. Important Security Point</h1>
+<p>Hiding a button is <strong>not</strong> security.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if perms.students.delete_student %}
+    &lt;button&gt;Delete&lt;/button&gt;
+{% endif %}</code></pre></div>
+<p>only controls whether the button is displayed.</p>
+<p>A malicious user could still manually send a request.</p>
+<p>Therefore the <strong>view/server must also enforce authorization</strong>.</p>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template check
+      +
+Server-side permission check</code></pre></div>
+<p>The server-side check is essential.</p>
+<hr>
+<h1 id="h-2775-50-permission-check-in-a-view">50. Permission Check in a View</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    student.delete()
+
+    return redirect("student_list")</code></pre></div>
+<p>Now deletion is protected by a permission.</p>
+<hr>
+<h1 id="h-2776-51-groups-permissions-architecture">51. Groups + Permissions Architecture</h1>
+<p>Imagine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                  PERMISSIONS
+                       │
+         ┌─────────────┴─────────────┐
+         ↓                           ↓
+   Direct User Permissions        Groups
+                                      │
+                         ┌────────────┼────────────┐
+                         ↓            ↓            ↓
+                       View          Add         Change
+                                      │
+                                      ↓
+                                    Users</code></pre></div>
+<p>This is how Django's authorization system can be organized.</p>
+<hr>
+<h1 id="h-2777-52-practical-example-teacher-role">52. Practical Example: Teacher Role</h1>
+<p>Suppose you want:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teacher:
+✓ View students
+✓ Add students
+✓ Change students
+✗ Delete students</code></pre></div>
+<p>Create a group:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teachers</code></pre></div>
+<p>Give it:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>view_student
+add_student
+change_student</code></pre></div>
+<p>Don't give:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>delete_student</code></pre></div>
+<p>Then add teachers to the group.</p>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.change_student"
+)</code></pre></div>
+<p>can return:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.delete_student"
+)</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<hr>
+<h1 id="h-2778-53-practical-example-student-role">53. Practical Example: Student Role</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student:
+✓ View
+✗ Add
+✗ Change
+✗ Delete</code></pre></div>
+<p>Create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students</code></pre></div>
+<p>group.</p>
+<p>Give:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>view_student</code></pre></div>
+<p>only.</p>
+<p>Now the same permission system controls what the student can do.</p>
+<hr>
+<h1 id="h-2779-54-permission-naming-trick">54. Permission Naming Trick</h1>
+<p>For model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student</code></pre></div>
+<p>App:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>standard permissions are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students.add_student
+students.change_student
+students.delete_student
+students.view_student</code></pre></div>
+<p>Remember the pattern:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>app_label.permission_codename</code></pre></div>
+<hr>
+<h1 id="h-2780-55-django-user-workflow">55. Django User Workflow</h1>
+<p>A typical authentication/authorization flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+Login
+ ↓
+Authentication
+ ↓
+request.user
+ ↓
+is_authenticated
+ ↓
+Groups / Permissions
+ ↓
+Authorization
+ ↓
+Allowed?
+ ├── Yes → View
+ └── No  → 403 / denied</code></pre></div>
+<hr>
+<h1 id="h-2781-56-important-security-distinction">56. Important Security Distinction</h1>
+<h3 id="h-2782-authentication">Authentication</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Are you Aman?"</code></pre></div>
+<h3 id="h-2783-authorization">Authorization</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Can Aman delete this student?"</code></pre></div>
+<h3 id="h-2784-csrf">CSRF</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Did this state-changing request come through a trusted interaction?"</code></pre></div>
+<p>These are different security concepts.</p>
+<hr>
+<h1 id="h-2785-57-practical-coding-questions">57. Practical Coding Questions</h1>
+<h2 id="h-2786-q1-create-a-normal-user">Q1. Create a normal user</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<hr>
+<h2 id="h-2787-q2-check-whether-user-is-authenticated">Q2. Check whether user is authenticated</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2788-q3-check-whether-user-is-staff">Q3. Check whether user is staff</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_staff:
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2789-q4-check-whether-user-is-superuser">Q4. Check whether user is superuser</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_superuser:
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2790-q5-check-permission">Q5. Check permission</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.has_perm(
+    "students.delete_student"
+):
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2791-q6-protect-view-for-logged-in-users">Q6. Protect view for logged-in users</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2792-q7-protect-view-using-a-permission">Q7. Protect view using a permission</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.change_student"
+)
+def edit_student(request, id):
+    ...</code></pre></div>
+<hr>
+<h2 id="h-2793-q8-add-user-to-a-group">Q8. Add user to a group</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.add(
+    teachers
+)</code></pre></div>
+<hr>
+<h2 id="h-2794-q9-remove-user-from-group">Q9. Remove user from group</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.remove(
+    teachers
+)</code></pre></div>
+<hr>
+<h2 id="h-2795-q10-get-user-s-groups">Q10. Get user's groups</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.all()</code></pre></div>
+<hr>
+<h1 id="h-2796-58-viva-masterclass">58. Viva Masterclass</h1>
+<h3 id="h-2797-q1-what-is-authentication">Q1. What is authentication?</h3>
+<blockquote>Authentication is the process of verifying the identity of a user.</blockquote>
+<h3 id="h-2798-q2-what-is-authorization">Q2. What is authorization?</h3>
+<blockquote>Authorization determines what an authenticated user is allowed to access or perform.</blockquote>
+<h3 id="h-2799-q3-what-is-django-s-built-in-user-model">Q3. What is Django's built-in User model?</h3>
+<blockquote>It is the default user model provided by Django's authentication framework for managing users and authentication-related information.</blockquote>
+<h3 id="h-2800-q4-what-is-is-staff">Q4. What is <code>is_staff</code>?</h3>
+<blockquote>It indicates whether a user is allowed to access the Django Admin site, subject to the relevant access checks and permissions.</blockquote>
+<h3 id="h-2801-q5-what-is-is-superuser">Q5. What is <code>is_superuser</code>?</h3>
+<blockquote>It indicates that the user has all permissions by default.</blockquote>
+<h3 id="h-2802-q6-what-is-is-active">Q6. What is <code>is_active</code>?</h3>
+<blockquote>It indicates whether the user account is active.</blockquote>
+<h3 id="h-2803-q7-what-are-django-s-default-model-permissions">Q7. What are Django's default model permissions?</h3>
+<blockquote>Add, change, delete, and view.</blockquote>
+<h3 id="h-2804-q8-what-is-a-group">Q8. What is a Group?</h3>
+<blockquote>A group is a collection of users to which permissions can be assigned collectively.</blockquote>
+<h3 id="h-2805-q9-why-use-groups">Q9. Why use groups?</h3>
+<blockquote>Groups simplify permission management when multiple users need the same set of permissions.</blockquote>
+<h3 id="h-2806-q10-how-do-you-check-a-permission">Q10. How do you check a permission?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.view_student"
+)</code></pre></div>
+<h3 id="h-2807-q11-what-does-login-required-do">Q11. What does <code>login_required</code> do?</h3>
+<blockquote>It restricts a view to authenticated users and redirects unauthenticated users to the login flow.</blockquote>
+<h3 id="h-2808-q12-what-does-permission-required-do">Q12. What does <code>permission_required</code> do?</h3>
+<blockquote>It restricts a view based on a specified Django permission.</blockquote>
+<h3 id="h-2809-q13-difference-between-is-staff-and-is-superuser">Q13. Difference between <code>is_staff</code> and <code>is_superuser</code>?</h3>
+<blockquote><code>is_staff</code> allows admin access, while <code>is_superuser</code> gives all permissions by default.</blockquote>
+<h3 id="h-2810-q14-can-a-staff-user-have-limited-permissions">Q14. Can a staff user have limited permissions?</h3>
+<blockquote>Yes. Staff status does not automatically mean the user has every model permission.</blockquote>
+<h3 id="h-2811-q15-why-isn-t-hiding-a-delete-button-enough">Q15. Why isn't hiding a delete button enough?</h3>
+<blockquote>Because client-side/template visibility is not an authorization mechanism. The server-side view must enforce the permission.</blockquote>
+<hr>
+<h1 id="h-2812-59-one-very-important-interview-scenario">59. One Very Important Interview Scenario</h1>
+<h3 id="h-2813-interviewer">Interviewer:</h3>
+<blockquote>"I have 100 teachers. All teachers should be able to view and edit students, but not delete them. How would you implement this?"</blockquote>
+<p>A strong answer:</p>
+<blockquote>"I would create a Teachers group, assign the <code>view_student</code> and <code>change_student</code> permissions to that group, and add all teacher users to it. I would not assign the <code>delete_student</code> permission. The relevant views would also enforce permissions using Django's authorization mechanisms."</blockquote>
+<p>That demonstrates you understand:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Groups
++
+Permissions
++
+Server-side authorization</code></pre></div>
+<hr>
+<h1 id="h-2814-60-another-interview-scenario">60. Another Interview Scenario</h1>
+<h3 id="h-2815-question">Question:</h3>
+<blockquote>"What is the difference between <code>login_required</code> and <code>permission_required</code>?"</blockquote>
+<p>Answer:</p>
+<blockquote>"<code>login_required</code> checks whether the user is authenticated, while <code>permission_required</code> checks whether the user has a specific permission. A user can be authenticated but still lack the permission required for an operation."</blockquote>
+<p>Excellent viva answer.</p>
+<hr>
+<h1 id="h-2816-61-another-important-scenario">61. Another Important Scenario</h1>
+<h3 id="h-2817-question">Question:</h3>
+<blockquote>"Can I use <code>is_staff</code> to determine whether someone can delete students?"</blockquote>
+<p>Technically you could write such a check, but it is usually <strong>not the right authorization design</strong>.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student"
+)</code></pre></div>
+<p>Why?</p>
+<p>Because:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_staff
+   ↓
+Broad admin access
+
+delete_student permission
+   ↓
+Specific capability</code></pre></div>
+<p>Permissions provide finer-grained authorization.</p>
+<hr>
+<h1 id="h-2818-62-final-cheat-sheet">62. Final Cheat Sheet</h1>
+<h3 id="h-2819-user">User</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<h3 id="h-2820-authentication">Authentication</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<h3 id="h-2821-staff">Staff</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_staff</code></pre></div>
+<h3 id="h-2822-superuser">Superuser</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_superuser</code></pre></div>
+<h3 id="h-2823-permission">Permission</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.has_perm(
+    "students.view_student"
+)</code></pre></div>
+<h3 id="h-2824-login-protection">Login protection</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required</code></pre></div>
+<h3 id="h-2825-permission-protection">Permission protection</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.change_student"
+)</code></pre></div>
+<h3 id="h-2826-groups">Groups</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.add(group)
+user.groups.remove(group)
+user.groups.all()</code></pre></div>
+<h3 id="h-2827-direct-user-permissions">Direct user permissions</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.user_permissions.all()</code></pre></div>
+<hr>
+<h1 id="h-2828-63-complete-mental-map">63. Complete Mental Map</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                         DJANGO AUTHORIZATION
+                                  │
+                 ┌────────────────┴────────────────┐
+                 ↓                                 ↓
+          AUTHENTICATION                     AUTHORIZATION
+          "Who are you?"                    "What can you do?"
+                 │                                 │
+                 ↓                                 ↓
+              User                          Permissions
+                 │                                 │
+        ┌────────┼────────┐                  ┌─────┴─────┐
+        ↓        ↓        ↓                  ↓           ↓
+    is_active is_staff is_superuser       User        Group
+                                                       │
+                                                       ↓
+                                                  Permissions
+                                                       │
+                                                       ↓
+                                                  has_perm()
+                                                       │
+                                                       ↓
+                                                     View</code></pre></div>
+<p>And the most important distinction:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_authenticated
+       ↓
+"Are you logged in?"
+
+has_perm(...)
+       ↓
+"Are you allowed to perform this action?"</code></pre></div>
+<hr>
+<h2 id="h-2829-what-you-should-be-able-to-write-from-memory">What you should be able to write from memory</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    return HttpResponse("Dashboard")</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.has_perm(
+    "students.change_student"
+):
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_staff:
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_superuser:
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.user.is_authenticated:
+    ...</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.add(teachers)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.remove(teachers)</code></pre></div>
+<hr>
+<p><strong>Next → Module 34: Database Configuration &amp; Connection</strong></p>
+<p>We'll learn how Django connects to <strong>SQLite, MySQL, PostgreSQL</strong>, understand the <code>DATABASES</code> setting, database drivers, connection configuration, environment variables, migrations with different databases, and common database connection errors.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-32.html">← Module 32: Django Admin</a>
+<a class="pn-btn pn-next" href="module-34.html">Module 34: Database Configuration →</a>
+</div>
+
+</div>
+
+</body>
+</html>

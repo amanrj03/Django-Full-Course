@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 12: Introduction to Templates — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 12 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 12 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Introduction to Templates</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<span class="nav-item current">12. Introduction to Templates</span>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-11.html">← Module 11: Error Handling in Django</a>
+<a class="pn-btn pn-next" href="module-13.html">Module 13: Django Template Language (DTL) →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-818-module-12-introduction-to-django-templates">Module 12 — Introduction to Django Templates</h1>
+<p>Now we start <strong>Unit III: Templates, Debugging and Testing</strong>.</p>
+<p>Until now, our views have mostly returned:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello World")</code></pre></div>
+<p>That works for simple responses, but imagine building a real website with:</p>
+<ul>
+<li>headings</li>
+<li>buttons</li>
+<li>navigation bars</li>
+<li>tables</li>
+<li>forms</li>
+<li>images</li>
+<li>CSS</li>
+<li>dynamic data</li>
+</ul>
+<p>Putting all of that HTML inside Python would become a mess.</p>
+<p>That's exactly why <strong>Django Templates</strong> exist.</p>
+<hr>
+<h1 id="h-819-1-what-is-a-template">1. What Is a Template?</h1>
+<p>A Django template is usually an <strong>HTML file</strong> containing the structure of a webpage and special Django Template Language (DTL) syntax for dynamic content.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome to my website&lt;/h1&gt;
+&lt;p&gt;Hello {{ name }}&lt;/p&gt;</code></pre></div>
+<p>The HTML defines the page structure, while:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ name }}</code></pre></div>
+<p>allows Django to insert dynamic data.</p>
+<hr>
+<h1 id="h-820-2-why-do-we-need-templates">2. Why Do We Need Templates?</h1>
+<p>Without templates:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(
+        "&lt;html&gt;"
+        "&lt;body&gt;"
+        "&lt;h1&gt;Hello Aman&lt;/h1&gt;"
+        "&lt;p&gt;Welcome&lt;/p&gt;"
+        "&lt;/body&gt;"
+        "&lt;/html&gt;"
+    )</code></pre></div>
+<p>This becomes difficult to maintain.</p>
+<p>With templates:</p>
+<h3 id="h-821-python">Python:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return render(request, 'home.html')</code></pre></div>
+<h3 id="h-822-html">HTML:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello Aman&lt;/h1&gt;
+&lt;p&gt;Welcome&lt;/p&gt;</code></pre></div>
+<p>Much cleaner.</p>
+<hr>
+<h1 id="h-823-3-mvt-connection">3. MVT Connection</h1>
+<p>Remember Django's MVT architecture:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model
+  ↓
+Data
+
+View
+  ↓
+Logic
+
+Template
+  ↓
+Presentation</code></pre></div>
+<p>So:</p>
+<blockquote><strong>Template is primarily responsible for presentation/UI.</strong></blockquote>
+<p>The view decides what data should be sent to the template.</p>
+<p>The template decides how that data should be displayed.</p>
+<hr>
+<h1 id="h-824-4-basic-template-flow">4. Basic Template Flow</h1>
+<p>The flow becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Template
+   ↓
+HTML Response
+   ↓
+Browser</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/
+     ↓
+students.urls
+     ↓
+views.home()
+     ↓
+home.html
+     ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-825-5-creating-a-template">5. Creating a Template</h1>
+<p>Let's assume our project looks like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+├── College/
+│   ├── settings.py
+│   └── urls.py
+│
+└── students/
+    ├── views.py
+    ├── urls.py
+    └── ...</code></pre></div>
+<p>There are multiple ways to organize templates.</p>
+<p>A common beginner-friendly approach is to create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/</code></pre></div>
+<p>inside the app:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── templates/
+│   └── students/
+│       └── home.html
+├── views.py
+└── urls.py</code></pre></div>
+<p>The extra <code>students</code> directory helps avoid template-name collisions between apps.</p>
+<hr>
+<h1 id="h-826-6-create-home-html">6. Create <code>home.html</code></h1>
+<p>Create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html</code></pre></div>
+<p>Put:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Students&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;h1&gt;Welcome to Students App&lt;/h1&gt;
+    &lt;p&gt;This is my first Django template.&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<hr>
+<h1 id="h-827-7-how-does-django-find-this-template">7. How Does Django Find This Template?</h1>
+<p>Django's template system needs to know where templates are located.</p>
+<p>If you're using the common app-template structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html</code></pre></div>
+<p>make sure your app is included in:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>in <code>settings.py</code>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    'students',
+]</code></pre></div>
+<p>Django can then discover templates inside installed apps when <code>APP_DIRS</code> is enabled.</p>
+<hr>
+<h1 id="h-828-8-app-dirs">8. <code>APP_DIRS</code></h1>
+<p>Look at the default template configuration in <code>settings.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        ...
+    },
+]</code></pre></div>
+<p>The important part for our app template structure is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>APP_DIRS = True</code></pre></div>
+<p>This tells Django's template engine to look for templates inside installed apps.</p>
+<hr>
+<h1 id="h-829-9-rendering-a-template">9. Rendering a Template</h1>
+<p>Now go to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/views.py</code></pre></div>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return render(request, 'students/home.html')</code></pre></div>
+<p>That's it.</p>
+<hr>
+<h1 id="h-830-10-what-is-render">10. What Is <code>render()</code>?</h1>
+<p>The <code>render()</code> shortcut combines several operations for you.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>render()
+   ↓
+Find template
+   ↓
+Process template
+   ↓
+Generate HTML
+   ↓
+Return HttpResponse</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html'
+)</code></pre></div>
+<p>means:</p>
+<blockquote>Render this template and return the generated HTML as an HTTP response.</blockquote>
+<hr>
+<h1 id="h-831-11-render-syntax">11. <code>render()</code> Syntax</h1>
+<p>The basic syntax is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, template_name)</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html'
+)</code></pre></div>
+<p>Later we'll use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(
+    request,
+    'students/home.html',
+    context
+)</code></pre></div>
+<p>to send dynamic data.</p>
+<hr>
+<h1 id="h-832-12-complete-example">12. Complete Example</h1>
+<h3 id="h-833-students-views-py"><code>students/views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+    return render(
+        request,
+        'students/home.html'
+    )</code></pre></div>
+<h3 id="h-834-students-templates-students-home-html"><code>students/templates/students/home.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Students&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;h1&gt;Welcome to Students App&lt;/h1&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<h3 id="h-835-students-urls-py"><code>students/urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+]</code></pre></div>
+<h3 id="h-836-project-college-urls-py">Project <code>College/urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<p>Now visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/students/</code></pre></div>
+<p>and Django renders:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to Students App</code></pre></div>
+<hr>
+<h1 id="h-837-13-what-actually-happens">13. What Actually Happens?</h1>
+<p>Let's follow the complete request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | GET /students/
+   ↓
+College/urls.py
+   |
+   | students/
+   ↓
+students/urls.py
+   |
+   | ''
+   ↓
+views.home(request)
+   |
+   ↓
+render(request, 'students/home.html')
+   |
+   ↓
+Django Template Engine
+   |
+   ↓
+home.html
+   |
+   ↓
+HTML response
+   |
+   ↓
+Browser</code></pre></div>
+<p>This flow is extremely important.</p>
+<hr>
+<h1 id="h-838-14-template-vs-view">14. Template vs View</h1>
+<p>A common viva question:</p>
+<h3 id="h-839-what-should-go-in-a-view">What should go in a view?</h3>
+<p>Usually:</p>
+<ul>
+<li>request handling</li>
+<li>application logic</li>
+<li>retrieving data</li>
+<li>deciding which response to return</li>
+</ul>
+<h3 id="h-840-what-should-go-in-a-template">What should go in a template?</h3>
+<p>Usually:</p>
+<ul>
+<li>HTML</li>
+<li>presentation</li>
+<li>displaying data</li>
+<li>template logic such as loops and conditions</li>
+</ul>
+<p>For example:</p>
+<h3 id="h-841-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+    students = [...]
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )</code></pre></div>
+<h3 id="h-842-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Students&lt;/h1&gt;
+
+{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>The view obtains/prepares the data.</p>
+<p>The template displays it.</p>
+<hr>
+<h1 id="h-843-15-dynamic-templates">15. Dynamic Templates</h1>
+<p>The real power of templates is that they're not static.</p>
+<p>Suppose your view has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    name = "Aman"
+
+    return render(
+        request,
+        'students/home.html',
+        {'name': name}
+    )</code></pre></div>
+<p>The third argument is called the <strong>context</strong>.</p>
+<hr>
+<h1 id="h-844-16-what-is-context">16. What Is Context?</h1>
+<p>Context is the data passed from a view to a template.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'Aman',
+    'age': 21
+}</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html',
+    context
+)</code></pre></div>
+<p>The template can access those values.</p>
+<hr>
+<h1 id="h-845-17-displaying-context-data">17. Displaying Context Data</h1>
+<p>In:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html</code></pre></div>
+<p>write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;
+
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;</code></pre></div>
+<p>Django replaces:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ name }}</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ age }}</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>21</code></pre></div>
+<p>The browser receives the final HTML, not the template syntax.</p>
+<hr>
+<h1 id="h-846-18-important-template-syntax">18. Important Template Syntax</h1>
+<p>Django Template Language has several important forms.</p>
+<h3 id="h-847-variable">Variable:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ variable }}</code></pre></div>
+<h3 id="h-848-tag">Tag:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% tag %}</code></pre></div>
+<h3 id="h-849-comment">Comment:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{# comment #}</code></pre></div>
+<p>These three are extremely important.</p>
+<hr>
+<h1 id="h-850-19-variables">19. Variables</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;</code></pre></div>
+<p>If the context is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{'name': 'Aman'}</code></pre></div>
+<p>Django produces:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Aman&lt;/h1&gt;</code></pre></div>
+<hr>
+<h1 id="h-851-20-why-are-there-double-curly-braces">20. Why Are There Double Curly Braces?</h1>
+<p>Django uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }}</code></pre></div>
+<p>to indicate that it should evaluate and display a template variable.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;{{ username }}&lt;/p&gt;</code></pre></div>
+<p>means:</p>
+<blockquote>Display the value of <code>username</code>.</blockquote>
+<hr>
+<h1 id="h-852-21-template-tags">21. Template Tags</h1>
+<p>Tags use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% %}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>Unlike variables, tags generally control template behavior.</p>
+<p>We'll study them in detail in the next modules.</p>
+<hr>
+<h1 id="h-853-22-template-comments">22. Template Comments</h1>
+<p>Django has:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{# This is a comment #}</code></pre></div>
+<p>It won't appear in the rendered HTML.</p>
+<p>For multi-line comments, Django provides:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% comment %}
+This is a
+multi-line comment.
+{% endcomment %}</code></pre></div>
+<hr>
+<h1 id="h-854-23-template-variables-can-be-dictionary-values">23. Template Variables Can Be Dictionary Values</h1>
+<p>Suppose your view sends:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    'name': 'Aman',
+    'age': 21,
+    'course': 'CSE'
+}
+
+return render(
+    request,
+    'student.html',
+    {'student': student}
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+&lt;p&gt;{{ student.age }}&lt;/p&gt;
+&lt;p&gt;{{ student.course }}&lt;/p&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+21
+CSE</code></pre></div>
+<p>Django's dot syntax can access dictionary keys and other supported attributes/methods.</p>
+<hr>
+<h1 id="h-855-24-template-variables-with-objects">24. Template Variables With Objects</h1>
+<p>Later, when we learn models, you'll have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.name
+student.age</code></pre></div>
+<p>In a template you can write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}
+{{ student.age }}</code></pre></div>
+<p>This is one reason templates are so useful with Django models.</p>
+<hr>
+<h1 id="h-856-25-what-if-a-variable-doesn-t-exist">25. What If a Variable Doesn't Exist?</h1>
+<p>Suppose template contains:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;{{ xyz }}&lt;/p&gt;</code></pre></div>
+<p>but <code>xyz</code> wasn't supplied in the context.</p>
+<p>Django generally renders an empty string rather than raising a normal Python <code>NameError</code>.</p>
+<p>So it might display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>[blank]</code></pre></div>
+<p>This can sometimes make template bugs harder to notice.</p>
+<hr>
+<h1 id="h-857-26-context-dictionary">26. Context Dictionary</h1>
+<p>You can directly pass a dictionary:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html',
+    {
+        'name': 'Aman',
+        'course': 'Django'
+    }
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-858-27-better-practice-named-context-variable">27. Better Practice — Named Context Variable</h1>
+<p>You can also create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'Aman',
+    'course': 'Django'
+}
+
+return render(
+    request,
+    'students/home.html',
+    context
+)</code></pre></div>
+<p>This is easier to read when you have lots of data.</p>
+<hr>
+<h1 id="h-859-28-render-vs-httpresponse">28. <code>render()</code> vs <code>HttpResponse()</code></h1>
+<p>This is a common viva question.</p>
+<h3 id="h-860-httpresponse"><code>HttpResponse</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello")</code></pre></div>
+<p>Directly returns content.</p>
+<h3 id="h-861-render"><code>render</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'home.html'
+)</code></pre></div>
+<p>Loads and processes a template, then returns an HTTP response.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HttpResponse
+    ↓
+Direct content
+
+render()
+    ↓
+Template
+    ↓
+HTML response</code></pre></div>
+<hr>
+<h1 id="h-862-29-does-render-return-an-http-response">29. Does <code>render()</code> Return an HTTP Response?</h1>
+<p>Yes.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response = render(
+    request,
+    'home.html'
+)</code></pre></div>
+<p>returns an <code>HttpResponse</code> object.</p>
+<p>This is an excellent viva point.</p>
+<hr>
+<h1 id="h-863-30-template-folder-structure">30. Template Folder Structure</h1>
+<p>A recommended app-based structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── migrations/
+├── templates/
+│   └── students/
+│       ├── home.html
+│       ├── list.html
+│       └── detail.html
+│
+├── views.py
+├── models.py
+└── urls.py</code></pre></div>
+<p>Why:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/students/</code></pre></div>
+<p>instead of simply:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/</code></pre></div>
+<p>?</p>
+<p>Because different apps might have templates with the same filename.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html
+teachers/templates/teachers/home.html</code></pre></div>
+<p>Then they don't conflict.</p>
+<hr>
+<h1 id="h-864-31-template-namespacing">31. Template Namespacing</h1>
+<p>Suppose both apps have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home.html</code></pre></div>
+<p>If you use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/home.html</code></pre></div>
+<p>in multiple apps, Django can encounter ambiguity depending on template search order.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html
+teachers/templates/teachers/home.html</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, 'students/home.html')</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, 'teachers/home.html')</code></pre></div>
+<p>are clearly separated.</p>
+<hr>
+<h1 id="h-865-32-project-level-templates">32. Project-Level Templates</h1>
+<p>Another common approach is a project-level directory:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+├── manage.py
+├── College/
+├── students/
+└── templates/
+    └── home.html</code></pre></div>
+<p>Then configure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>TEMPLATES = [
+    {
+        ...
+        'DIRS': [BASE_DIR / 'templates'],
+        ...
+    }
+]</code></pre></div>
+<p>This tells Django to look in that project-level templates directory.</p>
+<hr>
+<h1 id="h-866-33-app-templates-vs-project-templates">33. App Templates vs Project Templates</h1>
+<h3 id="h-867-app-templates">App templates</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html</code></pre></div>
+<p>Useful for templates belonging specifically to an app.</p>
+<h3 id="h-868-project-level-templates">Project-level templates</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/home.html</code></pre></div>
+<p>Useful for templates shared across the project.</p>
+<p>Both approaches are valid.</p>
+<hr>
+<h1 id="h-869-34-important-settings">34. Important Settings</h1>
+<p>Look at:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>TEMPLATES = [
+    {
+        'BACKEND':
+            'django.template.backends.django.DjangoTemplates',
+
+        'DIRS': [],
+
+        'APP_DIRS': True,
+
+        'OPTIONS': {
+            'context_processors': [
+                ...
+            ],
+        },
+    },
+]</code></pre></div>
+<p>For now, remember:</p>
+<h3 id="h-870-backend"><code>BACKEND</code></h3>
+<p>Specifies Django's template backend.</p>
+<h3 id="h-871-dirs"><code>DIRS</code></h3>
+<p>Specifies additional template directories.</p>
+<h3 id="h-872-app-dirs"><code>APP_DIRS</code></h3>
+<p>Allows Django to search installed apps' template directories.</p>
+<hr>
+<h1 id="h-873-35-common-error-templatedoesnotexist">35. Common Error — TemplateDoesNotExist</h1>
+<p>Suppose your view says:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html'
+)</code></pre></div>
+<p>but the file isn't where Django expects it.</p>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TemplateDoesNotExist</code></pre></div>
+<p>Possible reasons:</p>
+<ul>
+<li>wrong filename</li>
+<li>wrong folder</li>
+<li>app not installed</li>
+<li>incorrect <code>DIRS</code></li>
+<li><code>APP_DIRS=False</code></li>
+<li>typo in template path</li>
+</ul>
+<hr>
+<h1 id="h-874-36-example-of-wrong-path">36. Example of Wrong Path</h1>
+<p>Actual file:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/templates/students/home.html</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(
+    request,
+    'students/home.html'
+)</code></pre></div>
+<p>But if you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(
+    request,
+    'home.html'
+)</code></pre></div>
+<p>Django may not find the template depending on your configured template locations.</p>
+<hr>
+<h1 id="h-875-37-common-error-app-not-installed">37. Common Error — App Not Installed</h1>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── templates/
+    └── students/
+        └── home.html</code></pre></div>
+<p>but forgot to add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'students'</code></pre></div>
+<p>to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>With app-directory template discovery enabled, Django won't discover the app's templates as expected.</p>
+<hr>
+<h1 id="h-876-38-complete-dynamic-example">38. Complete Dynamic Example</h1>
+<p>Let's create a real example.</p>
+<h3 id="h-877-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+
+    context = {
+        'name': 'Aman',
+        'course': 'Django',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'students/home.html',
+        context
+    )</code></pre></div>
+<h3 id="h-878-home-html"><code>home.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Student&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;h1&gt;Hello {{ name }}&lt;/h1&gt;
+
+    &lt;p&gt;Course: {{ course }}&lt;/p&gt;
+
+    &lt;p&gt;Age: {{ age }}&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Aman
+Course: Django
+Age: 21</code></pre></div>
+<hr>
+<h1 id="h-879-39-what-happens-before-the-browser-sees-it">39. What Happens Before the Browser Sees It?</h1>
+<p>The browser does <strong>not</strong> receive:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<p>Instead Django processes the template first.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template:
+&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;
+
+        ↓ Django
+
+Final HTML:
+&lt;h1&gt;Hello Aman&lt;/h1&gt;
+
+        ↓
+
+Browser</code></pre></div>
+<p>This is important.</p>
+<hr>
+<h1 id="h-880-40-template-engine">40. Template Engine</h1>
+<p>The component responsible for processing Django templates is the <strong>Django template engine</strong>.</p>
+<p>It:</p>
+<ol>
+<li>Loads the template</li>
+<li>Receives context</li>
+<li>Evaluates template syntax</li>
+<li>Produces final HTML</li>
+<li>Returns it as part of the response</li>
+</ol>
+<hr>
+<h1 id="h-881-41-very-important-distinction">41. Very Important Distinction</h1>
+<p>Django template language is <strong>not Python</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<p>looks somewhat like Python, but template syntax has its own rules.</p>
+<p>Don't assume you can write arbitrary Python code inside a template.</p>
+<p>Django intentionally limits template logic so presentation doesn't become a full programming environment.</p>
+<hr>
+<h1 id="h-882-42-should-we-put-business-logic-in-templates">42. Should We Put Business Logic in Templates?</h1>
+<p>Generally, no.</p>
+<p>Bad design:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template
+   ↓
+Huge complicated application logic</code></pre></div>
+<p>Better:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+   ↓
+Prepare/process data
+   ↓
+Template
+   ↓
+Display data</code></pre></div>
+<p>Templates should primarily focus on presentation.</p>
+<hr>
+<h1 id="h-883-43-viva-questions">43. Viva Questions</h1>
+<h3 id="h-884-q1-what-is-a-django-template">Q1. What is a Django template?</h3>
+<blockquote>A Django template is typically an HTML file containing presentation markup and Django Template Language syntax for displaying dynamic data and controlling presentation.</blockquote>
+<h3 id="h-885-q2-why-are-templates-used">Q2. Why are templates used?</h3>
+<blockquote>Templates separate presentation logic from Python application logic and make HTML easier to maintain.</blockquote>
+<h3 id="h-886-q3-what-is-render">Q3. What is <code>render()</code>?</h3>
+<blockquote><code>render()</code> is a Django shortcut that loads a template, combines it with context data, and returns an HTTP response.</blockquote>
+<h3 id="h-887-q4-what-is-context">Q4. What is context?</h3>
+<blockquote>Context is the data passed from a view to a template.</blockquote>
+<h3 id="h-888-q5-what-does-variable-mean">Q5. What does <code>{{ variable }}</code> mean?</h3>
+<blockquote>It is Django Template Language syntax used to display a variable's value.</blockquote>
+<h3 id="h-889-q6-what-does-represent">Q6. What does <code>{% ... %}</code> represent?</h3>
+<blockquote>It represents a Django template tag used for template operations such as conditions and loops.</blockquote>
+<hr>
+<h1 id="h-890-44-very-important-viva">44. Very Important Viva</h1>
+<h3 id="h-891-teacher">Teacher:</h3>
+<blockquote>What is the difference between <code>{{ }}</code> and <code>{% %}</code>?</blockquote>
+<p>Answer:</p>
+<blockquote><code>{{ }}</code> is used primarily to display or resolve variable values, while <code>{% %}</code> is used for template tags that perform operations such as conditions, loops, and template inheritance.</blockquote>
+<hr>
+<h1 id="h-892-45-another-viva">45. Another Viva</h1>
+<h3 id="h-893-teacher">Teacher:</h3>
+<blockquote>Does <code>render()</code> directly return HTML text?</blockquote>
+<p>Better answer:</p>
+<blockquote><code>render()</code> loads and renders a template using the supplied context and returns an <code>HttpResponse</code> containing the rendered content.</blockquote>
+<hr>
+<h1 id="h-894-46-coding-question">46. Coding Question</h1>
+<h3 id="h-895-question">Question:</h3>
+<p>Create a Django view that sends a student's name and age to an HTML template.</p>
+<h3 id="h-896-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def student(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'student.html',
+        context
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;
+&lt;p&gt;{{ age }}&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-897-47-coding-question">47. Coding Question</h1>
+<h3 id="h-898-question">Question:</h3>
+<p>Display a course name dynamically.</p>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def course(request):
+
+    return render(
+        request,
+        'course.html',
+        {
+            'course_name': 'Django'
+        }
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Course: {{ course_name }}&lt;/h1&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Course: Django</code></pre></div>
+<hr>
+<h1 id="h-899-48-exam-question">48. Exam Question</h1>
+<h3 id="h-900-explain-the-flow-of-data-from-a-django-view-to-a-t">Explain the flow of data from a Django view to a template.</h3>
+<p>Strong answer:</p>
+<blockquote>The view receives the HTTP request, prepares the required data, and passes that data as a context dictionary to the <code>render()</code> function. Django's template engine loads the specified template, resolves the template variables using the context, generates the final HTML, and returns it as an HTTP response to the client.</blockquote>
+<p>That's an excellent long-answer/viva response.</p>
+<hr>
+<h1 id="h-901-module-12-cheat-sheet">⭐ Module 12 Cheat Sheet</h1>
+<p>Remember:</p>
+<h3 id="h-902-template">Template:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML + Django Template Language</code></pre></div>
+<h3 id="h-903-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students/home.html',
+    context
+)</code></pre></div>
+<h3 id="h-904-variable">Variable:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<h3 id="h-905-tag">Tag:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}</code></pre></div>
+<h3 id="h-906-comment">Comment:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{# comment #}</code></pre></div>
+<h3 id="h-907-context">Context:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'Aman',
+    'age': 21
+}</code></pre></div>
+<h3 id="h-908-template-structure">Template structure:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── templates/
+    └── students/
+        └── home.html</code></pre></div>
+<h3 id="h-909-important-setting">Important setting:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'APP_DIRS': True</code></pre></div>
+<h3 id="h-910-main-flow">Main flow:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Context
+ ↓
+Template Engine
+ ↓
+Template
+ ↓
+HTML
+ ↓
+HttpResponse
+ ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-911-module-12-practical-questions">🎯 Module 12 Practical Questions</h1>
+<p>Before moving on, make sure you can write these from memory:</p>
+<h3 id="h-912-1">1.</h3>
+<p>Create a <code>home.html</code> template and render it from a Django view.</p>
+<h3 id="h-913-2">2.</h3>
+<p>Pass:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman
+age = 21
+course = CSE</code></pre></div>
+<p>from a view to a template and display all three.</p>
+<h3 id="h-914-3">3.</h3>
+<p>Explain the difference between:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ variable }}</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% tag %}</code></pre></div>
+<h3 id="h-915-4">4.</h3>
+<p>Explain:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>render(request, 'home.html', context)</code></pre></div>
+<p>word by word.</p>
+<h3 id="h-916-5">5.</h3>
+<p>What is <code>APP_DIRS</code>?</p>
+<h3 id="h-917-6">6.</h3>
+<p>What causes <code>TemplateDoesNotExist</code>?</p>
+<h3 id="h-918-7">7.</h3>
+<p>Explain the complete flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser → URL → View → Template → Response → Browser</code></pre></div>
+<p>If you understand these, you've got the foundation required for the rest of Django templates.</p>
+<hr>
+<h2 id="h-919-next-module-13-django-template-language-dtl">Next → Module 13: Django Template Language (DTL)</h2>
+<p>Now we'll go much deeper into <strong>DTL</strong>, including:</p>
+<ul>
+<li>Variables</li>
+<li>Dot notation</li>
+<li>Dictionary values</li>
+<li>Object attributes</li>
+<li>Lists</li>
+<li><code>{{ }}</code> syntax</li>
+<li><code>{% %}</code> syntax</li>
+<li><code>{# #}</code> comments</li>
+<li>Template filters</li>
+<li>Default values</li>
+<li>Built-in template behavior</li>
+<li>Escaping and safe HTML</li>
+<li>Lots of coding/viva questions</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-11.html">← Module 11: Error Handling in Django</a>
+<a class="pn-btn pn-next" href="module-13.html">Module 13: Django Template Language (DTL) →</a>
+</div>
+
+</div>
+
+</body>
+</html>

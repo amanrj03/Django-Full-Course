@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 42: Complete Django Revision — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 42 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 42 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Complete Django Revision</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<span class="nav-item current">42. Complete Django Revision</span>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-41.html">← Module 41: Complete Auth Project</a>
+<a class="pn-btn pn-next" href="module-43.html">Module 43: Django Viva Masterclass →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3687-module-42-complete-django-revision">Module 42 — Complete Django Revision</h1>
+<p>This module is your <strong>full Django revision from Unit I to Unit VI</strong>.</p>
+<p>The goal is not to learn new concepts. The goal is to connect everything so that if your teacher asks:</p>
+<blockquote>“Explain Django.”</blockquote>
+<p>or gives you a coding question like:</p>
+<blockquote>“Create a student CRUD application with login and permissions.”</blockquote>
+<p>you can build the answer from memory.</p>
+<hr>
+<h1 id="h-3688-1-django-in-one-sentence">1. Django in One Sentence</h1>
+<p><strong>Django is a high-level, open-source Python web framework used to develop secure, scalable and maintainable web applications quickly.</strong></p>
+<hr>
+<h1 id="h-3689-2-django-architecture-mvt">2. Django Architecture — MVT</h1>
+<p>Django primarily follows:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>M → Model
+V → View
+T → Template</code></pre></div>
+<h3 id="h-3690-model">Model</h3>
+<p>Handles:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+Data structure
+Relationships
+ORM</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<hr>
+<h3 id="h-3691-view">View</h3>
+<p>Handles:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+Business logic
+Database operations
+Response</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello")</code></pre></div>
+<hr>
+<h3 id="h-3692-template">Template</h3>
+<p>Handles:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML
+Presentation
+Dynamic data</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<hr>
+<h1 id="h-3693-3-complete-django-request-flow">3. Complete Django Request Flow</h1>
+<p>This is <strong>extremely important for viva</strong>.</p>
+<p>Suppose the browser requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>The flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+HTTP Request
+   ↓
+Project urls.py
+   ↓
+App urls.py
+   ↓
+View
+   ↓
+Model / ORM
+   ↓
+Database
+   ↓
+View
+   ↓
+Context
+   ↓
+Template
+   ↓
+HttpResponse
+   ↓
+Browser</code></pre></div>
+<p>Remember:</p>
+<blockquote><strong>URL → View → Model → Template → Response</strong></blockquote>
+<p>Not every request necessarily uses all components, but this is the common pattern.</p>
+<hr>
+<h1 id="h-3694-4-project-vs-app">4. Project vs App</h1>
+<h3 id="h-3695-project">Project</h3>
+<p>The complete Django website/application configuration.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College</code></pre></div>
+<h3 id="h-3696-app">App</h3>
+<p>A specific functional component.</p>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+accounts
+courses
+payments</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Project
+│
+├── students
+├── accounts
+├── courses
+└── payments</code></pre></div>
+<h3 id="h-3697-viva-answer">Viva Answer</h3>
+<blockquote>A Django project represents the complete application, while an app represents a specific feature or functionality within the project.</blockquote>
+<hr>
+<h1 id="h-3698-5-creating-a-project">5. Creating a Project</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject College</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject College</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd College</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<hr>
+<h1 id="h-3699-6-creating-an-app">6. Creating an App</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Then add it to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<p>Important:</p>
+<blockquote><code>startapp</code> creates the app but does not automatically register it in <code>INSTALLED_APPS</code>.</blockquote>
+<hr>
+<h1 id="h-3700-7-important-django-files">7. Important Django Files</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py
+settings.py
+urls.py
+views.py
+models.py
+forms.py
+admin.py
+tests.py
+apps.py</code></pre></div>
+<h3 id="h-3701-manage-py"><code>manage.py</code></h3>
+<p>Project-specific command-line utility.</p>
+<h3 id="h-3702-settings-py"><code>settings.py</code></h3>
+<p>Configuration.</p>
+<h3 id="h-3703-urls-py"><code>urls.py</code></h3>
+<p>URL routing.</p>
+<h3 id="h-3704-views-py"><code>views.py</code></h3>
+<p>Request/response logic.</p>
+<h3 id="h-3705-models-py"><code>models.py</code></h3>
+<p>Database models.</p>
+<h3 id="h-3706-forms-py"><code>forms.py</code></h3>
+<p>Forms and validation.</p>
+<h3 id="h-3707-admin-py"><code>admin.py</code></h3>
+<p>Admin configuration.</p>
+<h3 id="h-3708-tests-py"><code>tests.py</code></h3>
+<p>Automated tests.</p>
+<h3 id="h-3709-apps-py"><code>apps.py</code></h3>
+<p>Application configuration.</p>
+<hr>
+<h1 id="h-3710-8-important-commands">8. Important Commands</h1>
+<p>Memorize these:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<hr>
+<h1 id="h-3711-9-django-view">9. Django View</h1>
+<p>Basic view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>Important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request → HttpRequest object
+response → HttpResponse object</code></pre></div>
+<hr>
+<h1 id="h-3712-10-url-routing">10. URL Routing</h1>
+<p>Basic:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+]</code></pre></div>
+<p>Project-level:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include
+
+urlpatterns = [
+    path(
+        "students/",
+        include("students.urls")
+    ),
+]</code></pre></div>
+<hr>
+<h1 id="h-3713-11-url-parameters">11. URL Parameters</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_detail(request, id):
+    return HttpResponse(
+        f"Student ID: {id}"
+    )</code></pre></div>
+<p>Important built-in converters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>str
+int
+slug
+uuid
+path</code></pre></div>
+<hr>
+<h1 id="h-3714-12-url-parameter-vs-query-parameter">12. URL Parameter vs Query Parameter</h1>
+<h3 id="h-3715-url-parameter">URL parameter</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/</code></pre></div>
+<p>Access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):</code></pre></div>
+<h3 id="h-3716-query-parameter">Query parameter</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/?id=10</code></pre></div>
+<p>Access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get("id")</code></pre></div>
+<hr>
+<h1 id="h-3717-13-named-urls">13. Named URLs</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "about/",
+    views.about,
+    name="about"
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% url "about" %}</code></pre></div>
+<p>Python:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>reverse("about")</code></pre></div>
+<p>Why use named URLs?</p>
+<p>Because URLs can change without requiring us to change every link manually.</p>
+<hr>
+<h1 id="h-3718-14-path-vs-re-path">14. <code>path()</code> vs <code>re_path()</code></h1>
+<p>Normal URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student
+)</code></pre></div>
+<p>Regex:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path(
+    r"^student/(?P&lt;id&gt;\d+)/$",
+    views.student
+)</code></pre></div>
+<p>Use <code>path()</code> when Django's converters are enough.</p>
+<p>Use <code>re_path()</code> when you genuinely need regex matching.</p>
+<hr>
+<h1 id="h-3719-15-http-methods">15. HTTP Methods</h1>
+<p>Most important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+POST
+PUT
+PATCH
+DELETE</code></pre></div>
+<p>For your syllabus, focus heavily on:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+POST</code></pre></div>
+<h3 id="h-3720-get">GET</h3>
+<p>Usually used for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>retrieving
+searching
+filtering
+displaying</code></pre></div>
+<h3 id="h-3721-post">POST</h3>
+<p>Usually used for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>creating
+updating
+deleting
+submitting</code></pre></div>
+<p>POST is <strong>not automatically secure</strong>. HTTPS is still required.</p>
+<hr>
+<h1 id="h-3722-16-request-object">16. Request Object</h1>
+<p>Common properties:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user
+request.session</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+    name = request.POST.get("name")</code></pre></div>
+<hr>
+<h1 id="h-3723-17-response-types">17. Response Types</h1>
+<h3 id="h-3724-httpresponse">HttpResponse</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello")</code></pre></div>
+<h3 id="h-3725-jsonresponse">JsonResponse</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return JsonResponse({
+    "name": "Aman",
+    "age": 21
+})</code></pre></div>
+<p>For a top-level list:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>JsonResponse(
+    data,
+    safe=False
+)</code></pre></div>
+<hr>
+<h1 id="h-3726-18-templates">18. Templates</h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse(
+    "&lt;h1&gt;Hello&lt;/h1&gt;"
+)</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "students/home.html"
+)</code></pre></div>
+<p>Dynamic data:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "students/home.html",
+    {
+        "name": "Aman"
+    }
+)</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<hr>
+<h1 id="h-3727-19-dtl">19. DTL</h1>
+<p>Django Template Language:</p>
+<h3 id="h-3728-variable">Variable</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ name }}</code></pre></div>
+<h3 id="h-3729-tag">Tag</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<h3 id="h-3730-comment">Comment</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{# This is a comment #}</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }} → variable
+{% %} → tag
+{# #} → comment</code></pre></div>
+<hr>
+<h1 id="h-3731-20-template-conditions">20. Template Conditions</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% if marks &gt;= 40 %}
+
+    Pass
+
+{% else %}
+
+    Fail
+
+{% endif %}</code></pre></div>
+<p>Can use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>==
+!=
+&gt;
+&lt;
+&gt;=
+&lt;=
+and
+or
+not</code></pre></div>
+<hr>
+<h1 id="h-3732-21-template-loops">21. Template Loops</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% for student in students %}
+
+    &lt;p&gt;
+        {{ student.name }}
+    &lt;/p&gt;
+
+{% empty %}
+
+    &lt;p&gt;No students found.&lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>Important loop variables:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop.counter
+forloop.counter0
+forloop.first
+forloop.last
+forloop.revcounter
+forloop.revcounter0</code></pre></div>
+<hr>
+<h1 id="h-3733-22-template-filters">22. Template Filters</h1>
+<p>Syntax:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>Important filters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>upper
+lower
+title
+length
+default
+default_if_none
+truncatechars
+join
+add
+cut
+slugify
+floatformat
+date
+time
+safe
+escape</code></pre></div>
+<p>Filters can be chained:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ name|upper|length }}</code></pre></div>
+<hr>
+<h1 id="h-3734-23-template-inheritance">23. Template Inheritance</h1>
+<p>Parent:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% block content %}
+{% endblock %}</code></pre></div>
+<p>Child:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% extends "base.html" %}
+
+{% block content %}
+
+&lt;h1&gt;Students&lt;/h1&gt;
+
+{% endblock %}</code></pre></div>
+<h3 id="h-3735-extends-vs-include"><code>extends</code> vs <code>include</code></h3>
+<p><code>extends</code>:</p>
+<blockquote>Inherit the overall page layout.</blockquote>
+<p><code>include</code>:</p>
+<blockquote>Reuse a smaller template fragment.</blockquote>
+<hr>
+<h1 id="h-3736-24-forms">24. Forms</h1>
+<p>Basic HTML:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;input
+        type="text"
+        name="name"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Remember:</p>
+<blockquote>The <code>name</code> attribute determines the key submitted to the server.</blockquote>
+<hr>
+<h1 id="h-3737-25-django-forms">25. Django Forms</h1>
+<p>Create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100
+    )
+
+    age = forms.IntegerField()</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+
+    form = StudentForm(
+        request.POST
+    )
+
+    if form.is_valid():
+
+        name = form.cleaned_data["name"]</code></pre></div>
+<hr>
+<h1 id="h-3738-26-form-validation">26. Form Validation</h1>
+<p>Built-in:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>required=True
+max_length=100
+min_length=3
+min_value=0
+max_value=100</code></pre></div>
+<p>Custom field validation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean_name(self):
+
+    name = self.cleaned_data["name"]
+
+    if " " in name:
+        raise forms.ValidationError(
+            "Spaces are not allowed."
+        )
+
+    return name</code></pre></div>
+<p>Cross-field validation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def clean(self):
+
+    cleaned_data = super().clean()
+
+    password = cleaned_data.get("password")
+    confirm = cleaned_data.get("confirm")
+
+    if password != confirm:
+
+        raise forms.ValidationError(
+            "Passwords do not match."
+        )
+
+    return cleaned_data</code></pre></div>
+<hr>
+<h1 id="h-3739-27-csrf">27. CSRF</h1>
+<p>CSRF:</p>
+<blockquote>Cross-Site Request Forgery.</blockquote>
+<p>For POST forms:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>Django's CSRF middleware checks the token.</p>
+<p>Typical failure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden</code></pre></div>
+<p>Never disable CSRF just to make a POST form work.</p>
+<hr>
+<h1 id="h-3740-28-post-redirect-get">28. POST-Redirect-GET</h1>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return redirect(
+        "student_list"
+    )</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+Process
+ ↓
+Redirect
+ ↓
+GET</code></pre></div>
+<p>Why?</p>
+<p>To prevent accidental duplicate form submission on refresh.</p>
+<hr>
+<h1 id="h-3741-29-models">29. Models</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    marks = models.IntegerField()</code></pre></div>
+<p>Concept:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model class → table
+Field → column
+Object → row</code></pre></div>
+<hr>
+<h1 id="h-3742-30-primary-key">30. Primary Key</h1>
+<p>If you don't specify one:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Django automatically provides a primary key.</p>
+<p>Usually you access it as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.id</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.pk</code></pre></div>
+<hr>
+<h1 id="h-3743-31-important-model-fields">31. Important Model Fields</h1>
+<p>Know these:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CharField
+TextField
+IntegerField
+FloatField
+DecimalField
+BooleanField
+DateField
+DateTimeField
+EmailField
+URLField
+FileField
+ImageField
+ForeignKey
+OneToOneField
+ManyToManyField</code></pre></div>
+<hr>
+<h1 id="h-3744-32-important-field-options">32. Important Field Options</h1>
+<h3 id="h-3745-null"><code>null</code></h3>
+<p>Database-level NULL.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    null=True
+)</code></pre></div>
+<h3 id="h-3746-blank"><code>blank</code></h3>
+<p>Validation-level empty value.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    blank=True
+)</code></pre></div>
+<h3 id="h-3747-default"><code>default</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>marks = models.IntegerField(
+    default=0
+)</code></pre></div>
+<h3 id="h-3748-unique"><code>unique</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    unique=True
+)</code></pre></div>
+<hr>
+<h1 id="h-3749-33-null-vs-blank">33. <code>null</code> vs <code>blank</code></h1>
+<p>Very common viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>null=True</code></td>
+<td>Database may store NULL</td>
+</tr>
+<tr>
+<td><code>blank=True</code></td>
+<td>Validation may allow empty input</td>
+</tr>
+</tbody></table></div>
+<p>They are <strong>not the same</strong>.</p>
+<hr>
+<h1 id="h-3750-34-migrations">34. Migrations</h1>
+<p>Model changed?</p>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations
+    ↓
+creates migration files
+
+migrate
+    ↓
+applies migrations to database</code></pre></div>
+<hr>
+<h1 id="h-3751-35-migration-commands">35. Migration Commands</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<p>shows migration status.</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<p>shows SQL generated for a migration.</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students zero</code></pre></div>
+<p>rolls back that app's migrations to zero.</p>
+<hr>
+<h1 id="h-3752-36-orm">36. ORM</h1>
+<p>ORM:</p>
+<blockquote>Object-Relational Mapping.</blockquote>
+<p>Instead of writing:</p>
+<div class="code-block-wrapper lang-sql"><span class="code-lang-label">SQL</span><pre><code>SELECT * FROM students;</code></pre></div>
+<p>you can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<hr>
+<h1 id="h-3753-37-basic-orm">37. Basic ORM</h1>
+<h3 id="h-3754-all">All</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<h3 id="h-3755-filter">Filter</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+)</code></pre></div>
+<h3 id="h-3756-get">Get</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(
+    id=1
+)</code></pre></div>
+<h3 id="h-3757-create">Create</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman",
+    age=21,
+    marks=90
+)</code></pre></div>
+<hr>
+<h1 id="h-3758-38-filter-vs-get">38. <code>filter()</code> vs <code>get()</code></h1>
+<p>Very important.</p>
+<h3 id="h-3759-filter"><code>filter()</code></h3>
+<p>Returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>QuerySet</code></pre></div>
+<p>Can contain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0
+1
+many</code></pre></div>
+<h3 id="h-3760-get"><code>get()</code></h3>
+<p>Returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>one object</code></pre></div>
+<p>Raises:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DoesNotExist
+MultipleObjectsReturned</code></pre></div>
+<p>if the result isn't exactly one.</p>
+<hr>
+<h1 id="h-3761-39-orm-lookups">39. ORM Lookups</h1>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    age__lt=18
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    name__icontains="aman"
+)</code></pre></div>
+<p>Common:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>exact
+iexact
+gt
+gte
+lt
+lte
+in
+contains
+icontains
+startswith
+endswith
+range
+isnull</code></pre></div>
+<hr>
+<h1 id="h-3762-40-ordering">40. Ordering</h1>
+<p>Ascending:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "marks"
+)</code></pre></div>
+<p>Descending:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "-marks"
+)</code></pre></div>
+<p>Top 5:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by(
+    "-marks"
+)[:5]</code></pre></div>
+<hr>
+<h1 id="h-3763-41-q-objects">41. <code>Q</code> Objects</h1>
+<p>Used for complex conditions.</p>
+<p>OR:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q
+
+Student.objects.filter(
+    Q(course="CSE") |
+    Q(course="ECE")
+)</code></pre></div>
+<p>NOT:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    ~Q(course="CSE")
+)</code></pre></div>
+<hr>
+<h1 id="h-3764-42-f-expressions">42. <code>F</code> Expressions</h1>
+<p>Used for database-side field calculations.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import F
+
+Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Increase every student's marks by 5 at the database level.</blockquote>
+<hr>
+<h1 id="h-3765-43-aggregation">43. Aggregation</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import (
+    Avg,
+    Max,
+    Min,
+    Sum,
+    Count
+)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    average=Avg("marks")
+)</code></pre></div>
+<p>Returns a summary dictionary.</p>
+<hr>
+<h1 id="h-3766-44-aggregate-vs-annotate">44. <code>aggregate()</code> vs <code>annotate()</code></h1>
+<h3 id="h-3767-aggregate"><code>aggregate()</code></h3>
+<p>Produces an overall summary.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+    avg_marks=Avg("marks")
+)</code></pre></div>
+<h3 id="h-3768-annotate"><code>annotate()</code></h3>
+<p>Adds calculated information to individual/grouped results.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.annotate(
+    student_count=Count("students")
+)</code></pre></div>
+<hr>
+<h1 id="h-3769-45-relationships">45. Relationships</h1>
+<h3 id="h-3770-foreignkey">ForeignKey</h3>
+<p>Many students → one department.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<h3 id="h-3771-onetoone">OneToOne</h3>
+<p>One student → one profile.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>profile = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<h3 id="h-3772-manytomany">ManyToMany</h3>
+<p>Many students ↔ many courses.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>courses = models.ManyToManyField(
+    Course
+)</code></pre></div>
+<hr>
+<h1 id="h-3773-46-on-delete">46. <code>on_delete</code></h1>
+<p>Important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CASCADE
+PROTECT
+SET_NULL
+SET_DEFAULT
+DO_NOTHING</code></pre></div>
+<p>Most commonly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>on_delete=models.CASCADE</code></pre></div>
+<p>Meaning:</p>
+<blockquote>If the referenced parent is deleted, related objects are also deleted.</blockquote>
+<hr>
+<h1 id="h-3774-47-relationship-traversal">47. Relationship Traversal</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    related_name="students",
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>Forward:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>Reverse:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department.students.all()</code></pre></div>
+<p>Query across relationship:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<hr>
+<h1 id="h-3775-48-select-related-vs-prefetch-related">48. <code>select_related()</code> vs <code>prefetch_related()</code></h1>
+<h3 id="h-3776-select-related"><code>select_related()</code></h3>
+<p>Best for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ForeignKey
+OneToOneField</code></pre></div>
+<p>Uses SQL joins.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.select_related(
+    "department"
+)</code></pre></div>
+<h3 id="h-3777-prefetch-related"><code>prefetch_related()</code></h3>
+<p>Best for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ManyToMany
+reverse relationships</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.prefetch_related(
+    "students"
+)</code></pre></div>
+<hr>
+<h1 id="h-3778-49-crud">49. CRUD</h1>
+<p>CRUD:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>C → Create
+R → Read
+U → Update
+D → Delete</code></pre></div>
+<h3 id="h-3779-create">Create</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman",
+    age=21,
+    marks=90
+)</code></pre></div>
+<h3 id="h-3780-read">Read</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<h3 id="h-3781-update">Update</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95
+student.save()</code></pre></div>
+<h3 id="h-3782-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<hr>
+<h1 id="h-3783-50-modelform">50. ModelForm</h1>
+<p>For CRUD, <code>ModelForm</code> is extremely useful.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Student
+
+        fields = [
+            "name",
+            "email",
+            "age",
+            "course",
+            "marks",
+        ]</code></pre></div>
+<hr>
+<h1 id="h-3784-51-instance-extremely-important">51. <code>instance=</code> — Extremely Important</h1>
+<p>Create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(
+    request.POST
+)</code></pre></div>
+<p>Update:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(
+    request.POST,
+    instance=student
+)</code></pre></div>
+<p>Why?</p>
+<p>Without <code>instance</code>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>form.save()
+ ↓
+new object</code></pre></div>
+<p>With <code>instance</code>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>form.save()
+ ↓
+existing object updated</code></pre></div>
+<p>This is a <strong>very common coding/viva question</strong>.</p>
+<hr>
+<h1 id="h-3785-52-delete-correctly">52. Delete Correctly</h1>
+<p>Don't delete using GET.</p>
+<p>Bad design:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /student/5/delete/
+→ immediately delete</code></pre></div>
+<p>Better:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+ ↓
+show confirmation
+
+POST
+ ↓
+delete
+ ↓
+redirect</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+
+    student.delete()
+
+    return redirect(
+        "student_list"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3786-53-get-object-or-404">53. <code>get_object_or_404()</code></h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(
+    id=id
+)</code></pre></div>
+<p>you can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=id
+)</code></pre></div>
+<p>If object doesn't exist:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<p>instead of an unhandled <code>DoesNotExist</code> exception.</p>
+<hr>
+<h1 id="h-3787-54-django-admin">54. Django Admin</h1>
+<p>Create superuser:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>Register:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)</code></pre></div>
+<p>Customization:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+    )</code></pre></div>
+<hr>
+<h1 id="h-3788-55-staff-vs-superuser">55. Staff vs Superuser</h1>
+<h3 id="h-3789-staff">Staff</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_staff</code></pre></div>
+<p>Allows admin-site access subject to permissions.</p>
+<h3 id="h-3790-superuser">Superuser</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.is_superuser</code></pre></div>
+<p>Has all permissions by default.</p>
+<p>Therefore:</p>
+<blockquote><code>is_staff</code> and <code>is_superuser</code> are not the same thing.</blockquote>
+<hr>
+<h1 id="h-3791-56-authentication-vs-authorization">56. Authentication vs Authorization</h1>
+<p>Memorize this exactly:</p>
+<blockquote><strong>Authentication = Who are you?</strong></blockquote>
+<blockquote><strong>Authorization = What are you allowed to do?</strong></blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login
+ ↓
+Authentication</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Can this user delete a student?
+ ↓
+Authorization</code></pre></div>
+<hr>
+<h1 id="h-3792-57-django-user">57. Django User</h1>
+<p>Import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<p>Create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)</code></pre></div>
+<p>Never store passwords as plaintext.</p>
+<hr>
+<h1 id="h-3793-58-authenticate">58. <code>authenticate()</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<p>Possible results:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>valid credentials → User object
+invalid credentials → None</code></pre></div>
+<hr>
+<h1 id="h-3794-59-login">59. <code>login()</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(
+    request,
+    user
+)</code></pre></div>
+<p>This establishes the authenticated session.</p>
+<hr>
+<h1 id="h-3795-60-logout">60. <code>logout()</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<p>Ends the authenticated session.</p>
+<hr>
+<h1 id="h-3796-61-request-user">61. <code>request.user</code></h1>
+<p>For an authenticated user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user</code></pre></div>
+<p>returns the User.</p>
+<p>Check authentication:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>Important:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<p>is wrong.</p>
+<p>It is a property.</p>
+<hr>
+<h1 id="h-3797-62-login-required">62. <code>@login_required</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import (
+    login_required
+)
+
+
+@login_required
+def dashboard(request):
+
+    ...</code></pre></div>
+<p>Unauthenticated user:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Protected view
+     ↓
+login page</code></pre></div>
+<hr>
+<h1 id="h-3798-63-permissions">63. Permissions</h1>
+<p>Check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.change_student"
+)</code></pre></div>
+<p>Decorator:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>@login_required</code></pre></div>
+<p>checks authentication.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>@permission_required</code></pre></div>
+<p>checks authorization.</p>
+<hr>
+<h1 id="h-3799-64-groups">64. Groups</h1>
+<p>A group collects users and permissions.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import Group
+
+teachers = Group.objects.create(
+    name="Teachers"
+)</code></pre></div>
+<p>Add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.groups.add(
+    teachers
+)</code></pre></div>
+<p>Now permissions assigned to the group can apply to the user.</p>
+<hr>
+<h1 id="h-3800-65-cookies">65. Cookies</h1>
+<p>Cookie:</p>
+<blockquote>Small piece of data stored by the browser and sent with subsequent matching requests.</blockquote>
+<p>Set:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<p>Read:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<p>Delete:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "username"
+)</code></pre></div>
+<hr>
+<h1 id="h-3801-66-cookie-security">66. Cookie Security</h1>
+<p>Important options:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>secure=True
+httponly=True
+samesite="Lax"</code></pre></div>
+<h3 id="h-3802-secure-true"><code>secure=True</code></h3>
+<p>Cookie should be sent over HTTPS.</p>
+<h3 id="h-3803-httponly-true"><code>httponly=True</code></h3>
+<p>Prevents normal JavaScript access through <code>document.cookie</code>.</p>
+<h3 id="h-3804-samesite"><code>SameSite</code></h3>
+<p>Controls cross-site cookie behavior.</p>
+<hr>
+<h1 id="h-3805-67-sessions">67. Sessions</h1>
+<p>Session allows Django to maintain user-specific state across requests.</p>
+<p>Set:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<p>Read:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.get(
+    "username"
+)</code></pre></div>
+<p>Delete one:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>del request.session["username"]</code></pre></div>
+<p>Clear:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.clear()</code></pre></div>
+<p>Flush:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.flush()</code></pre></div>
+<hr>
+<h1 id="h-3806-68-cookie-vs-session">68. Cookie vs Session</h1>
+<p>Very important viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Cookie</th>
+<th>Session</th>
+</tr></thead><tbody>
+<tr>
+<td>Stored by browser</td>
+<td>Usually stored server-side</td>
+</tr>
+<tr>
+<td>Client sends cookie data</td>
+<td>Browser commonly sends session ID</td>
+</tr>
+<tr>
+<td>Can directly store small data</td>
+<td>Used for server-managed state</td>
+</tr>
+<tr>
+<td>Client-controlled</td>
+<td>Better for server-managed state</td>
+</tr>
+<tr>
+<td><code>request.COOKIES</code></td>
+<td><code>request.session</code></td>
+</tr>
+</tbody></table></div>
+<p>Django's default database-backed sessions typically store session data server-side and use a <code>sessionid</code> cookie to identify the session.</p>
+<hr>
+<h1 id="h-3807-69-authentication-session-cookie">69. Authentication + Session + Cookie</h1>
+<p>This complete flow is important:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User Login
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+Session ID
+    ↓
+Cookie
+    ↓
+Browser
+    ↓
+Future Request
+    ↓
+Django identifies session
+    ↓
+request.user</code></pre></div>
+<hr>
+<h1 id="h-3808-70-database-configuration">70. Database Configuration</h1>
+<p>SQLite:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+
+    "default": {
+
+        "ENGINE":
+            "django.db.backends.sqlite3",
+
+        "NAME":
+            BASE_DIR / "db.sqlite3",
+    }
+}</code></pre></div>
+<p>PostgreSQL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+
+    "default": {
+
+        "ENGINE":
+            "django.db.backends.postgresql",
+
+        "NAME": "college_db",
+
+        "USER": "postgres",
+
+        "PASSWORD": "password",
+
+        "HOST": "localhost",
+
+        "PORT": "5432",
+    }
+}</code></pre></div>
+<hr>
+<h1 id="h-3809-71-debugging">71. Debugging</h1>
+<p>Development:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>Production:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<p>When an error occurs:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Exception type
+      ↓
+Error message
+      ↓
+File
+      ↓
+Line number
+      ↓
+Relevant layer
+      ↓
+Fix
+      ↓
+Retest</code></pre></div>
+<p>Common errors:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError
+TemplateDoesNotExist
+NoReverseMatch
+ViewDoesNotExist
+AttributeError
+TypeError
+DoesNotExist
+OperationalError
+403 CSRF
+404
+500</code></pre></div>
+<hr>
+<h1 id="h-3810-72-testing">72. Testing</h1>
+<p>Basic:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase
+
+
+class StudentTest(TestCase):
+
+    def test_home(self):
+
+        response = self.client.get(
+            "/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<p>Important concepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>TestCase
+self.client
+setUp()
+assertEqual()
+assertContains()
+assertRedirects()
+assertTemplateUsed()</code></pre></div>
+<hr>
+<h1 id="h-3811-73-error-handling">73. Error Handling</h1>
+<p>Raise 404:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import Http404
+
+raise Http404(
+    "Student not found"
+)</code></pre></div>
+<p>Or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404(
+    Student,
+    id=id
+)</code></pre></div>
+<p>Common status codes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>200 → OK
+201 → Created
+400 → Bad Request
+401 → Unauthorized
+403 → Forbidden
+404 → Not Found
+500 → Server Error</code></pre></div>
+<hr>
+<h1 id="h-3812-74-401-vs-403">74. 401 vs 403</h1>
+<p>A common trap.</p>
+<h3 id="h-3813-401">401</h3>
+<p>Generally means authentication is required/failed.</p>
+<h3 id="h-3814-403">403</h3>
+<p>Means the server understands the request but refuses access.</p>
+<p>In Django:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF failure → commonly 403
+permission denied → commonly 403</code></pre></div>
+<hr>
+<h1 id="h-3815-75-complete-student-crud-architecture">75. Complete Student CRUD Architecture</h1>
+<p>You should now be able to recreate this from memory:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── models.py
+├── forms.py
+├── views.py
+├── urls.py
+├── admin.py
+│
+└── templates/
+    └── students/
+        ├── student_list.html
+        ├── student_form.html
+        └── student_confirm_delete.html</code></pre></div>
+<hr>
+<h1 id="h-3816-76-crud-view-flow">76. CRUD View Flow</h1>
+<h3 id="h-3817-list">List</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()</code></pre></div>
+<h3 id="h-3818-create">Create</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)
+
+if form.is_valid():
+    form.save()
+    return redirect("student_list")</code></pre></div>
+<h3 id="h-3819-update">Update</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=id
+)
+
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+
+if form.is_valid():
+    form.save()</code></pre></div>
+<h3 id="h-3820-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<hr>
+<h1 id="h-3821-77-complete-application-architecture">77. Complete Application Architecture</h1>
+<p>Now combine <strong>everything</strong>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    DJANGO PROJECT
+                         │
+          ┌──────────────┴──────────────┐
+          │                             │
+      accounts                      students
+          │                             │
+    Registration                    Models
+    Login                           ORM
+    Logout                          Forms
+    Dashboard                       CRUD
+    Permissions                     Admin
+          │                             │
+          └──────────────┬──────────────┘
+                         │
+                       User
+                         │
+                    Authentication
+                         │
+                       Session
+                         │
+                     request.user
+                         │
+                    Authorization
+                         │
+                     Permissions</code></pre></div>
+<hr>
+<h1 id="h-3822-78-the-most-important-django-coding-pattern">78. The Most Important Django Coding Pattern</h1>
+<p>If you get a form-based coding question, think:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def my_view(request):
+
+    if request.method == "POST":
+
+        form = MyForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            # process data
+
+            return redirect(
+                "success"
+            )
+
+    else:
+
+        form = MyForm()
+
+    return render(
+        request,
+        "form.html",
+        {
+            "form": form
+        }
+    )</code></pre></div>
+<p>This pattern solves a huge number of Django questions.</p>
+<hr>
+<h1 id="h-3823-79-the-most-important-crud-pattern">79. The Most Important CRUD Pattern</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+ ↓
+Display data/form
+
+POST
+ ↓
+Validate
+ ↓
+Save/update/delete
+ ↓
+Redirect</code></pre></div>
+<hr>
+<h1 id="h-3824-80-the-most-important-authentication-pattern">80. The Most Important Authentication Pattern</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+
+    login(
+        request,
+        user
+    )
+
+    return redirect(
+        "dashboard"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3825-81-the-most-important-protection-pattern">81. The Most Important Protection Pattern</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3826-82-the-most-important-model-pattern">82. The Most Important Model Pattern</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    marks = models.IntegerField()</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-3827-83-django-exam-cheat-sheet">83. Django Exam Cheat Sheet</h1>
+<p>If you have only <strong>5 minutes before an exam</strong>, memorize this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+↓
+Python Web Framework
+
+MVT
+↓
+Model = Data
+View = Logic
+Template = Presentation
+
+URL
+↓
+View
+
+Model
+↓
+Database
+
+ORM
+↓
+Python objects ↔ Database
+
+makemigrations
+↓
+Create migration
+
+migrate
+↓
+Apply migration
+
+Form
+↓
+Input + Validation
+
+CSRF
+↓
+Protect state-changing requests
+
+GET
+↓
+Read
+
+POST
+↓
+Submit/change state
+
+CRUD
+↓
+Create Read Update Delete
+
+authenticate()
+↓
+Verify credentials
+
+login()
+↓
+Start authenticated session
+
+logout()
+↓
+End authentication
+
+request.user
+↓
+Current user
+
+@login_required
+↓
+Protect authenticated view
+
+has_perm()
+↓
+Check permission
+
+Cookie
+↓
+Browser-side data
+
+Session
+↓
+User-specific state across requests</code></pre></div>
+<hr>
+<h1 id="h-3828-84-20-questions-you-must-be-able-to-answer">84. 20 Questions You MUST Be Able to Answer</h1>
+<p>Before your viva, make sure you can answer these without looking:</p>
+<ol>
+<li>What is Django?</li>
+<li>What is MVT?</li>
+<li>Difference between project and app?</li>
+<li>What is <code>manage.py</code>?</li>
+<li>What is <code>settings.py</code>?</li>
+<li>What is URL routing?</li>
+<li>Difference between <code>path()</code> and <code>re_path()</code>?</li>
+<li>Difference between GET and POST?</li>
+<li>What is DTL?</li>
+<li>What is template inheritance?</li>
+<li>What is CSRF?</li>
+<li>What is a Django Form?</li>
+<li>What is a ModelForm?</li>
+<li>What is a migration?</li>
+<li>What is ORM?</li>
+<li>Difference between <code>filter()</code> and <code>get()</code>?</li>
+<li>What is ForeignKey?</li>
+<li>What is authentication vs authorization?</li>
+<li>What do <code>authenticate()</code>, <code>login()</code> and <code>logout()</code> do?</li>
+<li>What does <code>@login_required</code> do?</li>
+</ol>
+<p>You should be able to answer all 20 confidently now.</p>
+<hr>
+<h1 id="h-3829-85-final-mental-model">85. Final Mental Model</h1>
+<p>Don't memorize Django as hundreds of disconnected commands.</p>
+<p>Think of it as this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                   USER
+                    │
+                    ↓
+                 URL
+                    │
+                    ↓
+                  VIEW
+                 /    \
+                /      \
+               ↓        ↓
+            MODEL     FORM
+               │        │
+               ↓        ↓
+           DATABASE   VALIDATION
+               │        │
+               └───┬────┘
+                   ↓
+                CONTEXT
+                   ↓
+                TEMPLATE
+                   ↓
+               RESPONSE
+                   ↓
+                 USER</code></pre></div>
+<p>And authentication sits alongside it:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+session
+ ↓
+request.user
+ ↓
+@login_required
+ ↓
+permissions</code></pre></div>
+<hr>
+<h1 id="h-3830-86-where-you-are-now">86. Where You Are Now</h1>
+<p>You have completed:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>✅ Unit I — Django Fundamentals
+✅ Unit II — Views &amp; URLs
+✅ Unit III — Templates, Debugging &amp; Testing
+✅ Unit IV — Forms
+✅ Unit V — Models, Migrations, ORM &amp; Admin
+✅ Unit VI — Cookies, Sessions &amp; Authentication</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>✅ Complete CRUD Project
+✅ Complete Authentication Project</code></pre></div>
+<p>The remaining two modules are <strong>exam/interview focused</strong> rather than new syllabus:</p>
+<h3 id="h-3831-module-43">Module 43</h3>
+<p><strong>Django Viva Masterclass</strong></p>
+<p>We'll go through likely teacher questions from <strong>basic → intermediate → tricky</strong>, including questions where the interviewer gives you code and asks what it does.</p>
+<h3 id="h-3832-module-44">Module 44</h3>
+<p><strong>Django Coding Question Masterclass</strong></p>
+<p>We'll solve practical coding questions covering:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Views
+URLs
+Templates
+Forms
+Validation
+Models
+ORM
+Relationships
+CRUD
+Admin
+Authentication
+Sessions
+Cookies
+Permissions</code></pre></div>
+<p>These two modules are where we'll turn the knowledge you've learned into <strong>answer-writing and coding ability</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-41.html">← Module 41: Complete Auth Project</a>
+<a class="pn-btn pn-next" href="module-43.html">Module 43: Django Viva Masterclass →</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11: Error Handling in Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 11 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 11 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Error Handling in Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<span class="nav-item current">11. Error Handling in Django</span>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-10.html">← Module 10: Regular Expressions in URLs</a>
+<a class="pn-btn pn-next" href="module-12.html">Module 12: Introduction to Templates →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-750-module-11-error-handling-in-django">Module 11 — Error Handling in Django</h1>
+<p>This is the last topic of <strong>Unit II</strong>.</p>
+<p>Error handling is very important for both <strong>viva and practical coding</strong>, because your teacher can easily ask:</p>
+<ul>
+<li>What happens when a URL doesn't exist?</li>
+<li>What is a 404 error?</li>
+<li>Difference between 404 and 500?</li>
+<li>What is <code>Http404</code>?</li>
+<li>What is <code>get_object_or_404()</code>?</li>
+<li>Why should <code>DEBUG=False</code> be used in production?</li>
+</ul>
+<p>Let's start from zero.</p>
+<hr>
+<h1 id="h-751-1-what-is-an-error">1. What Is an Error?</h1>
+<p>An error occurs when the application cannot complete the requested operation normally.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User requests:
+    /student/999/
+          ↓
+Django
+          ↓
+Student doesn't exist
+          ↓
+404 Not Found</code></pre></div>
+<p>Or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View contains a programming error
+          ↓
+Django cannot execute it
+          ↓
+500 Internal Server Error</code></pre></div>
+<hr>
+<h1 id="h-752-2-http-error-status-codes">2. HTTP Error Status Codes</h1>
+<p>You've already seen status codes in Module 8.</p>
+<p>The important error codes are:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>400</code></td>
+<td>Bad Request</td>
+</tr>
+<tr>
+<td><code>401</code></td>
+<td>Unauthorized</td>
+</tr>
+<tr>
+<td><code>403</code></td>
+<td>Forbidden</td>
+</tr>
+<tr>
+<td><code>404</code></td>
+<td>Not Found</td>
+</tr>
+<tr>
+<td><code>500</code></td>
+<td>Internal Server Error</td>
+</tr>
+</tbody></table></div>
+<p>For Django URL/view error handling, <strong>404 and 500 are particularly important</strong>.</p>
+<hr>
+<h1 id="h-753-3-404-not-found">3. 404 — Not Found</h1>
+<p>A <code>404</code> means:</p>
+<blockquote>The requested resource could not be found.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/hello/</code></pre></div>
+<p>If there is no matching URL pattern, Django returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404 Not Found</code></pre></div>
+<hr>
+<h1 id="h-754-4-what-happens-when-a-url-doesn-t-match">4. What Happens When a URL Doesn't Match?</h1>
+<p>Suppose your <code>urls.py</code> contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('home/', views.home),
+]</code></pre></div>
+<p>User requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>Django checks:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/
+   ↓
+Does it match home/?
+   ↓
+No
+   ↓
+No other matching pattern
+   ↓
+404 Not Found</code></pre></div>
+<hr>
+<h1 id="h-755-5-debug-true">5. <code>DEBUG=True</code></h1>
+<p>During development, Django normally has:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>When an error occurs, Django displays a detailed debugging page.</p>
+<p>For example, if your Python code contains an error:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    print(x)</code></pre></div>
+<p>where <code>x</code> doesn't exist, Django can show a detailed traceback.</p>
+<p>This is extremely useful during development.</p>
+<hr>
+<h1 id="h-756-6-why-is-debug-true-dangerous-in-production">6. Why Is <code>DEBUG=True</code> Dangerous in Production?</h1>
+<p>Because the detailed error page can reveal sensitive technical information, such as:</p>
+<ul>
+<li>File paths</li>
+<li>Code details</li>
+<li>Configuration information</li>
+<li>Stack traces</li>
+<li>Environment information</li>
+</ul>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>is for development.</p>
+<p>Production should generally use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<hr>
+<h1 id="h-757-7-http404">7. <code>Http404</code></h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import Http404</code></pre></div>
+<p>You can explicitly raise a 404 error.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):
+
+    if id != 1:
+        raise Http404("Student not found")
+
+    return HttpResponse("Student found")</code></pre></div>
+<p>If the ID isn't <code>1</code>, Django raises a 404.</p>
+<hr>
+<h1 id="h-758-8-what-does-raise-http404-mean">8. What Does <code>raise Http404</code> Mean?</h1>
+<p>This:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise Http404</code></pre></div>
+<p>means:</p>
+<blockquote>Stop processing this view and tell Django that the requested resource was not found.</blockquote>
+<p>You can also provide a message:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise Http404("Student not found")</code></pre></div>
+<hr>
+<h1 id="h-759-9-example-with-a-list">9. Example With a List</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    "Aman",
+    "Rahul",
+    "Rohit"
+]</code></pre></div>
+<p>We can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import Http404, HttpResponse
+
+def student(request, id):
+
+    if id &lt; 1 or id &gt; len(students):
+        raise Http404("Student not found")
+
+    return HttpResponse(
+        students[id - 1]
+    )</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/1/</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/</code></pre></div>
+<p>raises a 404.</p>
+<hr>
+<h1 id="h-760-10-get-object-or-404">10. <code>get_object_or_404()</code></h1>
+<p>One of the <strong>most important Django shortcuts</strong> is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404()</code></pre></div>
+<p>Import it:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404</code></pre></div>
+<p>It is commonly used with Django models.</p>
+<p>Suppose we have a model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>We could write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=id
+)</code></pre></div>
+<p>If the student exists:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student object</code></pre></div>
+<p>is returned.</p>
+<p>If it doesn't exist:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404 Not Found</code></pre></div>
+<p>is raised.</p>
+<hr>
+<h1 id="h-761-11-why-is-get-object-or-404-useful">11. Why Is <code>get_object_or_404()</code> Useful?</h1>
+<p>Without it, you might write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404("Student not found")</code></pre></div>
+<p>That's valid.</p>
+<p>But Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=id
+)</code></pre></div>
+<p>which is much cleaner.</p>
+<hr>
+<h1 id="h-762-12-what-does-it-do-internally">12. What Does It Do Internally?</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>get_object_or_404(Student, id=25)
+              ↓
+Try to get Student with id=25
+              ↓
+        ┌─────┴─────┐
+        ↓           ↓
+      Found       Not Found
+        ↓           ↓
+ Return object   Raise 404</code></pre></div>
+<p>This is why the function has that name:</p>
+<blockquote><strong>Get object OR return a 404 response.</strong></blockquote>
+<p>Technically, it raises Django's <code>Http404</code> exception.</p>
+<hr>
+<h1 id="h-763-13-important-coding-example">13. Important Coding Example</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        student.name
+    )</code></pre></div>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student_detail
+)</code></pre></div>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>Django:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id = 25
+   ↓
+Search Student with id=25
+   ↓
+Found?
+   ├── Yes → display student
+   └── No → 404</code></pre></div>
+<hr>
+<h1 id="h-764-14-student-objects-get-vs-get-object-or-404">14. <code>Student.objects.get()</code> vs <code>get_object_or_404()</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=25)</code></pre></div>
+<p>If the object doesn't exist, Django raises:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.DoesNotExist</code></pre></div>
+<p>You would have to handle it.</p>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404(Student, id=25)</code></pre></div>
+<p>Django converts the missing-object situation into a 404 response.</p>
+<hr>
+<h1 id="h-765-15-404-vs-doesnotexist">15. 404 vs <code>DoesNotExist</code></h1>
+<p>This distinction is useful for viva.</p>
+<h3 id="h-766-orm">ORM:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=25)</code></pre></div>
+<p>If missing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.DoesNotExist</code></pre></div>
+<h3 id="h-767-shortcut">Shortcut:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404(Student, id=25)</code></pre></div>
+<p>If missing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Http404</code></pre></div>
+<p>Therefore:</p>
+<blockquote><code>get_object_or_404()</code> is convenient when a missing database object should result in an HTTP 404 response.</blockquote>
+<hr>
+<h1 id="h-768-16-500-internal-server-error">16. 500 — Internal Server Error</h1>
+<p>A <code>500</code> means:</p>
+<blockquote>Something went wrong on the server while processing the request.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    result = 10 / 0
+    return HttpResponse(result)</code></pre></div>
+<p>This causes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ZeroDivisionError</code></pre></div>
+<p>and Django will generally return a:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>500 Internal Server Error</code></pre></div>
+<p>response.</p>
+<hr>
+<h1 id="h-769-17-500-is-usually-a-programming-server-problem">17. 500 Is Usually a Programming/Server Problem</h1>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SyntaxError
+NameError
+TypeError
+Database error
+Unexpected exception</code></pre></div>
+<p>can result in server errors depending on the circumstances.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    print(student_name)</code></pre></div>
+<p>If <code>student_name</code> isn't defined, Django encounters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NameError</code></pre></div>
+<hr>
+<h1 id="h-770-18-400-bad-request">18. 400 — Bad Request</h1>
+<p>A <code>400</code> generally means:</p>
+<blockquote>The server cannot process the request because the request is invalid.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse(
+    "Bad request",
+    status=400
+)</code></pre></div>
+<p>You can explicitly return a 400 response when appropriate.</p>
+<hr>
+<h1 id="h-771-19-403-forbidden">19. 403 — Forbidden</h1>
+<p><code>403</code> generally means:</p>
+<blockquote>The server understood the request but refuses to allow the requested action.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User tries to access an admin-only operation
+             ↓
+Permission denied
+             ↓
+403 Forbidden</code></pre></div>
+<p>We'll study permissions later.</p>
+<hr>
+<h1 id="h-772-20-401-unauthorized">20. 401 — Unauthorized</h1>
+<p><code>401</code> generally indicates:</p>
+<blockquote>Authentication is required or the authentication attempt failed.</blockquote>
+<p>Don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>401 → authentication
+403 → authorization/access refusal</code></pre></div>
+<p>This distinction is commonly asked in interviews.</p>
+<hr>
+<h1 id="h-773-21-custom-404-page">21. Custom 404 Page</h1>
+<p>Django allows you to create a custom:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404.html</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Page Not Found&lt;/h1&gt;
+&lt;p&gt;Sorry, the requested page doesn't exist.&lt;/p&gt;</code></pre></div>
+<p>When Django handles a 404 in production, it can use the custom template.</p>
+<hr>
+<h1 id="h-774-22-custom-500-page">22. Custom 500 Page</h1>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>500.html</code></pre></div>
+<p>can be used for server errors.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Something went wrong&lt;/h1&gt;
+&lt;p&gt;Please try again later.&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-775-23-important-debug">23. Important: <code>DEBUG</code></h1>
+<p>For development:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>For production:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>Django displays detailed debugging information.</p>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<p>users should see a friendly error page instead of the detailed traceback.</p>
+<hr>
+<h1 id="h-776-24-why-custom-error-pages">24. Why Custom Error Pages?</h1>
+<p>Imagine a real website showing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Traceback:
+File "/home/server/project/app/views.py", line 47...</code></pre></div>
+<p>to a normal user.</p>
+<p>That's bad UX and potentially a security problem.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Oops!
+Something went wrong.
+Please try again later.</code></pre></div>
+<p>is better.</p>
+<hr>
+<h1 id="h-777-25-handling-exceptions-with-try-except">25. Handling Exceptions With <code>try/except</code></h1>
+<p>Python's exception handling can also be used in Django.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def divide(request):
+    try:
+        result = 10 / 0
+        return HttpResponse(result)
+
+    except ZeroDivisionError:
+        return HttpResponse(
+            "Cannot divide by zero",
+            status=400
+        )</code></pre></div>
+<p>Here the Python exception is handled explicitly.</p>
+<hr>
+<h1 id="h-778-26-but-don-t-catch-everything-blindly">26. But Don't Catch Everything Blindly</h1>
+<p>Avoid doing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>try:
+    ...
+except:
+    return HttpResponse("Something went wrong")</code></pre></div>
+<p>without understanding the problem.</p>
+<p>Why?</p>
+<p>Because it can hide genuine programming errors.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>except ZeroDivisionError:</code></pre></div>
+<p>when you specifically expect that exception.</p>
+<hr>
+<h1 id="h-779-27-http404-vs-try-except">27. <code>Http404</code> vs <code>try/except</code></h1>
+<p>Suppose an object isn't found.</p>
+<p>You could write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404("Student not found")</code></pre></div>
+<p>Or simply:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=id
+)</code></pre></div>
+<p>The second is cleaner.</p>
+<hr>
+<h1 id="h-780-28-error-handling-flow">28. Error Handling Flow</h1>
+<p>A useful mental model:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    Request
+                       ↓
+                    Django
+                       ↓
+                    View
+                       ↓
+              ┌────────┴────────┐
+              ↓                 ↓
+           Success             Error
+              ↓                 ↓
+          200 response       Handle error
+                                ↓
+                       ┌────────┼────────┐
+                       ↓        ↓        ↓
+                      400      404      500</code></pre></div>
+<hr>
+<h1 id="h-781-29-url-404-vs-object-404">29. URL 404 vs Object 404</h1>
+<p>This is a very important distinction.</p>
+<h3 id="h-782-case-1-url-doesn-t-exist">Case 1 — URL doesn't exist</h3>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/abcxyz/</code></pre></div>
+<p>No URL pattern matches.</p>
+<p>Django returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<h3 id="h-783-case-2-url-exists-but-object-doesn-t">Case 2 — URL exists but object doesn't</h3>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/999/</code></pre></div>
+<p>URL pattern matches, but student 999 doesn't exist.</p>
+<p>Your view can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404()</code></pre></div>
+<p>and return:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<p>So both can produce a 404, but for different reasons.</p>
+<hr>
+<h1 id="h-784-30-complete-example">30. Complete Example</h1>
+<h3 id="h-785-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        'student/&lt;int:id&gt;/',
+        views.student_detail
+    ),
+]</code></pre></div>
+<h3 id="h-786-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        f"Student: {student.name}"
+    )</code></pre></div>
+<p>If student exists:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student: Aman</code></pre></div>
+<p>If student doesn't exist:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404 Not Found</code></pre></div>
+<hr>
+<h1 id="h-787-31-common-mistake">31. Common Mistake</h1>
+<p>Beginners sometimes write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=id)
+
+if student is None:
+    raise Http404</code></pre></div>
+<p>This doesn't work as expected.</p>
+<p>Why?</p>
+<p><code>objects.get()</code> doesn't return <code>None</code> when nothing is found.</p>
+<p>It raises:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.DoesNotExist</code></pre></div>
+<p>Therefore either use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404</code></pre></div>
+<p>or preferably:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(Student, id=id)</code></pre></div>
+<hr>
+<h1 id="h-788-32-common-mistake-debug-true-in-production">32. Common Mistake — <code>DEBUG=True</code> in Production</h1>
+<p>Never think:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>should remain enabled because it helps you see errors.</p>
+<p>It's useful during development, but production should normally have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<p>and proper production error handling/logging.</p>
+<hr>
+<h1 id="h-789-33-common-mistake-returning-500-for-user-mistakes">33. Common Mistake — Returning 500 for User Mistakes</h1>
+<p>Suppose a user submits invalid data.</p>
+<p>Don't automatically do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>status=500</code></pre></div>
+<p>A 500 generally indicates an unexpected server-side failure.</p>
+<p>For invalid client input, an appropriate response might be:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>400 Bad Request</code></pre></div>
+<p>depending on the application.</p>
+<hr>
+<h1 id="h-790-34-viva-questions">34. Viva Questions</h1>
+<h3 id="h-791-q1-what-is-a-404-error">Q1. What is a 404 error?</h3>
+<blockquote>A 404 Not Found response indicates that the requested resource could not be found.</blockquote>
+<h3 id="h-792-q2-what-is-a-500-error">Q2. What is a 500 error?</h3>
+<blockquote>A 500 Internal Server Error indicates an unexpected error occurred while processing the request on the server.</blockquote>
+<h3 id="h-793-q3-what-is-http404">Q3. What is <code>Http404</code>?</h3>
+<blockquote><code>Http404</code> is a Django exception that can be raised when a requested resource does not exist.</blockquote>
+<h3 id="h-794-q4-what-is-get-object-or-404">Q4. What is <code>get_object_or_404()</code>?</h3>
+<blockquote>It retrieves an object and raises <code>Http404</code> if the object does not exist.</blockquote>
+<h3 id="h-795-q5-why-use-get-object-or-404">Q5. Why use <code>get_object_or_404()</code>?</h3>
+<blockquote>It provides a concise way to convert a missing database object into an HTTP 404 response.</blockquote>
+<hr>
+<h1 id="h-796-35-important-viva-question">35. Important Viva Question</h1>
+<h3 id="h-797-teacher">Teacher:</h3>
+<blockquote>What's the difference between <code>Student.objects.get()</code> and <code>get_object_or_404()</code>?</blockquote>
+<p>Strong answer:</p>
+<blockquote><code>Student.objects.get()</code> raises the model's <code>DoesNotExist</code> exception when no object is found, whereas <code>get_object_or_404()</code> catches the missing-object situation and raises Django's <code>Http404</code>, which results in a 404 HTTP response.</blockquote>
+<hr>
+<h1 id="h-798-36-important-viva-question">36. Important Viva Question</h1>
+<h3 id="h-799-teacher">Teacher:</h3>
+<blockquote>What's the difference between 401 and 403?</blockquote>
+<p>Answer:</p>
+<blockquote><code>401 Unauthorized</code> generally indicates that authentication is required or has failed, while <code>403 Forbidden</code> indicates that the server understands the request but refuses to authorize the requested action.</blockquote>
+<hr>
+<h1 id="h-800-37-important-viva-question">37. Important Viva Question</h1>
+<h3 id="h-801-teacher">Teacher:</h3>
+<blockquote>Why should <code>DEBUG</code> be False in production?</blockquote>
+<p>Answer:</p>
+<blockquote>Because Django's debug output can expose sensitive technical information such as stack traces, file paths, and configuration details. Production applications should not expose this information to users.</blockquote>
+<hr>
+<h1 id="h-802-38-coding-question">38. Coding Question</h1>
+<h3 id="h-803-question">Question:</h3>
+<p>Write a view that raises a 404 if <code>id</code> is less than 1.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import Http404, HttpResponse
+
+def student(request, id):
+
+    if id &lt; 1:
+        raise Http404("Student not found")
+
+    return HttpResponse(
+        f"Student ID: {id}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-804-39-coding-question">39. Coding Question</h1>
+<h3 id="h-805-question">Question:</h3>
+<p>Write a view that returns a 400 response.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def test(request):
+    return HttpResponse(
+        "Bad Request",
+        status=400
+    )</code></pre></div>
+<hr>
+<h1 id="h-806-40-coding-question">40. Coding Question</h1>
+<h3 id="h-807-question">Question:</h3>
+<p>Retrieve a student or return 404.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        student.name
+    )</code></pre></div>
+<p>This is one of the most useful patterns to remember for future Django CRUD applications.</p>
+<hr>
+<h1 id="h-808-module-11-cheat-sheet">⭐ Module 11 Cheat Sheet</h1>
+<h3 id="h-809-404">404:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Resource not found</code></pre></div>
+<h3 id="h-810-500">500:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Unexpected server-side error</code></pre></div>
+<h3 id="h-811-explicit-404">Explicit 404:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise Http404</code></pre></div>
+<h3 id="h-812-object-or-404">Object or 404:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_object_or_404(Student, id=id)</code></pre></div>
+<h3 id="h-813-development">Development:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<h3 id="h-814-production">Production:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = False</code></pre></div>
+<h3 id="h-815-important-status-codes">Important status codes:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>400 → Bad Request
+401 → Authentication required/failed
+403 → Forbidden
+404 → Not Found
+500 → Internal Server Error</code></pre></div>
+<hr>
+<h1 id="h-816-unit-ii-completed">🎯 Unit II Completed</h1>
+<p>You've now covered the entire <strong>Unit II</strong> syllabus:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>UNIT II — Views and URLs
+
+✓ Creating views
+✓ Mapping views to URLs
+✓ View logic
+✓ HTTP requests
+✓ HTTP responses
+✓ GET
+✓ POST
+✓ request.method
+✓ request.GET
+✓ request.POST
+✓ Understanding URLs
+✓ URL parameters
+✓ URL converters
+✓ Regex URLs
+✓ re_path()
+✓ Error handling
+✓ 404
+✓ 400
+✓ 403
+✓ 401
+✓ 500
+✓ Http404
+✓ get_object_or_404()</code></pre></div>
+<p>The next unit is <strong>Templates, Debugging and Testing</strong>, where Django starts becoming much more like a real web application.</p>
+<h1 id="h-817-next-module-12-introduction-to-django-templates">Next → Module 12: Introduction to Django Templates</h1>
+<p>We'll build actual HTML pages instead of returning things like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello World")</code></pre></div>
+<p>You'll learn:</p>
+<ul>
+<li>Why templates are needed</li>
+<li>Creating HTML templates</li>
+<li><code>render()</code></li>
+<li>Template folders</li>
+<li>Connecting views to HTML</li>
+<li>Sending data from views to templates</li>
+<li>Template configuration</li>
+<li>Complete first dynamic webpage</li>
+<li>Common template errors</li>
+<li>Viva + coding questions</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-10.html">← Module 10: Regular Expressions in URLs</a>
+<a class="pn-btn pn-next" href="module-12.html">Module 12: Introduction to Templates →</a>
+</div>
+
+</div>
+
+</body>
+</html>

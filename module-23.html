@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 23: CSRF & CSRF Protection — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 23 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 23 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">CSRF &amp; CSRF Protection</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<span class="nav-item current">23. CSRF &amp; CSRF Protection</span>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-22.html">← Module 22: Form Validation</a>
+<a class="pn-btn pn-next" href="module-24.html">Module 24: POST Redirect Pattern (PRG) →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1802-module-23-csrf-csrf-protection-in-django">Module 23 — CSRF &amp; CSRF Protection in Django</h1>
+<p>CSRF is a <strong>very important Django security topic</strong> and is commonly asked in viva/interviews.</p>
+<p>By the end of this module, you should be able to explain:</p>
+<ul>
+<li>What CSRF means</li>
+<li>What a CSRF attack is</li>
+<li>Why Django uses CSRF protection</li>
+<li>What <code>{% csrf_token %}</code> does</li>
+<li>What <code>CsrfViewMiddleware</code> does</li>
+<li>Why CSRF is mainly relevant to state-changing requests</li>
+<li>How to fix a CSRF verification error</li>
+<li>CSRF vs XSS vs authentication</li>
+<li>How CSRF works with forms and AJAX</li>
+</ul>
+<hr>
+<h1 id="h-1803-1-what-is-csrf">1. What is CSRF?</h1>
+<p><strong>CSRF</strong> stands for:</p>
+<blockquote><strong>Cross-Site Request Forgery</strong></blockquote>
+<p>It is a web security attack where an attacker tricks a user's browser into sending an unwanted request to a website where the user is already authenticated.</p>
+<p>The important idea is:</p>
+<blockquote>The request comes from the victim's browser, and the browser may automatically include the user's authentication credentials, such as cookies.</blockquote>
+<hr>
+<h1 id="h-1804-2-simple-real-life-example">2. Simple Real-Life Example</h1>
+<p>Imagine you are logged into:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>bank.com</code></pre></div>
+<p>Your browser has a login/session cookie.</p>
+<p>Now you visit an attacker's website:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>evil.com</code></pre></div>
+<p>The attacker tries to make your browser send a request to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>bank.com/transfer/</code></pre></div>
+<p>If the bank doesn't verify that the request genuinely came from its own form/site, the request could potentially be accepted using your existing authentication.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Victim logged in
+       ↓
+Browser has authentication cookie
+       ↓
+Victim visits malicious website
+       ↓
+Malicious website causes request
+       ↓
+Browser sends request to target site
+       ↓
+Target site may think request is legitimate</code></pre></div>
+<p>That's the basic CSRF problem.</p>
+<hr>
+<h1 id="h-1805-3-why-is-csrf-possible">3. Why Is CSRF Possible?</h1>
+<p>The important concept is <strong>automatic browser credentials</strong>.</p>
+<p>For example, session authentication commonly uses cookies.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | Cookie: sessionid=abc123
+   ↓
+example.com</code></pre></div>
+<p>The browser can automatically send the cookie when making a request to that domain.</p>
+<p>The server therefore knows:</p>
+<blockquote>"This request belongs to the logged-in user."</blockquote>
+<p>But that doesn't necessarily prove:</p>
+<blockquote>"The user intentionally submitted this particular action."</blockquote>
+<p>That's the gap CSRF protection addresses.</p>
+<hr>
+<h1 id="h-1806-4-what-does-django-do">4. What Does Django Do?</h1>
+<p>Django provides built-in CSRF protection.</p>
+<p>You normally see this in a POST form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>The important line is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<hr>
+<h1 id="h-1807-5-what-is-csrf-token">5. What Is <code>{% csrf_token %}</code>?</h1>
+<p>It is a Django template tag that inserts a CSRF token into the HTML form.</p>
+<p>Conceptually, the rendered HTML contains something like:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="hidden"
+       name="csrfmiddlewaretoken"
+       value="some-secret-token"&gt;</code></pre></div>
+<p>The exact token value is generated/handled by Django.</p>
+<p>So when the form is submitted:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST request
+   ↓
+Form data
+   +
+CSRF token
+   ↓
+Django
+   ↓
+CSRF verification</code></pre></div>
+<hr>
+<h1 id="h-1808-6-why-do-we-need-the-token">6. Why Do We Need the Token?</h1>
+<p>The idea is that an attacker shouldn't be able to obtain the valid CSRF token from the target website's page because of browser security restrictions.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Legitimate form
+      ↓
+Contains valid CSRF token
+      ↓
+Django accepts request</code></pre></div>
+<p>Whereas an attacker's forged request generally won't contain the valid token:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Malicious request
+      ↓
+Missing/invalid CSRF token
+      ↓
+Django rejects request</code></pre></div>
+<hr>
+<h1 id="h-1809-7-csrf-token-is-not-a-password">7. CSRF Token Is NOT a Password</h1>
+<p>A common misconception is:</p>
+<blockquote>"CSRF token is the user's password."</blockquote>
+<p>No.</p>
+<p>It is a security value used to verify that a request is coming through an expected interaction with the site.</p>
+<p>Think of it as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication
+→ Who are you?
+
+CSRF protection
+→ Did this state-changing request come through an expected trusted flow?</code></pre></div>
+<p>These solve different problems.</p>
+<hr>
+<h1 id="h-1810-8-django-s-csrf-middleware">8. Django's CSRF Middleware</h1>
+<p>Django normally enables CSRF protection through middleware.</p>
+<p>In <code>settings.py</code>, you'll see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    ...
+]</code></pre></div>
+<p>The important line is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'django.middleware.csrf.CsrfViewMiddleware',</code></pre></div>
+<p>This middleware performs CSRF checks.</p>
+<hr>
+<h1 id="h-1811-9-two-things-you-must-remember">9. Two Things You Must Remember</h1>
+<p>For a normal Django POST form, remember:</p>
+<h3 id="h-1812-in-the-template">In the template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<h3 id="h-1813-in-settings-py">In <code>settings.py</code>:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'django.middleware.csrf.CsrfViewMiddleware',</code></pre></div>
+<p>The middleware is normally included in a newly created Django project.</p>
+<hr>
+<h1 id="h-1814-10-complete-example">10. Complete Example</h1>
+<p>Suppose we have:</p>
+<h3 id="h-1815-forms-py"><code>forms.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()</code></pre></div>
+<h3 id="h-1816-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+            return render(
+                request,
+                "success.html"
+            )
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<h3 id="h-1817-student-form-html"><code>student_form.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>This is the standard pattern.</p>
+<hr>
+<h1 id="h-1818-11-what-happens-if-we-forget-csrf-token">11. What Happens If We Forget <code>{% csrf_token %}</code>?</h1>
+<p>Suppose we write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>is missing.</p>
+<p>When the POST request reaches Django, CSRF verification can fail.</p>
+<p>You may see an error such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden
+CSRF verification failed. Request aborted.</code></pre></div>
+<p>The exact error page/details depend on Django configuration and environment.</p>
+<hr>
+<h1 id="h-1819-12-why-403">12. Why 403?</h1>
+<p>HTTP status:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden</code></pre></div>
+<p>means:</p>
+<blockquote>The server understood the request but refuses to authorize/process it.</blockquote>
+<p>CSRF verification failure is commonly returned as a 403 response.</p>
+<p>This is different from:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404 → resource/URL not found
+500 → server-side error
+400 → bad request
+403 → forbidden</code></pre></div>
+<hr>
+<h1 id="h-1820-13-csrf-and-get-vs-post">13. CSRF and GET vs POST</h1>
+<p>This is important.</p>
+<p>CSRF protection is primarily concerned with <strong>unsafe/state-changing HTTP methods</strong>, such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+PUT
+PATCH
+DELETE</code></pre></div>
+<p>A normal GET request should generally be safe and should <strong>not change server state</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /products/</code></pre></div>
+<p>should retrieve products.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /delete-account/</code></pre></div>
+<p>changes state.</p>
+<p>Therefore, CSRF protection is especially important for the second type.</p>
+<hr>
+<h1 id="h-1821-14-should-get-change-data">14. Should GET Change Data?</h1>
+<p>Ideally, <strong>no</strong>.</p>
+<p>Bad design:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /delete-student/10/</code></pre></div>
+<p>because simply visiting a URL could perform a destructive action.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /delete-student/10/</code></pre></div>
+<p>with CSRF protection.</p>
+<p>General principle:</p>
+<blockquote>GET should be safe/read-only; state-changing operations should use appropriate non-safe methods and CSRF protection where applicable.</blockquote>
+<hr>
+<h1 id="h-1822-15-csrf-token-in-a-form">15. CSRF Token in a Form</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;input type="text" name="name"&gt;
+
+    &lt;button type="submit"&gt;
+        Save
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>When Django renders the page:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% csrf_token %}
+        ↓
+Django generates/inserts CSRF token
+        ↓
+Browser receives form
+        ↓
+User submits form
+        ↓
+POST + CSRF information
+        ↓
+Django verifies it</code></pre></div>
+<hr>
+<h1 id="h-1823-16-csrf-cookie">16. CSRF Cookie</h1>
+<p>Django also uses a CSRF cookie as part of its CSRF protection mechanism.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | CSRF cookie
+   ↓
+Django</code></pre></div>
+<p>The exact mechanics are more sophisticated than simply "put a token in the form."</p>
+<p>For a normal HTML form, the practical rule you need to remember is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<hr>
+<h1 id="h-1824-17-csrf-token-vs-csrfmiddlewaretoken">17. <code>csrf_token</code> vs <code>csrfmiddlewaretoken</code></h1>
+<p>You may encounter both terms.</p>
+<h3 id="h-1825-template-tag">Template tag:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>This is what <strong>you write in the Django template</strong>.</p>
+<p>Django renders a hidden form field containing the token, commonly named:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>csrfmiddlewaretoken</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{% csrf_token %}
+       ↓
+hidden input
+       ↓
+csrfmiddlewaretoken</code></pre></div>
+<hr>
+<h1 id="h-1826-18-csrf-with-django-forms">18. CSRF with Django Forms</h1>
+<p>Django Forms do <strong>not</strong> automatically mean that CSRF is handled by the form itself.</p>
+<p>You still need:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>in a POST HTML form.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Remember:</p>
+<blockquote><code>{{ form.as_p }}</code> renders the form fields, but <code>{% csrf_token %}</code> is a separate Django template tag.</blockquote>
+<hr>
+<h1 id="h-1827-19-common-csrf-error">19. Common CSRF Error</h1>
+<p>You submit your form and see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Forbidden (403)
+CSRF verification failed.
+Request aborted.</code></pre></div>
+<p>First check:</p>
+<h3 id="h-1828-1-is-the-form-post">1. Is the form POST?</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;</code></pre></div>
+<h3 id="h-1829-2-did-you-add">2. Did you add:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<h3 id="h-1830-3-is-csrf-middleware-enabled">3. Is CSRF middleware enabled?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'django.middleware.csrf.CsrfViewMiddleware',</code></pre></div>
+<h3 id="h-1831-4-are-you-submitting-to-the-expected-url-domain">4. Are you submitting to the expected URL/domain?</h3>
+<h3 id="h-1832-5-is-the-browser-accepting-cookies-as-expected">5. Is the browser accepting cookies as expected?</h3>
+<hr>
+<h1 id="h-1833-20-don-t-disable-csrf-just-to-fix-an-error">20. Don't Disable CSRF Just to Fix an Error</h1>
+<p>You might find:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.decorators.csrf import csrf_exempt</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@csrf_exempt
+def my_view(request):
+    ...</code></pre></div>
+<p>This disables CSRF checking for that view.</p>
+<h3 id="h-1834-important">Important</h3>
+<p>Do <strong>not</strong> use this as your first solution to:</p>
+<blockquote>"My form gives a CSRF error."</blockquote>
+<p>Instead, find out why the legitimate request is failing.</p>
+<p>Disabling protection unnecessarily creates a security risk.</p>
+<hr>
+<h1 id="h-1835-21-what-does-csrf-exempt-do">21. What Does <code>@csrf_exempt</code> Do?</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def my_view(request):
+    return HttpResponse("Hello")</code></pre></div>
+<p>It tells Django to exempt this view from normal CSRF protection.</p>
+<p>This may be appropriate for certain carefully designed endpoints, but it should be used deliberately.</p>
+<h3 id="h-1836-viva-question">Viva question</h3>
+<p><strong>Q: What is <code>csrf_exempt</code>?</strong></p>
+<p>Answer:</p>
+<blockquote><code>csrf_exempt</code> is a Django decorator that disables CSRF validation for a particular view.</blockquote>
+<hr>
+<h1 id="h-1837-22-csrf-vs-authentication">22. CSRF vs Authentication</h1>
+<p>These are different.</p>
+<h3 id="h-1838-authentication">Authentication</h3>
+<p>Answers:</p>
+<blockquote><strong>Who is the user?</strong></blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login username/password
+Session
+Authentication cookie</code></pre></div>
+<h3 id="h-1839-csrf-protection">CSRF protection</h3>
+<p>Answers roughly:</p>
+<blockquote><strong>Is this state-changing request properly authorized by the site's CSRF mechanism?</strong></blockquote>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication ≠ CSRF protection</code></pre></div>
+<p>You can be authenticated and still be vulnerable to CSRF if the application doesn't properly protect state-changing requests.</p>
+<hr>
+<h1 id="h-1840-23-csrf-vs-xss">23. CSRF vs XSS</h1>
+<p>Another common viva question.</p>
+<h3 id="h-1841-csrf">CSRF</h3>
+<p>Attacker tricks a victim's browser into making an unwanted request.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Attacker
+   ↓
+tricks browser
+   ↓
+target website</code></pre></div>
+<h3 id="h-1842-xss">XSS</h3>
+<p>Attacker gets malicious JavaScript/content executed in another user's browser in the context of a vulnerable website.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Malicious script
+       ↓
+victim's browser
+       ↓
+runs in website context</code></pre></div>
+<p>Simple distinction:</p>
+<blockquote><strong>CSRF tricks the browser into making a request.</strong></blockquote>
+<blockquote><strong>XSS executes malicious script in the victim's browser.</strong></blockquote>
+<hr>
+<h1 id="h-1843-24-csrf-vs-sql-injection">24. CSRF vs SQL Injection</h1>
+<p>These are also completely different.</p>
+<h3 id="h-1844-csrf">CSRF</h3>
+<p>Targets request authenticity/state-changing actions.</p>
+<h3 id="h-1845-sql-injection">SQL Injection</h3>
+<p>Targets database queries by injecting malicious SQL input.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF → HTTP request security
+
+SQL Injection → Database query security</code></pre></div>
+<p>Django's ORM helps reduce SQL injection risks when used properly, while CSRF middleware addresses CSRF.</p>
+<hr>
+<h1 id="h-1846-25-csrf-with-ajax">25. CSRF with AJAX</h1>
+<p>Suppose JavaScript sends:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">JAVASCRIPT</span><pre><code>fetch("/students/", {
+    method: "POST",
+    body: ...
+});</code></pre></div>
+<p>You can't simply assume that because it's AJAX, CSRF doesn't apply.</p>
+<p>For Django-protected POST requests, you need to send the CSRF token appropriately.</p>
+<p>A common approach is to read the CSRF token from the cookie and send it in the request header.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AJAX POST
+   +
+X-CSRFToken header
+   ↓
+Django CSRF validation</code></pre></div>
+<p>For example, using <code>fetch</code>:</p>
+<div class="code-block-wrapper lang-code"><span class="code-lang-label">JAVASCRIPT</span><pre><code>fetch("/students/", {
+    method: "POST",
+    headers: {
+        "X-CSRFToken": csrftoken,
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+});</code></pre></div>
+<p>The exact implementation of obtaining <code>csrftoken</code> depends on how your Django app is configured.</p>
+<p>For your syllabus, remember the key concept:</p>
+<blockquote>AJAX POST requests also need CSRF protection when Django's CSRF checks apply.</blockquote>
+<hr>
+<h1 id="h-1847-26-csrf-with-ensure-csrf-cookie">26. CSRF with <code>@ensure_csrf_cookie</code></h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.decorators.csrf import ensure_csrf_cookie</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@ensure_csrf_cookie
+def my_view(request):
+    ...</code></pre></div>
+<p>This can be used when you need Django to ensure that a CSRF cookie is sent to the client.</p>
+<p>This becomes more relevant in JavaScript/AJAX applications.</p>
+<p>For a normal Django HTML form, you usually don't need to manually use it.</p>
+<hr>
+<h1 id="h-1848-27-csrf-trusted-origins">27. CSRF Trusted Origins</h1>
+<p>Sometimes you may deploy Django across different trusted origins.</p>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>CSRF_TRUSTED_ORIGINS</code></pre></div>
+<p>in <code>settings.py</code>.</p>
+<p>Example conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>CSRF_TRUSTED_ORIGINS = [
+    "https://example.com",
+]</code></pre></div>
+<p>This is useful when Django needs to trust requests originating from specific origins.</p>
+<h3 id="h-1849-important">Important</h3>
+<p>Don't randomly add domains to this list.</p>
+<p>Only add origins you actually trust.</p>
+<hr>
+<h1 id="h-1850-28-csrf-failure-view">28. CSRF Failure View</h1>
+<p>Django provides a CSRF failure mechanism.</p>
+<p>You can configure a custom CSRF failure view using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>CSRF_FAILURE_VIEW</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>CSRF_FAILURE_VIEW = "students.views.csrf_failure"</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def csrf_failure(request, reason=""):
+    return render(
+        request,
+        "csrf_failure.html"
+    )</code></pre></div>
+<p>This is an advanced concept, but it is useful for viva.</p>
+<hr>
+<h1 id="h-1851-29-complete-secure-form-pattern">29. Complete Secure Form Pattern</h1>
+<p>For almost every basic Django POST form, remember this:</p>
+<h3 id="h-1852-template">Template</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<h3 id="h-1853-view">View</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process valid data
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<p>This gives you:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ +
+Django Form
+ +
+Validation
+ +
+CSRF
+ +
+Redirect</code></pre></div>
+<p>We'll connect these concepts even more in the next module.</p>
+<hr>
+<h1 id="h-1854-30-common-mistakes">30. Common Mistakes</h1>
+<h3 id="h-1855-mistake-1-forgetting-csrf-token">Mistake 1 — Forgetting CSRF token</h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {{ form.as_p }}
+&lt;/form&gt;</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+    {{ form.as_p }}
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h3 id="h-1856-mistake-2-thinking-csrf-is-only-for-login">Mistake 2 — Thinking CSRF is only for login</h3>
+<p>Wrong.</p>
+<p>CSRF protection applies to many state-changing operations:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create
+Update
+Delete
+Change password
+Change email
+Transfer money
+Submit data</code></pre></div>
+<hr>
+<h3 id="h-1857-mistake-3-thinking-https-replaces-csrf">Mistake 3 — Thinking HTTPS replaces CSRF</h3>
+<p>HTTPS protects data in transit.</p>
+<p>CSRF protection addresses a different threat.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTPS ≠ CSRF protection</code></pre></div>
+<p>A site should generally use HTTPS <strong>and</strong> appropriate CSRF protection.</p>
+<hr>
+<h3 id="h-1858-mistake-4-using-csrf-exempt-everywhere">Mistake 4 — Using <code>csrf_exempt</code> everywhere</h3>
+<p>Don't do this:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@csrf_exempt
+def every_view(request):</code></pre></div>
+<p>just to make errors disappear.</p>
+<p>It removes an important security defense.</p>
+<hr>
+<h1 id="h-1859-31-viva-masterclass">31. Viva Masterclass</h1>
+<h3 id="h-1860-q1-what-is-csrf">Q1. What is CSRF?</h3>
+<blockquote>CSRF stands for Cross-Site Request Forgery. It is an attack in which an attacker tricks a user's browser into sending an unwanted request to a website where the user is authenticated.</blockquote>
+<hr>
+<h3 id="h-1861-q2-how-does-django-protect-against-csrf">Q2. How does Django protect against CSRF?</h3>
+<blockquote>Django provides built-in CSRF protection using CSRF tokens and <code>CsrfViewMiddleware</code>.</blockquote>
+<hr>
+<h3 id="h-1862-q3-what-is-csrf-token">Q3. What is <code>{% csrf_token %}</code>?</h3>
+<blockquote>It is a Django template tag that inserts CSRF protection information into a form so Django can verify the request.</blockquote>
+<hr>
+<h3 id="h-1863-q4-where-should-csrf-token-be-used">Q4. Where should <code>{% csrf_token %}</code> be used?</h3>
+<p>For a normal Django POST form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h3 id="h-1864-q5-what-happens-if-csrf-validation-fails">Q5. What happens if CSRF validation fails?</h3>
+<p>Typically Django returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>403 Forbidden</code></pre></div>
+<p>with a CSRF verification failure.</p>
+<hr>
+<h3 id="h-1865-q6-what-is-csrfviewmiddleware">Q6. What is <code>CsrfViewMiddleware</code>?</h3>
+<blockquote>It is Django middleware that performs CSRF protection checks on applicable requests.</blockquote>
+<hr>
+<h3 id="h-1866-q7-what-is-csrf-exempt">Q7. What is <code>csrf_exempt</code>?</h3>
+<blockquote>A decorator that exempts a view from Django's normal CSRF protection.</blockquote>
+<hr>
+<h3 id="h-1867-q8-is-csrf-the-same-as-xss">Q8. Is CSRF the same as XSS?</h3>
+<p>No.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF → tricks browser into making unwanted requests
+
+XSS → executes malicious script in browser</code></pre></div>
+<hr>
+<h3 id="h-1868-q9-is-csrf-the-same-as-authentication">Q9. Is CSRF the same as authentication?</h3>
+<p>No.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication → identifies/authenticates the user
+
+CSRF protection → helps verify legitimate state-changing requests</code></pre></div>
+<hr>
+<h3 id="h-1869-q10-does-a-post-request-automatically-become-secur">Q10. Does a POST request automatically become secure?</h3>
+<p><strong>No.</strong></p>
+<p>POST does not automatically provide security.</p>
+<p>You need appropriate measures such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTPS
++
+CSRF protection
++
+validation
++
+authentication/authorization</code></pre></div>
+<p>depending on the application.</p>
+<hr>
+<h1 id="h-1870-32-exam-answer-explain-csrf-in-django">32. Exam Answer: "Explain CSRF in Django"</h1>
+<p>If your teacher asks this as a 5-mark question, you can write:</p>
+<blockquote><strong>CSRF (Cross-Site Request Forgery)</strong> is a web security attack in which an attacker tricks an authenticated user's browser into sending an unwanted request to a website. Django provides built-in CSRF protection using a CSRF token and <code>CsrfViewMiddleware</code>. In a Django POST form, the <code>{% csrf_token %}</code> template tag is added inside the form. Django verifies the CSRF information when the request is submitted. If the verification fails, Django generally returns a 403 Forbidden response. CSRF protection is especially important for state-changing requests such as POST, PUT, PATCH and DELETE. It is different from authentication and XSS protection.</blockquote>
+<hr>
+<h1 id="h-1871-33-must-remember">33. Must Remember</h1>
+<p>Memorize these:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF
+↓
+Cross-Site Request Forgery</code></pre></div>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'django.middleware.csrf.CsrfViewMiddleware',</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@csrf_exempt</code></pre></div>
+<p>And remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF → request forgery
+XSS → malicious script
+Authentication → identity
+HTTPS → encrypted transport</code></pre></div>
+<h3 id="h-1872-one-line-rule">One-line rule</h3>
+<blockquote><strong>For a normal Django POST form, put <code>{% csrf_token %}</code> inside the <code>&lt;form&gt;</code> and keep Django's CSRF middleware enabled.</strong></blockquote>
+<hr>
+<h2 id="h-1873-module-23-complete">Module 23 Complete ✅</h2>
+<p><strong>Next → Module 24: POST Redirect Pattern</strong></p>
+<p>There we'll learn the important <strong>POST → Redirect → GET (PRG)</strong> pattern, why refreshing a submitted form can cause duplicate submissions, how <code>redirect()</code> works, how to redirect using named URLs, and how Django forms, validation, CSRF and redirects fit together in a complete submission flow.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-22.html">← Module 22: Form Validation</a>
+<a class="pn-btn pn-next" href="module-24.html">Module 24: POST Redirect Pattern (PRG) →</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 25: Databases & Django Models — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 25 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 25 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Databases &amp; Django Models</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<span class="nav-item current">25. Databases &amp; Django Models</span>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-24.html">← Module 24: POST Redirect Pattern (PRG)</a>
+<a class="pn-btn pn-next" href="module-26.html">Module 26: Model Fields &amp; Field Options →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1925-module-25-databases-django-models">Module 25 — Databases &amp; Django Models</h1>
+<p>This is a <strong>major Django module</strong> because from here we move from forms and HTTP into <strong>database-backed applications</strong>.</p>
+<p>You will learn:</p>
+<ul>
+<li>What a database is</li>
+<li>Tables, rows, columns</li>
+<li>SQL vs ORM</li>
+<li>What a Django model is</li>
+<li><code>models.py</code></li>
+<li>Model fields</li>
+<li>Primary keys</li>
+<li>Creating your first model</li>
+<li>How Django converts models into database tables</li>
+<li><code>makemigrations</code> and <code>migrate</code> introduction</li>
+<li>How Django models fit into MVT</li>
+<li>Viva + coding questions</li>
+</ul>
+<hr>
+<h1 id="h-1926-1-why-do-we-need-a-database">1. Why Do We Need a Database?</h1>
+<p>So far, we've worked with data like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    {"name": "Aman", "age": 21},
+    {"name": "Rahul", "age": 22},
+]</code></pre></div>
+<p>But where is this data stored?</p>
+<p>It's only in Python memory.</p>
+<p>If the Django server stops:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Server stops
+    ↓
+Python memory cleared
+    ↓
+Data lost</code></pre></div>
+<p>We need <strong>persistent storage</strong>.</p>
+<p>That's where a database comes in.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django application
+       ↓
+   Database
+       ↓
+Persistent data</code></pre></div>
+<hr>
+<h1 id="h-1927-2-what-is-a-database">2. What Is a Database?</h1>
+<p>A <strong>database</strong> is an organized collection of data that can be stored, retrieved, updated, and deleted efficiently.</p>
+<p>For example, a college application might store:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students
+Courses
+Teachers
+Departments
+Marks
+Attendance</code></pre></div>
+<hr>
+<h1 id="h-1928-3-what-is-a-database-table">3. What Is a Database Table?</h1>
+<p>A relational database stores data in <strong>tables</strong>.</p>
+<p>Imagine a <code>Student</code> table:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+<th>email</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>21</td>
+<td>[aman@gmail.com](mailto:aman@gmail.com)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+<td>22</td>
+<td>[rahul@gmail.com](mailto:rahul@gmail.com)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Priya</td>
+<td>20</td>
+<td>[priya@gmail.com](mailto:priya@gmail.com)</td>
+</tr>
+</tbody></table></div>
+<p>The table consists of:</p>
+<ul>
+<li><strong>Columns</strong> → properties/fields</li>
+<li><strong>Rows</strong> → individual records</li>
+</ul>
+<hr>
+<h1 id="h-1929-4-column">4. Column</h1>
+<p>A column represents a particular type of information.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id
+name
+age
+email</code></pre></div>
+<p>In Django, these correspond to <strong>model fields</strong>.</p>
+<hr>
+<h1 id="h-1930-5-row">5. Row</h1>
+<p>A row represents one record.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1 | Aman | 21 | aman@gmail.com</code></pre></div>
+<p>is one student record.</p>
+<p>In Django, this eventually corresponds to a <strong>model instance</strong>.</p>
+<hr>
+<h1 id="h-1931-6-primary-key">6. Primary Key</h1>
+<p>A <strong>primary key</strong> uniquely identifies each row in a table.</p>
+<p>Example:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>21</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+<td>22</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Priya</td>
+<td>20</td>
+</tr>
+</tbody></table></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id</code></pre></div>
+<p>is the primary key.</p>
+<p>It should uniquely identify a record.</p>
+<hr>
+<h1 id="h-1932-7-why-is-id-important">7. Why Is <code>id</code> Important?</h1>
+<p>Suppose we want to retrieve Aman.</p>
+<p>We can identify him using:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id = 1</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/1/</code></pre></div>
+<p>This connects to the URL parameter concepts we learned earlier.</p>
+<hr>
+<h1 id="h-1933-8-what-database-does-django-use-by-default">8. What Database Does Django Use by Default?</h1>
+<p>A new Django project normally uses:</p>
+<h1 id="h-1934-sqlite">SQLite</h1>
+<p>In <code>settings.py</code>, you'll see something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}</code></pre></div>
+<p>SQLite is lightweight and stores the database in a file.</p>
+<p>The file is usually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>db.sqlite3</code></pre></div>
+<hr>
+<h1 id="h-1935-9-other-databases-django-supports">9. Other Databases Django Supports</h1>
+<p>Django can work with databases such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite
+PostgreSQL
+MySQL
+MariaDB
+Oracle</code></pre></div>
+<p>For learning and small development projects, SQLite is very convenient.</p>
+<p>For larger production systems, PostgreSQL is a common choice.</p>
+<hr>
+<h1 id="h-1936-10-what-is-a-django-model">10. What Is a Django Model?</h1>
+<p>Now the most important definition:</p>
+<blockquote><strong>A Django model is a Python class that represents data and describes the structure of a database table.</strong></blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()</code></pre></div>
+<p>This Python class describes a <code>Student</code> table.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python Model
+      ↓
+Database Table</code></pre></div>
+<hr>
+<h1 id="h-1937-11-where-do-we-define-models">11. Where Do We Define Models?</h1>
+<p>Inside:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/models.py</code></pre></div>
+<p>A newly created Django app already contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models</code></pre></div>
+<p>We define our model there.</p>
+<hr>
+<h1 id="h-1938-12-creating-your-first-model">12. Creating Your First Model</h1>
+<p>Suppose we want to store students.</p>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/models.py</code></pre></div>
+<p>Write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    age = models.IntegerField()
+
+    email = models.EmailField()</code></pre></div>
+<p>That's our first Django model.</p>
+<hr>
+<h1 id="h-1939-13-understanding-the-code">13. Understanding the Code</h1>
+<p>Let's break it down.</p>
+<h3 id="h-1940-import">Import</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models</code></pre></div>
+<p>This imports Django's model/database functionality.</p>
+<hr>
+<h3 id="h-1941-class">Class</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):</code></pre></div>
+<p>We're creating a Python class called:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student</code></pre></div>
+<p>It inherits from:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.Model</code></pre></div>
+<p>This tells Django:</p>
+<blockquote>This class is a Django database model.</blockquote>
+<hr>
+<h3 id="h-1942-name-field">Name field</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<p>This creates a text field.</p>
+<p><code>max_length=100</code> means the maximum length is 100 characters.</p>
+<hr>
+<h3 id="h-1943-age">Age</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Stores integer values.</p>
+<hr>
+<h3 id="h-1944-email">Email</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField()</code></pre></div>
+<p>Stores email-like text and provides Django-level field validation behavior.</p>
+<hr>
+<h1 id="h-1945-14-model-table">14. Model → Table</h1>
+<p>Our model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()</code></pre></div>
+<p>conceptually becomes a table similar to:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+<th>email</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>21</td>
+<td>[aman@gmail.com](mailto:aman@gmail.com)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+<td>22</td>
+<td>[rahul@gmail.com](mailto:rahul@gmail.com)</td>
+</tr>
+</tbody></table></div>
+<p>Notice something:</p>
+<p>We didn't define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>id</code></pre></div>
+<p>yet Django normally creates an automatic primary-key field if you don't explicitly define one.</p>
+<hr>
+<h1 id="h-1946-15-automatic-primary-key">15. Automatic Primary Key</h1>
+<p>When you define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Django automatically adds a primary key unless you've configured a different primary key.</p>
+<p>In modern Django versions, the exact automatically generated field type can depend on your configuration/default settings, but conceptually you should remember:</p>
+<blockquote><strong>Django automatically provides a primary key when you don't define one.</strong></blockquote>
+<p>You can access it using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.pk</code></pre></div>
+<p>or commonly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.id</code></pre></div>
+<p>when the automatically created field is named <code>id</code>.</p>
+<hr>
+<h1 id="h-1947-16-pk-vs-id">16. <code>pk</code> vs <code>id</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(...)</code></pre></div>
+<p>You can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.id</code></pre></div>
+<p>And Django also provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.pk</code></pre></div>
+<p><code>pk</code> means:</p>
+<blockquote><strong>Primary Key</strong></blockquote>
+<p>The advantage of <code>pk</code> is that it works regardless of what the actual primary-key field is called.</p>
+<hr>
+<h1 id="h-1948-17-model-fields">17. Model Fields</h1>
+<p>Django provides many field types.</p>
+<p>Some important ones:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Django field</th>
+<th>Typical purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>CharField</code></td>
+<td>Short text</td>
+</tr>
+<tr>
+<td><code>TextField</code></td>
+<td>Long text</td>
+</tr>
+<tr>
+<td><code>IntegerField</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>FloatField</code></td>
+<td>Floating-point number</td>
+</tr>
+<tr>
+<td><code>DecimalField</code></td>
+<td>Precise decimal values</td>
+</tr>
+<tr>
+<td><code>BooleanField</code></td>
+<td>True/False</td>
+</tr>
+<tr>
+<td><code>EmailField</code></td>
+<td>Email address</td>
+</tr>
+<tr>
+<td><code>DateField</code></td>
+<td>Date</td>
+</tr>
+<tr>
+<td><code>DateTimeField</code></td>
+<td>Date + time</td>
+</tr>
+<tr>
+<td><code>TimeField</code></td>
+<td>Time</td>
+</tr>
+<tr>
+<td><code>URLField</code></td>
+<td>URL</td>
+</tr>
+<tr>
+<td><code>FileField</code></td>
+<td>File upload</td>
+</tr>
+<tr>
+<td><code>ImageField</code></td>
+<td>Image upload</td>
+</tr>
+<tr>
+<td><code>ForeignKey</code></td>
+<td>Relationship to another model</td>
+</tr>
+</tbody></table></div>
+<p>We'll study relationships in depth later.</p>
+<hr>
+<h1 id="h-1949-18-charfield">18. <code>CharField</code></h1>
+<p>Used for relatively short strings.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<p>You <strong>must normally specify</strong> <code>max_length</code> for <code>CharField</code>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = models.CharField(max_length=50)</code></pre></div>
+<hr>
+<h1 id="h-1950-19-textfield">19. <code>TextField</code></h1>
+<p>Used for larger amounts of text.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>description = models.TextField()</code></pre></div>
+<p>Good for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Blog posts
+Descriptions
+Comments
+Long messages</code></pre></div>
+<hr>
+<h1 id="h-1951-20-integerfield">20. <code>IntegerField</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Stores integers:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>18
+21
+100
+-5</code></pre></div>
+<hr>
+<h1 id="h-1952-21-floatfield">21. <code>FloatField</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>rating = models.FloatField()</code></pre></div>
+<p>Can store floating-point numbers.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>4.5
+3.14
+9.8</code></pre></div>
+<p>For financial values, <code>DecimalField</code> is generally preferable because decimal precision matters.</p>
+<hr>
+<h1 id="h-1953-22-decimalfield">22. <code>DecimalField</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>max_digits = total digits
+decimal_places = digits after decimal</code></pre></div>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>99999.99</code></pre></div>
+<p>there are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>7 total digits
+2 decimal places</code></pre></div>
+<p>So this would fit:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.DecimalField(
+    max_digits=7,
+    decimal_places=2
+)</code></pre></div>
+<hr>
+<h1 id="h-1954-23-booleanfield">23. <code>BooleanField</code></h1>
+<p>Used for true/false values.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_active = models.BooleanField(default=True)</code></pre></div>
+<p>Possible values:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True
+False</code></pre></div>
+<hr>
+<h1 id="h-1955-24-datefield">24. <code>DateField</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>birth_date = models.DateField()</code></pre></div>
+<p>Stores a date.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>2004-08-15</code></pre></div>
+<hr>
+<h1 id="h-1956-25-datetimefield">25. <code>DateTimeField</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField()</code></pre></div>
+<p>Stores:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>date + time</code></pre></div>
+<p>You may often see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField(auto_now_add=True)</code></pre></div>
+<p>This automatically sets the value when the object is first created.</p>
+<p>We'll study field options in much more detail in the next module.</p>
+<hr>
+<h1 id="h-1957-26-field-options">26. Field Options</h1>
+<p>Fields can have additional options.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(
+    max_length=100,
+    null=True,
+    blank=True
+)</code></pre></div>
+<p>Some important options:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>null
+blank
+default
+unique
+primary_key</code></pre></div>
+<p>Don't try to memorize all of them yet; we'll cover them properly in <strong>Module 26 — Model Fields</strong>.</p>
+<p>For now, understand that field definitions contain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Field type
++
+Field options</code></pre></div>
+<hr>
+<h1 id="h-1958-27-model-vs-database-table">27. Model vs Database Table</h1>
+<p>This distinction is very important.</p>
+<h3 id="h-1959-model">Model</h3>
+<p>Python class:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<h3 id="h-1960-table">Table</h3>
+<p>Database representation:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student table
+--------------------
+id
+name
+age
+email</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django Model
+     ↓
+Database Table</code></pre></div>
+<hr>
+<h1 id="h-1961-28-model-object-vs-database-row">28. Model Object vs Database Row</h1>
+<p>Similarly:</p>
+<h3 id="h-1962-model-instance">Model instance</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com"
+)</code></pre></div>
+<h3 id="h-1963-database-row">Database row</h3>
+<p>Eventually:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+<th>email</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>21</td>
+<td>[aman@gmail.com](mailto:aman@gmail.com)</td>
+</tr>
+</tbody></table></div>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model class     → Table
+Model instance  → Row
+Model field     → Column</code></pre></div>
+<p>This is an <strong>excellent viva answer</strong>.</p>
+<hr>
+<h1 id="h-1964-29-what-is-orm">29. What Is ORM?</h1>
+<p>ORM stands for:</p>
+<h1 id="h-1965-object-relational-mapping">Object-Relational Mapping</h1>
+<p>Django provides an ORM that allows us to interact with the database using Python objects and methods instead of writing SQL for every operation.</p>
+<p>For example, instead of SQL:</p>
+<div class="code-block-wrapper lang-sql"><span class="code-lang-label">SQL</span><pre><code>SELECT * FROM students;</code></pre></div>
+<p>you can use Django ORM:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<hr>
+<h1 id="h-1966-30-why-is-orm-useful">30. Why Is ORM Useful?</h1>
+<p>Without ORM, you might write SQL:</p>
+<div class="code-block-wrapper lang-sql"><span class="code-lang-label">SQL</span><pre><code>SELECT * FROM students
+WHERE age &gt; 18;</code></pre></div>
+<p>With Django ORM:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(age__gt=18)</code></pre></div>
+<p>The ORM translates the Python-style operation into database-specific SQL.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python code
+    ↓
+Django ORM
+    ↓
+SQL
+    ↓
+Database</code></pre></div>
+<p>We'll study ORM deeply in <strong>Module 28 onward</strong>.</p>
+<hr>
+<h1 id="h-1967-31-do-we-need-to-write-sql">31. Do We Need to Write SQL?</h1>
+<p>Not necessarily.</p>
+<p>For many common operations, Django ORM allows you to work with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()
+Student.objects.get(...)
+Student.objects.filter(...)
+Student.objects.create(...)</code></pre></div>
+<p>rather than manually writing SQL.</p>
+<p>However, understanding basic SQL is still useful.</p>
+<hr>
+<h1 id="h-1968-32-creating-a-model-does-not-immediately-create-th">32. Creating a Model Does NOT Immediately Create the Table</h1>
+<p>This is extremely important.</p>
+<p>Suppose you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>The database table isn't simply created just because you saved <code>models.py</code>.</p>
+<p>You need Django's <strong>migration system</strong>.</p>
+<hr>
+<h1 id="h-1969-33-first-register-the-app">33. First: Register the App</h1>
+<p>Before using migrations, make sure the app is in:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<p>Without registering the app, Django won't properly include its models in the project.</p>
+<hr>
+<h1 id="h-1970-34-makemigrations">34. <code>makemigrations</code></h1>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Django detects model changes and creates migration files describing those changes.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+   ↓
+makemigrations
+   ↓
+migration file</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py</code></pre></div>
+<hr>
+<h1 id="h-1971-35-migrate">35. <code>migrate</code></h1>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>This applies migrations to the database.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration files
+      ↓
+python manage.py migrate
+      ↓
+Database tables</code></pre></div>
+<hr>
+<h1 id="h-1972-36-makemigrations-vs-migrate">36. <code>makemigrations</code> vs <code>migrate</code></h1>
+<p>This is a <strong>must-know viva question</strong>.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>makemigrations</code></td>
+<td>Creates migration files from model changes</td>
+</tr>
+<tr>
+<td><code>migrate</code></td>
+<td>Applies migrations to the database</td>
+</tr>
+</tbody></table></div>
+<p>Easy way to remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations
+→ Make instructions
+
+migrate
+→ Apply instructions</code></pre></div>
+<hr>
+<h1 id="h-1973-37-complete-process">37. Complete Process</h1>
+<p>Suppose we create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<p>Then:</p>
+<h3 id="h-1974-step-1">Step 1</h3>
+<p>Save <code>models.py</code>.</p>
+<h3 id="h-1975-step-2">Step 2</h3>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<h3 id="h-1976-step-3">Step 3</h3>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Now Django creates/updates the database schema.</p>
+<hr>
+<h1 id="h-1977-38-what-is-a-migration">38. What Is a Migration?</h1>
+<p>A migration is a <strong>versioned set of database schema changes</strong> generated from changes to Django models.</p>
+<p>Suppose initially:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Later you add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Django creates another migration describing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Add age field to Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>applies it.</p>
+<p>We'll study migrations deeply in Module 27.</p>
+<hr>
+<h1 id="h-1978-39-django-s-database-flow">39. Django's Database Flow</h1>
+<p>You should understand this complete flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+    ↓
+Python Model
+    ↓
+makemigrations
+    ↓
+Migration File
+    ↓
+migrate
+    ↓
+Database Schema
+    ↓
+Database Table</code></pre></div>
+<p>Then when the application runs:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Django ORM
+ ↓
+Database
+ ↓
+Model objects
+ ↓
+Template</code></pre></div>
+<hr>
+<h1 id="h-1979-40-mvt-with-database">40. MVT With Database</h1>
+<p>Earlier we learned:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model
+View
+Template</code></pre></div>
+<p>Now we can understand the database connection.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>             Django
+               |
+       ┌───────┴────────┐
+       ↓                ↓
+     View             Model
+       |                |
+       |              ORM
+       |                |
+       |             Database
+       |                |
+       └──────→ Template</code></pre></div>
+<p>More accurately:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Model / ORM
+   ↓
+Database
+   ↓
+View
+   ↓
+Template
+   ↓
+Response</code></pre></div>
+<hr>
+<h1 id="h-1980-41-example-student-list">41. Example: Student List</h1>
+<p>Suppose database contains:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+<th>age</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+<td>21</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+<td>22</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Priya</td>
+<td>20</td>
+</tr>
+</tbody></table></div>
+<p>The view can retrieve them:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>The template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Students&lt;/h1&gt;
+
+{% for student in students %}
+
+    &lt;p&gt;
+        {{ student.name }} - {{ student.age }}
+    &lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>The final page might show:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students
+
+Aman - 21
+Rahul - 22
+Priya - 20</code></pre></div>
+<p>Notice how our previous knowledge of <strong>dynamic templates</strong> now connects with models.</p>
+<hr>
+<h1 id="h-1981-42-model-data-can-be-passed-to-templates">42. Model Data Can Be Passed to Templates</h1>
+<p>The model object retrieved through ORM can be placed into context:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "students.html",
+    {"students": students}
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ student.name }}</code></pre></div>
+<p>works through template dot notation.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+ ↓
+ORM
+ ↓
+Model objects
+ ↓
+Context
+ ↓
+Template</code></pre></div>
+<hr>
+<h1 id="h-1982-43-creating-a-model-object">43. Creating a Model Object</h1>
+<p>You can create an object in Python:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com"
+)</code></pre></div>
+<p>At this point, the object has been created in Python memory.</p>
+<p>To save it to the database:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.save()</code></pre></div>
+<p>Then it is persisted.</p>
+<hr>
+<h1 id="h-1983-44-save">44. <code>save()</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman",
+    age=21
+)
+
+student.save()</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student object
+     ↓
+save()
+     ↓
+Database row</code></pre></div>
+<p>We'll explore CRUD in detail later.</p>
+<hr>
+<h1 id="h-1984-45-objects">45. <code>objects</code></h1>
+<p>You will frequently see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects</code></pre></div>
+<p>This is Django's model manager, commonly used to perform database queries.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>gets all students.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(age=21)</code></pre></div>
+<p>gets students whose age is 21.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=1)</code></pre></div>
+<p>gets one specific object if exactly one matching object exists.</p>
+<p>We'll cover all of these in the ORM modules.</p>
+<hr>
+<h1 id="h-1985-46-important-terminology">46. Important Terminology</h1>
+<p>Memorize this table:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Django</th>
+<th>Database</th>
+</tr></thead><tbody>
+<tr>
+<td>Model</td>
+<td>Table</td>
+</tr>
+<tr>
+<td>Model field</td>
+<td>Column</td>
+</tr>
+<tr>
+<td>Model instance</td>
+<td>Row/record</td>
+</tr>
+<tr>
+<td>Primary key</td>
+<td>Unique row identifier</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>Object/database mapping layer</td>
+</tr>
+<tr>
+<td>Migration</td>
+<td>Database schema change instructions</td>
+</tr>
+<tr>
+<td><code>makemigrations</code></td>
+<td>Create migration files</td>
+</tr>
+<tr>
+<td><code>migrate</code></td>
+<td>Apply migrations</td>
+</tr>
+<tr>
+<td><code>objects</code></td>
+<td>Model manager/query interface</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-1986-47-common-mistakes">47. Common Mistakes</h1>
+<h3 id="h-1987-mistake-1-forgetting-to-register-the-app">Mistake 1: Forgetting to register the app</h3>
+<p>Make sure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<hr>
+<h3 id="h-1988-mistake-2-thinking-makemigrations-creates-the-data">Mistake 2: Thinking <code>makemigrations</code> creates the database table</h3>
+<p>Not exactly.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations
+→ creates migration files</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>migrate
+→ applies them to database</code></pre></div>
+<hr>
+<h3 id="h-1989-mistake-3-forgetting-max-length">Mistake 3: Forgetting <code>max_length</code></h3>
+<p>For:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField()</code></pre></div>
+<p>you should normally specify:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<hr>
+<h3 id="h-1990-mistake-4-thinking-model-row">Mistake 4: Thinking model = row</h3>
+<p>No.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model class → table
+Model instance → row</code></pre></div>
+<hr>
+<h3 id="h-1991-mistake-5-thinking-orm-is-a-database">Mistake 5: Thinking ORM is a database</h3>
+<p>ORM is not the database.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django ORM
+    ↓
+communicates with
+    ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-1992-48-viva-questions">48. Viva Questions</h1>
+<h3 id="h-1993-q1-what-is-a-django-model">Q1. What is a Django model?</h3>
+<blockquote>A Django model is a Python class that represents data and defines the structure of a database table.</blockquote>
+<hr>
+<h3 id="h-1994-q2-where-are-models-defined">Q2. Where are models defined?</h3>
+<p>Usually in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>app/models.py</code></pre></div>
+<hr>
+<h3 id="h-1995-q3-what-does-models-model-mean">Q3. What does <code>models.Model</code> mean?</h3>
+<blockquote>It is Django's base model class. A model inherits from it to become a Django database model.</blockquote>
+<hr>
+<h3 id="h-1996-q4-what-is-orm">Q4. What is ORM?</h3>
+<blockquote>ORM stands for Object-Relational Mapping. Django's ORM allows developers to interact with databases using Python objects and query methods instead of writing SQL for every operation.</blockquote>
+<hr>
+<h3 id="h-1997-q5-what-is-the-default-database-in-django">Q5. What is the default database in Django?</h3>
+<blockquote>SQLite.</blockquote>
+<hr>
+<h3 id="h-1998-q6-what-is-a-primary-key">Q6. What is a primary key?</h3>
+<blockquote>A primary key uniquely identifies a record in a database table.</blockquote>
+<hr>
+<h3 id="h-1999-q7-does-django-automatically-create-a-primary-key">Q7. Does Django automatically create a primary key?</h3>
+<blockquote>Yes. If you don't define a primary key yourself, Django automatically provides one.</blockquote>
+<hr>
+<h3 id="h-2000-q8-what-is-pk">Q8. What is <code>pk</code>?</h3>
+<blockquote><code>pk</code> represents the primary key of a model instance.</blockquote>
+<hr>
+<h3 id="h-2001-q9-what-does-makemigrations-do">Q9. What does <code>makemigrations</code> do?</h3>
+<blockquote>It creates migration files based on changes made to Django models.</blockquote>
+<hr>
+<h3 id="h-2002-q10-what-does-migrate-do">Q10. What does <code>migrate</code> do?</h3>
+<blockquote>It applies migrations to the database and updates the database schema.</blockquote>
+<hr>
+<h3 id="h-2003-q11-difference-between-makemigrations-and-migrate">Q11. Difference between <code>makemigrations</code> and <code>migrate</code>?</h3>
+<blockquote><code>makemigrations</code> creates migration instructions, while <code>migrate</code> applies those instructions to the database.</blockquote>
+<hr>
+<h3 id="h-2004-q12-what-is-db-sqlite3">Q12. What is <code>db.sqlite3</code>?</h3>
+<blockquote>It is the default SQLite database file created/used by a Django project when SQLite is configured.</blockquote>
+<hr>
+<h3 id="h-2005-q13-what-is-models-charfield">Q13. What is <code>models.CharField()</code>?</h3>
+<blockquote>It defines a character/string field in a Django model.</blockquote>
+<hr>
+<h3 id="h-2006-q14-what-is-a-model-instance">Q14. What is a model instance?</h3>
+<p>For:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    ...</code></pre></div>
+<p>this:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student()</code></pre></div>
+<p>is a model instance.</p>
+<hr>
+<h1 id="h-2007-49-coding-question">49. Coding Question</h1>
+<h3 id="h-2008-question">Question:</h3>
+<p>Create a Django model for a student containing:</p>
+<ul>
+<li>Name</li>
+<li>Age</li>
+<li>Email</li>
+<li>Course</li>
+<li>Active status</li>
+</ul>
+<h3 id="h-2009-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    course = models.CharField(max_length=100)
+
+    is_active = models.BooleanField(default=True)</code></pre></div>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-2010-50-coding-question">50. Coding Question</h1>
+<h3 id="h-2011-question">Question:</h3>
+<p>Create a student object and save it.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE"
+)
+
+student.save()</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student(...)
+→ creates Python object
+
+student.save()
+→ saves it to database</code></pre></div>
+<hr>
+<h1 id="h-2012-51-the-big-picture">51. The Big Picture</h1>
+<p>You've now reached an important transition in Django.</p>
+<p>Previously:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+ ↓
+URL
+ ↓
+View
+ ↓
+Template
+ ↓
+Response</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+ ↓
+URL
+ ↓
+View
+ ↓
+ORM
+ ↓
+Model
+ ↓
+Database
+ ↓
+Model objects
+ ↓
+View
+ ↓
+Template
+ ↓
+Response</code></pre></div>
+<p>This is what makes Django applications <strong>data-driven</strong>.</p>
+<hr>
+<h1 id="h-2013-module-25-summary">Module 25 Summary</h1>
+<h3 id="h-2014-most-important-definitions">Most important definitions:</h3>
+<blockquote><strong>Database</strong> → persistent organized data storage.</blockquote>
+<blockquote><strong>Table</strong> → collection of records organized into rows and columns.</blockquote>
+<blockquote><strong>Model</strong> → Python representation of database structure.</blockquote>
+<blockquote><strong>ORM</strong> → lets Django interact with the database using Python.</blockquote>
+<blockquote><strong>Migration</strong> → describes database schema changes.</blockquote>
+<h3 id="h-2015-most-important-commands">Most important commands:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<h3 id="h-2016-most-important-model-pattern">Most important model pattern:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()</code></pre></div>
+<p>And remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model class     → Table
+Model field     → Column
+Model instance  → Row
+Primary key     → Unique identifier</code></pre></div>
+<p><strong>Next → Module 26: Django Model Fields &amp; Field Options</strong></p>
+<p>We'll go deeply into <code>CharField</code>, <code>TextField</code>, <code>IntegerField</code>, <code>FloatField</code>, <code>DecimalField</code>, <code>BooleanField</code>, <code>DateField</code>, <code>DateTimeField</code>, <code>null</code>, <code>blank</code>, <code>default</code>, <code>unique</code>, <code>choices</code>, primary keys, and the common field-definition coding questions.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-24.html">← Module 24: POST Redirect Pattern (PRG)</a>
+<a class="pn-btn pn-next" href="module-26.html">Module 26: Model Fields &amp; Field Options →</a>
+</div>
+
+</div>
+
+</body>
+</html>

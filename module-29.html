@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 29: Django Shell & CRUD — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 29 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 29 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Shell &amp; CRUD</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<span class="nav-item current">29. Django Shell &amp; CRUD</span>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-28.html">← Module 28: Django ORM in Depth</a>
+<a class="pn-btn pn-next" href="module-30.html">Module 30: Advanced Django ORM →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2315-module-29-django-shell-crud">Module 29 — Django Shell &amp; CRUD</h1>
+<p>Now we're going to <strong>actually work with database records</strong>.</p>
+<p>CRUD is one of the most important practical topics in Django:</p>
+<blockquote><strong>C — Create</strong><br><strong>R — Read</strong><br><strong>U — Update</strong><br><strong>D — Delete</strong></blockquote>
+<p>By the end, you should be able to perform all four operations using Django ORM and explain them in a viva.</p>
+<hr>
+<h1 id="h-2316-1-what-is-crud">1. What Is CRUD?</h1>
+<p>CRUD represents the four basic database operations:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>CRUD</th>
+<th>Meaning</th>
+<th>Django</th>
+</tr></thead><tbody>
+<tr>
+<td>C</td>
+<td>Create</td>
+<td>Create a record</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Read</td>
+<td>Retrieve records</td>
+</tr>
+<tr>
+<td>U</td>
+<td>Update</td>
+<td>Modify records</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Delete</td>
+<td>Remove records</td>
+</tr>
+</tbody></table></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+    ↓
+Create → Add student
+Read   → View student
+Update → Change student details
+Delete → Remove student</code></pre></div>
+<hr>
+<h1 id="h-2317-2-why-django-shell">2. Why Django Shell?</h1>
+<p>You can interact with your Django project using:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<p>The Django shell gives you a Python environment where Django is already configured.</p>
+<p>You can directly work with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()
+Student.objects.create(...)
+Student.objects.filter(...)</code></pre></div>
+<p>This is extremely useful for:</p>
+<ul>
+<li>Learning ORM</li>
+<li>Testing queries</li>
+<li>Debugging</li>
+<li>Creating test data</li>
+<li>Inspecting database records</li>
+<li>Practical exams</li>
+</ul>
+<hr>
+<h1 id="h-2318-3-starting-the-django-shell">3. Starting the Django Shell</h1>
+<p>From the folder containing <code>manage.py</code>:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<p>You may see something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python 3.x.x
+&gt;&gt;&gt;</code></pre></div>
+<p>Now you're inside the Django shell.</p>
+<hr>
+<h1 id="h-2319-4-import-your-model">4. Import Your Model</h1>
+<p>Suppose your app is called:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>and your model is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)</code></pre></div>
+<p>Inside the shell:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from students.models import Student</code></pre></div>
+<p>Now you can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student</code></pre></div>
+<hr>
+<h1 id="h-2320-5-create-method-1">5. CREATE — Method 1</h1>
+<p>Create an object:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)</code></pre></div>
+<p>At this point:</p>
+<blockquote>The object exists in Python memory, but it has not necessarily been saved to the database yet.</blockquote>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.save()</code></pre></div>
+<p>This saves it.</p>
+<hr>
+<h1 id="h-2321-6-create-method-2-objects-create">6. CREATE — Method 2: <code>objects.create()</code></h1>
+<p>A shorter approach:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)</code></pre></div>
+<p>This:</p>
+<ol>
+<li>Creates the object</li>
+<li>Saves it to the database</li>
+</ol>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student(...)
+     ↓
+Python object
+     ↓
+save()
+     ↓
+Database</code></pre></div>
+<p>whereas:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.objects.create(...)
+     ↓
+Create + Save</code></pre></div>
+<hr>
+<h1 id="h-2322-7-create-vs-save">7. <code>create()</code> vs <code>save()</code></h1>
+<h3 id="h-2323-method-1">Method 1</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman"
+)
+
+student.save()</code></pre></div>
+<h3 id="h-2324-method-2">Method 2</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman"
+)</code></pre></div>
+<p>The second is shorter.</p>
+<h3 id="h-2325-viva-answer">Viva answer:</h3>
+<blockquote><code>objects.create()</code> creates and saves the model instance immediately, while instantiating a model with <code>Model(...)</code> only creates the Python object until <code>save()</code> is called.</blockquote>
+<hr>
+<h1 id="h-2326-8-verify-the-record">8. Verify the Record</h1>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>You should see a QuerySet.</p>
+<p>Something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>&lt;QuerySet [&lt;Student: Student object (1)&gt;]&gt;</code></pre></div>
+<p>The exact representation depends on your model's <code>__str__()</code> method.</p>
+<hr>
+<h1 id="h-2327-9-str-very-useful">9. <code>__str__()</code> — Very Useful</h1>
+<p>By default, Django may display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>&lt;Student: Student object (1)&gt;</code></pre></div>
+<p>You can make it more readable.</p>
+<p>In <code>models.py</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>might display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>&lt;QuerySet [&lt;Student: Aman&gt;, &lt;Student: Rahul&gt;]&gt;</code></pre></div>
+<p>This is especially useful in:</p>
+<ul>
+<li>Django shell</li>
+<li>Django admin</li>
+<li>Debugging</li>
+</ul>
+<hr>
+<h1 id="h-2328-10-read-all-records">10. READ — All Records</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>This returns a QuerySet containing all students.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for student in students:
+    print(student.name)</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Priya</code></pre></div>
+<hr>
+<h1 id="h-2329-11-read-one-record">11. READ — One Record</h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=1)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.name</code></pre></div>
+<p>might return:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<hr>
+<h1 id="h-2330-12-get-requires-exactly-one-result">12. <code>get()</code> Requires Exactly One Result</h1>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=1)</code></pre></div>
+<p>expects exactly one object.</p>
+<p>If none exists:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.DoesNotExist</code></pre></div>
+<p>If multiple records match:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>MultipleObjectsReturned</code></pre></div>
+<p>For a unique primary key lookup, multiple matches aren't possible, but other conditions can produce multiple results.</p>
+<hr>
+<h1 id="h-2331-13-filter">13. <code>filter()</code></h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(course="CSE")</code></pre></div>
+<p>This returns a QuerySet.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(course="CSE")</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for student in students:
+    print(student.name)</code></pre></div>
+<hr>
+<h1 id="h-2332-14-filter-by-marks">14. Filter by Marks</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(marks__gte=80)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks &gt;= 80</code></pre></div>
+<hr>
+<h1 id="h-2333-15-combine-conditions">15. Combine Conditions</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course = CSE
+AND
+marks &gt;= 80</code></pre></div>
+<hr>
+<h1 id="h-2334-16-read-first-record">16. READ — First Record</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.first()</code></pre></div>
+<p>Returns the first object according to the QuerySet's ordering, or <code>None</code> if no object exists.</p>
+<p>You can also explicitly order:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by("id").first()</code></pre></div>
+<hr>
+<h1 id="h-2335-17-read-last-record">17. READ — Last Record</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.last()</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.order_by("id").last()</code></pre></div>
+<hr>
+<h1 id="h-2336-18-count-records">18. Count Records</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.count()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>5</code></pre></div>
+<p>means there are five records.</p>
+<hr>
+<h1 id="h-2337-19-check-whether-records-exist">19. Check Whether Records Exist</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.exists()</code></pre></div>
+<p>Returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>False</code></pre></div>
+<p>You can also check a condition:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).exists()</code></pre></div>
+<hr>
+<h1 id="h-2338-20-update-method-1">20. UPDATE — Method 1</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)</code></pre></div>
+<p>Change:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.save()</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Get student
+    ↓
+Change attribute
+    ↓
+save()
+    ↓
+Database updated</code></pre></div>
+<hr>
+<h1 id="h-2339-21-updating-multiple-fields">21. Updating Multiple Fields</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.name = "Aman Ranjan"
+student.age = 22
+student.marks = 95
+
+student.save()</code></pre></div>
+<p>Now all changed fields are saved.</p>
+<hr>
+<h1 id="h-2340-22-update-method-2-update">22. UPDATE — Method 2: <code>update()</code></h1>
+<p>You can update directly through a QuerySet:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    id=1
+).update(
+    marks=95
+)</code></pre></div>
+<p>This directly performs a database update.</p>
+<hr>
+<h1 id="h-2341-23-updating-multiple-records">23. Updating Multiple Records</h1>
+<p>Suppose we want to give every CSE student 5 additional marks:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).update(
+    marks=100
+)</code></pre></div>
+<p>This updates every matching record.</p>
+<p><strong>Be careful.</strong></p>
+<p>Bulk updates can affect many records at once.</p>
+<hr>
+<h1 id="h-2342-24-save-vs-update">24. <code>save()</code> vs <code>update()</code></h1>
+<p>This is an important viva question.</p>
+<h3 id="h-2343-save"><code>save()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95
+student.save()</code></pre></div>
+<p>Works with a model instance.</p>
+<h3 id="h-2344-update"><code>update()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(id=1).update(
+    marks=95
+)</code></pre></div>
+<p>Works on a QuerySet and performs a direct bulk database update.</p>
+<p>Remember an important consequence:</p>
+<blockquote><code>QuerySet.update()</code> does not call each model instance's <code>save()</code> method.</blockquote>
+<p>So if your model has custom <code>save()</code> behavior, don't assume <code>update()</code> will execute it.</p>
+<hr>
+<h1 id="h-2345-25-update-using-get">25. UPDATE Using <code>get()</code></h1>
+<p>Another common pattern:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(
+    email="aman@gmail.com"
+)
+
+student.marks = 90
+
+student.save()</code></pre></div>
+<p>This is useful when you want to work with the actual model object.</p>
+<hr>
+<h1 id="h-2346-26-delete-method-1">26. DELETE — Method 1</h1>
+<p>Get an object:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>The record is removed.</p>
+<hr>
+<h1 id="h-2347-27-delete-method-2">27. DELETE — Method 2</h1>
+<p>Delete directly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    id=1
+).delete()</code></pre></div>
+<p>This deletes matching records.</p>
+<hr>
+<h1 id="h-2348-28-delete-multiple-records">28. Delete Multiple Records</h1>
+<p>Suppose we want to delete inactive students:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    is_active=False
+).delete()</code></pre></div>
+<p>All matching records are deleted.</p>
+<p>Again:</p>
+<blockquote>Be very careful with bulk delete operations.</blockquote>
+<hr>
+<h1 id="h-2349-29-crud-complete-example">29. CRUD Complete Example</h1>
+<p>Let's perform all four operations.</p>
+<h3 id="h-2350-create">CREATE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)</code></pre></div>
+<h3 id="h-2351-read">READ</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()</code></pre></div>
+<h3 id="h-2352-update">UPDATE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95
+student.save()</code></pre></div>
+<h3 id="h-2353-delete">DELETE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>That's basic CRUD.</p>
+<hr>
+<h1 id="h-2354-30-crud-flow">30. CRUD Flow</h1>
+<p>Memorize:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CREATE
+   ↓
+Student.objects.create(...)
+   ↓
+Database
+
+READ
+   ↓
+Student.objects.all()
+Student.objects.get()
+Student.objects.filter()
+
+UPDATE
+   ↓
+object.field = value
+object.save()
+
+or
+
+QuerySet.update(...)
+
+DELETE
+   ↓
+object.delete()
+
+or
+
+QuerySet.delete()</code></pre></div>
+<hr>
+<h1 id="h-2355-31-get-or-create">31. <code>get_or_create()</code></h1>
+<p>Django provides a useful method:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get_or_create(...)</code></pre></div>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student, created = Student.objects.get_or_create(
+    email="aman@gmail.com",
+    defaults={
+        "name": "Aman",
+        "age": 21,
+        "course": "CSE"
+    }
+)</code></pre></div>
+<p>It attempts to:</p>
+<ol>
+<li>Find an existing matching object</li>
+<li>If it doesn't exist, create one</li>
+</ol>
+<p>It returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(object, created)</code></pre></div>
+<p>where:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>created = True</code></pre></div>
+<p>if a new object was created.</p>
+<p>Otherwise:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>created = False</code></pre></div>
+<p>if an existing object was found.</p>
+<hr>
+<h1 id="h-2356-32-why-get-or-create-is-useful">32. Why <code>get_or_create()</code> Is Useful</h1>
+<p>Suppose you want to make sure a record exists without writing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>try:
+    ...
+except:
+    ...</code></pre></div>
+<p>yourself.</p>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>get_or_create()</code></pre></div>
+<p>This is especially useful for initialization/setup-type operations.</p>
+<hr>
+<h1 id="h-2357-33-update-or-create">33. <code>update_or_create()</code></h1>
+<p>Another useful method:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update_or_create(...)</code></pre></div>
+<p>It:</p>
+<ul>
+<li>Updates an existing matching object</li>
+<li>Or creates it if it doesn't exist</li>
+</ul>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student, created = Student.objects.update_or_create(
+    email="aman@gmail.com",
+    defaults={
+        "name": "Aman",
+        "age": 22,
+        "marks": 95
+    }
+)</code></pre></div>
+<p>The lookup fields are used to find the object, while <code>defaults</code> contains values to update/create.</p>
+<hr>
+<h1 id="h-2358-34-get-or-create-vs-update-or-create">34. <code>get_or_create()</code> vs <code>update_or_create()</code></h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Method</th>
+<th>Behavior</th>
+</tr></thead><tbody>
+<tr>
+<td><code>get_or_create()</code></td>
+<td>Get existing or create</td>
+</tr>
+<tr>
+<td><code>update_or_create()</code></td>
+<td>Update existing or create</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2359-35-delete-return-value">35. <code>delete()</code> Return Value</h1>
+<p>When deleting objects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>Django returns information about the deletion, including the number of objects deleted and a breakdown by model.</p>
+<p>For basic coding questions, you usually only need:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<hr>
+<h1 id="h-2360-36-creating-multiple-records">36. Creating Multiple Records</h1>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.bulk_create([
+    Student(
+        name="Aman",
+        age=21,
+        email="aman@gmail.com",
+        course="CSE"
+    ),
+    Student(
+        name="Rahul",
+        age=22,
+        email="rahul@gmail.com",
+        course="ECE"
+    ),
+])</code></pre></div>
+<p>This is useful for efficiently inserting many objects.</p>
+<p>It's an advanced operation; don't use it when you need individual <code>save()</code> behavior for every object.</p>
+<hr>
+<h1 id="h-2361-37-bulk-update">37. Bulk Update</h1>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).update(
+    is_active=True
+)</code></pre></div>
+<p>This updates all matching records in one database operation.</p>
+<hr>
+<h1 id="h-2362-38-bulk-delete">38. Bulk Delete</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    age__lt=18
+).delete()</code></pre></div>
+<p>This removes all students under 18.</p>
+<hr>
+<h1 id="h-2363-39-important-difference-delete-vs-update">39. Important Difference: <code>delete()</code> vs <code>update()</code></h1>
+<p>Both can operate on QuerySets:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...).update(...)</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...).delete()</code></pre></div>
+<p>But they perform completely different actions:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>update() → changes records
+delete() → removes records</code></pre></div>
+<hr>
+<h1 id="h-2364-40-using-get-object-or-404-in-views">40. Using <code>get_object_or_404()</code> in Views</h1>
+<p>Shell:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404
+
+student = get_object_or_404(
+    Student,
+    id=1
+)</code></pre></div>
+<p>Why?</p>
+<p>Because a web request should normally produce an HTTP 404 response rather than an unhandled <code>DoesNotExist</code> exception.</p>
+<hr>
+<h1 id="h-2365-41-crud-in-a-django-view">41. CRUD in a Django View</h1>
+<p>Let's make a simple read view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .models import Student
+
+
+def student_list(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+
+    &lt;p&gt;
+        {{ student.name }}
+        - {{ student.age }}
+        - {{ student.marks }}
+    &lt;/p&gt;
+
+{% endfor %}</code></pre></div>
+<p>This is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+   ↓
+ORM
+   ↓
+View
+   ↓
+Context
+   ↓
+Template</code></pre></div>
+<hr>
+<h1 id="h-2366-42-create-through-a-view">42. Create Through a View</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import redirect, render
+from .forms import StudentForm
+from .models import Student
+
+
+def create_student(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            Student.objects.create(
+                name=form.cleaned_data["name"],
+                age=form.cleaned_data["age"],
+                email=form.cleaned_data["email"],
+                course=form.cleaned_data["course"]
+            )
+
+            return redirect("student_list")
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "create_student.html",
+        {"form": form}
+    )</code></pre></div>
+<p>Notice how many previous modules are now connecting:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Form
+ ↓
+Validation
+ ↓
+ORM
+ ↓
+Create
+ ↓
+Redirect</code></pre></div>
+<hr>
+<h1 id="h-2367-43-update-through-a-view">43. Update Through a View</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404, redirect, render
+
+
+def update_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            student.name = form.cleaned_data["name"]
+            student.age = form.cleaned_data["age"]
+            student.email = form.cleaned_data["email"]
+            student.course = form.cleaned_data["course"]
+
+            student.save()
+
+            return redirect("student_list")
+
+    else:
+        form = StudentForm(
+            initial={
+                "name": student.name,
+                "age": student.age,
+                "email": student.email,
+                "course": student.course,
+            }
+        )
+
+    return render(
+        request,
+        "update_student.html",
+        {"form": form}
+    )</code></pre></div>
+<p>Don't worry if this seems long. We're going to build complete CRUD projects later.</p>
+<hr>
+<h1 id="h-2368-44-delete-through-a-view">44. Delete Through a View</h1>
+<p>A safer basic pattern is to use POST for destructive operations:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import get_object_or_404, redirect
+
+
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        student.delete()
+
+        return redirect("student_list")</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}
+
+    &lt;button type="submit"&gt;
+        Delete
+    &lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
++
+CSRF
++
+delete()
++
+redirect()</code></pre></div>
+<p>We've now combined Modules 23, 24, 25, 27, 28, and 29.</p>
+<hr>
+<h1 id="h-2369-45-django-shell-is-not-your-application">45. Django Shell Is Not Your Application</h1>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<p>is mainly an interactive environment for working with your project.</p>
+<p>It doesn't replace:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>views.py
+forms.py
+templates
+urls.py</code></pre></div>
+<p>It's a tool for interacting with Django and testing things.</p>
+<hr>
+<h1 id="h-2370-46-exiting-django-shell">46. Exiting Django Shell</h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>exit()</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>quit()</code></pre></div>
+<p>You can also use the appropriate keyboard shortcut for your terminal/environment.</p>
+<hr>
+<h1 id="h-2371-47-important-shell-workflow">47. Important Shell Workflow</h1>
+<p>A practical workflow:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from students.models import Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<p>Create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(...)</code></pre></div>
+<p>Read:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...)</code></pre></div>
+<p>Update:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)
+student.marks = 95
+student.save()</code></pre></div>
+<p>Delete:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>Exit:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>exit()</code></pre></div>
+<hr>
+<h1 id="h-2372-48-practical-coding-question">48. Practical Coding Question</h1>
+<h3 id="h-2373-question">Question:</h3>
+<p>Create a student with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name = Aman
+Age = 21
+Course = CSE
+Marks = 85</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman",
+    age=21,
+    course="CSE",
+    marks=85
+)</code></pre></div>
+<hr>
+<h1 id="h-2374-49-practical-coding-question">49. Practical Coding Question</h1>
+<h3 id="h-2375-question">Question:</h3>
+<p>Find all students with marks greater than 80.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__gt=80
+)</code></pre></div>
+<hr>
+<h1 id="h-2376-50-practical-coding-question">50. Practical Coding Question</h1>
+<h3 id="h-2377-question">Question:</h3>
+<p>Find the student with ID 5.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(
+    id=5
+)</code></pre></div>
+<hr>
+<h1 id="h-2378-51-practical-coding-question">51. Practical Coding Question</h1>
+<h3 id="h-2379-question">Question:</h3>
+<p>Change student 5's marks to 95.</p>
+<p>Method 1:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=5)
+
+student.marks = 95
+
+student.save()</code></pre></div>
+<p>Method 2:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    id=5
+).update(
+    marks=95
+)</code></pre></div>
+<hr>
+<h1 id="h-2380-52-practical-coding-question">52. Practical Coding Question</h1>
+<h3 id="h-2381-question">Question:</h3>
+<p>Delete student 5.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    id=5
+).delete()</code></pre></div>
+<p>Or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=5)
+student.delete()</code></pre></div>
+<hr>
+<h1 id="h-2382-53-practical-coding-question">53. Practical Coding Question</h1>
+<h3 id="h-2383-question">Question:</h3>
+<p>Find all CSE students with marks ≥ 80 and sort highest first.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+).order_by(
+    "-marks"
+)</code></pre></div>
+<hr>
+<h1 id="h-2384-54-practical-coding-question">54. Practical Coding Question</h1>
+<h3 id="h-2385-question">Question:</h3>
+<p>Check whether any student has the email <code>aman@gmail.com</code>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>exists = Student.objects.filter(
+    email="aman@gmail.com"
+).exists()</code></pre></div>
+<hr>
+<h1 id="h-2386-55-practical-coding-question">55. Practical Coding Question</h1>
+<h3 id="h-2387-question">Question:</h3>
+<p>Count the number of CSE students.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>count = Student.objects.filter(
+    course="CSE"
+).count()</code></pre></div>
+<hr>
+<h1 id="h-2388-56-viva-masterclass">56. Viva Masterclass</h1>
+<h3 id="h-2389-q1-what-is-crud">Q1. What is CRUD?</h3>
+<blockquote>CRUD stands for Create, Read, Update, and Delete, the four basic operations performed on persistent data.</blockquote>
+<hr>
+<h3 id="h-2390-q2-how-do-you-enter-django-shell">Q2. How do you enter Django shell?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<hr>
+<h3 id="h-2391-q3-how-do-you-import-a-model-in-the-shell">Q3. How do you import a model in the shell?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from students.models import Student</code></pre></div>
+<hr>
+<h3 id="h-2392-q4-how-do-you-create-a-model-object">Q4. How do you create a model object?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student(
+    name="Aman"
+)
+student.save()</code></pre></div>
+<hr>
+<h3 id="h-2393-q5-how-do-you-create-and-save-in-one-operation">Q5. How do you create and save in one operation?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(...)</code></pre></div>
+<hr>
+<h3 id="h-2394-q6-difference-between-create-and-save">Q6. Difference between <code>create()</code> and <code>save()</code>?</h3>
+<blockquote><code>create()</code> creates and saves an object immediately, while <code>save()</code> explicitly persists a model instance to the database.</blockquote>
+<hr>
+<h3 id="h-2395-q7-how-do-you-retrieve-all-objects">Q7. How do you retrieve all objects?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<hr>
+<h3 id="h-2396-q8-how-do-you-retrieve-one-object">Q8. How do you retrieve one object?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=1)</code></pre></div>
+<hr>
+<h3 id="h-2397-q9-what-happens-if-get-doesn-t-find-an-object">Q9. What happens if <code>get()</code> doesn't find an object?</h3>
+<blockquote>It raises the model's <code>DoesNotExist</code> exception.</blockquote>
+<hr>
+<h3 id="h-2398-q10-how-do-you-update-a-model">Q10. How do you update a model?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95
+student.save()</code></pre></div>
+<hr>
+<h3 id="h-2399-q11-how-do-you-perform-a-bulk-update">Q11. How do you perform a bulk update?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).update(
+    marks=90
+)</code></pre></div>
+<hr>
+<h3 id="h-2400-q12-how-do-you-delete-a-model-object">Q12. How do you delete a model object?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<hr>
+<h3 id="h-2401-q13-how-do-you-delete-multiple-objects">Q13. How do you delete multiple objects?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    is_active=False
+).delete()</code></pre></div>
+<hr>
+<h3 id="h-2402-q14-what-is-get-or-create">Q14. What is <code>get_or_create()</code>?</h3>
+<blockquote>It attempts to retrieve an existing object matching the lookup parameters and creates one if no matching object exists.</blockquote>
+<hr>
+<h3 id="h-2403-q15-what-does-update-or-create-do">Q15. What does <code>update_or_create()</code> do?</h3>
+<blockquote>It updates an existing matching object or creates one if it doesn't exist.</blockquote>
+<hr>
+<h3 id="h-2404-q16-what-is-str-used-for">Q16. What is <code>__str__()</code> used for?</h3>
+<blockquote>It defines the human-readable string representation of a model instance.</blockquote>
+<hr>
+<h1 id="h-2405-57-important-crud-cheat-sheet">57. Important CRUD Cheat Sheet</h1>
+<h3 id="h-2406-create">CREATE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman",
+    age=21
+)</code></pre></div>
+<h3 id="h-2407-read-all">READ ALL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<h3 id="h-2408-read-one">READ ONE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(id=1)</code></pre></div>
+<h3 id="h-2409-read-many">READ MANY</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+)</code></pre></div>
+<h3 id="h-2410-update-one">UPDATE ONE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)
+student.marks = 95
+student.save()</code></pre></div>
+<h3 id="h-2411-update-many">UPDATE MANY</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    course="CSE"
+).update(
+    marks=90
+)</code></pre></div>
+<h3 id="h-2412-delete-one">DELETE ONE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<h3 id="h-2413-delete-many">DELETE MANY</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    is_active=False
+).delete()</code></pre></div>
+<hr>
+<h1 id="h-2414-58-the-big-picture">58. The Big Picture</h1>
+<p>At this point, your Django knowledge is becoming much more connected.</p>
+<p>A complete data-submission flow can look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+POST
+   ↓
+CSRF check
+   ↓
+Django Form
+   ↓
+Validation
+   ↓
+cleaned_data
+   ↓
+Django ORM
+   ↓
+Model
+   ↓
+Database
+   ↓
+redirect()
+   ↓
+GET
+   ↓
+View
+   ↓
+ORM
+   ↓
+Template
+   ↓
+Browser</code></pre></div>
+<p>This is a <strong>very strong mental model for Django</strong>.</p>
+<hr>
+<h1 id="h-2415-module-29-summary">Module 29 Summary</h1>
+<h3 id="h-2416-django-shell">Django Shell</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py shell</code></pre></div>
+<h3 id="h-2417-crud">CRUD</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>C → Create
+R → Read
+U → Update
+D → Delete</code></pre></div>
+<h3 id="h-2418-create">Create</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(...)</code></pre></div>
+<h3 id="h-2419-read">Read</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()
+Student.objects.get(...)
+Student.objects.filter(...)</code></pre></div>
+<h3 id="h-2420-update">Update</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.field = value
+student.save()</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...).update(...)</code></pre></div>
+<h3 id="h-2421-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(...).delete()</code></pre></div>
+<h3 id="h-2422-useful-methods">Useful methods</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>.get_or_create(...)
+.update_or_create(...)
+.count()
+.exists()
+.first()
+.last()</code></pre></div>
+<p>And remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>create() → create + save
+save()   → persist model instance
+filter() → QuerySet
+get()    → exactly one object
+update() → direct QuerySet update
+delete() → remove records</code></pre></div>
+<p><strong>Next → Module 30: Advanced Django ORM</strong></p>
+<p>We'll go deeper into ORM with <strong><code>Q</code> objects, <code>F</code> expressions, <code>annotate()</code>, <code>aggregate()</code>, <code>Sum</code>, <code>Avg</code>, <code>Max</code>, <code>Min</code>, <code>Count</code>, <code>values()</code>, <code>values_list()</code>, complex filtering, database expressions, and advanced query questions</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-28.html">← Module 28: Django ORM in Depth</a>
+<a class="pn-btn pn-next" href="module-30.html">Module 30: Advanced Django ORM →</a>
+</div>
+
+</div>
+
+</body>
+</html>

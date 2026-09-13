@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: URL Routing in Depth — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 7 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 7 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">URL Routing in Depth</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<span class="nav-item current">7. URL Routing in Depth</span>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-6.html">← Module 6: Your First Django View</a>
+<a class="pn-btn pn-next" href="module-8.html">Module 8: HTTP Requests &amp; Responses →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-418-module-7-url-routing-in-depth">Module 7 — URL Routing in Depth</h1>
+<p>Now we're going deeper into <strong>Django URLs</strong>.</p>
+<p>You already know the basic flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+urls.py
+   ↓
+View
+   ↓
+Response</code></pre></div>
+<p>In this module we'll understand exactly how Django matches URLs and how to write different types of URL patterns.</p>
+<p>This is important for both <strong>viva and coding questions</strong>.</p>
+<hr>
+<h1 id="h-419-1-what-is-url-routing">1. What is URL Routing?</h1>
+<p><strong>URL routing</strong> is the process of determining which view should handle a particular URL.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>might be mapped to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.students</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/teachers/</code></pre></div>
+<p>might be mapped to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.teachers</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL
+ ↓
+URL Pattern
+ ↓
+View</code></pre></div>
+<hr>
+<h1 id="h-420-2-urlpatterns">2. <code>urlpatterns</code></h1>
+<p>Django looks for URL patterns inside a variable conventionally named:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home),
+    path('about/', views.about),
+]</code></pre></div>
+<p>Here there are two URL patterns.</p>
+<hr>
+<h1 id="h-421-3-what-is-path">3. What is <code>path()</code>?</h1>
+<p><code>path()</code> is used to define URL patterns.</p>
+<p>Basic syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(route, view)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('home/', views.home)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>If the requested URL matches <code>home/</code>, call <code>views.home</code>.</blockquote>
+<hr>
+<h1 id="h-422-4-basic-url-mapping">4. Basic URL Mapping</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('about/', views.about)</code></pre></div>
+<p>The user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>Django calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.about(request)</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/
+   ↓
+path('about/', views.about)
+   ↓
+views.about(request)</code></pre></div>
+<hr>
+<h1 id="h-423-5-multiple-url-patterns">5. Multiple URL Patterns</h1>
+<p>You can define multiple routes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('', views.home),
+    path('about/', views.about),
+    path('contact/', views.contact),
+    path('students/', views.students),
+]</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/              → home
+/about/        → about
+/contact/      → contact
+/students/     → students</code></pre></div>
+<hr>
+<h1 id="h-424-6-does-django-check-all-urls">6. Does Django Check All URLs?</h1>
+<p>Django checks URL patterns <strong>in order</strong>.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   ↓
+Pattern 1?
+   ↓
+No
+   ↓
+Pattern 2?
+   ↓
+No
+   ↓
+Pattern 3?
+   ↓
+Yes
+   ↓
+Call View</code></pre></div>
+<p>Once Django finds a matching URL pattern, it uses that match rather than continuing through later patterns.</p>
+<p>This is why <strong>URL ordering can matter</strong>.</p>
+<hr>
+<h1 id="h-425-7-example-of-url-ordering">7. Example of URL Ordering</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('students/', views.students),
+    path('students/profile/', views.profile),
+]</code></pre></div>
+<p>A request for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/profile/</code></pre></div>
+<p>does not simply mean Django will always choose the first pattern. Django's <code>path()</code> route matching requires the route to match the URL path appropriately; <code>students/</code> does not consume the extra <code>profile/</code> segment as a complete match.</p>
+<p>So this is different from a prefix-based router.</p>
+<p>However, ordering becomes especially important when patterns can match the same URL, such as dynamic converters.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('&lt;str:value&gt;/', views.string_view),
+    path('about/', views.about),
+]</code></pre></div>
+<p>The request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>can match the dynamic string route first.</p>
+<p>So Django calls:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>string_view</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>about</code></pre></div>
+<p>This is why specific patterns should generally come before broad dynamic patterns.</p>
+<hr>
+<h1 id="h-426-8-empty-path">8. Empty Path <code>''</code></h1>
+<p>You have already seen:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>The empty route means:</p>
+<blockquote>Match the empty path at this URL configuration level.</blockquote>
+<p>For example, if project URLs contain:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>and app URLs contain:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>calls:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>views.home</code></pre></div>
+<hr>
+<h1 id="h-427-9-url-prefix-app-url">9. URL Prefix + App URL</h1>
+<p>Let's understand this carefully.</p>
+<h3 id="h-428-project">Project:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<h3 id="h-429-app">App:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('', views.home)</code></pre></div>
+<p>Final URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>If app URL is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('profile/', views.profile)</code></pre></div>
+<p>final URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/profile/</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Project prefix
+      +
+App route
+      =
+Final URL</code></pre></div>
+<hr>
+<h1 id="h-430-10-include">10. <code>include()</code></h1>
+<p>Syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>include('students.urls')</code></pre></div>
+<p>It tells Django to include URL patterns from another URL configuration.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include
+
+urlpatterns = [
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<p>This is useful for organizing URLs by app.</p>
+<hr>
+<h1 id="h-431-11-why-use-include">11. Why Use <code>include()</code>?</h1>
+<p>Imagine your college project has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+teachers
+courses
+accounts</code></pre></div>
+<p>Project URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('students/', include('students.urls')),
+    path('teachers/', include('teachers.urls')),
+    path('courses/', include('courses.urls')),
+    path('accounts/', include('accounts.urls')),
+]</code></pre></div>
+<p>Now each app handles its own URLs.</p>
+<p>This provides better organization.</p>
+<hr>
+<h1 id="h-432-12-url-parameters">12. URL Parameters</h1>
+<p>Now we reach an important concept.</p>
+<p>Suppose you want:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/10/</code></pre></div>
+<p>where:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>10</code></pre></div>
+<p>is the student's ID.</p>
+<p>You don't want to create a separate URL for every student.</p>
+<p>Instead, use a <strong>dynamic URL parameter</strong>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/&lt;int:id&gt;/', views.student_detail)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/10/
+/students/20/
+/students/50/</code></pre></div>
+<p>can all use the same URL pattern.</p>
+<hr>
+<h1 id="h-433-13-passing-the-parameter-to-the-view">13. Passing the Parameter to the View</h1>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/&lt;int:id&gt;/', views.student_detail)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_detail(request, id):
+    return HttpResponse(f"Student ID: {id}")</code></pre></div>
+<p>If the user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/25/</code></pre></div>
+<p>Django calls approximately:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student_detail(request, id=25)</code></pre></div>
+<p>Response:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ID: 25</code></pre></div>
+<hr>
+<h1 id="h-434-14-why-must-the-view-have-id">14. Why Must the View Have <code>id</code>?</h1>
+<p>Because Django captures the URL value and passes it to the view.</p>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;int:id&gt;</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>capture integer
+     ↓
+call it id</code></pre></div>
+<p>Therefore your view needs to accept:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_detail(request, id):</code></pre></div>
+<hr>
+<h1 id="h-435-15-important-syntax">15. Important Syntax</h1>
+<p>The general syntax is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('&lt;converter:name&gt;/', view)</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>int
+ ↓
+Converter
+
+id
+ ↓
+Parameter name</code></pre></div>
+<hr>
+<h1 id="h-436-16-common-path-converters">16. Common Path Converters</h1>
+<p>Django provides several built-in path converters.</p>
+<h3 id="h-437-str"><code>str</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('user/&lt;str:name&gt;/', views.user)</code></pre></div>
+<p>Matches a non-empty string excluding <code>/</code>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/user/Aman/
+/user/Rahul/</code></pre></div>
+<hr>
+<h3 id="h-438-int"><code>int</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('student/&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>Matches integers.</p>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/
+/student/25/</code></pre></div>
+<hr>
+<h3 id="h-439-slug"><code>slug</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('post/&lt;slug:title&gt;/', views.post)</code></pre></div>
+<p>Useful for URL-friendly strings such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/my-first-post/
+/django-tutorial/</code></pre></div>
+<p>A slug generally contains letters, numbers, hyphens, and underscores.</p>
+<hr>
+<h3 id="h-440-uuid"><code>uuid</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('item/&lt;uuid:id&gt;/', views.item)</code></pre></div>
+<p>Used for UUID values.</p>
+<hr>
+<h3 id="h-441-path"><code>path</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('files/&lt;path:file_path&gt;/', views.file)</code></pre></div>
+<p>Can capture a path including <code>/</code>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/files/docs/django/chapter1/</code></pre></div>
+<hr>
+<h1 id="h-442-17-path-converter-table">17. Path Converter Table</h1>
+<p>Remember:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Converter</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>str</code></td>
+<td>String excluding <code>/</code></td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>Slug-style string</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>String that can include <code>/</code></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-443-18-str-vs-int">18. <code>str</code> vs <code>int</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('student/&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>✅ Matches.</p>
+<p>Request:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/abc/</code></pre></div>
+<p>❌ Doesn't match this pattern because <code>abc</code> isn't an integer.</p>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('student/&lt;str:id&gt;/', views.student)</code></pre></div>
+<p>Both:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/
+/student/abc/</code></pre></div>
+<p>can match because they're strings.</p>
+<hr>
+<h1 id="h-444-19-multiple-url-parameters">19. Multiple URL Parameters</h1>
+<p>You can have multiple parameters.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/&lt;str:name&gt;/',
+    views.student
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id, name):
+    return HttpResponse(
+        f"ID: {id}, Name: {name}"
+    )</code></pre></div>
+<p>URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/Aman/</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ID: 10, Name: Aman</code></pre></div>
+<hr>
+<h1 id="h-445-20-parameter-names-matter">20. Parameter Names Matter</h1>
+<p>Suppose URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('student/&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<p>This doesn't match Django's keyword argument name.</p>
+<p>Django passes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>id=10</code></pre></div>
+<p>but your function expects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student_id</code></pre></div>
+<p>So use matching names:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):</code></pre></div>
+<p>or change the URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:student_id&gt;/',
+    views.student
+)</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<hr>
+<h1 id="h-446-21-query-parameters-vs-url-parameters">21. Query Parameters vs URL Parameters</h1>
+<p>This distinction is important.</p>
+<h3 id="h-447-url-parameter">URL parameter</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/10/</code></pre></div>
+<p>Defined with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/&lt;int:id&gt;/', ...)</code></pre></div>
+<h3 id="h-448-query-parameter">Query parameter</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/?name=Aman</code></pre></div>
+<p>The <code>name=Aman</code> portion is a query parameter.</p>
+<p>It's accessed through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET</code></pre></div>
+<p>We'll study query parameters properly in the HTTP requests module.</p>
+<hr>
+<h1 id="h-449-22-named-urls">22. Named URLs</h1>
+<p>Now an important Django feature.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('about/', views.about, name='about')</code></pre></div>
+<p>We have given the URL a name:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>about</code></pre></div>
+<p>Why?</p>
+<p>Because instead of hardcoding:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>throughout your application, you can refer to the URL by its name.</p>
+<p>This becomes extremely useful when URLs change.</p>
+<hr>
+<h1 id="h-450-23-why-name-urls">23. Why Name URLs?</h1>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>and use this URL in 20 templates.</p>
+<p>Later you change it to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/company/about/</code></pre></div>
+<p>If you've hardcoded <code>/about/</code> everywhere, you may need to modify many files.</p>
+<p>Named URLs allow Django to resolve the correct URL from the name.</p>
+<p>This is called <strong>URL reversing</strong>.</p>
+<hr>
+<h1 id="h-451-24-example-named-url">24. Example Named URL</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    path('about/', views.about, name='about'),
+]</code></pre></div>
+<p>Now Django associates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>about
+ ↓
+/about/</code></pre></div>
+<p>Later we can use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% url 'about' %}</code></pre></div>
+<p>inside a template.</p>
+<p>We'll study this properly in the Templates module.</p>
+<hr>
+<h1 id="h-452-25-url-names-in-python">25. URL Names in Python</h1>
+<p>You can also reverse URLs in Python using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import reverse</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>url = reverse('about')</code></pre></div>
+<p>This could produce:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>We'll use this later.</p>
+<hr>
+<h1 id="h-453-26-url-names-with-parameters">26. URL Names with Parameters</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student,
+    name='student'
+)</code></pre></div>
+<p>To reverse it, Django needs the ID.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>reverse('student', kwargs={'id': 10})</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/</code></pre></div>
+<p>This becomes very useful when working with dynamic pages.</p>
+<hr>
+<h1 id="h-454-27-namespaces">27. Namespaces</h1>
+<p>When multiple apps have URLs with the same name, namespaces help avoid conflicts.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students → detail
+teachers → detail</code></pre></div>
+<p>Both might have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name='detail'</code></pre></div>
+<p>Without namespaces, it can become ambiguous.</p>
+<p>You can organize them using an application namespace.</p>
+<p>We'll cover this more deeply once we start building larger applications.</p>
+<p>For now, know:</p>
+<blockquote><strong>Namespaces help distinguish URL names belonging to different applications.</strong></blockquote>
+<hr>
+<h1 id="h-455-28-app-name">28. <code>app_name</code></h1>
+<p>Inside an app's <code>urls.py</code>, you can define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>app_name = 'students'</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+app_name = 'students'
+
+urlpatterns = [
+    path(
+        'profile/',
+        views.profile,
+        name='profile'
+    ),
+]</code></pre></div>
+<p>Now the URL name can be referenced as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students:profile</code></pre></div>
+<p>For example in a template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% url 'students:profile' %}</code></pre></div>
+<p>This is especially useful when several apps have similarly named URLs.</p>
+<hr>
+<h1 id="h-456-29-complete-example">29. Complete Example</h1>
+<p>Let's build a small app URL configuration.</p>
+<h3 id="h-457-students-views-py"><code>students/views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Students Home")
+
+def about(request):
+    return HttpResponse("About Students")
+
+def student_detail(request, id):
+    return HttpResponse(f"Student ID: {id}")</code></pre></div>
+<h3 id="h-458-students-urls-py"><code>students/urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+app_name = 'students'
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path(
+        '&lt;int:id&gt;/',
+        views.student_detail,
+        name='detail'
+    ),
+]</code></pre></div>
+<h3 id="h-459-college-urls-py"><code>College/urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path(
+        'students/',
+        include('students.urls')
+    ),
+]</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/           → home
+/students/about/     → about
+/students/10/        → student_detail(id=10)
+/students/25/        → student_detail(id=25)</code></pre></div>
+<hr>
+<h1 id="h-460-30-how-django-chooses-a-url">30. How Django Chooses a URL</h1>
+<p>Suppose user requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/25/</code></pre></div>
+<p>Project:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>Django passes the remaining portion:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>25/</code></pre></div>
+<p>to <code>students.urls</code>.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('&lt;int:id&gt;/', views.student_detail)</code></pre></div>
+<p>matches it.</p>
+<p>Django extracts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id = 25</code></pre></div>
+<p>and calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.student_detail(request, id=25)</code></pre></div>
+<hr>
+<h1 id="h-461-31-url-routing-mental-model">31. URL Routing Mental Model</h1>
+<p>Think of URL routing like a chain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Full URL
+   ↓
+Project URL
+   ↓
+Prefix removed
+   ↓
+App URL
+   ↓
+Converter captures parameters
+   ↓
+View receives parameters</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/25/
+      ↓
+students/
+      ↓
+25/
+      ↓
+&lt;int:id&gt;
+      ↓
+id = 25
+      ↓
+student_detail(request, id=25)</code></pre></div>
+<p>This understanding is much more useful than memorizing syntax.</p>
+<hr>
+<h1 id="h-462-32-path-vs-re-path">32. <code>path()</code> vs <code>re_path()</code></h1>
+<p>Your syllabus specifically mentions:</p>
+<blockquote><strong>Regular expressions in URLs</strong></blockquote>
+<p>For most modern URL routing, use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path()</code></pre></div>
+<p>because built-in converters handle common cases.</p>
+<p>For more complex matching, Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>re_path()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import re_path
+
+urlpatterns = [
+    re_path(
+        r'^student/(?P&lt;id&gt;[0-9]+)/$',
+        views.student
+    ),
+]</code></pre></div>
+<p>Don't worry about regex syntax yet.</p>
+<p>We'll dedicate a later module specifically to it.</p>
+<hr>
+<h1 id="h-463-33-common-url-errors">33. Common URL Errors</h1>
+<h2 id="h-464-error-1-forgetting-include">Error 1 — Forgetting <code>include</code></h2>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+
+urlpatterns = [
+    path('students/', include('students.urls')),
+]</code></pre></div>
+<p><code>include</code> wasn't imported.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include</code></pre></div>
+<hr>
+<h2 id="h-465-error-2-wrong-parameter-in-view">Error 2 — Wrong parameter in view</h2>
+<p>URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<p>Mismatch.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):</code></pre></div>
+<hr>
+<h2 id="h-466-error-3-app-urls-not-included">Error 3 — App URLs Not Included</h2>
+<p>You create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>but forget:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('students/', include('students.urls'))</code></pre></div>
+<p>Then Django's project-level routing won't reach those app URL patterns.</p>
+<hr>
+<h1 id="h-467-34-viva-questions">34. Viva Questions</h1>
+<h3 id="h-468-q1-what-is-url-routing">Q1. What is URL routing?</h3>
+<blockquote>URL routing is the process of mapping requested URLs to the appropriate Django views.</blockquote>
+<h3 id="h-469-q2-what-is-urlpatterns">Q2. What is <code>urlpatterns</code>?</h3>
+<blockquote>It is the list containing URL patterns used by Django's URL dispatcher.</blockquote>
+<h3 id="h-470-q3-what-is-path">Q3. What is <code>path()</code>?</h3>
+<blockquote><code>path()</code> is used to define URL patterns in Django.</blockquote>
+<h3 id="h-471-q4-what-is-include">Q4. What is <code>include()</code>?</h3>
+<blockquote><code>include()</code> allows URL patterns from another URL configuration, commonly an app's <code>urls.py</code>, to be included in the current URL configuration.</blockquote>
+<h3 id="h-472-q5-what-is-a-path-converter">Q5. What is a path converter?</h3>
+<blockquote>A path converter defines the type of value that Django should capture from a dynamic URL segment, such as an integer or string.</blockquote>
+<h3 id="h-473-q6-name-django-s-built-in-path-converters">Q6. Name Django's built-in path converters.</h3>
+<blockquote><code>str</code>, <code>int</code>, <code>slug</code>, <code>uuid</code>, and <code>path</code>.</blockquote>
+<h3 id="h-474-q7-how-do-you-create-a-dynamic-integer-url">Q7. How do you create a dynamic integer URL?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('&lt;int:id&gt;/', views.view_name)</code></pre></div>
+<h3 id="h-475-q8-how-is-the-captured-parameter-passed-to-the-vie">Q8. How is the captured parameter passed to the view?</h3>
+<blockquote>Django passes it as an argument to the view using the parameter name defined in the URL pattern.</blockquote>
+<hr>
+<h1 id="h-476-35-viva-trap">35. Viva Trap ⚠️</h1>
+<h3 id="h-477-teacher">Teacher:</h3>
+<blockquote>What happens if the URL contains <code>/student/abc/</code> but the pattern is:</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('student/&lt;int:id&gt;/', views.student)</code></pre></div>
+<p>Answer:</p>
+<blockquote>The pattern does not match because <code>abc</code> cannot be converted to an integer.</blockquote>
+<p>Django will continue looking for another matching pattern. If none matches, the request results in a 404 response.</p>
+<hr>
+<h1 id="h-478-36-another-viva-trap">36. Another Viva Trap</h1>
+<h3 id="h-479-teacher">Teacher:</h3>
+<blockquote>Is <code>/student/10/</code> and <code>/student/abc/</code> the same type of URL?</blockquote>
+<p>Not necessarily.</p>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;int:id&gt;</code></pre></div>
+<p>the first can match, while the second cannot.</p>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>&lt;str:id&gt;</code></pre></div>
+<p>both can match.</p>
+<hr>
+<h1 id="h-480-37-coding-practice">37. Coding Practice</h1>
+<h3 id="h-481-question-1">Question 1</h3>
+<p>Create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/products/</code></pre></div>
+<p>that calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.products</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('products/', views.products)</code></pre></div>
+<hr>
+<h3 id="h-482-question-2">Question 2</h3>
+<p>Create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/</code></pre></div>
+<p>where <code>10</code> is an integer.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<hr>
+<h3 id="h-483-question-3">Question 3</h3>
+<p>Write the view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):
+    return HttpResponse(f"Student ID: {id}")</code></pre></div>
+<hr>
+<h3 id="h-484-question-4">Question 4</h3>
+<p>Create a URL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/user/Aman/</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'user/&lt;str:name&gt;/',
+    views.user
+)</code></pre></div>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def user(request, name):
+    return HttpResponse(f"Hello {name}")</code></pre></div>
+<hr>
+<h1 id="h-485-38-predict-the-output">38. Predict the Output</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, id):
+    return HttpResponse(f"ID = {id}")</code></pre></div>
+<h3 id="h-486-request">Request:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/50/</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ID = 50</code></pre></div>
+<h3 id="h-487-request">Request:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/abc/</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>404</code></pre></div>
+<p>assuming no other matching URL pattern exists.</p>
+<hr>
+<h1 id="h-488-39-predict-the-final-url">39. Predict the Final URL</h1>
+<p>Project:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'college/',
+    include('students.urls')
+)</code></pre></div>
+<p>App:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<p>Final URL for ID 25:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/college/student/25/</code></pre></div>
+<hr>
+<h1 id="h-489-module-7-what-you-must-remember">⭐ Module 7 — What You Must Remember</h1>
+<h3 id="h-490-basic-route">Basic route</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path('about/', views.about)</code></pre></div>
+<h3 id="h-491-dynamic-route">Dynamic route</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'student/&lt;int:id&gt;/',
+    views.student
+)</code></pre></div>
+<h3 id="h-492-include-app-urls">Include app URLs</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'students/',
+    include('students.urls')
+)</code></pre></div>
+<h3 id="h-493-named-url">Named URL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    'about/',
+    views.about,
+    name='about'
+)</code></pre></div>
+<h3 id="h-494-app-namespace">App namespace</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>app_name = 'students'</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students:about</code></pre></div>
+<p>can refer to that named URL.</p>
+<hr>
+<h1 id="h-495-the-most-important-concept">🧠 The Most Important Concept</h1>
+<p>If you understand this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser requests:
+
+/students/25/
+       ↓
+Project urls.py
+
+path('students/', include('students.urls'))
+       ↓
+students/urls.py
+
+path('&lt;int:id&gt;/', views.student)
+       ↓
+Django captures:
+
+id = 25
+       ↓
+views.student(request, id=25)
+       ↓
+HttpResponse
+       ↓
+Browser</code></pre></div>
+<p>then you've understood the foundation of Django URL routing.</p>
+<hr>
+<h1 id="h-496-module-7-challenge">🎯 Module 7 Challenge</h1>
+<p>Try these yourself.</p>
+<h3 id="h-497-1-create-a-url">1. Create a URL:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/books/</code></pre></div>
+<p>that calls:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.books</code></pre></div>
+<h3 id="h-498-2-create-a-dynamic-url">2. Create a dynamic URL:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/books/25/</code></pre></div>
+<p>where <code>25</code> is an integer.</p>
+<h3 id="h-499-3-write-the-corresponding-view-that-displays">3. Write the corresponding view that displays:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Book ID: 25</code></pre></div>
+<h3 id="h-500-4-create">4. Create:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/user/Aman/</code></pre></div>
+<p>and display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome Aman</code></pre></div>
+<h3 id="h-501-5-explain-the-difference-between">5. Explain the difference between:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/25/</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/?id=25</code></pre></div>
+<h3 id="h-502-6-why-should-specific-url-patterns-generally-come-">6. Why should specific URL patterns generally come before broad dynamic patterns?</h3>
+<h3 id="h-503-7-what-is-the-purpose-of-naming-a-url">7. What is the purpose of naming a URL?</h3>
+<h3 id="h-504-8-what-are-the-five-built-in-path-converters">8. What are the five built-in path converters?</h3>
+<hr>
+<p>When you're ready, say <strong>“next”</strong>.</p>
+<h2 id="h-505-module-8-http-requests-responses">Module 8 — HTTP Requests &amp; Responses</h2>
+<p>We'll now go deeper into the <code>request</code> object you have been passing to every view.</p>
+<p>You'll learn:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+POST
+request.method
+request.GET
+request.POST
+request.path
+request.user
+request.COOKIES
+request.headers
+HttpResponse
+JsonResponse
+status codes</code></pre></div>
+<p>This will directly prepare you for your <strong>Unit II + Unit IV</strong> coding and viva questions.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-6.html">← Module 6: Your First Django View</a>
+<a class="pn-btn pn-next" href="module-8.html">Module 8: HTTP Requests &amp; Responses →</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 14: Template Tags: if, else, for — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 14 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 14 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Template Tags: if, else, for</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<span class="nav-item current">14. Template Tags: if, else, for</span>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-13.html">← Module 13: Django Template Language (DTL)</a>
+<a class="pn-btn pn-next" href="module-15.html">Module 15: Template Filters in Depth →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1011-module-14-template-tags-if-else-elif-and-for">Module 14 — Template Tags: <code>if</code>, <code>else</code>, <code>elif</code>, and <code>for</code></h1>
+<p>Now we learn one of the <strong>most important parts of DTL</strong>.</p>
+<p>So far, you've learned how to display:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<p>and apply filters:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>But real websites need to <strong>make decisions</strong> and <strong>repeat content</strong>.</p>
+<p>For example:</p>
+<blockquote>If the student is 18 or older, display "Adult".</blockquote>
+<p>Or:</p>
+<blockquote>For every student, display their name.</blockquote>
+<p>Django Template Language provides <strong>template tags</strong> for this.</p>
+<hr>
+<h1 id="h-1012-1-what-is-a-template-tag">1. What Is a Template Tag?</h1>
+<p>Template tags use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% ... %}</code></pre></div>
+<p>They allow you to perform operations inside templates.</p>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if %}
+{% for %}
+{% url %}
+{% extends %}
+{% block %}</code></pre></div>
+<p>In this module, we'll focus on:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if %}
+{% elif %}
+{% else %}
+{% for %}</code></pre></div>
+<hr>
+<h1 id="h-1013-2-if-tag">2. <code>if</code> Tag</h1>
+<p>Basic syntax:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}
+    ...
+{% endif %}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 21</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Adult</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 15</code></pre></div>
+<p>nothing inside the <code>if</code> block is displayed.</p>
+<hr>
+<h1 id="h-1014-3-complete-example">3. Complete Example</h1>
+<h3 id="h-1015-view">View</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def student(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'student.html',
+        context
+    )</code></pre></div>
+<h3 id="h-1016-template">Template</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;
+
+{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Adult</code></pre></div>
+<hr>
+<h1 id="h-1017-4-else">4. <code>else</code></h1>
+<p>If you want another result when the condition is false:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% else %}
+    &lt;p&gt;Minor&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 21</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Adult</code></pre></div>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 15</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Minor</code></pre></div>
+<hr>
+<h1 id="h-1018-5-elif">5. <code>elif</code></h1>
+<p>You can check multiple conditions.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if marks &gt;= 90 %}
+    &lt;p&gt;Grade A+&lt;/p&gt;
+{% elif marks &gt;= 80 %}
+    &lt;p&gt;Grade A&lt;/p&gt;
+{% elif marks &gt;= 70 %}
+    &lt;p&gt;Grade B&lt;/p&gt;
+{% else %}
+    &lt;p&gt;Needs improvement&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks = 85</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Grade A</code></pre></div>
+<hr>
+<h1 id="h-1019-6-how-if-elif-else-works">6. How <code>if-elif-else</code> Works</h1>
+<p>Django checks from top to bottom:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks &gt;= 90?
+     ↓
+   No
+     ↓
+marks &gt;= 80?
+     ↓
+   Yes
+     ↓
+Grade A
+     ↓
+STOP</code></pre></div>
+<p>Once one condition is true, the remaining conditions aren't evaluated for that chain.</p>
+<hr>
+<h1 id="h-1020-7-comparison-operators">7. Comparison Operators</h1>
+<p>DTL supports common comparisons.</p>
+<p>You should know:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>==    equal
+!=    not equal
+&gt;     greater than
+&lt;     less than
+&gt;=    greater than or equal
+&lt;=    less than or equal</code></pre></div>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age == 18 %}
+{% if age != 18 %}
+{% if age &gt; 18 %}
+{% if age &lt; 18 %}
+{% if age &gt;= 18 %}
+{% if age &lt;= 18 %}</code></pre></div>
+<hr>
+<h1 id="h-1021-8-equality">8. Equality</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if name == "Aman" %}
+    &lt;p&gt;Welcome Aman&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman</code></pre></div>
+<p>the message appears.</p>
+<hr>
+<h1 id="h-1022-9-not-equal">9. Not Equal</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if name != "Aman" %}
+    &lt;p&gt;You are not Aman.&lt;/p&gt;
+{% endif %}</code></pre></div>
+<hr>
+<h1 id="h-1023-10-and">10. <code>and</code></h1>
+<p>You can combine conditions.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 and age &lt;= 25 %}
+    &lt;p&gt;Young adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>This requires <strong>both conditions</strong> to be true.</p>
+<hr>
+<h1 id="h-1024-11-or">11. <code>or</code></h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if course == "CSE" or course == "IT" %}
+    &lt;p&gt;Computer-related course&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>Only one condition needs to be true.</p>
+<hr>
+<h1 id="h-1025-12-not">12. <code>not</code></h1>
+<p>You can negate a condition:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if not logged_in %}
+    &lt;p&gt;Please login.&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>We'll use this extensively when we study authentication.</p>
+<hr>
+<h1 id="h-1026-13-combining-conditions">13. Combining Conditions</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 and course == "CSE" %}
+    &lt;p&gt;Eligible&lt;/p&gt;
+{% else %}
+    &lt;p&gt;Not eligible&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 21
+course = CSE</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Eligible</code></pre></div>
+<hr>
+<h1 id="h-1027-14-important-don-t-write-python-syntax">14. Important: Don't Write Python Syntax</h1>
+<p>A common mistake is trying:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18: %}</code></pre></div>
+<p>Don't add the Python colon.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<p>Similarly, don't write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students: %}</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}</code></pre></div>
+<p>DTL has its own syntax.</p>
+<hr>
+<h1 id="h-1028-15-for-loop">15. <code>for</code> Loop</h1>
+<p>Now let's learn loops.</p>
+<p>Basic syntax:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in items %}
+    ...
+{% endfor %}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1029-16-complete-loop-example">16. Complete Loop Example</h1>
+<h3 id="h-1030-view">View</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = [
+        'Aman',
+        'Rahul',
+        'Rohit'
+    ]
+
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )</code></pre></div>
+<h3 id="h-1031-template">Template</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Students&lt;/h1&gt;
+
+{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students
+
+Aman
+Rahul
+Rohit</code></pre></div>
+<hr>
+<h1 id="h-1032-17-how-the-loop-works">17. How the Loop Works</h1>
+<p>Django takes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    'Aman',
+    'Rahul',
+    'Rohit'
+]</code></pre></div>
+<p>and effectively does:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student = Aman
+    ↓
+&lt;p&gt;Aman&lt;/p&gt;
+
+student = Rahul
+    ↓
+&lt;p&gt;Rahul&lt;/p&gt;
+
+student = Rohit
+    ↓
+&lt;p&gt;Rohit&lt;/p&gt;</code></pre></div>
+<p>The HTML inside the loop is rendered once for every item.</p>
+<hr>
+<h1 id="h-1033-18-looping-through-dictionaries">18. Looping Through Dictionaries</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    'name': 'Aman',
+    'age': 21
+}</code></pre></div>
+<p>You can loop through dictionary items using:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for key, value in student.items %}
+    &lt;p&gt;{{ key }}: {{ value }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name: Aman
+age: 21</code></pre></div>
+<hr>
+<h1 id="h-1034-19-looping-through-model-like-objects">19. Looping Through Model-Like Objects</h1>
+<p>Suppose later your view retrieves:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student.name }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>can display every student's name.</p>
+<p>This is how templates become connected to databases.</p>
+<hr>
+<h1 id="h-1035-20-forloop-counter">20. <code>forloop.counter</code></h1>
+<p>Django provides special variables inside a <code>for</code> loop.</p>
+<p>One of the most important is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop.counter</code></pre></div>
+<p>It starts at <strong>1</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ forloop.counter }}. {{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Aman
+2. Rahul
+3. Rohit</code></pre></div>
+<hr>
+<h1 id="h-1036-21-forloop-counter0">21. <code>forloop.counter0</code></h1>
+<p>This starts at <strong>0</strong>.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ forloop.counter0 }} - {{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0 - Aman
+1 - Rahul
+2 - Rohit</code></pre></div>
+<hr>
+<h1 id="h-1037-22-forloop-revcounter">22. <code>forloop.revcounter</code></h1>
+<p>This counts backwards starting from the total number of items.</p>
+<p>For:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Rohit</code></pre></div>
+<p>you get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>3
+2
+1</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {{ forloop.revcounter }} - {{ student }}
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1038-23-forloop-revcounter0">23. <code>forloop.revcounter0</code></h1>
+<p>This starts at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>length - 1</code></pre></div>
+<p>For three items:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>2
+1
+0</code></pre></div>
+<hr>
+<h1 id="h-1039-24-forloop-first">24. <code>forloop.first</code></h1>
+<p>This tells you whether the current iteration is the first one.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {% if forloop.first %}
+        &lt;strong&gt;First Student: {{ student }}&lt;/strong&gt;
+    {% else %}
+        &lt;p&gt;{{ student }}&lt;/p&gt;
+    {% endif %}
+{% endfor %}</code></pre></div>
+<p>Only the first student gets the special formatting.</p>
+<hr>
+<h1 id="h-1040-25-forloop-last">25. <code>forloop.last</code></h1>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if forloop.last %}</code></pre></div>
+<p>is true during the final iteration.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+
+    {% if not forloop.last %}
+        &lt;hr&gt;
+    {% endif %}
+{% endfor %}</code></pre></div>
+<p>This displays a separator between items but not after the last one.</p>
+<hr>
+<h1 id="h-1041-26-forloop-parentloop">26. <code>forloop.parentloop</code></h1>
+<p>This is useful with nested loops.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for course in courses %}
+    {% for student in course.students %}
+        ...
+    {% endfor %}
+{% endfor %}</code></pre></div>
+<p>Inside the inner loop:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop</code></pre></div>
+<p>refers to the inner loop.</p>
+<p>To access the outer loop's loop information, Django provides:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop.parentloop</code></pre></div>
+<p>This is an advanced concept, but useful for difficult viva questions.</p>
+<hr>
+<h1 id="h-1042-27-empty">27. <code>empty</code></h1>
+<p>Suppose the list is empty:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = []</code></pre></div>
+<p>Instead of writing a separate <code>if</code>, Django provides:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% empty %}
+    &lt;p&gt;No students found.&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>If the list contains students, they are displayed.</p>
+<p>If it is empty:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>No students found.</code></pre></div>
+<hr>
+<h1 id="h-1043-28-why-is-empty-useful">28. Why Is <code>{% empty %}</code> Useful?</h1>
+<p>Without <code>empty</code>, you might write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if students %}
+    {% for student in students %}
+        &lt;p&gt;{{ student }}&lt;/p&gt;
+    {% endfor %}
+{% else %}
+    &lt;p&gt;No students found.&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>This works.</p>
+<p>But:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% empty %}
+    &lt;p&gt;No students found.&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>is cleaner for this particular situation.</p>
+<hr>
+<h1 id="h-1044-29-loop-with-objects">29. Loop With Objects</h1>
+<p>Suppose the view sends:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    {
+        'name': 'Aman',
+        'age': 21
+    },
+    {
+        'name': 'Rahul',
+        'age': 22
+    }
+]</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;h3&gt;{{ student.name }}&lt;/h3&gt;
+    &lt;p&gt;Age: {{ student.age }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Age: 21
+
+Rahul
+Age: 22</code></pre></div>
+<hr>
+<h1 id="h-1045-30-combining-for-and-if">30. Combining <code>for</code> and <code>if</code></h1>
+<p>This is extremely common.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {% if student.age &gt;= 18 %}
+        &lt;p&gt;{{ student.name }} is an adult.&lt;/p&gt;
+    {% endif %}
+{% endfor %}</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>For every student:
+    if age &gt;= 18:
+        display student</code></pre></div>
+<hr>
+<h1 id="h-1046-31-example-display-only-cse-students">31. Example — Display Only CSE Students</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    {'name': 'Aman', 'course': 'CSE'},
+    {'name': 'Rahul', 'course': 'ECE'},
+    {'name': 'Rohit', 'course': 'CSE'}
+]</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {% if student.course == "CSE" %}
+        &lt;p&gt;{{ student.name }}&lt;/p&gt;
+    {% endif %}
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rohit</code></pre></div>
+<hr>
+<h1 id="h-1047-32-example-numbered-student-list">32. Example — Numbered Student List</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;ol&gt;
+{% for student in students %}
+    &lt;li&gt;
+        {{ forloop.counter }}. {{ student.name }}
+    &lt;/li&gt;
+{% endfor %}
+&lt;/ol&gt;</code></pre></div>
+<p>Output conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Aman
+2. Rahul
+3. Rohit</code></pre></div>
+<hr>
+<h1 id="h-1048-33-nested-loops">33. Nested Loops</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>departments = [
+    {
+        'name': 'CSE',
+        'students': ['Aman', 'Rahul']
+    },
+    {
+        'name': 'ECE',
+        'students': ['Rohit', 'Raj']
+    }
+]</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for department in departments %}
+
+    &lt;h2&gt;{{ department.name }}&lt;/h2&gt;
+
+    {% for student in department.students %}
+        &lt;p&gt;{{ student }}&lt;/p&gt;
+    {% endfor %}
+
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+Aman
+Rahul
+
+ECE
+Rohit
+Raj</code></pre></div>
+<hr>
+<h1 id="h-1049-34-nested-loop-mental-model">34. Nested Loop Mental Model</h1>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ ├── Aman
+ └── Rahul
+
+ECE
+ ├── Rohit
+ └── Raj</code></pre></div>
+<p>Outer loop:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for department in departments %}</code></pre></div>
+<p>Inner loop:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in department.students %}</code></pre></div>
+<hr>
+<h1 id="h-1050-35-forloop-counter-in-nested-loops">35. <code>forloop.counter</code> in Nested Loops</h1>
+<p>Be careful.</p>
+<p>Inside:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for department in departments %}
+    {% for student in department.students %}
+        {{ forloop.counter }}
+    {% endfor %}
+{% endfor %}</code></pre></div>
+<p><code>forloop.counter</code> refers to the <strong>inner loop's counter</strong>.</p>
+<p>If you need the outer loop counter:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ forloop.parentloop.counter }}</code></pre></div>
+<hr>
+<h1 id="h-1051-36-example">36. Example</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for department in departments %}
+
+    &lt;h2&gt;
+        Department {{ forloop.counter }}:
+        {{ department.name }}
+    &lt;/h2&gt;
+
+    {% for student in department.students %}
+        &lt;p&gt;
+            {{ forloop.parentloop.counter }}.
+            {{ forloop.counter }}.
+            {{ student }}
+        &lt;/p&gt;
+    {% endfor %}
+
+{% endfor %}</code></pre></div>
+<p>The outer and inner counters are separate.</p>
+<hr>
+<h1 id="h-1052-37-important-dtl-truthiness">37. Important DTL Truthiness</h1>
+<p>Conditions can evaluate values as true/false.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if students %}</code></pre></div>
+<p>can be useful for checking whether a collection contains data.</p>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if name %}</code></pre></div>
+<p>can check whether <code>name</code> has a usable non-empty value.</p>
+<p>This is commonly used in templates.</p>
+<hr>
+<h1 id="h-1053-38-example-login-message">38. Example — Login Message</h1>
+<p>Later, when you learn authentication, you'll see code like:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if user.is_authenticated %}
+    &lt;p&gt;Welcome, {{ user.username }}&lt;/p&gt;
+{% else %}
+    &lt;p&gt;Please login.&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>This is a real-world use of <code>if</code>.</p>
+<hr>
+<h1 id="h-1054-39-and-or-not">39. <code>and</code>, <code>or</code>, <code>not</code></h1>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition1 and condition2 %}</code></pre></div>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition1 or condition2 %}</code></pre></div>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if not condition %}</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 and has_id %}
+    &lt;p&gt;Allowed&lt;/p&gt;
+{% endif %}</code></pre></div>
+<hr>
+<h1 id="h-1055-40-important-dtl-limitation">40. Important DTL Limitation</h1>
+<p>Don't assume you can perform arbitrary complex Python expressions inside an <code>if</code>.</p>
+<p>For example, don't treat:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if complex_python_expression %}</code></pre></div>
+<p>as if it were a normal Python environment.</p>
+<p>The template language intentionally provides a restricted set of operations.</p>
+<p>If complex business logic is required, prepare the result in the view and send it through context.</p>
+<hr>
+<h1 id="h-1056-41-better-design">41. Better Design</h1>
+<p>Instead of making the template perform complicated logic:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template
+   ↓
+Huge business logic</code></pre></div>
+<p>prefer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+   ↓
+Calculate/prepare data
+   ↓
+Context
+   ↓
+Template
+   ↓
+Display</code></pre></div>
+<p>Example:</p>
+<h3 id="h-1057-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_eligible = age &gt;= 18 and marks &gt;= 50
+
+return render(
+    request,
+    'result.html',
+    {'is_eligible': is_eligible}
+)</code></pre></div>
+<h3 id="h-1058-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if is_eligible %}
+    &lt;p&gt;Eligible&lt;/p&gt;
+{% else %}
+    &lt;p&gt;Not eligible&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>This keeps the template simple.</p>
+<hr>
+<h1 id="h-1059-42-common-mistake-missing-endif">42. Common Mistake — Missing <code>endif</code></h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<hr>
+<h1 id="h-1060-43-common-mistake-missing-endfor">43. Common Mistake — Missing <code>endfor</code></h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1061-44-common-mistake-using-for-conditions">44. Common Mistake — Using <code>{{ }}</code> for Conditions</h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ if age &gt;= 18 }}</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }} → variable
+{% %} → tag</code></pre></div>
+<hr>
+<h1 id="h-1062-45-common-mistake-python-colon">45. Common Mistake — Python Colon</h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18: %}</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students: %}</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}</code></pre></div>
+<hr>
+<h1 id="h-1063-46-common-mistake-wrong-end-tag">46. Common Mistake — Wrong End Tag</h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    Adult
+{% endfor %}</code></pre></div>
+<p><code>if</code> must end with:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% endif %}</code></pre></div>
+<p>A <code>for</code> must end with:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1064-47-viva-questions">47. Viva Questions</h1>
+<h3 id="h-1065-q1-what-is-a-template-tag">Q1. What is a template tag?</h3>
+<blockquote>A template tag is Django Template Language syntax used to perform operations or control template rendering.</blockquote>
+<h3 id="h-1066-q2-what-is-the-syntax-of-an-if-tag">Q2. What is the syntax of an <code>if</code> tag?</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}
+    ...
+{% endif %}</code></pre></div>
+<h3 id="h-1067-q3-what-is-the-syntax-of-a-for-loop">Q3. What is the syntax of a <code>for</code> loop?</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in items %}
+    ...
+{% endfor %}</code></pre></div>
+<h3 id="h-1068-q4-what-does-forloop-counter-do">Q4. What does <code>forloop.counter</code> do?</h3>
+<blockquote>It provides the current loop iteration number starting from 1.</blockquote>
+<h3 id="h-1069-q5-what-does-forloop-counter0-do">Q5. What does <code>forloop.counter0</code> do?</h3>
+<blockquote>It provides the current iteration number starting from 0.</blockquote>
+<hr>
+<h1 id="h-1070-48-viva-forloop-first-and-last">48. Viva — <code>forloop.first</code> and <code>last</code></h1>
+<h3 id="h-1071-q">Q:</h3>
+<p>What is <code>forloop.first</code>?</p>
+<blockquote>It is true during the first iteration of a Django template <code>for</code> loop.</blockquote>
+<h3 id="h-1072-q">Q:</h3>
+<p>What is <code>forloop.last</code>?</p>
+<blockquote>It is true during the last iteration.</blockquote>
+<hr>
+<h1 id="h-1073-49-viva-empty">49. Viva — <code>{% empty %}</code></h1>
+<h3 id="h-1074-q">Q:</h3>
+<p>What does <code>{% empty %}</code> do?</p>
+<p>Answer:</p>
+<blockquote>It provides alternative template content when a Django <code>for</code> loop has no items to iterate over.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {{ student }}
+{% empty %}
+    No students found.
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1075-50-coding-question">50. Coding Question</h1>
+<h3 id="h-1076-requirement">Requirement:</h3>
+<p>Display "Adult" if age is 18 or more, otherwise display "Minor".</p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}</code></pre></div>
+<hr>
+<h1 id="h-1077-51-coding-question">51. Coding Question</h1>
+<h3 id="h-1078-requirement">Requirement:</h3>
+<p>Display every student's name.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student.name }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1079-52-coding-question">52. Coding Question</h1>
+<h3 id="h-1080-requirement">Requirement:</h3>
+<p>Display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Aman
+2. Rahul
+3. Rohit</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;
+        {{ forloop.counter }}. {{ student }}
+    &lt;/p&gt;
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1081-53-coding-question">53. Coding Question</h1>
+<h3 id="h-1082-requirement">Requirement:</h3>
+<p>Display "No students found" if the list is empty.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% empty %}
+    &lt;p&gt;No students found.&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1083-54-coding-question-conditional-loop">54. Coding Question — Conditional Loop</h1>
+<p>Display only students who are 18 or older.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {% if student.age &gt;= 18 %}
+        &lt;p&gt;{{ student.name }}&lt;/p&gt;
+    {% endif %}
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-1084-55-predict-the-output">55. Predict the Output</h1>
+<p>Context:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'age': 20
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Adult</code></pre></div>
+<hr>
+<h1 id="h-1085-56-predict-the-output">56. Predict the Output</h1>
+<p>Context:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'students': ['Aman', 'Rahul', 'Rohit']
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {{ forloop.counter }} - {{ student }}
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1 - Aman
+2 - Rahul
+3 - Rohit</code></pre></div>
+<hr>
+<h1 id="h-1086-57-predict-the-output">57. Predict the Output</h1>
+<p>Context:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'students': []
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {{ student }}
+{% empty %}
+    No students
+{% endfor %}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>No students</code></pre></div>
+<hr>
+<h1 id="h-1087-module-14-cheat-sheet">⭐ Module 14 Cheat Sheet</h1>
+<h3 id="h-1088-if">If:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}
+{% endif %}</code></pre></div>
+<h3 id="h-1089-if-else">If/else:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}
+{% else %}
+{% endif %}</code></pre></div>
+<h3 id="h-1090-multiple-conditions">Multiple conditions:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition1 %}
+{% elif condition2 %}
+{% else %}
+{% endif %}</code></pre></div>
+<h3 id="h-1091-loop">Loop:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in items %}
+{% endfor %}</code></pre></div>
+<h3 id="h-1092-empty-loop">Empty loop:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in items %}
+{% empty %}
+{% endfor %}</code></pre></div>
+<h3 id="h-1093-loop-information">Loop information:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop.counter       → 1, 2, 3...
+forloop.counter0      → 0, 1, 2...
+forloop.revcounter    → n, ..., 1
+forloop.revcounter0   → n-1, ..., 0
+forloop.first         → True on first iteration
+forloop.last          → True on last iteration</code></pre></div>
+<h3 id="h-1094-nested-loops">Nested loops:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forloop.parentloop</code></pre></div>
+<h3 id="h-1095-operators">Operators:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>==  !=  &gt;  &lt;  &gt;=  &lt;=
+and  or  not</code></pre></div>
+<hr>
+<h1 id="h-1096-the-core-pattern-you-must-memorize">🧠 The Core Pattern You Must Memorize</h1>
+<p>When displaying <strong>one value</strong>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<p>When making a <strong>decision</strong>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}
+{% endif %}</code></pre></div>
+<p>When <strong>repeating something</strong>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for item in items %}
+{% endfor %}</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }} → DATA
+{% %} → LOGIC</code></pre></div>
+<hr>
+<h1 id="h-1097-module-14-exam-level-challenge">🎯 Module 14 Exam-Level Challenge</h1>
+<p>Given this view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def students(request):
+
+    students = [
+        {
+            'name': 'Aman',
+            'age': 21,
+            'course': 'CSE'
+        },
+        {
+            'name': 'Rahul',
+            'age': 17,
+            'course': 'ECE'
+        },
+        {
+            'name': 'Rohit',
+            'age': 22,
+            'course': 'CSE'
+        }
+    ]
+
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )</code></pre></div>
+<p>Write a template that:</p>
+<ol>
+<li>Displays every student's number.</li>
+<li>Displays their name and course.</li>
+<li>Displays <strong>"Adult"</strong> if age ≥ 18, otherwise <strong>"Minor"</strong>.</li>
+<li>Displays <strong>"CSE Student"</strong> only for CSE students.</li>
+<li>Displays <code>"No students found"</code> if the list is empty.</li>
+</ol>
+<p>A correct solution would combine <strong><code>for</code> + <code>forloop.counter</code> + <code>if/else</code> + <code>empty</code></strong>.</p>
+<p>Once you can solve that, you are ready for the next level.</p>
+<hr>
+<h2 id="h-1098-next-module-15-template-filters-in-depth">Next → Module 15: Template Filters in Depth</h2>
+<p>We'll properly master filters such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>upper
+lower
+title
+length
+default
+truncatechars
+join
+date
+add
+floatformat
+cut</code></pre></div>
+<p>and learn <strong>how to combine filters, pass filter arguments, format dates/numbers, and solve filter-based coding/viva questions</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-13.html">← Module 13: Django Template Language (DTL)</a>
+<a class="pn-btn pn-next" href="module-15.html">Module 15: Template Filters in Depth →</a>
+</div>
+
+</div>
+
+</body>
+</html>

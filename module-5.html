@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Creating a Django App — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 5 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 5 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Creating a Django App</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<span class="nav-item current">5. Creating a Django App</span>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-4.html">← Module 4: Django Project Structure</a>
+<a class="pn-btn pn-next" href="module-6.html">Module 6: Your First Django View →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-271-module-5-creating-a-django-app">Module 5 — Creating a Django App</h1>
+<p>This is a <strong>very important module</strong> because from here we'll start building actual Django applications.</p>
+<p>By the end, you'll understand:</p>
+<ul>
+<li>Project vs App</li>
+<li>Why Django uses apps</li>
+<li>How to create an app</li>
+<li><code>startapp</code></li>
+<li>App folder structure</li>
+<li><code>views.py</code></li>
+<li><code>models.py</code></li>
+<li><code>admin.py</code></li>
+<li><code>apps.py</code></li>
+<li><code>tests.py</code></li>
+<li><code>migrations/</code></li>
+<li><code>__init__.py</code></li>
+<li><code>INSTALLED_APPS</code></li>
+<li>How a newly created app connects to the project</li>
+</ul>
+<hr>
+<h1 id="h-272-1-project-vs-app-first-understand-this-properly">1. Project vs App — First Understand This Properly</h1>
+<p>This is one of the <strong>most frequently asked Django viva questions</strong>.</p>
+<p>Suppose we're building:</p>
+<blockquote><strong>College Management System</strong></blockquote>
+<p>The complete website/application is the <strong>project</strong>.</p>
+<p>Inside it, we might have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College Management System
+│
+├── Students
+├── Teachers
+├── Courses
+├── Attendance
+└── Accounts</code></pre></div>
+<p>Each of these can be a Django <strong>app</strong>.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PROJECT
+   │
+   ├── App 1
+   ├── App 2
+   ├── App 3
+   └── App 4</code></pre></div>
+<h3 id="h-273-easy-analogy">Easy analogy</h3>
+<p>Think about a <strong>college</strong>.</p>
+<p>The college is the:</p>
+<blockquote><strong>Project</strong></blockquote>
+<p>Different departments are:</p>
+<blockquote><strong>Apps</strong></blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College
+│
+├── CSE Department
+├── ECE Department
+├── Mechanical Department
+└── Civil Department</code></pre></div>
+<p>Each department performs a particular function but belongs to the same college.</p>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django Project
+│
+├── accounts
+├── students
+├── courses
+└── attendance</code></pre></div>
+<hr>
+<h1 id="h-274-2-what-is-a-django-app">2. What is a Django App?</h1>
+<p>A Django app is a <strong>Python package that provides a specific functionality within a Django project</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>accounts → user-related functionality
+products → product functionality
+orders → order functionality</code></pre></div>
+<p>A project can contain multiple apps.</p>
+<p>An app can also potentially be reusable across different projects.</p>
+<hr>
+<h1 id="h-275-3-why-does-django-use-apps">3. Why Does Django Use Apps?</h1>
+<p>Imagine you create a huge application containing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Users
+Products
+Orders
+Payments
+Reviews
+Notifications</code></pre></div>
+<p>If all code is placed together, the project becomes difficult to maintain.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>accounts/
+products/
+orders/
+payments/
+reviews/
+notifications/</code></pre></div>
+<p>Each app has a specific responsibility.</p>
+<p>This follows an important software engineering idea:</p>
+<blockquote><strong>Separation of concerns</strong></blockquote>
+<hr>
+<h1 id="h-276-4-creating-an-app">4. Creating an App</h1>
+<p>Suppose our project is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College</code></pre></div>
+<p>First enter the directory containing <code>manage.py</code>:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd College</code></pre></div>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>This creates an app named:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<hr>
+<h1 id="h-277-5-understanding-the-command">5. Understanding the Command</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Break it down:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>python</code></pre></div>
+<p>Use Python.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py</code></pre></div>
+<p>Use the project's management utility.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>startapp</code></pre></div>
+<p>Django command for creating an app.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>Name of the app.</p>
+<p>Therefore:</p>
+<blockquote><code>python manage.py startapp students</code> creates a Django application named <code>students</code>.</blockquote>
+<hr>
+<h1 id="h-278-6-what-does-django-create">6. What Does Django Create?</h1>
+<p>After running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>your structure becomes approximately:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+├── College/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── students/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── tests.py
+    ├── views.py
+    │
+    └── migrations/
+        └── __init__.py</code></pre></div>
+<p>Now let's understand <strong>every file</strong>.</p>
+<hr>
+<h1 id="h-279-7-views-py">7. <code>views.py</code></h1>
+<p>This is one of the most important files.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── views.py</code></pre></div>
+<p>Views contain code that handles requests and returns responses.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome to Students App")</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home()</code></pre></div>
+<p>is a view function.</p>
+<p>The basic idea is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Request
+   ↓
+View
+   ↓
+Response
+   ↓
+Browser</code></pre></div>
+<p>We'll spend a lot of time on views in <strong>Module 6</strong>.</p>
+<hr>
+<h1 id="h-280-8-models-py">8. <code>models.py</code></h1>
+<p>This file is used to define <strong>models</strong>.</p>
+<p>Models represent application data.</p>
+<p>Suppose our students app needs student information.</p>
+<p>We might eventually write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<p>This model represents student data.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+----------------
+id
+name
+age</code></pre></div>
+<p>Django can use this model to interact with the database.</p>
+<p>We'll study models in great detail in <strong>Unit V</strong>.</p>
+<hr>
+<h1 id="h-281-9-admin-py">9. <code>admin.py</code></h1>
+<p>This file is used to configure/register models with Django's admin interface.</p>
+<p>For example, later we might write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)</code></pre></div>
+<p>Then the <code>Student</code> model can be managed through Django Admin.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model
+  ↓
+admin.py
+  ↓
+Django Admin
+  ↓
+Manage Data</code></pre></div>
+<p>We'll study this in Unit V.</p>
+<hr>
+<h1 id="h-282-10-apps-py">10. <code>apps.py</code></h1>
+<p>This file contains the configuration class for the app.</p>
+<p>For example, Django generates something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.apps import AppConfig
+
+class StudentsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'students'</code></pre></div>
+<p>This tells Django about the app's configuration.</p>
+<p>You generally won't need to modify it much at the beginner level.</p>
+<hr>
+<h1 id="h-283-11-tests-py">11. <code>tests.py</code></h1>
+<p>This file is intended for tests for your app.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase</code></pre></div>
+<p>You can create test cases to verify that your application behaves correctly.</p>
+<p>Example concept:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Test:
+"Does the home page return HTTP 200?"</code></pre></div>
+<p>We'll cover Django testing later.</p>
+<hr>
+<h1 id="h-284-12-migrations">12. <code>migrations/</code></h1>
+<p>You will see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>migrations/</code></pre></div>
+<p>This directory stores migration files related to database schema changes.</p>
+<p>Initially:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>migrations/
+└── __init__.py</code></pre></div>
+<p>Later, after creating models and running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>you may see something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>migrations/
+├── __init__.py
+└── 0001_initial.py</code></pre></div>
+<p>Migrations are extremely important in Django.</p>
+<p>We'll dedicate a full module to them.</p>
+<hr>
+<h1 id="h-285-13-init-py-inside-the-app">13. <code>__init__.py</code> Inside the App</h1>
+<p>Just like the project package:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── __init__.py</code></pre></div>
+<p>This is related to Python package structure.</p>
+<p>You normally don't need to modify it.</p>
+<hr>
+<h1 id="h-286-14-does-creating-an-app-automatically-activate-it">14. Does Creating an App Automatically Activate It?</h1>
+<p><strong>No.</strong></p>
+<p>This is a very important point.</p>
+<p>You run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Django creates the app files.</p>
+<p>But you also need to tell the project that the app is installed.</p>
+<hr>
+<h1 id="h-287-15-registering-the-app">15. Registering the App</h1>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/settings.py</code></pre></div>
+<p>Find:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+]</code></pre></div>
+<p>Add your app.</p>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    'students',
+]</code></pre></div>
+<p>or, commonly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    'students.apps.StudentsConfig',
+]</code></pre></div>
+<p>The exact generated app configuration class depends on the app name.</p>
+<p>For our app:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students</code></pre></div>
+<p>Django generates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>StudentsConfig</code></pre></div>
+<p>in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/apps.py</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'students.apps.StudentsConfig'</code></pre></div>
+<p>tells Django to use that app configuration.</p>
+<hr>
+<h1 id="h-288-16-why-is-installed-apps-important">16. Why Is <code>INSTALLED_APPS</code> Important?</h1>
+<p>It tells Django:</p>
+<blockquote>"These applications are part of my project."</blockquote>
+<p>Django uses this information for various framework functionality, including models, migrations, admin integration, and app configuration.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Project
+   ↓
+settings.py
+   ↓
+INSTALLED_APPS
+   ↓
+students
+   ↓
+Django knows about students app</code></pre></div>
+<hr>
+<h1 id="h-289-17-common-beginner-mistake">17. Common Beginner Mistake</h1>
+<p>You create:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Then you create a model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    ...</code></pre></div>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>but Django doesn't detect the model as expected.</p>
+<p>One common reason is that the app hasn't been added to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>So always remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>startapp
+   ↓
+Create app
+   ↓
+Add app to INSTALLED_APPS</code></pre></div>
+<hr>
+<h1 id="h-290-18-app-structure-memorize-this">18. App Structure — Memorize This</h1>
+<p>For an app named <code>students</code>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── __init__.py
+├── admin.py
+├── apps.py
+├── models.py
+├── tests.py
+├── views.py
+│
+└── migrations/
+    └── __init__.py</code></pre></div>
+<p>Remember the core files:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>views.py
+→ Views
+
+models.py
+→ Models
+
+admin.py
+→ Admin
+
+apps.py
+→ App configuration
+
+tests.py
+→ Tests
+
+migrations/
+→ Database schema-change history</code></pre></div>
+<hr>
+<h1 id="h-291-19-let-s-create-our-first-view">19. Let's Create Our First View</h1>
+<p>Now we'll write our first actual Django code.</p>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/views.py</code></pre></div>
+<p>Write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello from Students App!")</code></pre></div>
+<p>Let's understand this.</p>
+<hr>
+<h1 id="h-292-20-from-django-http-import-httpresponse">20. <code>from django.http import HttpResponse</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse</code></pre></div>
+<p>We're importing Django's <code>HttpResponse</code> class.</p>
+<p>It allows us to create an HTTP response.</p>
+<hr>
+<h1 id="h-293-21-def-home-request">21. <code>def home(request)</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>We're creating a Python function called:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home</code></pre></div>
+<p>Django passes the HTTP request to this function.</p>
+<p>The parameter:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request</code></pre></div>
+<p>contains information about the incoming HTTP request.</p>
+<p>We'll study the request object deeply in Unit II.</p>
+<hr>
+<h1 id="h-294-22-return-httpresponse">22. <code>return HttpResponse(...)</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello from Students App!")</code></pre></div>
+<p>This creates an HTTP response containing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello from Students App!</code></pre></div>
+<p>So the basic flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request
+   ↓
+home(request)
+   ↓
+HttpResponse
+   ↓
+Browser</code></pre></div>
+<hr>
+<h1 id="h-295-23-but-will-this-work-yet">23. But Will This Work Yet?</h1>
+<p><strong>Not yet.</strong></p>
+<p>Why?</p>
+<p>Because Django doesn't know that:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>should call:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>home()</code></pre></div>
+<p>We need to connect a URL to our view.</p>
+<p>We'll do that properly in the next module.</p>
+<p>For now, understand:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View exists
+     ↓
+Need URL mapping
+     ↓
+URL → View</code></pre></div>
+<hr>
+<h1 id="h-296-24-project-url-vs-app-url">24. Project URL vs App URL</h1>
+<p>Eventually, Django applications commonly have URL configurations at both levels.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>The project-level URLs can include the app's URLs.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py
+       ↓
+students/urls.py
+       ↓
+students.views.home</code></pre></div>
+<p>We'll build this in <strong>Module 6/7</strong>.</p>
+<hr>
+<h1 id="h-297-25-why-separate-urls-py-for-an-app">25. Why Separate <code>urls.py</code> for an App?</h1>
+<p>Django doesn't automatically create <code>urls.py</code> when you run <code>startapp</code>.</p>
+<p>You can create it yourself.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── views.py
+├── models.py
+└── urls.py</code></pre></div>
+<p>This helps keep URL patterns belonging to the app organized.</p>
+<p>For a large project:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College
+│
+├── accounts
+│   └── urls.py
+│
+├── students
+│   └── urls.py
+│
+├── courses
+│   └── urls.py
+│
+└── orders
+    └── urls.py</code></pre></div>
+<p>This is much easier to maintain.</p>
+<hr>
+<h1 id="h-298-26-complete-structure-so-far">26. Complete Structure So Far</h1>
+<p>Our project now looks like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+├── College/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── students/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── tests.py
+    ├── views.py
+    │
+    └── migrations/
+        └── __init__.py</code></pre></div>
+<hr>
+<h1 id="h-299-27-project-level-vs-app-level-files">27. Project-Level vs App-Level Files</h1>
+<p>This distinction is useful:</p>
+<h3 id="h-300-project">Project</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+├── settings.py
+├── urls.py
+├── asgi.py
+└── wsgi.py</code></pre></div>
+<h3 id="h-301-app">App</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── admin.py
+├── apps.py
+├── models.py
+├── tests.py
+├── views.py
+└── migrations/</code></pre></div>
+<p>So don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/urls.py</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/urls.py</code></pre></div>
+<p>The first is project-level URL configuration.</p>
+<p>The second is an app-level URL configuration that you create when needed.</p>
+<hr>
+<h1 id="h-302-28-can-a-project-have-multiple-apps">28. Can a Project Have Multiple Apps?</h1>
+<p>Yes.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── accounts/
+├── students/
+├── teachers/
+├── courses/
+└── attendance/</code></pre></div>
+<p>All of them can belong to the same project.</p>
+<hr>
+<h1 id="h-303-29-can-an-app-be-used-in-multiple-projects">29. Can an App Be Used in Multiple Projects?</h1>
+<p>Yes, if designed appropriately.</p>
+<p>This is one reason Django's app-based architecture is useful.</p>
+<p>For example, a reusable <code>accounts</code> app could potentially be used in multiple Django projects.</p>
+<hr>
+<h1 id="h-304-30-viva-questions-very-important">30. Viva Questions — Very Important</h1>
+<h3 id="h-305-q1-what-is-a-django-app">Q1. What is a Django app?</h3>
+<blockquote>A Django app is a Python package that provides a specific functionality within a Django project.</blockquote>
+<hr>
+<h3 id="h-306-q2-what-command-creates-an-app">Q2. What command creates an app?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp app_name</code></pre></div>
+<hr>
+<h3 id="h-307-q3-does-startapp-create-a-project">Q3. Does <code>startapp</code> create a project?</h3>
+<p><strong>No.</strong></p>
+<p>It creates an <strong>app inside an existing Django project context</strong>.</p>
+<hr>
+<h3 id="h-308-q4-what-is-the-difference-between-project-and-app">Q4. What is the difference between project and app?</h3>
+<blockquote>A project is the overall Django application/configuration, while an app is a component that provides a specific functionality within the project.</blockquote>
+<hr>
+<h3 id="h-309-q5-what-is-views-py">Q5. What is <code>views.py</code>?</h3>
+<blockquote><code>views.py</code> contains view functions or classes that handle requests and produce responses.</blockquote>
+<hr>
+<h3 id="h-310-q6-what-is-models-py">Q6. What is <code>models.py</code>?</h3>
+<blockquote><code>models.py</code> is used to define Django models that represent application data and interact with the database through the ORM.</blockquote>
+<hr>
+<h3 id="h-311-q7-what-is-admin-py">Q7. What is <code>admin.py</code>?</h3>
+<blockquote><code>admin.py</code> is used to configure the Django admin interface, including registering models with the admin site.</blockquote>
+<hr>
+<h3 id="h-312-q8-what-is-apps-py">Q8. What is <code>apps.py</code>?</h3>
+<blockquote><code>apps.py</code> contains the configuration class for the Django app.</blockquote>
+<hr>
+<h3 id="h-313-q9-what-is-tests-py">Q9. What is <code>tests.py</code>?</h3>
+<blockquote><code>tests.py</code> is used to define automated tests for the application.</blockquote>
+<hr>
+<h3 id="h-314-q10-what-is-the-migrations-folder">Q10. What is the <code>migrations</code> folder?</h3>
+<blockquote>It stores migration files that describe changes to the database schema.</blockquote>
+<hr>
+<h1 id="h-315-31-tricky-viva-question">31. Tricky Viva Question ⚠️</h1>
+<h3 id="h-316-teacher">Teacher:</h3>
+<blockquote>"I ran <code>python manage.py startapp students</code>. Is my app now available to Django?"</blockquote>
+<p>Best answer:</p>
+<blockquote>The app files have been created, but the app should be added to <code>INSTALLED_APPS</code> in the project's settings so Django recognizes it as an installed application.</blockquote>
+<hr>
+<h1 id="h-317-32-tricky-viva-question">32. Tricky Viva Question</h1>
+<h3 id="h-318-teacher">Teacher:</h3>
+<blockquote>"Where do you write database configuration?"</blockquote>
+<p>Don't answer:</p>
+<blockquote><code>models.py</code></blockquote>
+<p>The better answer is:</p>
+<blockquote>Database connection configuration is specified in <code>settings.py</code>, while database models and database operations are handled through models and Django's ORM.</blockquote>
+<hr>
+<h1 id="h-319-33-tricky-viva-question">33. Tricky Viva Question</h1>
+<h3 id="h-320-teacher">Teacher:</h3>
+<blockquote>"Can I put all functionality into one Django app?"</blockquote>
+<p>Technically:</p>
+<blockquote>Yes, but it is generally better to divide a sufficiently large project into apps based on functionality and responsibility.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Bad organization for a large system:
+
+everything/</code></pre></div>
+<p>Better:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>accounts/
+products/
+orders/
+payments/</code></pre></div>
+<hr>
+<h1 id="h-321-34-practical-coding-question">34. Practical Coding Question</h1>
+<h3 id="h-322-question">Question:</h3>
+<p>Create a Django app called <code>students</code>.</p>
+<h3 id="h-323-answer">Answer:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Then add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'students',</code></pre></div>
+<p>to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<hr>
+<h1 id="h-324-35-practical-coding-question">35. Practical Coding Question</h1>
+<h3 id="h-325-question">Question:</h3>
+<p>Create a view that returns <code>"Welcome Students"</code>.</p>
+<h3 id="h-326-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Welcome Students")</code></pre></div>
+<p>This is the first Django view code you should know.</p>
+<hr>
+<h1 id="h-327-36-practical-coding-question">36. Practical Coding Question</h1>
+<h3 id="h-328-question">Question:</h3>
+<p>Create a view that returns <code>"Hello World"</code>.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def hello(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>hello</code></pre></div>
+<p>is simply the Python function name.</p>
+<p>It could be:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def welcome(request):</code></pre></div>
+<p>The name itself isn't special. What matters is how you connect the view to a URL.</p>
+<hr>
+<h1 id="h-329-37-important-concept-function-based-view">37. Important Concept — Function-Based View</h1>
+<p>Our view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Hello")</code></pre></div>
+<p>is called a:</p>
+<blockquote><strong>Function-Based View (FBV)</strong></blockquote>
+<p>because the view is implemented as a Python function.</p>
+<p>Later you'll encounter:</p>
+<blockquote><strong>Class-Based Views (CBVs)</strong></blockquote>
+<p>We'll focus on function-based views first because they make Django's fundamentals easier to understand.</p>
+<hr>
+<h1 id="h-330-38-the-django-app-lifecycle-basic-understanding">38. The Django App Lifecycle — Basic Understanding</h1>
+<p>When you create an app:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>startapp
+   ↓
+App files created
+   ↓
+Add app to INSTALLED_APPS
+   ↓
+Create views/models/etc.
+   ↓
+Connect URLs
+   ↓
+Run application</code></pre></div>
+<p>This is the workflow you'll repeatedly use.</p>
+<hr>
+<h1 id="h-331-module-5-what-you-must-remember">⭐ Module 5 — What You Must Remember</h1>
+<p>The most important distinction:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PROJECT
+   ↓
+Overall Django application/configuration
+
+APP
+   ↓
+Specific functionality</code></pre></div>
+<p>Create app:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Core app files:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+│
+├── admin.py       → Admin configuration
+├── apps.py        → App configuration
+├── models.py      → Models/data
+├── tests.py       → Tests
+├── views.py       → Views/request logic
+│
+└── migrations/    → Migration files</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>startapp
+   ↓
+Create app
+   ↓
+INSTALLED_APPS
+   ↓
+Django recognizes app</code></pre></div>
+<hr>
+<h1 id="h-332-module-5-practical-challenge">🎯 Module 5 Practical Challenge</h1>
+<p>Try answering these without looking back.</p>
+<h3 id="h-333-viva">Viva</h3>
+<ol>
+<li>What is a Django app?</li>
+<li>Difference between project and app?</li>
+<li>Why does Django use apps?</li>
+<li>What command creates an app?</li>
+<li>What is <code>views.py</code>?</li>
+<li>What is <code>models.py</code>?</li>
+<li>What is <code>admin.py</code>?</li>
+<li>What is <code>apps.py</code>?</li>
+<li>What is <code>tests.py</code>?</li>
+<li>What is the purpose of the <code>migrations</code> directory?</li>
+<li>Does <code>startapp</code> automatically add the app to <code>INSTALLED_APPS</code>?</li>
+<li>Can one project contain multiple apps?</li>
+<li>Can an app potentially be reused in multiple projects?</li>
+</ol>
+<h3 id="h-334-coding">Coding</h3>
+<p><strong>Q14.</strong> Create an app called <code>products</code>.</p>
+<p><strong>Q15.</strong> Write a function-based view called <code>home</code> that returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to Product App</code></pre></div>
+<p><strong>Q16.</strong> Where would you add the newly created app so Django recognizes it?</p>
+<p><strong>Q17.</strong> Which file would you modify to define a <code>Product</code> database model?</p>
+<hr>
+<p>When you're ready, say <strong>“next”</strong>.</p>
+<h2 id="h-335-module-6-your-first-django-view">Module 6 — Your First Django View</h2>
+<p>We'll now make the code we just wrote <strong>actually work in the browser</strong>. You'll learn the complete chain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+/students/
+   ↓
+Project urls.py
+   ↓
+App urls.py
+   ↓
+views.py
+   ↓
+HttpResponse
+   ↓
+Browser</code></pre></div>
+<p>This will be your first proper <strong>URL → View → Response</strong> Django program, and we'll break down every line.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-4.html">← Module 4: Django Project Structure</a>
+<a class="pn-btn pn-next" href="module-6.html">Module 6: Your First Django View →</a>
+</div>
+
+</div>
+
+</body>
+</html>

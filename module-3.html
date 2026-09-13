@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Creating Your First Django Project — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 3 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 3 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Creating Your First Django Project</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<span class="nav-item current">3. Creating Your First Django Project</span>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-2.html">← Module 2: Python Environment &amp; Installation</a>
+<a class="pn-btn pn-next" href="module-4.html">Module 4: Django Project Structure →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-132-module-3-creating-your-first-django-project">Module 3 — Creating Your First Django Project</h1>
+<p>Now we start <strong>actual Django development</strong>.</p>
+<p>By the end of this module, you will be able to:</p>
+<ul>
+<li>Create a Django project</li>
+<li>Understand <code>django-admin</code></li>
+<li>Understand <code>manage.py</code></li>
+<li>Start the Django development server</li>
+<li>Open your project in a browser</li>
+<li>Understand what happens when Django starts</li>
+<li>Answer common viva questions</li>
+<li>Create a project in an exam from scratch</li>
+</ul>
+<hr>
+<h1 id="h-133-1-what-is-a-django-project">1. What is a Django Project?</h1>
+<p>A <strong>Django project</strong> is the overall configuration and collection of settings for a Django website/web application.</p>
+<p>For example, imagine you're making a college management system:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College Management System</code></pre></div>
+<p>That can be your <strong>Django project</strong>.</p>
+<p>Inside it, you might later create apps such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+teachers
+courses
+attendance
+accounts</code></pre></div>
+<p>So remember:</p>
+<blockquote><strong>Project = overall Django website/application configuration</strong></blockquote>
+<blockquote><strong>App = a specific functionality/component inside the project</strong></blockquote>
+<p>We'll explore this distinction much more in Module 5.</p>
+<hr>
+<h1 id="h-134-2-before-creating-a-project">2. Before Creating a Project</h1>
+<p>Make sure your virtual environment is active.</p>
+<p>You should see something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv)</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>(venv) C:\DjangoCourse&gt;</code></pre></div>
+<p>If it isn't active:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">CMD</span><pre><code>venv\Scripts\activate</code></pre></div>
+<p>Then verify Django:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<hr>
+<h1 id="h-135-3-creating-a-django-project">3. Creating a Django Project</h1>
+<p>There are two common approaches.</p>
+<h3 id="h-136-using-django-admin">Using <code>django-admin</code></h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject</code></pre></div>
+<h3 id="h-137-using-python">Using Python</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<p>Both create a Django project.</p>
+<p>For learning, understand the second form too because it explicitly uses the current Python environment.</p>
+<p>We'll use:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<hr>
+<h1 id="h-138-4-understanding-the-command">4. Understanding the Command</h1>
+<p>Look carefully:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<p>Break it down:</p>
+<h3 id="h-139-python"><code>python</code></h3>
+<p>Use Python.</p>
+<h3 id="h-140-m-django"><code>-m django</code></h3>
+<p>Run Django as a Python module.</p>
+<h3 id="h-141-startproject"><code>startproject</code></h3>
+<p>Django command that creates a new project.</p>
+<h3 id="h-142-myproject"><code>myproject</code></h3>
+<p>The name of your project.</p>
+<p>So:</p>
+<blockquote><code>python -m django startproject myproject</code> creates a new Django project named <code>myproject</code>.</blockquote>
+<hr>
+<h1 id="h-143-5-what-happens-after-running-it">5. What Happens After Running It?</h1>
+<p>Suppose your folder initially contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse/
+│
+└── venv/</code></pre></div>
+<p>After:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<p>you'll get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse/
+│
+├── venv/
+│
+└── myproject/
+    │
+    ├── manage.py
+    │
+    └── myproject/
+        ├── __init__.py
+        ├── settings.py
+        ├── urls.py
+        ├── asgi.py
+        └── wsgi.py</code></pre></div>
+<p><strong>Don't worry about each file yet.</strong></p>
+<p>Module 4 is dedicated to understanding this structure.</p>
+<p>For now, focus on what was created.</p>
+<hr>
+<h1 id="h-144-6-why-are-there-two-myproject-names">6. Why Are There Two <code>myproject</code> Names?</h1>
+<p>This confuses almost every beginner.</p>
+<p>We have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>myproject/
+│
+├── manage.py
+│
+└── myproject/
+    ├── settings.py
+    ├── urls.py
+    └── ...</code></pre></div>
+<p>The <strong>outer <code>myproject</code></strong> is basically the project directory.</p>
+<p>The <strong>inner <code>myproject</code></strong> is the Python package containing the project's configuration.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>outer folder
+     ↓
+myproject/
+
+inner package
+     ↓
+myproject/</code></pre></div>
+<p>This will become much clearer when we study the project structure.</p>
+<hr>
+<h1 id="h-145-7-what-is-manage-py">7. What is <code>manage.py</code>?</h1>
+<p>This is one of the most important files in Django.</p>
+<p><code>manage.py</code> is a command-line utility provided for interacting with your Django project.</p>
+<p>It allows you to execute commands related to your project.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>Later:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>So remember:</p>
+<blockquote><strong><code>manage.py</code> is a command-line utility used to perform administrative tasks for a specific Django project.</strong></blockquote>
+<hr>
+<h1 id="h-146-8-django-admin-vs-manage-py">8. <code>django-admin</code> vs <code>manage.py</code></h1>
+<p>Very important viva question.</p>
+<h3 id="h-147-django-admin"><code>django-admin</code></h3>
+<p>A general Django command-line utility.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject</code></pre></div>
+<h3 id="h-148-manage-py"><code>manage.py</code></h3>
+<p>A project-specific command-line utility.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>A useful way to remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django-admin
+      ↓
+Django-level commands
+
+manage.py
+      ↓
+Specific project's commands</code></pre></div>
+<p>Technically, <code>manage.py</code> sets up the project environment/settings before delegating to Django's command machinery.</p>
+<hr>
+<h1 id="h-149-9-starting-the-development-server">9. Starting the Development Server</h1>
+<p>Move into the project directory:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd myproject</code></pre></div>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>You may see output similar to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues.
+
+Starting development server at
+http://127.0.0.1:8000/</code></pre></div>
+<p>Congratulations.</p>
+<p>Your first Django development server is running.</p>
+<hr>
+<h1 id="h-150-10-open-the-browser">10. Open the Browser</h1>
+<p>Open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/</code></pre></div>
+<p>You should see Django's default welcome page.</p>
+<p>Something conceptually like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>🎉 Congratulations!
+
+It worked!</code></pre></div>
+<p>The exact page can vary with Django versions.</p>
+<hr>
+<h1 id="h-151-11-what-is-the-development-server">11. What is the Development Server?</h1>
+<p>When you execute:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>Django starts a <strong>development server</strong> on your computer.</p>
+<p>It allows you to test your application locally.</p>
+<p>The default address is generally:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>127.0.0.1:8000</code></pre></div>
+<hr>
+<h1 id="h-152-12-understanding-127-0-0-1">12. Understanding <code>127.0.0.1</code></h1>
+<p><code>127.0.0.1</code> refers to your own computer through the loopback interface.</p>
+<p>It's commonly called:</p>
+<blockquote><strong>localhost</strong></blockquote>
+<p>So these generally refer to the same local machine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>127.0.0.1
+localhost</code></pre></div>
+<p>You can typically open:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://localhost:8000/</code></pre></div>
+<p>as well.</p>
+<hr>
+<h1 id="h-153-13-understanding-port-8000">13. Understanding Port 8000</h1>
+<p>A computer can run multiple network services.</p>
+<p>A <strong>port</strong> helps identify which service/network endpoint you're communicating with.</p>
+<p>Django's development server commonly uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>8000</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>127.0.0.1:8000</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Computer: 127.0.0.1
+Port:     8000</code></pre></div>
+<hr>
+<h1 id="h-154-14-can-we-change-the-port">14. Can We Change the Port?</h1>
+<p>Yes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 8080</code></pre></div>
+<p>Now Django will typically run at:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8080/</code></pre></div>
+<p>You can also specify an address and port:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 0.0.0.0:8000</code></pre></div>
+<p>We'll discuss what this means later when networking becomes relevant.</p>
+<hr>
+<h1 id="h-155-15-stopping-the-server">15. Stopping the Server</h1>
+<p>When the server is running in your terminal, press:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CTRL + C</code></pre></div>
+<p>This stops the development server.</p>
+<hr>
+<h1 id="h-156-16-why-does-django-have-a-development-server">16. Why Does Django Have a Development Server?</h1>
+<p>Because during development you need to repeatedly test your application.</p>
+<p>Instead of configuring a production web server every time, Django provides a lightweight development server.</p>
+<p>You can:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Write code
+   ↓
+Run server
+   ↓
+Open browser
+   ↓
+Test
+   ↓
+Modify code
+   ↓
+Refresh</code></pre></div>
+<p>This makes development convenient.</p>
+<h3 id="h-157-important">Important:</h3>
+<blockquote>Django's development server is intended for development/testing, <strong>not production deployment</strong>.</blockquote>
+<p>This is a good viva point.</p>
+<hr>
+<h1 id="h-158-17-automatic-reloading">17. Automatic Reloading</h1>
+<p>When the development server is running, Django can detect many code changes and reload the development server automatically.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>You modify views.py
+        ↓
+Save
+        ↓
+Django detects change
+        ↓
+Reloads</code></pre></div>
+<p>This is one reason development is convenient.</p>
+<hr>
+<h1 id="h-159-18-the-runserver-command">18. The <code>runserver</code> Command</h1>
+<p>The basic command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>means:</p>
+<blockquote>Start Django's development server.</blockquote>
+<p>A teacher may ask:</p>
+<h3 id="h-160-how-do-you-run-a-django-project">"How do you run a Django project?"</h3>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>Then access the local server in your browser.</p>
+<hr>
+<h1 id="h-161-19-creating-a-project-in-a-specific-directory">19. Creating a Project in a Specific Directory</h1>
+<p>You can also specify where Django creates the project.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject .</code></pre></div>
+<p>Notice the:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>.</code></pre></div>
+<p>The dot means:</p>
+<blockquote>Create the project in the <strong>current directory</strong>.</blockquote>
+<p>This is extremely useful because it changes the resulting structure.</p>
+<hr>
+<h1 id="h-162-20-normal-vs-dot-method">20. Normal vs Dot Method</h1>
+<h3 id="h-163-method-1">Method 1</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject</code></pre></div>
+<p>Structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>current/
+└── myproject/
+    ├── manage.py
+    └── myproject/</code></pre></div>
+<h3 id="h-164-method-2">Method 2</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject .</code></pre></div>
+<p>Structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>current/
+├── manage.py
+└── myproject/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p>The second method is often convenient when you've already created a folder for the project.</p>
+<hr>
+<h1 id="h-165-21-which-one-should-you-use-in-college">21. Which One Should You Use in College?</h1>
+<p>Both are valid.</p>
+<p>For a beginner, I recommend:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd myproject</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>This makes the project structure easy to understand.</p>
+<p>Later, you'll become comfortable with:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject myproject .</code></pre></div>
+<hr>
+<h1 id="h-166-22-what-happens-when-you-visit">22. What Happens When You Visit <code>/</code>?</h1>
+<p>Suppose your browser requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/</code></pre></div>
+<p>The browser sends a request to Django.</p>
+<p>Django checks the project's URL configuration.</p>
+<p>Initially, Django has a default URL configuration that leads to the default welcome page.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | GET /
+   ↓
+Django
+   |
+   ↓
+URL configuration
+   |
+   ↓
+Response
+   |
+   ↓
+Browser</code></pre></div>
+<p>We'll learn exactly how URL mapping works in <strong>Unit II</strong>.</p>
+<hr>
+<h1 id="h-167-23-what-does-startproject-actually-create">23. What Does <code>startproject</code> Actually Create?</h1>
+<p>The command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<p>creates the basic files needed for a Django project.</p>
+<p>The important ones are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py
+settings.py
+urls.py
+asgi.py
+wsgi.py</code></pre></div>
+<p>For now, just know their broad purposes:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>File</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>manage.py</code></td>
+<td>Project command-line utility</td>
+</tr>
+<tr>
+<td><code>settings.py</code></td>
+<td>Project configuration</td>
+</tr>
+<tr>
+<td><code>urls.py</code></td>
+<td>URL routing configuration</td>
+</tr>
+<tr>
+<td><code>asgi.py</code></td>
+<td>ASGI deployment interface</td>
+</tr>
+<tr>
+<td><code>wsgi.py</code></td>
+<td>WSGI deployment interface</td>
+</tr>
+</tbody></table></div>
+<p>We'll study them properly in <strong>Module 4</strong>.</p>
+<hr>
+<h1 id="h-168-24-important-project-app">24. Important: Project ≠ App</h1>
+<p>At this point, you have created a:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PROJECT</code></pre></div>
+<p>You have <strong>not yet created an app</strong>.</p>
+<p>Later you'll run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>and get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>startproject
+     ↓
+Creates project
+
+startapp
+     ↓
+Creates app</code></pre></div>
+<p>This distinction is extremely important.</p>
+<hr>
+<h1 id="h-169-25-complete-practical-create-your-first-project">25. Complete Practical — Create Your First Project</h1>
+<p>If your teacher gives you a blank computer and says:</p>
+<blockquote>"Create and run a Django project named College."</blockquote>
+<p>You should be able to do:</p>
+<h3 id="h-170-step-1-create-folder">Step 1 — Create folder</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DjangoCourse</code></pre></div>
+<h3 id="h-171-step-2-open-terminal">Step 2 — Open terminal</h3>
+<h3 id="h-172-step-3-create-virtual-environment">Step 3 — Create virtual environment</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m venv venv</code></pre></div>
+<h3 id="h-173-step-4-activate">Step 4 — Activate</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">CMD</span><pre><code>venv\Scripts\activate</code></pre></div>
+<h3 id="h-174-step-5-install-django">Step 5 — Install Django</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip install django</code></pre></div>
+<h3 id="h-175-step-6-create-project">Step 6 — Create project</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject College</code></pre></div>
+<h3 id="h-176-step-7-enter-project">Step 7 — Enter project</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd College</code></pre></div>
+<h3 id="h-177-step-8-run-server">Step 8 — Run server</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<h3 id="h-178-step-9-open-browser">Step 9 — Open browser</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/</code></pre></div>
+<p>That's a complete basic Django project setup.</p>
+<hr>
+<h1 id="h-179-26-common-errors">26. Common Errors</h1>
+<h2 id="h-180-error-1-wrong-directory">Error 1 — Wrong directory</h2>
+<p>Suppose you run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>and get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>can't open file 'manage.py'</code></pre></div>
+<p>Likely you're not inside the directory containing <code>manage.py</code>.</p>
+<p>Check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>dir</code></pre></div>
+<p>on Windows.</p>
+<p>You should see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py</code></pre></div>
+<p>Then run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<hr>
+<h1 id="h-181-27-error-2-django-not-installed">27. Error 2 — Django Not Installed</h1>
+<p>You might get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>No module named django</code></pre></div>
+<p>Check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<p>If it doesn't work, activate your virtual environment and install Django:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m pip install django</code></pre></div>
+<hr>
+<h1 id="h-182-28-error-3-port-already-in-use">28. Error 3 — Port Already in Use</h1>
+<p>You might see an error indicating that port <code>8000</code> is already in use.</p>
+<p>Use another port:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 8001</code></pre></div>
+<p>Then visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8001/</code></pre></div>
+<hr>
+<h1 id="h-183-29-viva-questions">29. Viva Questions</h1>
+<p>Now the important part.</p>
+<h3 id="h-184-q1-what-command-is-used-to-create-a-django-project">Q1. What command is used to create a Django project?</h3>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject project_name</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject project_name</code></pre></div>
+<hr>
+<h3 id="h-185-q2-what-is-manage-py">Q2. What is <code>manage.py</code>?</h3>
+<p>Answer:</p>
+<blockquote><code>manage.py</code> is a project-specific command-line utility used to perform administrative tasks for a Django project.</blockquote>
+<hr>
+<h3 id="h-186-q3-what-command-starts-the-django-development-serv">Q3. What command starts the Django development server?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<hr>
+<h3 id="h-187-q4-what-is-the-default-port-of-django-s-developmen">Q4. What is the default port of Django's development server?</h3>
+<blockquote><strong>8000</strong></blockquote>
+<hr>
+<h3 id="h-188-q5-what-is-127-0-0-1">Q5. What is <code>127.0.0.1</code>?</h3>
+<blockquote>It is the loopback address that refers to the local machine.</blockquote>
+<hr>
+<h3 id="h-189-q6-what-is-localhost">Q6. What is localhost?</h3>
+<blockquote>Localhost refers to the current/local computer. <code>127.0.0.1</code> is a commonly used IPv4 loopback address for it.</blockquote>
+<hr>
+<h3 id="h-190-q7-how-do-you-stop-the-django-development-server">Q7. How do you stop the Django development server?</h3>
+<blockquote>Press <code>Ctrl + C</code> in the terminal running the server.</blockquote>
+<hr>
+<h3 id="h-191-q8-is-django-s-development-server-suitable-for-pro">Q8. Is Django's development server suitable for production?</h3>
+<blockquote>No. It is intended for development and testing, not production deployment.</blockquote>
+<hr>
+<h3 id="h-192-q9-what-is-the-difference-between-startproject-and">Q9. What is the difference between <code>startproject</code> and <code>startapp</code>?</h3>
+<blockquote><code>startproject</code> creates the structure of a Django project, while <code>startapp</code> creates an application within a Django project.</blockquote>
+<hr>
+<h3 id="h-193-q10-what-is-the-purpose-of-settings-py">Q10. What is the purpose of <code>settings.py</code>?</h3>
+<blockquote><code>settings.py</code> contains configuration settings for the Django project.</blockquote>
+<hr>
+<h3 id="h-194-q11-what-is-the-purpose-of-urls-py">Q11. What is the purpose of <code>urls.py</code>?</h3>
+<blockquote><code>urls.py</code> contains URL configuration used to map URL patterns to views or other URL configurations.</blockquote>
+<hr>
+<h1 id="h-195-30-viva-trap-question">30. Viva Trap Question ⚠️</h1>
+<h3 id="h-196-teacher">Teacher:</h3>
+<blockquote>"Does <code>python manage.py runserver</code> create a Django project?"</blockquote>
+<p><strong>Answer:</strong></p>
+<blockquote>No. <code>runserver</code> starts the development server for an existing Django project. A project is created using <code>startproject</code>.</blockquote>
+<hr>
+<h1 id="h-197-31-another-trap-question">31. Another Trap Question</h1>
+<h3 id="h-198-teacher">Teacher:</h3>
+<blockquote>"Is <code>manage.py</code> the Django framework?"</blockquote>
+<p><strong>Answer:</strong></p>
+<blockquote>No. <code>manage.py</code> is a command-line utility generated for a specific Django project. Django itself is the Python web framework.</blockquote>
+<hr>
+<h1 id="h-199-32-coding-questions-you-should-now-be-able-to-solv">32. Coding Questions You Should Now Be Able to Solve</h1>
+<h3 id="h-200-question-1">Question 1</h3>
+<p><strong>Create a Django project called <code>school</code>.</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject school</code></pre></div>
+<hr>
+<h3 id="h-201-question-2">Question 2</h3>
+<p><strong>Start the development server.</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<hr>
+<h3 id="h-202-question-3">Question 3</h3>
+<p><strong>Start the server on port 9000.</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 9000</code></pre></div>
+<hr>
+<h3 id="h-203-question-4">Question 4</h3>
+<p><strong>Create a project in the current directory.</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject school .</code></pre></div>
+<hr>
+<h3 id="h-204-question-5">Question 5</h3>
+<p><strong>Check your Django version.</strong></p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django --version</code></pre></div>
+<hr>
+<h1 id="h-205-module-3-summary">🧠 Module 3 Summary</h1>
+<p>You should now understand:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django-admin / python -m django
+             ↓
+       startproject
+             ↓
+        Django Project
+             ↓
+        manage.py
+             ↓
+         runserver
+             ↓
+     127.0.0.1:8000
+             ↓
+          Browser</code></pre></div>
+<h3 id="h-206-most-important-commands">Most important commands:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject myproject</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>cd myproject</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver 8080</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp myapp</code></pre></div>
+<p><em>(We'll use <code>startapp</code> properly in Module 5.)</em></p>
+<hr>
+<h1 id="h-207-module-3-practical-challenge">🎯 Module 3 Practical Challenge</h1>
+<p>Without looking above, imagine your teacher asks:</p>
+<blockquote><strong>"Create a Django project named <code>College</code>, start the development server, and run it on port 9000."</strong></blockquote>
+<p>Write the commands in order.</p>
+<p>Then answer:</p>
+<ol>
+<li>What is <code>manage.py</code>?</li>
+<li>What is <code>django-admin</code>?</li>
+<li>What is the difference between <code>startproject</code> and <code>startapp</code>?</li>
+<li>What is the default Django development-server port?</li>
+<li>Is Django's development server used in production?</li>
+<li>What does the <code>.</code> mean in <code>startproject project_name .</code>?</li>
+</ol>
+<p>Once you're comfortable, say <strong>“next”</strong>.</p>
+<p><strong>Module 4 will be very important:</strong> we'll take the project you just created and dissect <strong>every file and folder</strong>—<code>manage.py</code>, <code>settings.py</code>, <code>urls.py</code>, <code>asgi.py</code>, <code>wsgi.py</code>, <code>__init__.py</code>—so you know exactly what each one does and can answer structure-based viva questions.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-2.html">← Module 2: Python Environment &amp; Installation</a>
+<a class="pn-btn pn-next" href="module-4.html">Module 4: Django Project Structure →</a>
+</div>
+
+</div>
+
+</body>
+</html>

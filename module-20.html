@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 20: HTML Forms & HTTP in Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 20 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 20 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">HTML Forms &amp; HTTP in Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<span class="nav-item current">20. HTML Forms &amp; HTTP in Django</span>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-19.html">← Module 19: Testing in Django</a>
+<a class="pn-btn pn-next" href="module-21.html">Module 21: Django Forms →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1508-module-20-html-forms-http-in-django">Module 20 — HTML Forms &amp; HTTP in Django</h1>
+<p>We are now starting <strong>Unit IV — Forms</strong>.</p>
+<p>Before learning Django's built-in <code>Form</code> class, you need to understand <strong>HTML forms and how browsers send data to Django</strong>.</p>
+<p>This is extremely important because later:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML Form
+   ↓
+HTTP GET/POST
+   ↓
+Django View
+   ↓
+request.GET / request.POST
+   ↓
+Validation
+   ↓
+Database</code></pre></div>
+<p>will become the foundation of login forms, registration, CRUD applications, search forms, etc.</p>
+<hr>
+<h1 id="h-1509-1-what-is-a-form">1. What Is a Form?</h1>
+<p>A <strong>form</strong> is an HTML mechanism used to collect information from a user.</p>
+<p>Examples:</p>
+<ul>
+<li>Login</li>
+<li>Registration</li>
+<li>Search</li>
+<li>Contact form</li>
+<li>Student registration</li>
+<li>Product creation</li>
+<li>Feedback</li>
+</ul>
+<p>A simple form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form&gt;
+    &lt;input type="text"&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+<p>The user enters information and submits it.</p>
+<hr>
+<h1 id="h-1510-2-basic-html-form-structure">2. Basic HTML Form Structure</h1>
+<p>The general syntax is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST" action="/students/"&gt;
+
+    &lt;input type="text" name="name"&gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>There are three important concepts here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>form
+ ├── method
+ ├── action
+ └── form fields</code></pre></div>
+<hr>
+<h1 id="h-1511-3-the-method-attribute">3. The <code>method</code> Attribute</h1>
+<p>The <code>method</code> determines <strong>how the browser sends the form data</strong>.</p>
+<p>Most commonly:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>method="GET"</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>method="POST"</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="GET"&gt;</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;</code></pre></div>
+<hr>
+<h1 id="h-1512-4-the-action-attribute">4. The <code>action</code> Attribute</h1>
+<p><code>action</code> specifies <strong>where the form data should be sent</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form action="/students/" method="POST"&gt;</code></pre></div>
+<p>This means:</p>
+<blockquote>When submitted, send the form data to <code>/students/</code>.</blockquote>
+<p>You can also use Django URL reversing:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form action="{% url 'students' %}" method="POST"&gt;</code></pre></div>
+<p>This is generally preferable to hardcoding URLs.</p>
+<hr>
+<h1 id="h-1513-5-what-is-input">5. What Is <code>&lt;input&gt;</code>?</h1>
+<p><code>input</code> creates a field where users can enter/select data.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="text" name="name"&gt;</code></pre></div>
+<p>Common input types:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>text
+password
+email
+number
+date
+checkbox
+radio
+file
+submit</code></pre></div>
+<hr>
+<h1 id="h-1514-6-the-name-attribute">6. The <code>name</code> Attribute ⭐</h1>
+<p>This is <strong>very important</strong>.</p>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="text" name="username"&gt;</code></pre></div>
+<p>The:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name="username"</code></pre></div>
+<p>becomes the key that Django receives.</p>
+<p>If the user enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>Django can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get("username")</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML
+ ↓
+name="username"
+ ↓
+request.POST["username"]</code></pre></div>
+<hr>
+<h1 id="h-1515-7-id-vs-name">7. <code>id</code> vs <code>name</code></h1>
+<p>Beginners often confuse these.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    id="username"
+    name="username"
+&gt;</code></pre></div>
+<h3 id="h-1516-id"><code>id</code></h3>
+<p>Primarily identifies the HTML element in the page and is commonly used by:</p>
+<ul>
+<li>CSS</li>
+<li>JavaScript</li>
+<li><code>&lt;label for="..."&gt;</code></li>
+</ul>
+<h3 id="h-1517-name"><code>name</code></h3>
+<p>Identifies the form field when form data is submitted.</p>
+<p>For Django form processing, <code>name</code> is crucial.</p>
+<hr>
+<h1 id="h-1518-8-label">8. <code>&lt;label&gt;</code></h1>
+<p>A label describes a form field.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;label for="username"&gt;
+    Username:
+&lt;/label&gt;
+
+&lt;input
+    type="text"
+    id="username"
+    name="username"
+&gt;</code></pre></div>
+<p>The:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>for="username"</code></pre></div>
+<p>matches:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>id="username"</code></pre></div>
+<hr>
+<h1 id="h-1519-9-complete-get-form">9. Complete GET Form</h1>
+<p>Let's create a search form.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="GET"&gt;
+
+    &lt;label for="query"&gt;
+        Search:
+    &lt;/label&gt;
+
+    &lt;input
+        type="text"
+        id="query"
+        name="query"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Search
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Suppose the user enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django</code></pre></div>
+<p>The browser may navigate to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?query=Django</code></pre></div>
+<p>The data appears in the URL.</p>
+<hr>
+<h1 id="h-1520-10-why-does-get-put-data-in-the-url">10. Why Does GET Put Data in the URL?</h1>
+<p>GET requests commonly use the <strong>query string</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?query=Django</code></pre></div>
+<p>Break it down:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/
+   ↓
+path
+
+?
+   ↓
+start of query string
+
+query=Django
+   ↓
+key=value</code></pre></div>
+<hr>
+<h1 id="h-1521-11-multiple-get-parameters">11. Multiple GET Parameters</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="text" name="name"&gt;
+
+&lt;input type="number" name="age"&gt;</code></pre></div>
+<p>User enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman
+age = 21</code></pre></div>
+<p>The URL can become:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?name=Aman&amp;age=21</code></pre></div>
+<p><code>&amp;</code> separates parameters.</p>
+<hr>
+<h1 id="h-1522-12-receiving-get-data-in-django">12. Receiving GET Data in Django</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def search(request):
+
+    query = request.GET.get("query")
+
+    return HttpResponse(
+        f"You searched for: {query}"
+    )</code></pre></div>
+<p>Suppose the browser requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?query=Django</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get("query")</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django</code></pre></div>
+<hr>
+<h1 id="h-1523-13-why-use-get">13. Why Use <code>.get()</code>?</h1>
+<p>You learned this earlier.</p>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>query = request.GET["query"]</code></pre></div>
+<p>prefer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>query = request.GET.get("query")</code></pre></div>
+<p>when the parameter may be missing.</p>
+<p>If missing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get("query")</code></pre></div>
+<p>normally returns:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>None</code></pre></div>
+<p>while direct indexing can raise a <code>KeyError</code>.</p>
+<p>You can also provide a default:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>query = request.GET.get(
+    "query",
+    ""
+)</code></pre></div>
+<hr>
+<h1 id="h-1524-14-get-form-flow">14. GET Form Flow</h1>
+<p>Understand this completely:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User enters Django
+       ↓
+Clicks Search
+       ↓
+Browser creates GET request
+       ↓
+/search/?query=Django
+       ↓
+Django URL routing
+       ↓
+search(request)
+       ↓
+request.GET
+       ↓
+query = "Django"
+       ↓
+Response</code></pre></div>
+<hr>
+<h1 id="h-1525-15-post-form">15. POST Form</h1>
+<p>Now:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;</code></pre></div>
+<p>POST sends the form data in the HTTP request body rather than putting ordinary form fields into the URL query string.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    &lt;input
+        type="text"
+        name="username"
+    &gt;
+
+    &lt;input
+        type="password"
+        name="password"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Login
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-1526-16-receiving-post-data">16. Receiving POST Data</h1>
+<p>Django provides:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def login(request):
+
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+
+    return HttpResponse(
+        f"Username: {username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1527-17-get-vs-post">17. GET vs POST</h1>
+<p>This is a <strong>must-know viva question</strong>.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>GET</th>
+<th>POST</th>
+</tr></thead><tbody>
+<tr>
+<td>Commonly used to retrieve/search data</td>
+<td>Commonly used to submit/change data</td>
+</tr>
+<tr>
+<td>Data commonly appears in URL query string</td>
+<td>Form data is sent in request body</td>
+</tr>
+<tr>
+<td>Can be bookmarked/shared as a URL</td>
+<td>Usually not represented by the form data in the URL</td>
+</tr>
+<tr>
+<td>Suitable for search/filtering</td>
+<td>Suitable for create/update/login operations</td>
+</tr>
+<tr>
+<td>Should not be relied on for sensitive data</td>
+<td>Better suited for sensitive/state-changing submissions</td>
+</tr>
+<tr>
+<td>Parameters commonly accessed via <code>request.GET</code></td>
+<td>Parameters commonly accessed via <code>request.POST</code></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-1528-18-important-security-point">18. Important Security Point</h1>
+<p>A common misconception is:</p>
+<blockquote>"POST is automatically secure."</blockquote>
+<p><strong>False.</strong></p>
+<p>POST does not encrypt data.</p>
+<p>If you need confidentiality in transit, use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTPS</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST + HTTP</code></pre></div>
+<p>is not automatically secure.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST + HTTPS</code></pre></div>
+<p>encrypts the network connection.</p>
+<hr>
+<h1 id="h-1529-19-get-is-usually-used-for-retrieval">19. GET Is Usually Used for Retrieval</h1>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Search
+Filter
+Sort
+Pagination
+Viewing resources</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/products/?category=laptops</code></pre></div>
+<p>The request is asking:</p>
+<blockquote>Give me products matching this criterion.</blockquote>
+<hr>
+<h1 id="h-1530-20-post-is-usually-used-for-state-changes">20. POST Is Usually Used for State Changes</h1>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create student
+Submit feedback
+Register user
+Login
+Create order
+Update data through a form</code></pre></div>
+<p>The key idea is:</p>
+<blockquote>GET is generally safe/read-oriented; POST is generally used when submitting data that can cause a state change.</blockquote>
+<hr>
+<h1 id="h-1531-21-important-html-form-needs-name">21. Important: HTML Form Needs <code>name</code></h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    id="username"
+&gt;</code></pre></div>
+<p>There is no:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name="username"</code></pre></div>
+<p>When submitted, Django won't receive a normal form field under <code>"username"</code>.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    id="username"
+    name="username"
+&gt;</code></pre></div>
+<hr>
+<h1 id="h-1532-22-submit-button">22. Submit Button</h1>
+<p>You can write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;button type="submit"&gt;
+    Submit
+&lt;/button&gt;</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="submit" value="Submit"&gt;</code></pre></div>
+<p>Both can submit a form.</p>
+<hr>
+<h1 id="h-1533-23-text-input">23. Text Input</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    name="name"
+&gt;</code></pre></div>
+<hr>
+<h1 id="h-1534-24-email-input">24. Email Input</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="email"
+    name="email"
+&gt;</code></pre></div>
+<p>The browser may perform basic client-side validation.</p>
+<p>But <strong>never rely only on browser validation</strong>.</p>
+<p>Server-side validation is still required.</p>
+<p>We'll cover this in depth later.</p>
+<hr>
+<h1 id="h-1535-25-password-input">25. Password Input</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="password"
+    name="password"
+&gt;</code></pre></div>
+<p>The browser visually masks the entered characters.</p>
+<p>But again:</p>
+<blockquote><code>type="password"</code> does not encrypt network traffic.</blockquote>
+<p>Use HTTPS.</p>
+<hr>
+<h1 id="h-1536-26-number-input">26. Number Input</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="number"
+    name="age"
+&gt;</code></pre></div>
+<p>The browser can provide numeric input controls.</p>
+<p>But Django still receives form values through the request and validation/conversion must be handled appropriately.</p>
+<hr>
+<h1 id="h-1537-27-date-input">27. Date Input</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="date"
+    name="dob"
+&gt;</code></pre></div>
+<hr>
+<h1 id="h-1538-28-textarea">28. Textarea</h1>
+<p>For larger text:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;textarea
+    name="message"
+&gt;&lt;/textarea&gt;</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;label for="message"&gt;
+    Message:
+&lt;/label&gt;
+
+&lt;textarea
+    id="message"
+    name="message"
+    rows="5"
+    cols="30"
+&gt;&lt;/textarea&gt;</code></pre></div>
+<hr>
+<h1 id="h-1539-29-select-dropdown">29. Select Dropdown</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;select name="course"&gt;
+
+    &lt;option value="cse"&gt;
+        Computer Science
+    &lt;/option&gt;
+
+    &lt;option value="it"&gt;
+        Information Technology
+    &lt;/option&gt;
+
+&lt;/select&gt;</code></pre></div>
+<p>If the user chooses Computer Science, Django receives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course=cse</code></pre></div>
+<p>not necessarily:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>course=Computer Science</code></pre></div>
+<p>because the submitted value comes from the <code>value</code> attribute.</p>
+<hr>
+<h1 id="h-1540-30-checkbox">30. Checkbox</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="checkbox"
+    name="agree"
+    value="yes"
+&gt;</code></pre></div>
+<p>If checked, the browser submits the field.</p>
+<p>If unchecked, the field is generally absent from the submitted form data.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>agree = request.POST.get("agree")</code></pre></div>
+<p>might return:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>yes</code></pre></div>
+<p>when checked and <code>None</code> when absent.</p>
+<hr>
+<h1 id="h-1541-31-radio-buttons">31. Radio Buttons</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="radio"
+    name="gender"
+    value="male"
+&gt;
+
+&lt;input
+    type="radio"
+    name="gender"
+    value="female"
+&gt;</code></pre></div>
+<p>Both use the same:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name="gender"</code></pre></div>
+<p>but different values.</p>
+<p>Only the selected option is submitted.</p>
+<hr>
+<h1 id="h-1542-32-complete-student-form">32. Complete Student Form</h1>
+<p>Let's build a manual HTML form.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    &lt;label for="name"&gt;
+        Name:
+    &lt;/label&gt;
+
+    &lt;input
+        type="text"
+        id="name"
+        name="name"
+    &gt;
+
+    &lt;br&gt;&lt;br&gt;
+
+    &lt;label for="age"&gt;
+        Age:
+    &lt;/label&gt;
+
+    &lt;input
+        type="number"
+        id="age"
+        name="age"
+    &gt;
+
+    &lt;br&gt;&lt;br&gt;
+
+    &lt;label for="course"&gt;
+        Course:
+    &lt;/label&gt;
+
+    &lt;select
+        id="course"
+        name="course"
+    &gt;
+
+        &lt;option value="cse"&gt;
+            Computer Science
+        &lt;/option&gt;
+
+        &lt;option value="it"&gt;
+            Information Technology
+        &lt;/option&gt;
+
+    &lt;/select&gt;
+
+    &lt;br&gt;&lt;br&gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-1543-33-processing-the-form">33. Processing the Form</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def student_create(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        age = request.POST.get("age")
+        course = request.POST.get("course")
+
+        return HttpResponse(
+            f"Name: {name}, Age: {age}, Course: {course}"
+        )
+
+    return render(
+        request,
+        "student_form.html"
+    )</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":</code></pre></div>
+<p>We only process submitted data when the request is POST.</p>
+<hr>
+<h1 id="h-1544-34-get-and-post-in-the-same-view">34. GET and POST in the Same View</h1>
+<p>This pattern is extremely common.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_create(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student: {name}"
+        )
+
+    return render(
+        request,
+        "student_form.html"
+    )</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+ ↓
+Display form
+
+POST
+ ↓
+Process submitted form</code></pre></div>
+<hr>
+<h1 id="h-1545-35-why-is-this-pattern-useful">35. Why Is This Pattern Useful?</h1>
+<p>When the user first opens:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/create/</code></pre></div>
+<p>the browser sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET</code></pre></div>
+<p>Django displays the form.</p>
+<p>After clicking Submit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST</code></pre></div>
+<p>Django processes the submitted data.</p>
+<p>So one URL can handle both stages.</p>
+<hr>
+<h1 id="h-1546-36-form-with-action">36. Form With <code>action</code></h1>
+<p>You can explicitly specify:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form
+    action="{% url 'student_create' %}"
+    method="POST"
+&gt;</code></pre></div>
+<p>This is usually better than:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form action="/students/create/" method="POST"&gt;</code></pre></div>
+<p>because URL names make templates less dependent on hardcoded paths.</p>
+<hr>
+<h1 id="h-1547-37-the-action-can-be-empty">37. The <code>action</code> Can Be Empty</h1>
+<p>You may also see:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;</code></pre></div>
+<p>This submits to the current URL.</p>
+<p>For example, if you're on:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/create/</code></pre></div>
+<p>the form submits to that URL unless another action is specified.</p>
+<hr>
+<h1 id="h-1548-38-get-form-with-search">38. GET Form With Search</h1>
+<p>Let's build a complete search page.</p>
+<h3 id="h-1549-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="GET"&gt;
+
+    &lt;input
+        type="text"
+        name="query"
+        placeholder="Search students"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Search
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<h3 id="h-1550-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def search(request):
+
+    query = request.GET.get(
+        "query",
+        ""
+    )
+
+    return render(
+        request,
+        "search.html",
+        {
+            "query": query
+        }
+    )</code></pre></div>
+<h3 id="h-1551-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if query %}
+
+    &lt;p&gt;You searched for: {{ query }}&lt;/p&gt;
+
+{% endif %}</code></pre></div>
+<hr>
+<h1 id="h-1552-39-post-form-with-data">39. POST Form With Data</h1>
+<h3 id="h-1553-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    &lt;input
+        type="text"
+        name="name"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<h3 id="h-1554-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student name: {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1555-40-one-important-problem">40. One Important Problem</h1>
+<p>Our POST form currently lacks:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>In Django, POST forms should normally include CSRF protection.</p>
+<p>So a proper Django POST form is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;input
+        type="text"
+        name="name"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Don't worry about the detailed mechanics yet.</p>
+<p><strong>CSRF is the next important Forms topic</strong>, and we'll study it properly in Module 23.</p>
+<hr>
+<h1 id="h-1556-41-why-does-django-require-csrf">41. Why Does Django Require CSRF?</h1>
+<p>CSRF stands for:</p>
+<blockquote><strong>Cross-Site Request Forgery</strong></blockquote>
+<p>It's a security attack where a malicious site attempts to cause a user's browser to send an unwanted request to a site where the user is authenticated.</p>
+<p>Django provides CSRF protection for state-changing requests such as POST.</p>
+<p>We'll go deeply into:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF token
+middleware
+{% csrf_token %}
+403 errors
+CSRF_COOKIE</code></pre></div>
+<p>later.</p>
+<hr>
+<h1 id="h-1557-42-get-does-not-usually-need-csrf-token">42. GET Does Not Usually Need CSRF Token</h1>
+<p>You normally don't write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="GET"&gt;
+    {% csrf_token %}</code></pre></div>
+<p>for a normal GET form.</p>
+<p>CSRF protection is primarily relevant to unsafe/state-changing HTTP methods such as POST.</p>
+<hr>
+<h1 id="h-1558-43-important-form-flow">43. Important Form Flow</h1>
+<p>For a POST form:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   │
+   │ GET /students/create/
+   ▼
+Django View
+   │
+   ▼
+Render Form
+   │
+   ▼
+Browser
+   │
+   │ User fills form
+   │
+   │ POST /students/create/
+   ▼
+Django
+   │
+   ├── CSRF check
+   │
+   ├── Read request.POST
+   │
+   ├── Validate data
+   │
+   └── Process data</code></pre></div>
+<p>This is the foundation for everything we'll do with Django Forms.</p>
+<hr>
+<h1 id="h-1559-44-client-side-vs-server-side-validation">44. Client-Side vs Server-Side Validation</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="email"
+    name="email"
+    required
+&gt;</code></pre></div>
+<p>The browser can check some conditions.</p>
+<p>That's <strong>client-side validation</strong>.</p>
+<p>But a malicious user can bypass browser checks.</p>
+<p>Therefore Django must perform:</p>
+<blockquote><strong>Server-side validation</strong></blockquote>
+<p>Never trust client-side validation alone.</p>
+<hr>
+<h1 id="h-1560-45-required">45. <code>required</code></h1>
+<p>HTML:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    name="name"
+    required
+&gt;</code></pre></div>
+<p>The browser can prevent normal submission if the field is empty.</p>
+<p>But Django should still validate the submitted value.</p>
+<hr>
+<h1 id="h-1561-46-why-django-forms-exist">46. Why Django Forms Exist</h1>
+<p>At this point you might think:</p>
+<blockquote>"Why don't we just create HTML forms manually?"</blockquote>
+<p>We can.</p>
+<p>But large applications quickly become difficult.</p>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name
+Email
+Age
+Password
+Phone
+Date of birth
+Address
+Course</code></pre></div>
+<p>You need to manage:</p>
+<ul>
+<li>HTML generation</li>
+<li>validation</li>
+<li>error messages</li>
+<li>cleaning data</li>
+<li>security</li>
+<li>redisplaying invalid input</li>
+<li>field types</li>
+<li>widgets</li>
+</ul>
+<p>Django's <strong>Forms framework</strong> helps manage these tasks.</p>
+<p>That's what we'll learn next.</p>
+<hr>
+<h1 id="h-1562-47-html-forms-vs-django-forms">47. HTML Forms vs Django Forms</h1>
+<h3 id="h-1563-html-form">HTML Form</h3>
+<p>You manually write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="text" name="name"&gt;</code></pre></div>
+<p>and manually process:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get("name")</code></pre></div>
+<h3 id="h-1564-django-form">Django Form</h3>
+<p>You define fields in Python:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    name = forms.CharField()
+    age = forms.IntegerField()</code></pre></div>
+<p>Django can then help with:</p>
+<ul>
+<li>rendering</li>
+<li>validation</li>
+<li>cleaned data</li>
+<li>errors</li>
+</ul>
+<hr>
+<h1 id="h-1565-48-important-distinction">48. Important Distinction</h1>
+<p>Don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML Form</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django Form</code></pre></div>
+<p>HTML forms are a browser/web standard.</p>
+<p>Django Forms are a Python framework provided by Django to make form handling easier and safer.</p>
+<hr>
+<h1 id="h-1566-49-common-mistakes">49. Common Mistakes</h1>
+<h3 id="h-1567-mistake-1-forgetting-name">Mistake 1 — Forgetting <code>name</code></h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input type="text" id="name"&gt;</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    id="name"
+    name="name"
+&gt;</code></pre></div>
+<hr>
+<h3 id="h-1568-mistake-2-reading-post-data-from-request-get">Mistake 2 — Reading POST data from <code>request.GET</code></h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.GET.get("name")</code></pre></div>
+<p>for a POST submission.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.POST.get("name")</code></pre></div>
+<hr>
+<h3 id="h-1569-mistake-3-reading-get-data-from-request-post">Mistake 3 — Reading GET data from <code>request.POST</code></h3>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>query = request.POST.get("query")</code></pre></div>
+<p>for a GET search form.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>query = request.GET.get("query")</code></pre></div>
+<hr>
+<h3 id="h-1570-mistake-4-forgetting-csrf">Mistake 4 — Forgetting CSRF</h3>
+<p>For a normal Django POST form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+    {% csrf_token %}</code></pre></div>
+<hr>
+<h3 id="h-1571-mistake-5-thinking-post-encrypts-data">Mistake 5 — Thinking POST Encrypts Data</h3>
+<p>It doesn't.</p>
+<p>Use HTTPS for encryption in transit.</p>
+<hr>
+<h3 id="h-1572-mistake-6-trusting-browser-validation">Mistake 6 — Trusting Browser Validation</h3>
+<p>HTML validation can be bypassed.</p>
+<p>Always validate on the server.</p>
+<hr>
+<h1 id="h-1573-50-viva-questions">50. ⭐ Viva Questions</h1>
+<h3 id="h-1574-q1-what-is-an-html-form">Q1. What is an HTML form?</h3>
+<blockquote>An HTML form is a mechanism for collecting user input and submitting it to a server.</blockquote>
+<h3 id="h-1575-q2-what-are-the-common-http-methods-used-with-form">Q2. What are the common HTTP methods used with forms?</h3>
+<blockquote>GET and POST.</blockquote>
+<h3 id="h-1576-q3-what-is-the-purpose-of-the-method-attribute">Q3. What is the purpose of the <code>method</code> attribute?</h3>
+<blockquote>It specifies the HTTP method used when submitting the form.</blockquote>
+<h3 id="h-1577-q4-what-is-the-purpose-of-action">Q4. What is the purpose of <code>action</code>?</h3>
+<blockquote>It specifies the URL to which the form data is submitted.</blockquote>
+<h3 id="h-1578-q5-what-is-the-purpose-of-the-name-attribute">Q5. What is the purpose of the <code>name</code> attribute?</h3>
+<blockquote>It identifies the form field's key in the submitted form data.</blockquote>
+<hr>
+<h1 id="h-1579-51-viva-get">51. Viva — GET</h1>
+<h3 id="h-1580-teacher">Teacher:</h3>
+<blockquote>Where is GET form data commonly visible?</blockquote>
+<p>Answer:</p>
+<blockquote>In the URL query string.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?query=Django</code></pre></div>
+<hr>
+<h1 id="h-1581-52-viva-post">52. Viva — POST</h1>
+<h3 id="h-1582-teacher">Teacher:</h3>
+<blockquote>Where is POST form data sent?</blockquote>
+<p>Answer:</p>
+<blockquote>It is sent in the HTTP request body rather than as the normal query string in the URL.</blockquote>
+<hr>
+<h1 id="h-1583-53-viva-get-vs-post">53. Viva — GET vs POST</h1>
+<h3 id="h-1584-teacher">Teacher:</h3>
+<blockquote>Which one should you use for login?</blockquote>
+<p>Answer:</p>
+<blockquote>POST should generally be used because login is a form submission involving credentials and represents a stateful/authentication operation. HTTPS must also be used because POST itself does not encrypt data.</blockquote>
+<hr>
+<h1 id="h-1585-54-viva-request-post">54. Viva — <code>request.POST</code></h1>
+<h3 id="h-1586-teacher">Teacher:</h3>
+<blockquote>What is <code>request.POST</code>?</blockquote>
+<p>Answer:</p>
+<blockquote><code>request.POST</code> is a Django <code>QueryDict</code> containing form data submitted using POST.</blockquote>
+<hr>
+<h1 id="h-1587-55-viva-request-get">55. Viva — <code>request.GET</code></h1>
+<h3 id="h-1588-teacher">Teacher:</h3>
+<blockquote>What is <code>request.GET</code>?</blockquote>
+<p>Answer:</p>
+<blockquote><code>request.GET</code> is a Django <code>QueryDict</code> containing query parameters submitted through the URL, commonly by GET requests.</blockquote>
+<hr>
+<h1 id="h-1589-56-viva-name-vs-id">56. Viva — <code>name</code> vs <code>id</code></h1>
+<h3 id="h-1590-teacher">Teacher:</h3>
+<blockquote>Why is <code>name</code> important in a form?</blockquote>
+<p>Answer:</p>
+<blockquote>The <code>name</code> attribute identifies the field in the submitted form data, while <code>id</code> primarily identifies the HTML element for the document, CSS, JavaScript, and labels.</blockquote>
+<hr>
+<h1 id="h-1591-57-coding-question">57. Coding Question</h1>
+<p>Create a GET search form and process its data in Django.</p>
+<h3 id="h-1592-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="GET"&gt;
+
+    &lt;input
+        type="text"
+        name="query"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Search
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<h3 id="h-1593-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def search(request):
+
+    query = request.GET.get(
+        "query",
+        ""
+    )
+
+    return HttpResponse(
+        f"Search: {query}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1594-58-coding-question">58. Coding Question</h1>
+<p>Create a POST form for entering a student's name.</p>
+<h3 id="h-1595-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;input
+        type="text"
+        name="name"
+    &gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<h3 id="h-1596-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student: {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )</code></pre></div>
+<hr>
+<h1 id="h-1597-59-coding-question-get-post">59. Coding Question — GET + POST</h1>
+<p>Write a view that:</p>
+<ul>
+<li>displays a form on GET</li>
+<li>processes the name on POST</li>
+</ul>
+<h3 id="h-1598-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Hello {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )</code></pre></div>
+<p>This pattern is extremely important.</p>
+<hr>
+<h1 id="h-1599-module-20-cheat-sheet">🧠 Module 20 Cheat Sheet</h1>
+<h3 id="h-1600-html-form">HTML form:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST" action="/students/"&gt;</code></pre></div>
+<h3 id="h-1601-text">Text:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;input
+    type="text"
+    name="name"
+&gt;</code></pre></div>
+<h3 id="h-1602-get">GET:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get("name")</code></pre></div>
+<h3 id="h-1603-post">POST:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get("name")</code></pre></div>
+<h3 id="h-1604-csrf">CSRF:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% csrf_token %}</code></pre></div>
+<h3 id="h-1605-form-submission">Form submission:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML form
+   ↓
+HTTP GET/POST
+   ↓
+Django request
+   ↓
+request.GET / request.POST
+   ↓
+View logic</code></pre></div>
+<h3 id="h-1606-most-important-rule">Most important rule:</h3>
+<blockquote><strong>The HTML <code>name</code> attribute determines the key used to retrieve submitted form data.</strong></blockquote>
+<hr>
+<h1 id="h-1607-what-you-should-be-able-to-code-now">🎯 What You Should Be Able to Code Now</h1>
+<p>Without looking at notes, you should be able to create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. A GET search form
+2. A POST student form
+3. A Django view that processes request.POST
+4. A view that handles GET and POST differently
+5. A form with text/email/number/select fields
+6. A template containing {% csrf_token %}</code></pre></div>
+<hr>
+<h2 id="h-1608-next-module-21-django-forms">Next → Module 21: Django Forms</h2>
+<p>Now we'll move from <strong>manual HTML forms</strong> to Django's powerful <strong>Forms framework</strong>.</p>
+<p>We'll learn:</p>
+<ul>
+<li><code>forms.Form</code></li>
+<li><code>forms.py</code></li>
+<li><code>CharField</code></li>
+<li><code>IntegerField</code></li>
+<li><code>EmailField</code></li>
+<li><code>ChoiceField</code></li>
+<li><code>BooleanField</code></li>
+<li>Form rendering</li>
+<li><code>{{ form }}</code></li>
+<li><code>{{ form.as_p }}</code></li>
+<li><code>{{ form.as_table }}</code></li>
+<li><code>{{ form.as_ul }}</code></li>
+<li><code>is_valid()</code></li>
+<li><code>cleaned_data</code></li>
+<li>Form errors</li>
+<li>GET/POST with Django Forms</li>
+<li>Complete form project</li>
+<li>Viva + coding questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-19.html">← Module 19: Testing in Django</a>
+<a class="pn-btn pn-next" href="module-21.html">Module 21: Django Forms →</a>
+</div>
+
+</div>
+
+</body>
+</html>

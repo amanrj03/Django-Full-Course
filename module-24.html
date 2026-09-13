@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 24: POST Redirect Pattern (PRG) — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 24 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 24 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">POST Redirect Pattern (PRG)</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<span class="nav-item current">24. POST Redirect Pattern (PRG)</span>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-23.html">← Module 23: CSRF &amp; CSRF Protection</a>
+<a class="pn-btn pn-next" href="module-25.html">Module 25: Databases &amp; Django Models →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1874-module-24-post-redirect-pattern-prg">Module 24 — POST Redirect Pattern (PRG)</h1>
+<p>This module is short but <strong>very important in practical Django development and viva</strong>.</p>
+<p>The main concept is:</p>
+<blockquote><strong>After successfully processing a POST request, redirect the user to another page instead of directly rendering the response.</strong></blockquote>
+<p>This pattern is called:</p>
+<h1 id="h-1875-post-redirect-get-prg">POST → Redirect → GET (PRG)</h1>
+<hr>
+<h1 id="h-1876-1-the-problem-with-directly-rendering-after-post">1. The Problem With Directly Rendering After POST</h1>
+<p>Suppose we have a student registration form.</p>
+<p>User submits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman
+Age: 21</code></pre></div>
+<p>Browser sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /students/register/</code></pre></div>
+<p>Your Django view processes the data:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+    form = StudentForm(request.POST)
+
+    if form.is_valid():
+        # Save/process data</code></pre></div>
+<p>Now suppose you do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(request, "success.html")</code></pre></div>
+<p>The browser is currently displaying the response to the <strong>POST request</strong>.</p>
+<p>If the user presses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>F5 / Refresh</code></pre></div>
+<p>the browser may ask:</p>
+<blockquote>"Resubmit the form?"</blockquote>
+<p>Because the current page came from a POST request.</p>
+<p>This can potentially cause the same operation to happen again.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+↓
+Create student
+↓
+Success page
+↓
+Refresh
+↓
+POST again
+↓
+Create student again</code></pre></div>
+<p>That could result in duplicate data.</p>
+<hr>
+<h1 id="h-1877-2-the-solution-redirect">2. The Solution: Redirect</h1>
+<p>Instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(request, "success.html")</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>Now the flow becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+Process data
+ ↓
+Redirect
+ ↓
+GET
+ ↓
+Success page</code></pre></div>
+<p>This is:</p>
+<h1 id="h-1878-post-redirect-get">POST → Redirect → GET</h1>
+<hr>
+<h1 id="h-1879-3-why-is-this-called-prg">3. Why Is This Called PRG?</h1>
+<p>PRG stands for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>P → POST
+R → Redirect
+G → GET</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST request
+      ↓
+Process submitted data
+      ↓
+HTTP Redirect
+      ↓
+GET request
+      ↓
+Display result</code></pre></div>
+<p>The browser's final page is now the result of a GET request.</p>
+<p>Therefore, refreshing the page normally repeats the GET rather than resubmitting the original POST.</p>
+<hr>
+<h1 id="h-1880-4-basic-django-example">4. Basic Django Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render, redirect
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process data
+
+            return redirect("success")
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<p>The important line is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<hr>
+<h1 id="h-1881-5-where-does-success-come-from">5. Where Does <code>"success"</code> Come From?</h1>
+<p>Usually from a named URL.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "success/",
+    views.success,
+    name="success"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>Django finds the URL whose name is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>success</code></pre></div>
+<p>and redirects the browser there.</p>
+<hr>
+<h1 id="h-1882-6-the-success-view">6. The Success View</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def success(request):
+    return render(
+        request,
+        "success.html"
+    )</code></pre></div>
+<p>Complete flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /students/register/
+             ↓
+       student_form()
+             ↓
+        form.is_valid()
+             ↓
+           valid
+             ↓
+    redirect("success")
+             ↓
+GET /students/success/
+             ↓
+        success()
+             ↓
+       success.html</code></pre></div>
+<hr>
+<h1 id="h-1883-7-redirect-vs-render">7. <code>redirect()</code> vs <code>render()</code></h1>
+<p>This is a common viva question.</p>
+<h3 id="h-1884-render"><code>render()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "success.html"
+)</code></pre></div>
+<p>renders a template directly.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Template
+ ↓
+HTTP response</code></pre></div>
+<h3 id="h-1885-redirect"><code>redirect()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>tells the browser to go to another URL.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Redirect response
+ ↓
+Browser makes GET request
+ ↓
+New view</code></pre></div>
+<hr>
+<h1 id="h-1886-8-important-difference">8. Important Difference</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th><code>render()</code></th>
+<th><code>redirect()</code></th>
+</tr></thead><tbody>
+<tr>
+<td>Renders a template</td>
+<td>Sends browser to another URL</td>
+</tr>
+<tr>
+<td>Usually returns the page directly</td>
+<td>Causes a new request</td>
+</tr>
+<tr>
+<td>Doesn't change the browser URL to another route by itself</td>
+<td>Browser URL changes</td>
+</tr>
+<tr>
+<td>Useful for displaying a page</td>
+<td>Useful after successful POST/action</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-1887-9-why-not-just-render-the-success-page">9. Why Not Just Render the Success Page?</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return render(
+        request,
+        "success.html"
+    )</code></pre></div>
+<p>The browser's current request is still:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST</code></pre></div>
+<p>Then refresh can potentially repeat the POST.</p>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return redirect("success")</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+save
+ ↓
+redirect
+ ↓
+GET
+ ↓
+success page</code></pre></div>
+<hr>
+<h1 id="h-1888-10-prg-is-especially-useful-for-database-operation">10. PRG Is Especially Useful for Database Operations</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman"
+)</code></pre></div>
+<p>If the POST gets accidentally repeated, you could create another student.</p>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /create-order/
+POST /payment/
+POST /register/
+POST /comment/
+POST /contact/</code></pre></div>
+<p>are actions where duplicate submissions can be problematic.</p>
+<p>PRG is therefore widely used after successful form submissions.</p>
+<hr>
+<h1 id="h-1889-11-redirect-with-url-name">11. Redirect With URL Name</h1>
+<p>Recommended:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "success/",
+    views.success,
+    name="success"
+)</code></pre></div>
+<p>This is better than hardcoding the URL:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("/students/success/")</code></pre></div>
+<p>Why?</p>
+<p>Because if the URL changes later:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "registration-complete/",
+    views.success,
+    name="success"
+)</code></pre></div>
+<p>your Python code can still use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect("success")</code></pre></div>
+<hr>
+<h1 id="h-1890-12-redirect-to-another-view">12. Redirect to Another View</h1>
+<p>You can also redirect using a view name:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("home")</code></pre></div>
+<p>provided that:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "",
+    views.home,
+    name="home"
+)</code></pre></div>
+<p>exists.</p>
+<hr>
+<h1 id="h-1891-13-redirect-with-parameters">13. Redirect With Parameters</h1>
+<p>Suppose your URL is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student_detail,
+    name="student_detail"
+)</code></pre></div>
+<p>You can redirect with the parameter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect(
+    "student_detail",
+    id=10
+)</code></pre></div>
+<p>Django resolves it to something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/10/</code></pre></div>
+<p>This is similar to URL reversing.</p>
+<hr>
+<h1 id="h-1892-14-redirect-using-reverse">14. Redirect Using <code>reverse()</code></h1>
+<p>You can also do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import reverse
+from django.shortcuts import redirect</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect(
+    reverse("success")
+)</code></pre></div>
+<p>But normally:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>is simpler.</p>
+<p>Django's <code>redirect()</code> can resolve a named URL for you.</p>
+<hr>
+<h1 id="h-1893-15-prg-with-a-django-form">15. PRG With a Django Form</h1>
+<p>Let's combine what we've learned.</p>
+<h3 id="h-1894-forms-py"><code>forms.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )</code></pre></div>
+<h3 id="h-1895-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render, redirect
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+
+            # Process/save data here
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+
+
+def success(request):
+
+    return render(
+        request,
+        "success.html"
+    )</code></pre></div>
+<h3 id="h-1896-urls-py"><code>urls.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "register/",
+        views.student_form,
+        name="student_form"
+    ),
+
+    path(
+        "success/",
+        views.success,
+        name="success"
+    ),
+]</code></pre></div>
+<h3 id="h-1897-template">Template</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Register
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-1898-16-what-happens-when-form-is-invalid">16. What Happens When Form Is Invalid?</h1>
+<p>This is very important.</p>
+<p>Suppose user submits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: A
+Age: 12</code></pre></div>
+<p>Validation fails.</p>
+<p>The view does:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+    return redirect("success")</code></pre></div>
+<p>Since:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>is <code>False</code>, Django does <strong>not</strong> redirect.</p>
+<p>It reaches:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "student_form.html",
+    {"form": form}
+)</code></pre></div>
+<p>The form is displayed again with errors.</p>
+<p>So the complete behavior is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+Validation
+ ↓
+ ┌─────────────┐
+ │             │
+Valid        Invalid
+ │             │
+ ↓             ↓
+Redirect     Render form
+ │             +
+ ↓           errors
+GET
+ ↓
+Success</code></pre></div>
+<p>This is the standard pattern.</p>
+<hr>
+<h1 id="h-1899-17-why-don-t-we-redirect-when-validation-fails">17. Why Don't We Redirect When Validation Fails?</h1>
+<p>Because we want to preserve the submitted form and its errors.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Age = 15</code></pre></div>
+<p>and minimum age is 18.</p>
+<p>We want the user to see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Age
+15
+
+❌ Ensure this value is greater than or equal to 18.</code></pre></div>
+<p>If we redirected immediately, we'd need another mechanism to preserve the errors/data.</p>
+<p>So the usual pattern is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Invalid POST → render form with errors
+Valid POST → redirect</code></pre></div>
+<hr>
+<h1 id="h-1900-18-prg-csrf-validation">18. PRG + CSRF + Validation</h1>
+<p>Now you can connect Modules 21–24.</p>
+<p>A secure form flow looks like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User opens form
+       ↓
+GET
+       ↓
+Django renders form
+       ↓
+User fills form
+       ↓
+POST
+       ↓
+CSRF verification
+       ↓
+Form validation
+       ↓
+ ┌──────────────┐
+ │              │
+Invalid       Valid
+ │              │
+ ↓              ↓
+Show errors   Process data
+               ↓
+            Redirect
+               ↓
+              GET
+               ↓
+          Success page</code></pre></div>
+<p>This is an extremely useful mental model.</p>
+<hr>
+<h1 id="h-1901-19-post-redirect-vs-redirect-after-every-post">19. POST Redirect vs Redirect After Every POST</h1>
+<p>Not every POST necessarily has to use PRG.</p>
+<p>The important principle is:</p>
+<blockquote><strong>After a successful state-changing POST, redirecting is generally a good practice when the next page represents the result of that operation.</strong></blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create student → redirect to student detail
+Update student → redirect to student detail
+Delete student → redirect to student list
+Submit registration → redirect to success/dashboard</code></pre></div>
+<hr>
+<h1 id="h-1902-20-redirect-after-create">20. Redirect After Create</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def create_student(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            student = Student.objects.create(
+                name=form.cleaned_data["name"]
+            )
+
+            return redirect(
+                "student_detail",
+                id=student.id
+            )
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "create_student.html",
+        {"form": form}
+    )</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+Create student
+ ↓
+Redirect to student detail
+ ↓
+GET student detail</code></pre></div>
+<hr>
+<h1 id="h-1903-21-redirect-after-delete">21. Redirect After Delete</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_student(request, id):
+
+    if request.method == "POST":
+
+        student = get_object_or_404(
+            Student,
+            id=id
+        )
+
+        student.delete()
+
+        return redirect("student_list")</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST /student/10/delete/
+          ↓
+      Delete student
+          ↓
+redirect("student_list")
+          ↓
+GET /students/</code></pre></div>
+<p>This is a very common Django pattern.</p>
+<hr>
+<h1 id="h-1904-22-http-redirect-status">22. HTTP Redirect Status</h1>
+<p>A redirect is represented by an HTTP 3xx response.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>302 Found</code></pre></div>
+<p>is commonly used for redirects.</p>
+<p>Django's:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect()</code></pre></div>
+<p>creates an appropriate redirect response.</p>
+<p>You generally don't need to manually construct the HTTP response for ordinary redirects.</p>
+<hr>
+<h1 id="h-1905-23-common-mistake-calling-render-instead-of-redire">23. Common Mistake: Calling <code>render()</code> Instead of <code>redirect()</code></h1>
+<p>Bad after successful POST:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return render(
+        request,
+        "success.html"
+    )</code></pre></div>
+<p>Better:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return redirect("success")</code></pre></div>
+<hr>
+<h1 id="h-1906-24-common-mistake-redirect-before-processing">24. Common Mistake: Redirect Before Processing</h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":
+
+    return redirect("success")
+
+    form.save()</code></pre></div>
+<p>Why?</p>
+<p>Because:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return</code></pre></div>
+<p>immediately exits the function.</p>
+<p>Therefore this:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.save()</code></pre></div>
+<p>will never execute.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    form.save()
+
+    return redirect("success")</code></pre></div>
+<hr>
+<h1 id="h-1907-25-common-mistake-no-named-url">25. Common Mistake: No Named URL</h1>
+<p>If you write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect("success")</code></pre></div>
+<p>but don't have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name="success"</code></pre></div>
+<p>Django may raise:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NoReverseMatch</code></pre></div>
+<p>So make sure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "success/",
+    views.success,
+    name="success"
+)</code></pre></div>
+<p>exists.</p>
+<hr>
+<h1 id="h-1908-26-redirect-vs-reverse">26. <code>redirect()</code> vs <code>reverse()</code></h1>
+<p>This is a useful viva distinction.</p>
+<h3 id="h-1909-reverse"><code>reverse()</code></h3>
+<p>Builds a URL string.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>reverse("success")</code></pre></div>
+<p>might produce:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/success/</code></pre></div>
+<h3 id="h-1910-redirect"><code>redirect()</code></h3>
+<p>Returns an HTTP redirect response.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect("success")</code></pre></div>
+<p>tells the browser to navigate to that URL.</p>
+<p>Simple rule:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>reverse()  → creates URL
+redirect() → redirects browser</code></pre></div>
+<hr>
+<h1 id="h-1911-27-viva-questions">27. Viva Questions</h1>
+<h3 id="h-1912-q1-what-is-prg">Q1. What is PRG?</h3>
+<blockquote>PRG stands for Post-Redirect-Get. It is a web design pattern where a successful POST request is followed by a redirect, and the browser then makes a GET request to display the result.</blockquote>
+<hr>
+<h3 id="h-1913-q2-why-is-prg-used">Q2. Why is PRG used?</h3>
+<blockquote>It prevents the final page from being directly associated with the POST submission, reducing accidental duplicate submissions when the user refreshes the page.</blockquote>
+<hr>
+<h3 id="h-1914-q3-what-function-is-used-for-redirecting-in-django">Q3. What function is used for redirecting in Django?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>redirect()</code></pre></div>
+<hr>
+<h3 id="h-1915-q4-difference-between-render-and-redirect">Q4. Difference between <code>render()</code> and <code>redirect()</code>?</h3>
+<blockquote><code>render()</code> generates a response using a template, while <code>redirect()</code> sends a redirect response causing the browser to make a new request to another URL.</blockquote>
+<hr>
+<h3 id="h-1916-q5-what-happens-when-validation-fails">Q5. What happens when validation fails?</h3>
+<blockquote>The form is normally rendered again with its validation errors rather than redirecting to the success page.</blockquote>
+<hr>
+<h3 id="h-1917-q6-why-use-named-urls-with-redirect">Q6. Why use named URLs with <code>redirect()</code>?</h3>
+<blockquote>Named URLs avoid hardcoding URL paths and make the application easier to maintain when URL patterns change.</blockquote>
+<hr>
+<h3 id="h-1918-q7-can-redirect-accept-url-parameters">Q7. Can <code>redirect()</code> accept URL parameters?</h3>
+<p>Yes.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return redirect(
+    "student_detail",
+    id=10
+)</code></pre></div>
+<hr>
+<h3 id="h-1919-q8-what-happens-when-the-user-refreshes-after-prg">Q8. What happens when the user refreshes after PRG?</h3>
+<p>The browser refreshes the final GET request instead of normally resubmitting the original POST.</p>
+<hr>
+<h1 id="h-1920-28-exam-question">28. Exam Question</h1>
+<h3 id="h-1921-explain-post-redirect-get-pattern-in-django">"Explain POST-Redirect-GET pattern in Django."</h3>
+<p>A good answer:</p>
+<blockquote><strong>POST-Redirect-GET (PRG)</strong> is a web design pattern used after successful form submission. First, the client sends a POST request containing form data. Django validates and processes the data. Instead of directly rendering the success page for the POST request, Django returns a redirect using <code>redirect()</code>. The browser then sends a new GET request to the redirected URL. This prevents the success page from being directly associated with the POST request and helps avoid accidental duplicate form submissions when the page is refreshed.</blockquote>
+<hr>
+<h1 id="h-1922-29-must-memorize-code">29. Must-Memorize Code</h1>
+<p>This pattern is worth memorizing exactly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process data
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "success/",
+    views.success,
+    name="success"
+)</code></pre></div>
+<hr>
+<h1 id="h-1923-module-24-summary">Module 24 Summary</h1>
+<p>Remember this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST
+ ↓
+Validate
+ ↓
+Valid?
+ ├── No → Render form + errors
+ │
+ └── Yes
+       ↓
+   Process/save
+       ↓
+    redirect()
+       ↓
+      GET
+       ↓
+   Success page</code></pre></div>
+<h3 id="h-1924-golden-rule">Golden rule:</h3>
+<blockquote><strong>Invalid POST → render the form again.</strong></blockquote>
+<blockquote><strong>Successful POST → process the data → redirect.</strong></blockquote>
+<p>This connects directly with everything we've learned:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Forms
+ +
+Validation
+ +
+CSRF
+ +
+POST
+ +
+Redirect
+ =
+Proper Django form submission</code></pre></div>
+<p><strong>Next → Module 25: Databases &amp; Django Models</strong></p>
+<p>This is a <strong>major module</strong>. We'll start from zero with databases, tables, rows, columns, primary keys, Django models, model fields, <code>models.py</code>, and how Django represents database data in Python.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-23.html">← Module 23: CSRF &amp; CSRF Protection</a>
+<a class="pn-btn pn-next" href="module-25.html">Module 25: Databases &amp; Django Models →</a>
+</div>
+
+</div>
+
+</body>
+</html>

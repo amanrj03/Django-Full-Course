@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Django Project Structure — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 4 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 4 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Project Structure</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<span class="nav-item current">4. Django Project Structure</span>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-3.html">← Module 3: Creating Your First Django Project</a>
+<a class="pn-btn pn-next" href="module-5.html">Module 5: Creating a Django App →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-208-module-4-django-project-structure">Module 4 — Django Project Structure</h1>
+<p>Now we're going to <strong>open the Django project and understand every important file</strong>.</p>
+<p>This module is extremely important because teachers love asking:</p>
+<blockquote>"What is the purpose of <code>settings.py</code>?"</blockquote>
+<blockquote>"What does <code>manage.py</code> do?"</blockquote>
+<blockquote>"What is <code>urls.py</code>?"</blockquote>
+<blockquote>"Why are there two <code>__init__.py</code> files?"</blockquote>
+<blockquote>"What is WSGI?"</blockquote>
+<blockquote>"What is ASGI?"</blockquote>
+<p>By the end, you should be able to look at a Django project and understand <strong>what every file is doing</strong>.</p>
+<hr>
+<h1 id="h-209-1-our-django-project">1. Our Django Project</h1>
+<p>Suppose we created:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python -m django startproject College</code></pre></div>
+<p>The structure is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p>Let's understand it one file at a time.</p>
+<hr>
+<h1 id="h-210-2-outer-college-folder">2. Outer <code>College</code> Folder</h1>
+<p>The outer folder:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/</code></pre></div>
+<p>is simply the directory containing your Django project.</p>
+<p>It contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py
+College/</code></pre></div>
+<p>Think of it as the <strong>container for your project</strong>.</p>
+<hr>
+<h1 id="h-211-3-manage-py">3. <code>manage.py</code></h1>
+<p>We've already seen this.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py</code></pre></div>
+<p><code>manage.py</code> is a command-line utility for interacting with your particular Django project.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<p>So:</p>
+<blockquote><strong><code>manage.py</code> provides a convenient way to execute Django management commands for a specific project.</strong></blockquote>
+<hr>
+<h1 id="h-212-4-inner-college-folder">4. Inner <code>College</code> Folder</h1>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+└── College/</code></pre></div>
+<p>This inner folder is the <strong>Python package containing the project's configuration</strong>.</p>
+<p>It contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>__init__.py
+settings.py
+urls.py
+asgi.py
+wsgi.py</code></pre></div>
+<p>This is where the main Django project configuration lives.</p>
+<hr>
+<h1 id="h-213-5-init-py">5. <code>__init__.py</code></h1>
+<p>You'll see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>__init__.py</code></pre></div>
+<p>This is a Python package file.</p>
+<p>Its presence historically tells Python that the directory should be treated as a package. In modern Python, namespace packages can exist without it, but Django's generated project structure includes it.</p>
+<p>For your Django course, the important point is:</p>
+<blockquote><strong><code>__init__.py</code> marks/helps define the directory as a Python package and allows package-related Python imports.</strong></blockquote>
+<p>Usually, you don't need to modify it.</p>
+<hr>
+<h1 id="h-214-6-settings-py">6. <code>settings.py</code></h1>
+<p>This is one of the <strong>most important files in Django</strong>.</p>
+<p>It contains the configuration of your Django project.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+]</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>MIDDLEWARE = [
+    ...
+]</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>ROOT_URLCONF = 'College.urls'</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    ...
+}</code></pre></div>
+<p>We'll study these settings throughout the course.</p>
+<p>Think:</p>
+<blockquote><strong><code>settings.py</code> = project configuration</strong></blockquote>
+<hr>
+<h1 id="h-215-7-what-kind-of-things-are-configured-in-settings-p">7. What Kind of Things Are Configured in <code>settings.py</code>?</h1>
+<p>Many things.</p>
+<h3 id="h-216-installed-applications">Installed applications</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+]</code></pre></div>
+<h3 id="h-217-middleware">Middleware</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>MIDDLEWARE = [
+    ...
+]</code></pre></div>
+<h3 id="h-218-templates">Templates</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>TEMPLATES = [
+    ...
+]</code></pre></div>
+<h3 id="h-219-database">Database</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    ...
+}</code></pre></div>
+<h3 id="h-220-static-files">Static files</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>STATIC_URL = 'static/'</code></pre></div>
+<h3 id="h-221-time-zone">Time zone</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>TIME_ZONE = 'UTC'</code></pre></div>
+<h3 id="h-222-debug-mode">Debug mode</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>And many other settings.</p>
+<hr>
+<h1 id="h-223-8-debug">8. <code>DEBUG</code></h1>
+<p>You'll see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>during development.</p>
+<p>When something goes wrong, Django can show detailed debugging information.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Traceback
+File
+Line number
+Error message</code></pre></div>
+<p>This is useful while developing.</p>
+<p>But:</p>
+<blockquote><strong>You should not run a production deployment with <code>DEBUG = True</code>.</strong></blockquote>
+<p>Why?</p>
+<p>Because detailed error pages can expose sensitive information.</p>
+<p>We'll discuss this more when we reach debugging and deployment concepts.</p>
+<hr>
+<h1 id="h-224-9-installed-apps">9. <code>INSTALLED_APPS</code></h1>
+<p>Another extremely important setting:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+]</code></pre></div>
+<p>It tells Django which applications are installed/enabled in the project.</p>
+<p>Later, when we create an app:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>we'll need to make Django aware of the app, commonly by adding its configuration to <code>INSTALLED_APPS</code>.</p>
+<p>We'll cover this carefully in Module 5.</p>
+<hr>
+<h1 id="h-225-10-databases">10. <code>DATABASES</code></h1>
+<p>You will find something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}</code></pre></div>
+<p>This configures the database.</p>
+<p>The default Django project uses:</p>
+<blockquote><strong>SQLite</strong></blockquote>
+<p>for development.</p>
+<p>Later, your syllabus has an entire topic on:</p>
+<blockquote>Database configuration</blockquote>
+<p>We'll study:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite
+MySQL
+PostgreSQL</code></pre></div>
+<p>later.</p>
+<hr>
+<h1 id="h-226-11-templates">11. <code>TEMPLATES</code></h1>
+<p><code>settings.py</code> also contains template configuration.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+  ↓
+Template configuration
+  ↓
+HTML templates</code></pre></div>
+<p>Later, when we create HTML templates, this setting becomes important.</p>
+<hr>
+<h1 id="h-227-12-urls-py">12. <code>urls.py</code></h1>
+<p>Now we come to another extremely important file.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+└── College/
+    └── urls.py</code></pre></div>
+<p>This file contains the project's <strong>URL configuration</strong>.</p>
+<p>For example, conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>urlpatterns = [
+    ...
+]</code></pre></div>
+<p>Django uses URL patterns to determine what should happen when a user visits a URL.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about/</code></pre></div>
+<p>could be connected to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>about()</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>could be connected to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students()</code></pre></div>
+<p>We'll learn this in detail in <strong>Unit II</strong>.</p>
+<hr>
+<h1 id="h-228-13-why-is-urls-py-important">13. Why Is <code>urls.py</code> Important?</h1>
+<p>Suppose the browser requests:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>Django needs to determine:</p>
+<blockquote>"Which code should handle <code>/students/</code>?"</blockquote>
+<p>The URL configuration helps answer that question.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/
+     ↓
+urls.py
+     ↓
+students view</code></pre></div>
+<hr>
+<h1 id="h-229-14-root-urlconf">14. <code>ROOT_URLCONF</code></h1>
+<p>Inside <code>settings.py</code>, you'll see something similar to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>ROOT_URLCONF = 'College.urls'</code></pre></div>
+<p>This tells Django where the <strong>root URL configuration</strong> is located.</p>
+<p>In this case:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College.urls</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College package
+     ↓
+urls.py</code></pre></div>
+<p>So Django knows where to start looking for URL patterns.</p>
+<hr>
+<h1 id="h-230-15-wsgi-py">15. <code>wsgi.py</code></h1>
+<p>Now we have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>wsgi.py</code></pre></div>
+<p>WSGI stands for:</p>
+<blockquote><strong>Web Server Gateway Interface</strong></blockquote>
+<p>It is a standard interface between Python web applications/frameworks and web servers.</p>
+<p>You don't need to master deployment yet.</p>
+<p>For your current level, remember:</p>
+<blockquote><strong>WSGI provides a standard interface for running Python web applications with WSGI-compatible web servers.</strong></blockquote>
+<p>You'll often see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>application = get_wsgi_application()</code></pre></div>
+<p>inside the file.</p>
+<hr>
+<h1 id="h-231-16-asgi-py">16. <code>asgi.py</code></h1>
+<p>ASGI stands for:</p>
+<blockquote><strong>Asynchronous Server Gateway Interface</strong></blockquote>
+<p>It is a newer interface designed to support asynchronous Python web applications and broader communication patterns.</p>
+<p>Django provides an ASGI application through:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>asgi.py</code></pre></div>
+<p>You'll see something conceptually like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>application = get_asgi_application()</code></pre></div>
+<p>For now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>WSGI → traditional synchronous Python web deployment
+
+ASGI → supports asynchronous capabilities</code></pre></div>
+<p>Don't worry about deployment details yet.</p>
+<hr>
+<h1 id="h-232-17-wsgi-vs-asgi">17. WSGI vs ASGI</h1>
+<p>This can be a viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>WSGI</th>
+<th>ASGI</th>
+</tr></thead><tbody>
+<tr>
+<td>Web Server Gateway Interface</td>
+<td>Asynchronous Server Gateway Interface</td>
+</tr>
+<tr>
+<td>Traditionally synchronous</td>
+<td>Supports asynchronous applications</td>
+</tr>
+<tr>
+<td>Older Python web interface</td>
+<td>Newer interface</td>
+</tr>
+<tr>
+<td>Suitable for traditional request-response apps</td>
+<td>Supports async and broader connection patterns</td>
+</tr>
+</tbody></table></div>
+<h3 id="h-233-viva-answer">Viva answer</h3>
+<blockquote>WSGI is a standard interface for deploying Python web applications, traditionally focused on synchronous request handling, while ASGI extends this model to support asynchronous applications and communication.</blockquote>
+<hr>
+<h1 id="h-234-18-complete-project-structure">18. Complete Project Structure</h1>
+<p>Now put everything together:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+└── College/
+    │
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py
+   ↓
+Commands
+
+settings.py
+   ↓
+Configuration
+
+urls.py
+   ↓
+URL routing
+
+__init__.py
+   ↓
+Python package
+
+wsgi.py
+   ↓
+WSGI deployment interface
+
+asgi.py
+   ↓
+ASGI deployment interface</code></pre></div>
+<hr>
+<h1 id="h-235-19-where-is-the-database">19. Where Is the Database?</h1>
+<p>After you run migrations, you may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>db.sqlite3</code></pre></div>
+<p>So eventually your project can look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+├── db.sqlite3
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p><code>db.sqlite3</code> is the SQLite database file used by the default development configuration.</p>
+<hr>
+<h1 id="h-236-20-where-are-apps">20. Where Are Apps?</h1>
+<p>After creating an app:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<p>you'll get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+├── College/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── students/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── tests.py
+    ├── views.py
+    └── migrations/
+        └── __init__.py</code></pre></div>
+<p>We'll create and understand this in <strong>Module 5</strong>.</p>
+<hr>
+<h1 id="h-237-21-project-structure-big-picture">21. Project Structure — Big Picture</h1>
+<p>Eventually, think of it like this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                   Django Project
+                        |
+        +---------------+---------------+
+        |                               |
+ Project Configuration              Apps
+        |                               |
+   +----+----+                    +-----+-----+
+   |    |    |                    |     |     |
+settings urls  ...              views models templates</code></pre></div>
+<p>The project controls the overall configuration.</p>
+<p>Apps contain specific functionality.</p>
+<hr>
+<h1 id="h-238-22-very-important-don-t-confuse-these">22. Very Important: Don't Confuse These</h1>
+<h3 id="h-239-settings-py"><code>settings.py</code></h3>
+<p>Configuration.</p>
+<h3 id="h-240-urls-py"><code>urls.py</code></h3>
+<p>URL routing.</p>
+<h3 id="h-241-views-py"><code>views.py</code></h3>
+<p>Application/request logic.</p>
+<h3 id="h-242-models-py"><code>models.py</code></h3>
+<p>Database/data representation.</p>
+<h3 id="h-243-templates"><code>templates/</code></h3>
+<p>HTML/presentation.</p>
+<p>This gives us:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL
+ ↓
+View
+ ↓
+Model
+ ↓
+Template
+ ↓
+Response</code></pre></div>
+<p>We'll build this architecture step-by-step.</p>
+<hr>
+<h1 id="h-244-23-how-does-django-know-which-settings-to-use">23. How Does Django Know Which Settings to Use?</h1>
+<p>When you run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>Django needs to know which settings module belongs to your project.</p>
+<p><code>manage.py</code> sets the appropriate environment configuration for the project.</p>
+<p>The project settings are then loaded.</p>
+<p>This is one reason <code>manage.py</code> is more than just a random Python file—it is specifically generated for your project.</p>
+<hr>
+<h1 id="h-245-24-what-does-manage-py-actually-contain">24. What Does <code>manage.py</code> Actually Contain?</h1>
+<p>You'll see something roughly like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>import os
+import sys
+
+def main():
+    os.environ.setdefault(
+        'DJANGO_SETTINGS_MODULE',
+        'College.settings'
+    )
+
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)
+
+if __name__ == '__main__':
+    main()</code></pre></div>
+<p><strong>Don't memorize this code.</strong></p>
+<p>Understand the important idea:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>manage.py
+   ↓
+Sets Django settings module
+   ↓
+Loads Django management system
+   ↓
+Executes the command you typed</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py runserver</code></pre></div>
+<p>The command is passed to Django's management system.</p>
+<hr>
+<h1 id="h-246-25-why-do-we-need-django-settings-module">25. Why Do We Need <code>DJANGO_SETTINGS_MODULE</code>?</h1>
+<p>This environment variable tells Django:</p>
+<blockquote>"Which settings module should I use?"</blockquote>
+<p>For our project:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College.settings</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+   ↓
+settings.py</code></pre></div>
+<p>So conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DJANGO_SETTINGS_MODULE
+          ↓
+College.settings
+          ↓
+settings.py</code></pre></div>
+<p>This is a more advanced detail, but knowing it can impress in a viva.</p>
+<hr>
+<h1 id="h-247-26-viva-questions-project-structure">26. Viva Questions — Project Structure</h1>
+<h3 id="h-248-q1-what-is-manage-py">Q1. What is <code>manage.py</code>?</h3>
+<blockquote>It is a project-specific command-line utility used to execute Django management commands.</blockquote>
+<hr>
+<h3 id="h-249-q2-what-is-settings-py">Q2. What is <code>settings.py</code>?</h3>
+<blockquote>It contains the configuration settings of a Django project.</blockquote>
+<hr>
+<h3 id="h-250-q3-what-is-urls-py">Q3. What is <code>urls.py</code>?</h3>
+<blockquote>It contains the URL configuration used to map URL patterns to views or other URL configurations.</blockquote>
+<hr>
+<h3 id="h-251-q4-what-is-init-py">Q4. What is <code>__init__.py</code>?</h3>
+<blockquote>It is a Python package initialization file. Django includes it in project and app packages.</blockquote>
+<hr>
+<h3 id="h-252-q5-what-is-wsgi">Q5. What is WSGI?</h3>
+<blockquote>WSGI stands for Web Server Gateway Interface and provides a standard interface between Python web applications and compatible web servers.</blockquote>
+<hr>
+<h3 id="h-253-q6-what-is-asgi">Q6. What is ASGI?</h3>
+<blockquote>ASGI stands for Asynchronous Server Gateway Interface and provides an interface supporting asynchronous Python web applications and communication patterns.</blockquote>
+<hr>
+<h3 id="h-254-q7-what-is-debug">Q7. What is <code>DEBUG</code>?</h3>
+<blockquote><code>DEBUG</code> controls whether Django runs in debug mode and provides detailed debugging information. It should not be enabled in production.</blockquote>
+<hr>
+<h3 id="h-255-q8-what-is-installed-apps">Q8. What is <code>INSTALLED_APPS</code>?</h3>
+<blockquote>It is a setting containing the applications enabled in a Django project.</blockquote>
+<hr>
+<h3 id="h-256-q9-what-is-databases">Q9. What is <code>DATABASES</code>?</h3>
+<blockquote>It is the Django setting used to configure database connections.</blockquote>
+<hr>
+<h3 id="h-257-q10-what-is-root-urlconf">Q10. What is <code>ROOT_URLCONF</code>?</h3>
+<blockquote>It specifies the Python module containing the root URL configuration of the Django project.</blockquote>
+<hr>
+<h1 id="h-258-27-viva-tricky-question">27. Viva Tricky Question ⚠️</h1>
+<h3 id="h-259-teacher">Teacher:</h3>
+<blockquote>"Where do we write database queries?"</blockquote>
+<p>A beginner might say:</p>
+<blockquote><code>settings.py</code></blockquote>
+<p>❌ Not normally.</p>
+<p><code>settings.py</code> <strong>configures the database connection</strong>.</p>
+<p>Database interaction is typically performed through:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models
+   +
+Django ORM</code></pre></div>
+<p>So:</p>
+<blockquote><code>settings.py</code> tells Django <strong>which database/how to connect</strong>, while models and the ORM are used to <strong>work with the data</strong>.</blockquote>
+<hr>
+<h1 id="h-260-28-another-tricky-question">28. Another Tricky Question ⚠️</h1>
+<h3 id="h-261-teacher">Teacher:</h3>
+<blockquote>"Where do we write HTML?"</blockquote>
+<p>The basic answer:</p>
+<blockquote>In templates.</blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>templates/
+   home.html</code></pre></div>
+<p>We'll study templates extensively in Unit III.</p>
+<hr>
+<h1 id="h-262-29-another-tricky-question">29. Another Tricky Question</h1>
+<h3 id="h-263-teacher">Teacher:</h3>
+<blockquote>"Does <code>urls.py</code> contain the HTML page?"</blockquote>
+<p>No.</p>
+<p><code>urls.py</code> defines <strong>URL routing</strong>.</p>
+<p>It can connect a URL to a view:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>URL
+ ↓
+View</code></pre></div>
+<p>The view can then render a template:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View
+ ↓
+Template</code></pre></div>
+<hr>
+<h1 id="h-264-30-practical-task">30. Practical Task</h1>
+<p>Open your Django project in VS Code.</p>
+<p>You should be able to identify:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+│
+├── manage.py
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p>Then answer:</p>
+<h3 id="h-265-which-file-would-you-modify-for">Which file would you modify for...</h3>
+<p><strong>A. Database configuration?</strong></p>
+<p>→ <code>settings.py</code></p>
+<p><strong>B. URL routing?</strong></p>
+<p>→ <code>urls.py</code></p>
+<p><strong>C. Project configuration?</strong></p>
+<p>→ <code>settings.py</code></p>
+<p><strong>D. WSGI deployment interface?</strong></p>
+<p>→ <code>wsgi.py</code></p>
+<p><strong>E. ASGI deployment interface?</strong></p>
+<p>→ <code>asgi.py</code></p>
+<p><strong>F. Running Django management commands?</strong></p>
+<p>→ <code>manage.py</code></p>
+<hr>
+<h1 id="h-266-module-4-final-mental-model">🧠 Module 4 — Final Mental Model</h1>
+<p>Memorize this table:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>File</th>
+<th>Main Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><code>manage.py</code></td>
+<td>Execute project management commands</td>
+</tr>
+<tr>
+<td><code>settings.py</code></td>
+<td>Project configuration</td>
+</tr>
+<tr>
+<td><code>urls.py</code></td>
+<td>URL routing</td>
+</tr>
+<tr>
+<td><code>__init__.py</code></td>
+<td>Python package initialization</td>
+</tr>
+<tr>
+<td><code>wsgi.py</code></td>
+<td>WSGI application interface</td>
+</tr>
+<tr>
+<td><code>asgi.py</code></td>
+<td>ASGI application interface</td>
+</tr>
+</tbody></table></div>
+<p>And remember the hierarchy:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PROJECT
+│
+├── Configuration
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── manage.py
+│
+└── APPS
+    ├── views
+    ├── models
+    ├── templates
+    └── ...</code></pre></div>
+<hr>
+<h1 id="h-267-module-4-challenge">🎯 Module 4 Challenge</h1>
+<p>Try these before moving on:</p>
+<h3 id="h-268-viva">Viva</h3>
+<ol>
+<li>Why does Django have <code>manage.py</code>?</li>
+<li>What is the purpose of <code>settings.py</code>?</li>
+<li>What is the purpose of <code>urls.py</code>?</li>
+<li>What is <code>ROOT_URLCONF</code>?</li>
+<li>What is <code>INSTALLED_APPS</code>?</li>
+<li>What is <code>DATABASES</code>?</li>
+<li>What is WSGI?</li>
+<li>What is ASGI?</li>
+<li>Difference between WSGI and ASGI?</li>
+<li>Why shouldn't <code>DEBUG = True</code> be used in production?</li>
+<li>Why are there two <code>College</code> directories after <code>startproject College</code>?</li>
+<li>What is the difference between project configuration and an app?</li>
+</ol>
+<h3 id="h-269-coding-practical">Coding/Practical</h3>
+<p>If you are given this structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+├── manage.py
+└── College/
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py</code></pre></div>
+<p>Tell me <strong>which file you would modify</strong> to:</p>
+<ol>
+<li>Change the database.</li>
+<li>Add an installed app.</li>
+<li>Add a URL.</li>
+<li>Change debug mode.</li>
+<li>Configure templates.</li>
+<li>Configure WSGI.</li>
+<li>Configure ASGI.</li>
+</ol>
+<p>Once you're ready, say <strong>“next”</strong>.</p>
+<h2 id="h-270-module-5-creating-a-django-app">Module 5 — Creating a Django App</h2>
+<p>This is where we'll start writing our <strong>first actual Django application code</strong>. We'll create an app, understand <code>views.py</code>, <code>models.py</code>, <code>admin.py</code>, <code>apps.py</code>, <code>tests.py</code>, the <code>migrations</code> folder, register the app, and then connect our first app to the project.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-3.html">← Module 3: Creating Your First Django Project</a>
+<a class="pn-btn pn-next" href="module-5.html">Module 5: Creating a Django App →</a>
+</div>
+
+</div>
+
+</body>
+</html>

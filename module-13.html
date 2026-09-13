@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 13: Django Template Language (DTL) — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 13 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 13 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Template Language (DTL)</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<span class="nav-item current">13. Django Template Language (DTL)</span>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-12.html">← Module 12: Introduction to Templates</a>
+<a class="pn-btn pn-next" href="module-14.html">Module 14: Template Tags: if, else, for →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-920-module-13-django-template-language-dtl">Module 13 — Django Template Language (DTL)</h1>
+<p>Now we move into the <strong>core of Django templates</strong>.</p>
+<p>You already know how to create an HTML template and pass data from a view. Now we need to learn <strong>how Django actually works with that data inside the HTML file</strong>.</p>
+<p>This is called <strong>Django Template Language (DTL)</strong>.</p>
+<hr>
+<h1 id="h-921-1-what-is-dtl">1. What Is DTL?</h1>
+<p><strong>DTL = Django Template Language</strong></p>
+<p>It is Django's template syntax used to:</p>
+<ul>
+<li>Display data</li>
+<li>Work with variables</li>
+<li>Use conditions</li>
+<li>Use loops</li>
+<li>Apply filters</li>
+<li>Include/reuse templates</li>
+<li>Generate dynamic HTML</li>
+</ul>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<p>If the view sends:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{'name': 'Aman'}</code></pre></div>
+<p>Django renders:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello Aman&lt;/h1&gt;</code></pre></div>
+<hr>
+<h1 id="h-922-2-dtl-is-not-python">2. DTL Is Not Python</h1>
+<p>This is extremely important for viva.</p>
+<p>DTL is designed for templates and presentation. It is <strong>not simply Python embedded inside HTML</strong>.</p>
+<p>For example, you cannot normally write arbitrary Python code such as:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for i in range(10):</code></pre></div>
+<p>inside a Django template.</p>
+<p>Instead, DTL provides its own syntax:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for i in numbers %}
+{% endfor %}</code></pre></div>
+<hr>
+<h1 id="h-923-3-three-main-dtl-syntaxes">3. Three Main DTL Syntaxes</h1>
+<p>You should memorize these three.</p>
+<h2 id="h-924-1-variable">1. Variable</h2>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ variable }}</code></pre></div>
+<p>Used to display data.</p>
+<hr>
+<h2 id="h-925-2-tag">2. Tag</h2>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% tag %}</code></pre></div>
+<p>Used for template operations.</p>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if %}
+{% for %}
+{% url %}
+{% block %}</code></pre></div>
+<hr>
+<h2 id="h-926-3-comment">3. Comment</h2>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{# comment #}</code></pre></div>
+<p>Used for comments.</p>
+<hr>
+<h1 id="h-927-4-dtl-variable">4. DTL Variable</h1>
+<p>Suppose your view is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+    return render(
+        request,
+        'home.html',
+        {'name': 'Aman'}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Aman</code></pre></div>
+<hr>
+<h1 id="h-928-5-how-does-django-find-name">5. How Does Django Find <code>name</code>?</h1>
+<p>The context is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'name': 'Aman'
+}</code></pre></div>
+<p>Therefore Django creates a template context containing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name → Aman</code></pre></div>
+<p>When the template encounters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ name }}</code></pre></div>
+<p>it resolves the variable and outputs:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<hr>
+<h1 id="h-929-6-multiple-variables">6. Multiple Variables</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21,
+        'course': 'CSE'
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Age: 21
+Course: CSE</code></pre></div>
+<hr>
+<h1 id="h-930-7-variable-names-are-case-sensitive">7. Variable Names Are Case-Sensitive</h1>
+<p>Suppose context contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'name': 'Aman'
+}</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<p>works.</p>
+<p>But:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ Name }}</code></pre></div>
+<p>does not refer to the same context variable.</p>
+<p>So be careful with spelling and capitalization.</p>
+<hr>
+<h1 id="h-931-8-dictionary-data">8. Dictionary Data</h1>
+<p>Suppose your view contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    'name': 'Aman',
+    'age': 21,
+    'course': 'CSE'
+}
+
+return render(
+    request,
+    'student.html',
+    {'student': student}
+)</code></pre></div>
+<p>You can access dictionary values using dot notation:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ student.name }}&lt;/h1&gt;
+&lt;p&gt;{{ student.age }}&lt;/p&gt;
+&lt;p&gt;{{ student.course }}&lt;/p&gt;</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+21
+CSE</code></pre></div>
+<hr>
+<h1 id="h-932-9-important-dot-notation">9. Important: Dot Notation</h1>
+<p>Django template syntax uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ object.attribute }}</code></pre></div>
+<p>It can resolve different types of things, including dictionary lookups and attributes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}</code></pre></div>
+<p>can resolve the <code>name</code> value from the context object.</p>
+<p>This becomes extremely useful when we start using Django Models.</p>
+<hr>
+<h1 id="h-933-10-nested-data">10. Nested Data</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    'name': 'Aman',
+    'address': {
+        'city': 'Phagwara',
+        'state': 'Punjab'
+    }
+}</code></pre></div>
+<p>Pass:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'student': student
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;Name: {{ student.name }}&lt;/p&gt;
+&lt;p&gt;City: {{ student.address.city }}&lt;/p&gt;
+&lt;p&gt;State: {{ student.address.state }}&lt;/p&gt;</code></pre></div>
+<p>Django can traverse the nested structure using dot notation.</p>
+<hr>
+<h1 id="h-934-11-lists">11. Lists</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = [
+    'Aman',
+    'Rahul',
+    'Rohit'
+]</code></pre></div>
+<p>Pass:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    'students.html',
+    {'students': students}
+)</code></pre></div>
+<p>A loop can later display the values:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    &lt;p&gt;{{ student }}&lt;/p&gt;
+{% endfor %}</code></pre></div>
+<p>We'll study loops in depth in a later module.</p>
+<hr>
+<h1 id="h-935-12-accessing-list-elements">12. Accessing List Elements</h1>
+<p>Django templates can resolve numeric indexes using dot notation.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = ['Aman', 'Rahul', 'Rohit']</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ students.0 }}</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ students.1 }}</code></pre></div>
+<p>gives:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Rahul</code></pre></div>
+<p>This is useful to know for viva questions.</p>
+<hr>
+<h1 id="h-936-13-what-if-a-variable-doesn-t-exist">13. What If a Variable Doesn't Exist?</h1>
+<p>Suppose your context is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'name': 'Aman'
+}</code></pre></div>
+<p>but template contains:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ age }}</code></pre></div>
+<p>Since <code>age</code> isn't available, Django generally renders an empty string.</p>
+<p>So you may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>[blank]</code></pre></div>
+<p>rather than a Python <code>NameError</code>.</p>
+<hr>
+<h1 id="h-937-14-dtl-comments">14. DTL Comments</h1>
+<p>Single-line comment:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{# This is a comment #}</code></pre></div>
+<p>It won't be rendered as visible HTML.</p>
+<p>For multiple lines:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% comment %}
+This is a
+multi-line comment.
+{% endcomment %}</code></pre></div>
+<hr>
+<h1 id="h-938-15-dtl-tags">15. DTL Tags</h1>
+<p>Tags are written using:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% ... %}</code></pre></div>
+<p>Some important tags are:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if %}
+{% else %}
+{% elif %}
+{% endif %}
+
+{% for %}
+{% endfor %}
+
+{% url %}
+
+{% extends %}
+{% block %}
+
+{% include %}</code></pre></div>
+<p>We'll learn each of these throughout the next modules.</p>
+<hr>
+<h1 id="h-939-16-variable-vs-tag">16. Variable vs Tag</h1>
+<p>This is a common viva question.</p>
+<h3 id="h-940-variable">Variable:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<p>Purpose:</p>
+<blockquote>Display/resolve a value.</blockquote>
+<h3 id="h-941-tag">Tag:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}</code></pre></div>
+<p>Purpose:</p>
+<blockquote>Perform a template operation.</blockquote>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }} → value
+{% %} → operation</code></pre></div>
+<hr>
+<h1 id="h-942-17-filters">17. Filters</h1>
+<p>DTL also provides <strong>filters</strong>.</p>
+<p>Filters modify or process values before displaying them.</p>
+<p>Syntax:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ variable|filter }}</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AMAN</code></pre></div>
+<p>The pipe:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>|</code></pre></div>
+<p>means:</p>
+<blockquote>Apply this filter to the value.</blockquote>
+<hr>
+<h1 id="h-943-18-upper-filter">18. <code>upper</code> Filter</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AMAN</code></pre></div>
+<hr>
+<h1 id="h-944-19-lower-filter">19. <code>lower</code> Filter</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|lower }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = AMAN</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman</code></pre></div>
+<hr>
+<h1 id="h-945-20-title-filter">20. <code>title</code> Filter</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|title }}</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>hello django world</code></pre></div>
+<p>becomes approximately:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Django World</code></pre></div>
+<hr>
+<h1 id="h-946-21-length-filter">21. <code>length</code> Filter</h1>
+<p>You can determine the length of a value.</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|length }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = Aman</code></pre></div>
+<p>output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>4</code></pre></div>
+<p>For a list:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ students|length }}</code></pre></div>
+<p>it gives the number of items.</p>
+<hr>
+<h1 id="h-947-22-default-filter">22. <code>default</code> Filter</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = ''</code></pre></div>
+<p>You can write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|default:"Guest" }}</code></pre></div>
+<p>If <code>name</code> is empty, the output is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Guest</code></pre></div>
+<p>This is very useful.</p>
+<hr>
+<h1 id="h-948-23-filter-chaining">23. Filter Chaining</h1>
+<p>You can apply multiple filters.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper|length }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = aman</code></pre></div>
+<p>First:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman
+ ↓ upper
+AMAN
+ ↓ length
+4</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>4</code></pre></div>
+<hr>
+<h1 id="h-949-24-safe-filter">24. <code>safe</code> Filter</h1>
+<p>Django templates automatically escape potentially unsafe HTML in many normal variable-rendering situations.</p>
+<p>Suppose context contains:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    'message': '&lt;b&gt;Hello&lt;/b&gt;'
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ message }}</code></pre></div>
+<p>Django will normally escape the HTML rather than interpret it as markup.</p>
+<p>This helps protect against certain XSS attacks.</p>
+<hr>
+<h1 id="h-950-25-what-does-safe-do">25. What Does <code>safe</code> Do?</h1>
+<p>If you intentionally trust the content and write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ message|safe }}</code></pre></div>
+<p>Django treats the value as safe HTML for rendering.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ message|safe }}</code></pre></div>
+<p>can render:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;b&gt;Hello&lt;/b&gt;</code></pre></div>
+<p>as bold text.</p>
+<h3 id="h-951-important-security-rule">Important security rule:</h3>
+<p>Never blindly use:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ user_input|safe }}</code></pre></div>
+<p>on untrusted user input.</p>
+<p>That can introduce <strong>Cross-Site Scripting (XSS)</strong> vulnerabilities.</p>
+<hr>
+<h1 id="h-952-26-autoescaping">26. Autoescaping</h1>
+<p>Django templates generally use <strong>automatic HTML escaping</strong>.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>message = '&lt;script&gt;alert("Hello")&lt;/script&gt;'</code></pre></div>
+<p>and template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ message }}</code></pre></div>
+<p>Django escapes the HTML so the browser doesn't simply execute the supplied markup as HTML.</p>
+<p>This is one of Django's built-in security features.</p>
+<hr>
+<h1 id="h-953-27-important-viva-question">27. Important Viva Question</h1>
+<h3 id="h-954-what-is-autoescaping">What is autoescaping?</h3>
+<p>Strong answer:</p>
+<blockquote>Autoescaping is a Django template feature that automatically escapes potentially unsafe HTML characters when rendering variables, helping protect against XSS attacks.</blockquote>
+<hr>
+<h1 id="h-955-28-filter-vs-tag">28. Filter vs Tag</h1>
+<p>Another common viva question.</p>
+<h3 id="h-956-filter">Filter:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>Changes/processes a value.</p>
+<h3 id="h-957-tag">Tag:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if user %}</code></pre></div>
+<p>Controls template behavior.</p>
+<p>Therefore:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Filter → modifies a value
+Tag    → performs template operation</code></pre></div>
+<hr>
+<h1 id="h-958-29-built-in-filters-you-should-know">29. Built-in Filters You Should Know</h1>
+<p>For your exam, know at least:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>upper
+lower
+title
+length
+default
+safe</code></pre></div>
+<p>Some other useful filters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>truncatechars
+join
+date
+add
+floatformat
+cut</code></pre></div>
+<p>We'll encounter many of them later.</p>
+<hr>
+<h1 id="h-959-30-truncatechars">30. <code>truncatechars</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>description =
+"This is a very long description of a Django project."</code></pre></div>
+<p>You can write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ description|truncatechars:20 }}</code></pre></div>
+<p>to display a shortened version.</p>
+<p>The exact output depends on the value and truncation rules.</p>
+<hr>
+<h1 id="h-960-31-join">31. <code>join</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>subjects = ['Python', 'Django', 'SQL']</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ subjects|join:", " }}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python, Django, SQL</code></pre></div>
+<hr>
+<h1 id="h-961-32-add">32. <code>add</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ age|add:"1" }}</code></pre></div>
+<p>If:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = 21</code></pre></div>
+<p>it can produce:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>22</code></pre></div>
+<p>Be aware that Django's <code>add</code> filter uses Python-like addition behavior where possible and can also concatenate compatible values.</p>
+<hr>
+<h1 id="h-962-33-date">33. <code>date</code></h1>
+<p>If a context variable is a Python date/datetime object:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ date|date:"d-m-Y" }}</code></pre></div>
+<p>could display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>12-09-2026</code></pre></div>
+<p>Date formatting becomes particularly useful when working with models.</p>
+<hr>
+<h1 id="h-963-34-filters-use-a-colon-for-arguments">34. Filters Use a Colon for Arguments</h1>
+<p>Some filters accept arguments.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|default:"Guest" }}</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>default</code></pre></div>
+<p>is the filter and:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Guest"</code></pre></div>
+<p>is its argument.</p>
+<p>Another example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ description|truncatechars:20 }}</code></pre></div>
+<hr>
+<h1 id="h-964-35-complete-example">35. Complete Example</h1>
+<h3 id="h-965-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def home(request):
+
+    context = {
+        'name': 'aman',
+        'course': 'django',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )</code></pre></div>
+<h3 id="h-966-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name|title }}&lt;/h1&gt;
+
+&lt;p&gt;Course: {{ course|upper }}&lt;/p&gt;
+
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;
+
+&lt;p&gt;Name length: {{ name|length }}&lt;/p&gt;</code></pre></div>
+<p>Output approximately:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Aman
+Course: DJANGO
+Age: 21
+Name length: 4</code></pre></div>
+<hr>
+<h1 id="h-967-36-chained-filter-example">36. Chained Filter Example</h1>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'aman'
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper|length }}</code></pre></div>
+<p>Processing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman
+ ↓
+upper
+ ↓
+AMAN
+ ↓
+length
+ ↓
+4</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>4</code></pre></div>
+<hr>
+<h1 id="h-968-37-template-syntax-error">37. Template Syntax Error</h1>
+<p>Suppose you write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;</code></pre></div>
+<p>but forget:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% endif %}</code></pre></div>
+<p>Django will report a template parsing error.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    &lt;p&gt;Adult&lt;/p&gt;
+{% endif %}</code></pre></div>
+<p>We'll study conditions much more in Module 14.</p>
+<hr>
+<h1 id="h-969-38-dtl-and-security">38. DTL and Security</h1>
+<p>Django templates provide several security protections, but you still have to use them correctly.</p>
+<p>Important things to remember:</p>
+<ul>
+<li>Don't blindly mark user input as <code>safe</code></li>
+<li>Don't put passwords into templates unnecessarily</li>
+<li>Don't disable escaping without understanding why</li>
+<li>Validate data in appropriate application layers</li>
+<li>Use CSRF protection for forms</li>
+</ul>
+<p>We'll study CSRF later in the Forms unit.</p>
+<hr>
+<h1 id="h-970-39-a-very-important-concept-template-context">39. A Very Important Concept: Template Context</h1>
+<p>Suppose your view:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+
+    context = {
+        'username': 'Aman',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )</code></pre></div>
+<p>Think of context as a bridge:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python View
+     |
+     | context
+     ↓
+Template</code></pre></div>
+<p>The template can access:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ username }}
+{{ age }}</code></pre></div>
+<hr>
+<h1 id="h-971-40-what-if-you-change-the-context">40. What If You Change the Context?</h1>
+<p>Suppose you change:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'name': 'Aman'</code></pre></div>
+<p>to:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>'name': 'Rahul'</code></pre></div>
+<p>without changing the template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;</code></pre></div>
+<p>the output automatically becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello Rahul</code></pre></div>
+<p>This is the main idea behind <strong>dynamic templates</strong>.</p>
+<hr>
+<h1 id="h-972-41-real-world-example">41. Real-World Example</h1>
+<p>Imagine an e-commerce website.</p>
+<p>The view gets:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>product = {
+    'name': 'Laptop',
+    'price': 55000,
+    'stock': 10
+}</code></pre></div>
+<p>The template can display:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ product.name }}&lt;/h1&gt;
+&lt;p&gt;₹{{ product.price }}&lt;/p&gt;
+&lt;p&gt;Stock: {{ product.stock }}&lt;/p&gt;</code></pre></div>
+<p>The HTML structure remains the same while the data changes.</p>
+<p>That's what makes Django templates powerful.</p>
+<hr>
+<h1 id="h-973-42-important-viva-questions">42. Important Viva Questions</h1>
+<h3 id="h-974-q1-what-is-dtl">Q1. What is DTL?</h3>
+<blockquote>DTL stands for Django Template Language. It is Django's template syntax for displaying dynamic data and controlling template presentation.</blockquote>
+<h3 id="h-975-q2-is-dtl-python">Q2. Is DTL Python?</h3>
+<blockquote>No. DTL is Django's own template language and does not allow arbitrary Python code in templates.</blockquote>
+<h3 id="h-976-q3-what-does-mean">Q3. What does <code>{{ }}</code> mean?</h3>
+<blockquote>It is used to resolve and display template variables.</blockquote>
+<h3 id="h-977-q4-what-does-mean">Q4. What does <code>{% %}</code> mean?</h3>
+<blockquote>It represents template tags used for operations such as conditions, loops, URL generation, and template inheritance.</blockquote>
+<h3 id="h-978-q5-what-does-mean-in-a-template">Q5. What does <code>|</code> mean in a template?</h3>
+<blockquote>It applies a template filter to a value.</blockquote>
+<hr>
+<h1 id="h-979-43-viva-filters">43. Viva — Filters</h1>
+<h3 id="h-980-q-what-is-a-template-filter">Q: What is a template filter?</h3>
+<p>Answer:</p>
+<blockquote>A template filter modifies or processes a value before it is displayed in a template.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<hr>
+<h3 id="h-981-q-what-does-upper-do">Q: What does <code>upper</code> do?</h3>
+<blockquote>Converts text to uppercase.</blockquote>
+<h3 id="h-982-q-what-does-lower-do">Q: What does <code>lower</code> do?</h3>
+<blockquote>Converts text to lowercase.</blockquote>
+<h3 id="h-983-q-what-does-length-do">Q: What does <code>length</code> do?</h3>
+<blockquote>Returns the length of a value when applicable.</blockquote>
+<h3 id="h-984-q-what-does-default-do">Q: What does <code>default</code> do?</h3>
+<blockquote>Provides a fallback value when the variable is empty or otherwise evaluates as false according to the filter's behavior.</blockquote>
+<hr>
+<h1 id="h-985-44-important-security-viva">44. Important Security Viva</h1>
+<h3 id="h-986-teacher">Teacher:</h3>
+<blockquote>Why does Django escape HTML in templates?</blockquote>
+<p>Answer:</p>
+<blockquote>Django's automatic escaping helps prevent malicious HTML or JavaScript from being interpreted as markup, reducing the risk of Cross-Site Scripting attacks.</blockquote>
+<hr>
+<h3 id="h-987-teacher">Teacher:</h3>
+<blockquote>What does <code>safe</code> do?</blockquote>
+<p>Answer:</p>
+<blockquote>The <code>safe</code> filter marks a value as safe HTML for template rendering, so it should only be used when the content is trusted or has been properly sanitized.</blockquote>
+<hr>
+<h1 id="h-988-45-coding-question">45. Coding Question</h1>
+<h3 id="h-989-question">Question:</h3>
+<p>Pass student information from a view and display it in a template.</p>
+<h3 id="h-990-view">View:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+
+def student(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21,
+        'course': 'CSE'
+    }
+
+    return render(
+        request,
+        'student.html',
+        context
+    )</code></pre></div>
+<h3 id="h-991-template">Template:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;{{ name }}&lt;/h1&gt;
+&lt;p&gt;Age: {{ age }}&lt;/p&gt;
+&lt;p&gt;Course: {{ course }}&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-992-46-coding-question-filters">46. Coding Question — Filters</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'aman'
+}</code></pre></div>
+<p>Write template code that:</p>
+<ol>
+<li>Converts name to uppercase</li>
+<li>Displays its length</li>
+</ol>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;{{ name|upper }}&lt;/p&gt;
+&lt;p&gt;{{ name|length }}&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-993-47-coding-question-nested-dictionary">47. Coding Question — Nested Dictionary</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = {
+    'name': 'Aman',
+    'address': {
+        'city': 'Phagwara'
+    }
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;Name: {{ student.name }}&lt;/p&gt;
+&lt;p&gt;City: {{ student.address.city }}&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-994-48-predict-the-output">48. Predict the Output</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': 'django'
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DJANGO</code></pre></div>
+<hr>
+<h3 id="h-995-question">Question:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper|length }}</code></pre></div>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>6</code></pre></div>
+<p>because:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django
+ ↓
+DJANGO
+ ↓
+6</code></pre></div>
+<hr>
+<h1 id="h-996-49-predict-the-output">49. Predict the Output</h1>
+<p>Given:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'name': ''
+}</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|default:"Guest" }}</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Guest</code></pre></div>
+<hr>
+<h1 id="h-997-50-one-important-correction-to-remember">50. One Important Correction to Remember</h1>
+<p>DTL's dot lookup is more powerful than simply saying:</p>
+<blockquote>"Dot notation only accesses object attributes."</blockquote>
+<p>Django resolves dot lookups through several mechanisms, including dictionary lookup, attribute lookup, list-index lookup, and callable handling according to its template rules.</p>
+<p>For beginner coding, you'll most commonly encounter:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}
+{{ student.address.city }}
+{{ students.0 }}</code></pre></div>
+<hr>
+<h1 id="h-998-module-13-cheat-sheet">⭐ Module 13 Cheat Sheet</h1>
+<h3 id="h-999-variable">Variable:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name }}</code></pre></div>
+<h3 id="h-1000-tag">Tag:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if condition %}</code></pre></div>
+<h3 id="h-1001-comment">Comment:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{# comment #}</code></pre></div>
+<h3 id="h-1002-filter">Filter:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper }}</code></pre></div>
+<h3 id="h-1003-filter-with-argument">Filter with argument:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|default:"Guest" }}</code></pre></div>
+<h3 id="h-1004-multiple-filters">Multiple filters:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ name|upper|length }}</code></pre></div>
+<h3 id="h-1005-dictionary-object-access">Dictionary/object access:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}</code></pre></div>
+<h3 id="h-1006-nested-access">Nested access:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.address.city }}</code></pre></div>
+<h3 id="h-1007-list-index">List index:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ students.0 }}</code></pre></div>
+<h3 id="h-1008-multi-line-comment">Multi-line comment:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% comment %}
+comment
+{% endcomment %}</code></pre></div>
+<hr>
+<h1 id="h-1009-the-most-important-mental-model">🧠 The Most Important Mental Model</h1>
+<p>Whenever you see:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ something }}</code></pre></div>
+<p>ask:</p>
+<blockquote><strong>What did my view put into the context under the name <code>something</code>?</strong></blockquote>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>context = {
+    'student': {
+        'name': 'Aman'
+    }
+}</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ student.name }}</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>context
+   ↓
+student
+   ↓
+name
+   ↓
+Aman</code></pre></div>
+<p>This way of thinking will make the upcoming <strong>loops, conditions, dynamic pages, and database templates</strong> much easier.</p>
+<hr>
+<h2 id="h-1010-next-module-14-template-tags-if-else-elif-and-for">Next → Module 14: Template Tags — <code>if</code>, <code>else</code>, <code>elif</code>, and <code>for</code></h2>
+<p>We'll learn how to make templates actually <strong>make decisions and repeat HTML</strong>:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% if age &gt;= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% for student in students %}
+    {{ student.name }}
+{% endfor %}</code></pre></div>
+<p>We'll cover:</p>
+<ul>
+<li><code>if</code></li>
+<li><code>elif</code></li>
+<li><code>else</code></li>
+<li>comparison operators</li>
+<li><code>and</code>, <code>or</code>, <code>not</code></li>
+<li><code>for</code></li>
+<li><code>empty</code></li>
+<li><code>forloop.counter</code></li>
+<li><code>forloop.first</code></li>
+<li><code>forloop.last</code></li>
+<li>nested loops</li>
+<li>real database-style examples</li>
+<li>coding questions and tricky viva questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-12.html">← Module 12: Introduction to Templates</a>
+<a class="pn-btn pn-next" href="module-14.html">Module 14: Template Tags: if, else, for →</a>
+</div>
+
+</div>
+
+</body>
+</html>

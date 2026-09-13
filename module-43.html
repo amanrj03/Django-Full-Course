@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 43: Django Viva Masterclass — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 43 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 43 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Viva Masterclass</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<span class="nav-item current">43. Django Viva Masterclass</span>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-42.html">← Module 42: Complete Django Revision</a>
+<a class="pn-btn pn-next" href="module-44.html">Module 44: Django Coding Masterclass →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-3833-module-43-django-viva-masterclass">Module 43 — Django Viva Masterclass 🎯</h1>
+<p>This module is focused entirely on <strong>viva/interview questions</strong>.</p>
+<p>I'll give you the kind of questions a teacher can ask after seeing your Django project, along with answers that are <strong>short enough to speak in a viva but technically correct</strong>.</p>
+<hr>
+<h1 id="h-3834-part-1-django-basics">PART 1 — Django Basics</h1>
+<h2 id="h-3835-q1-what-is-django">Q1. What is Django?</h2>
+<p><strong>Answer:</strong></p>
+<blockquote>Django is a high-level, open-source Python web framework used to develop secure, scalable and maintainable web applications quickly.</blockquote>
+<hr>
+<h2 id="h-3836-q2-why-is-django-called-a-framework">Q2. Why is Django called a framework?</h2>
+<blockquote>Django provides a predefined structure, libraries, tools and components for developing web applications, so developers don't have to build everything from scratch.</blockquote>
+<hr>
+<h2 id="h-3837-q3-what-are-the-major-features-of-django">Q3. What are the major features of Django?</h2>
+<p>Important features:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ORM
+URL routing
+Templates
+Forms
+Authentication
+Admin interface
+Security
+Testing
+Middleware
+Internationalization</code></pre></div>
+<hr>
+<h2 id="h-3838-q4-what-does-batteries-included-mean-in-django">Q4. What does "batteries included" mean in Django?</h2>
+<blockquote>It means Django provides many commonly required features such as authentication, ORM, forms, admin, URL routing and security mechanisms as part of the framework.</blockquote>
+<hr>
+<h2 id="h-3839-q5-what-language-is-django-written-in">Q5. What language is Django written in?</h2>
+<blockquote>Django is written in Python.</blockquote>
+<hr>
+<h1 id="h-3840-part-2-mvt">PART 2 — MVT</h1>
+<h2 id="h-3841-q6-what-is-mvt">Q6. What is MVT?</h2>
+<blockquote>MVT stands for Model, View and Template. Model handles data, View handles request and application logic, and Template handles presentation.</blockquote>
+<hr>
+<h2 id="h-3842-q7-what-does-model-do">Q7. What does Model do?</h2>
+<blockquote>A Model represents the application's data structure and provides an interface for interacting with the database through the ORM.</blockquote>
+<hr>
+<h2 id="h-3843-q8-what-does-view-do">Q8. What does View do?</h2>
+<blockquote>A View receives a request, performs application logic, interacts with models if required, and returns a response.</blockquote>
+<hr>
+<h2 id="h-3844-q9-what-does-template-do">Q9. What does Template do?</h2>
+<blockquote>A Template defines the presentation layer, usually HTML combined with Django Template Language.</blockquote>
+<hr>
+<h2 id="h-3845-q10-does-every-django-view-need-a-model">Q10. Does every Django view need a model?</h2>
+<p><strong>No.</strong></p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def hello(request):
+    return HttpResponse("Hello")</code></pre></div>
+<p>This doesn't use a model.</p>
+<h3 id="h-3846-viva-answer">Viva answer:</h3>
+<blockquote>No. A view can return a response without interacting with a database or model.</blockquote>
+<hr>
+<h2 id="h-3847-q11-does-every-django-view-need-a-template">Q11. Does every Django view need a template?</h2>
+<p><strong>No.</strong></p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return HttpResponse("Hello")</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return JsonResponse({
+    "status": "success"
+})</code></pre></div>
+<hr>
+<h1 id="h-3848-part-3-project-and-app">PART 3 — Project and App</h1>
+<h2 id="h-3849-q12-difference-between-project-and-app">Q12. Difference between project and app?</h2>
+<blockquote>A project is the complete Django application and its configuration, while an app is a modular component responsible for a specific functionality.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College
+│
+├── students
+├── accounts
+└── courses</code></pre></div>
+<hr>
+<h2 id="h-3850-q13-does-creating-an-app-automatically-add-it-to-t">Q13. Does creating an app automatically add it to the project?</h2>
+<blockquote>No. We need to add the app to <code>INSTALLED_APPS</code>.</blockquote>
+<hr>
+<h2 id="h-3851-q14-why-divide-a-project-into-apps">Q14. Why divide a project into apps?</h2>
+<blockquote>To improve modularity, maintainability, separation of concerns and code organization.</blockquote>
+<hr>
+<h1 id="h-3852-part-4-manage-py">PART 4 — <code>manage.py</code></h1>
+<h2 id="h-3853-q15-what-is-manage-py">Q15. What is <code>manage.py</code>?</h2>
+<blockquote><code>manage.py</code> is a project-specific command-line utility used to perform Django administrative tasks such as running the server, creating migrations, applying migrations, creating a superuser and running tests.</blockquote>
+<hr>
+<h2 id="h-3854-q16-difference-between-django-admin-and-manage-py">Q16. Difference between <code>django-admin</code> and <code>manage.py</code>?</h2>
+<blockquote><code>django-admin</code> is Django's general command-line utility, while <code>manage.py</code> is project-specific and automatically sets the project's Django settings module.</blockquote>
+<hr>
+<h1 id="h-3855-part-5-settings">PART 5 — Settings</h1>
+<h2 id="h-3856-q17-what-is-settings-py">Q17. What is <code>settings.py</code>?</h2>
+<blockquote>It contains the configuration of a Django project.</blockquote>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>INSTALLED_APPS
+DATABASES
+MIDDLEWARE
+TEMPLATES
+DEBUG
+STATIC_URL
+ROOT_URLCONF</code></pre></div>
+<hr>
+<h2 id="h-3857-q18-what-is-installed-apps">Q18. What is <code>INSTALLED_APPS</code>?</h2>
+<blockquote>It is the list of Django applications enabled in the project.</blockquote>
+<hr>
+<h2 id="h-3858-q19-what-happens-if-we-don-t-add-our-app-to-instal">Q19. What happens if we don't add our app to <code>INSTALLED_APPS</code>?</h2>
+<blockquote>Django may not properly discover the app's models, templates and other application configuration, and migrations for its models won't work correctly.</blockquote>
+<hr>
+<h1 id="h-3859-part-6-urls">PART 6 — URLs</h1>
+<h2 id="h-3860-q20-what-is-url-routing">Q20. What is URL routing?</h2>
+<blockquote>URL routing maps an incoming URL pattern to a view.</blockquote>
+<hr>
+<h2 id="h-3861-q21-what-is-urlpatterns">Q21. What is <code>urlpatterns</code>?</h2>
+<blockquote>It is the list of URL patterns Django checks to determine which view should handle a request.</blockquote>
+<hr>
+<h2 id="h-3862-q22-what-does-path-do">Q22. What does <code>path()</code> do?</h2>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "students/",
+    views.student_list
+)</code></pre></div>
+<blockquote><code>path()</code> defines a URL pattern and maps it to a view.</blockquote>
+<hr>
+<h2 id="h-3863-q23-what-is-include">Q23. What is <code>include()</code>?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "students/",
+    include("students.urls")
+)</code></pre></div>
+<blockquote><code>include()</code> delegates URL matching to another URL configuration, commonly an app's <code>urls.py</code>.</blockquote>
+<hr>
+<h2 id="h-3864-q24-why-use-app-level-urls">Q24. Why use app-level URLs?</h2>
+<blockquote>It keeps URL configurations modular and prevents the project's main <code>urls.py</code> from becoming unnecessarily large.</blockquote>
+<hr>
+<h1 id="h-3865-part-7-url-parameters">PART 7 — URL Parameters</h1>
+<h2 id="h-3866-q25-how-do-you-pass-an-integer-through-a-url">Q25. How do you pass an integer through a URL?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student
+)</code></pre></div>
+<hr>
+<h2 id="h-3867-q26-how-does-django-pass-id-to-the-view">Q26. How does Django pass <code>id</code> to the view?</h2>
+<p>If URL is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student/25/</code></pre></div>
+<p>Django calls approximately:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>views.student(
+    request,
+    id=25
+)</code></pre></div>
+<hr>
+<h2 id="h-3868-q27-what-happens-if-the-parameter-name-doesn-t-mat">Q27. What happens if the parameter name doesn't match?</h2>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>path(
+    "student/&lt;int:id&gt;/",
+    views.student
+)</code></pre></div>
+<p>but:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def student(request, student_id):</code></pre></div>
+<p>This causes an argument mismatch error because Django passes the keyword argument <code>id</code>.</p>
+<hr>
+<h1 id="h-3869-part-8-http">PART 8 — HTTP</h1>
+<h2 id="h-3870-q28-what-is-http">Q28. What is HTTP?</h2>
+<blockquote>HTTP is an application-layer protocol used for communication between clients and servers on the web.</blockquote>
+<hr>
+<h2 id="h-3871-q29-difference-between-get-and-post">Q29. Difference between GET and POST?</h2>
+<blockquote>GET is generally used to retrieve data, while POST is generally used to submit data or perform state-changing operations.</blockquote>
+<hr>
+<h2 id="h-3872-q30-is-post-secure">Q30. Is POST secure?</h2>
+<p><strong>Not by itself.</strong></p>
+<blockquote>POST hides submitted data from the URL, but it does not encrypt the communication. HTTPS is required for encryption.</blockquote>
+<hr>
+<h2 id="h-3873-q31-what-is-request-get">Q31. What is <code>request.GET</code>?</h2>
+<blockquote><code>request.GET</code> contains query-string parameters submitted with a GET request.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/search/?q=django</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.GET.get("q")</code></pre></div>
+<hr>
+<h2 id="h-3874-q32-what-is-request-post">Q32. What is <code>request.POST</code>?</h2>
+<blockquote>It contains form data submitted through a POST request.</blockquote>
+<hr>
+<h1 id="h-3875-part-9-templates">PART 9 — Templates</h1>
+<h2 id="h-3876-q33-why-do-we-use-templates">Q33. Why do we use templates?</h2>
+<blockquote>Templates separate presentation from application logic and allow dynamic data to be rendered into HTML.</blockquote>
+<hr>
+<h2 id="h-3877-q34-what-is-dtl">Q34. What is DTL?</h2>
+<blockquote>DTL stands for Django Template Language. It is Django's template language used for variables, tags, filters and template inheritance.</blockquote>
+<hr>
+<h2 id="h-3878-q35-difference-between-and">Q35. Difference between <code>{{ }}</code> and <code>{% %}</code>?</h2>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>{{ }} → variables
+{% %} → template tags</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ name }}
+
+{% if age &gt;= 18 %}</code></pre></div>
+<hr>
+<h2 id="h-3879-q36-what-is-a-template-filter">Q36. What is a template filter?</h2>
+<blockquote>A filter transforms or formats a template value.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{{ name|upper }}</code></pre></div>
+<hr>
+<h2 id="h-3880-q37-what-is-template-inheritance">Q37. What is template inheritance?</h2>
+<blockquote>Template inheritance allows child templates to reuse a common parent layout instead of repeating HTML.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% extends "base.html" %}</code></pre></div>
+<hr>
+<h2 id="h-3881-q38-difference-between-extends-and-include">Q38. Difference between <code>extends</code> and <code>include</code>?</h2>
+<blockquote><code>extends</code> is used for inheriting a page layout, while <code>include</code> is used for inserting a reusable template fragment.</blockquote>
+<hr>
+<h1 id="h-3882-part-10-forms">PART 10 — Forms</h1>
+<h2 id="h-3883-q39-why-use-django-forms">Q39. Why use Django Forms?</h2>
+<blockquote>Django Forms simplify HTML form creation, input processing, validation and error handling.</blockquote>
+<hr>
+<h2 id="h-3884-q40-what-is-forms-form">Q40. What is <code>forms.Form</code>?</h2>
+<blockquote>It is the base class used to create forms whose fields are defined independently of a model.</blockquote>
+<hr>
+<h2 id="h-3885-q41-what-is-modelform">Q41. What is <code>ModelForm</code>?</h2>
+<blockquote><code>ModelForm</code> is a Django form that is generated from a model and can create or update model instances.</blockquote>
+<hr>
+<h2 id="h-3886-q42-difference-between-form-and-modelform">Q42. Difference between <code>Form</code> and <code>ModelForm</code>?</h2>
+<div class="table-wrapper"><table><thead><tr>
+<th>Form</th>
+<th>ModelForm</th>
+</tr></thead><tbody>
+<tr>
+<td>Independent of model</td>
+<td>Based on model</td>
+</tr>
+<tr>
+<td>Fields manually defined</td>
+<td>Fields can be generated from model</td>
+</tr>
+<tr>
+<td>Doesn't automatically save model</td>
+<td>Can save model</td>
+</tr>
+<tr>
+<td>Useful for custom/non-model input</td>
+<td>Useful for CRUD</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="h-3887-q43-what-does-is-valid-do">Q43. What does <code>is_valid()</code> do?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<blockquote>It runs the form's validation process and returns <code>True</code> if the submitted data is valid, otherwise <code>False</code>.</blockquote>
+<hr>
+<h2 id="h-3888-q44-what-is-cleaned-data">Q44. What is <code>cleaned_data</code>?</h2>
+<blockquote><code>cleaned_data</code> contains validated and converted form data after successful validation.</blockquote>
+<hr>
+<h2 id="h-3889-q45-can-you-access-cleaned-data-before-is-valid">Q45. Can you access <code>cleaned_data</code> before <code>is_valid()</code>?</h2>
+<blockquote>No. You should access it only after successful validation.</blockquote>
+<hr>
+<h1 id="h-3890-part-11-csrf">PART 11 — CSRF</h1>
+<h2 id="h-3891-q46-what-is-csrf">Q46. What is CSRF?</h2>
+<blockquote>CSRF stands for Cross-Site Request Forgery. It is an attack where an attacker tricks a user's browser into making an unwanted state-changing request to a site where the user is authenticated.</blockquote>
+<hr>
+<h2 id="h-3892-q47-how-does-django-protect-against-csrf">Q47. How does Django protect against CSRF?</h2>
+<p>In a normal HTML POST form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">DJANGO</span><pre><code>{% csrf_token %}</code></pre></div>
+<p>Django's CSRF middleware then validates the token.</p>
+<hr>
+<h2 id="h-3893-q48-what-happens-if-csrf-validation-fails">Q48. What happens if CSRF validation fails?</h2>
+<blockquote>Django commonly returns HTTP 403 Forbidden.</blockquote>
+<hr>
+<h2 id="h-3894-q49-is-csrf-token-a-password">Q49. Is CSRF token a password?</h2>
+<blockquote>No. It is a security token used to verify that a state-changing request originated from an expected context.</blockquote>
+<hr>
+<h1 id="h-3895-part-12-models">PART 12 — Models</h1>
+<h2 id="h-3896-q50-what-is-a-django-model">Q50. What is a Django Model?</h2>
+<blockquote>A Django Model is a Python class that represents the structure and behavior of data stored in the database.</blockquote>
+<hr>
+<h2 id="h-3897-q51-how-does-a-model-map-to-a-database">Q51. How does a model map to a database?</h2>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model class → Table
+Model field → Column
+Model instance → Row</code></pre></div>
+<hr>
+<h2 id="h-3898-q52-what-is-a-primary-key">Q52. What is a primary key?</h2>
+<blockquote>A primary key uniquely identifies a record in a database table.</blockquote>
+<hr>
+<h2 id="h-3899-q53-what-happens-if-you-don-t-define-a-primary-key">Q53. What happens if you don't define a primary key?</h2>
+<blockquote>Django automatically adds a primary key field.</blockquote>
+<hr>
+<h1 id="h-3900-part-13-migrations">PART 13 — Migrations</h1>
+<h2 id="h-3901-q54-what-is-a-migration">Q54. What is a migration?</h2>
+<blockquote>A migration is a version-controlled description of changes to the database schema based on model changes.</blockquote>
+<hr>
+<h2 id="h-3902-q55-difference-between-makemigrations-and-migrate">Q55. Difference between <code>makemigrations</code> and <code>migrate</code>?</h2>
+<p>This is <strong>extremely important</strong>.</p>
+<blockquote><code>makemigrations</code> creates migration files from model changes, while <code>migrate</code> applies those migrations to the database.</blockquote>
+<hr>
+<h2 id="h-3903-q56-does-changing-models-py-immediately-change-the">Q56. Does changing <code>models.py</code> immediately change the database?</h2>
+<blockquote>No. Normally we need to create and apply migrations.</blockquote>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre></div>
+<hr>
+<h2 id="h-3904-q57-are-migrations-a-database-backup">Q57. Are migrations a database backup?</h2>
+<blockquote>No. Migrations describe schema/data changes; they are not a substitute for database backups.</blockquote>
+<hr>
+<h1 id="h-3905-part-14-orm">PART 14 — ORM</h1>
+<h2 id="h-3906-q58-what-is-orm">Q58. What is ORM?</h2>
+<blockquote>ORM stands for Object-Relational Mapping. Django ORM allows developers to interact with database records using Python objects and QuerySets instead of writing SQL for every operation.</blockquote>
+<hr>
+<h2 id="h-3907-q59-what-is-a-queryset">Q59. What is a QuerySet?</h2>
+<blockquote>A QuerySet represents a collection of database queries/results and is generally evaluated lazily.</blockquote>
+<hr>
+<h2 id="h-3908-q60-what-is-lazy-evaluation">Q60. What is lazy evaluation?</h2>
+<blockquote>A QuerySet usually doesn't execute its database query immediately when it is constructed. The database is queried when the results are actually needed.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<p>The query may not execute until you iterate over it, convert it, or otherwise evaluate it.</p>
+<hr>
+<h1 id="h-3909-part-15-filter-vs-get">PART 15 — <code>filter()</code> vs <code>get()</code></h1>
+<h2 id="h-3910-q61-difference-between-filter-and-get">Q61. Difference between <code>filter()</code> and <code>get()</code>?</h2>
+<h3 id="h-3911-filter"><code>filter()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<p>Returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>QuerySet</code></pre></div>
+<p>Can contain zero, one or many objects.</p>
+<h3 id="h-3912-get"><code>get()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.get(
+    id=1
+)</code></pre></div>
+<p>Must return exactly one object.</p>
+<p>Otherwise:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DoesNotExist
+MultipleObjectsReturned</code></pre></div>
+<hr>
+<h1 id="h-3913-part-16-advanced-orm">PART 16 — Advanced ORM</h1>
+<h2 id="h-3914-q62-what-is-a-q-object">Q62. What is a <code>Q</code> object?</h2>
+<blockquote><code>Q</code> objects are used to construct complex database queries involving conditions such as OR, AND and NOT.</blockquote>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Q(course="CSE") |
+Q(course="ECE")</code></pre></div>
+<hr>
+<h2 id="h-3915-q63-what-is-an-f-expression">Q63. What is an <code>F</code> expression?</h2>
+<blockquote>An <code>F</code> expression allows database-side operations using model field values.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<hr>
+<h2 id="h-3916-q64-difference-between-aggregate-and-annotate">Q64. Difference between <code>aggregate()</code> and <code>annotate()</code>?</h2>
+<blockquote><code>aggregate()</code> produces an overall summary, while <code>annotate()</code> adds calculated values to individual objects or groups in a QuerySet.</blockquote>
+<hr>
+<h1 id="h-3917-part-17-relationships">PART 17 — Relationships</h1>
+<h2 id="h-3918-q65-what-is-a-foreignkey">Q65. What is a ForeignKey?</h2>
+<blockquote>A ForeignKey represents a many-to-one relationship between two models.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department
+   ↑
+   │
+many Students</code></pre></div>
+<hr>
+<h2 id="h-3919-q66-what-does-on-delete-models-cascade-mean">Q66. What does <code>on_delete=models.CASCADE</code> mean?</h2>
+<blockquote>If the referenced object is deleted, related objects using CASCADE are also deleted.</blockquote>
+<hr>
+<h2 id="h-3920-q67-what-is-onetoonefield">Q67. What is OneToOneField?</h2>
+<blockquote>It represents a one-to-one relationship between two models.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student → StudentProfile</code></pre></div>
+<hr>
+<h2 id="h-3921-q68-what-is-manytomanyfield">Q68. What is ManyToManyField?</h2>
+<blockquote>It represents a many-to-many relationship where multiple objects on each side can be related.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students ↔ Courses</code></pre></div>
+<hr>
+<h1 id="h-3922-part-18-select-related-vs-prefetch-related">PART 18 — <code>select_related()</code> vs <code>prefetch_related()</code></h1>
+<h2 id="h-3923-q69-why-do-we-use-select-related">Q69. Why do we use <code>select_related()</code>?</h2>
+<blockquote>It optimizes queries involving ForeignKey and OneToOne relationships, generally using SQL joins.</blockquote>
+<hr>
+<h2 id="h-3924-q70-why-use-prefetch-related">Q70. Why use <code>prefetch_related()</code>?</h2>
+<blockquote>It optimizes many-to-many and reverse relationships by fetching related objects efficiently using additional queries and combining the results in Python.</blockquote>
+<hr>
+<h1 id="h-3925-part-19-crud">PART 19 — CRUD</h1>
+<h2 id="h-3926-q71-what-is-crud">Q71. What is CRUD?</h2>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>C → Create
+R → Read
+U → Update
+D → Delete</code></pre></div>
+<hr>
+<h2 id="h-3927-q72-how-do-you-create-an-object">Q72. How do you create an object?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman",
+    age=21
+)</code></pre></div>
+<hr>
+<h2 id="h-3928-q73-how-do-you-update-an-object">Q73. How do you update an object?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.marks = 95
+student.save()</code></pre></div>
+<hr>
+<h2 id="h-3929-q74-how-do-you-delete-an-object">Q74. How do you delete an object?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.delete()</code></pre></div>
+<hr>
+<h1 id="h-3930-part-20-the-instance-question">PART 20 — The <code>instance</code> Question</h1>
+<h2 id="h-3931-q75-why-use-instance-in-a-modelform">Q75. Why use <code>instance</code> in a ModelForm?</h2>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(
+    request.POST,
+    instance=student
+)</code></pre></div>
+<blockquote><code>instance</code> tells the ModelForm to update an existing model object instead of creating a new one.</blockquote>
+<p>This is one of the <strong>most important practical Django questions</strong>.</p>
+<hr>
+<h1 id="h-3932-part-21-admin">PART 21 — Admin</h1>
+<h2 id="h-3933-q76-what-is-django-admin">Q76. What is Django Admin?</h2>
+<blockquote>Django Admin is a built-in web-based interface for managing registered models and database records.</blockquote>
+<hr>
+<h2 id="h-3934-q77-how-do-you-create-a-superuser">Q77. How do you create a superuser?</h2>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py createsuperuser</code></pre></div>
+<hr>
+<h2 id="h-3935-q78-how-do-you-register-a-model">Q78. How do you register a model?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)</code></pre></div>
+<hr>
+<h2 id="h-3936-q79-what-is-list-display">Q79. What is <code>list_display</code>?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>list_display = (
+    "id",
+    "name",
+    "email",
+)</code></pre></div>
+<blockquote>It specifies which model fields or display methods should appear as columns in the Django admin list page.</blockquote>
+<hr>
+<h1 id="h-3937-part-22-authentication">PART 22 — Authentication</h1>
+<h2 id="h-3938-q80-what-is-authentication">Q80. What is authentication?</h2>
+<blockquote>Authentication verifies the identity of a user.</blockquote>
+<hr>
+<h2 id="h-3939-q81-what-is-authorization">Q81. What is authorization?</h2>
+<blockquote>Authorization determines what an authenticated user is allowed to do.</blockquote>
+<hr>
+<h2 id="h-3940-q82-difference">Q82. Difference?</h2>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication
+→ Who are you?
+
+Authorization
+→ What can you do?</code></pre></div>
+<hr>
+<h1 id="h-3941-part-23-login">PART 23 — Login</h1>
+<h2 id="h-3942-q83-what-does-authenticate-do">Q83. What does <code>authenticate()</code> do?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+    request,
+    username=username,
+    password=password
+)</code></pre></div>
+<blockquote>It verifies the supplied credentials and returns a User object if authentication succeeds, otherwise <code>None</code>.</blockquote>
+<hr>
+<h2 id="h-3943-q84-what-does-login-do">Q84. What does <code>login()</code> do?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<blockquote>It establishes the authenticated user's session.</blockquote>
+<hr>
+<h2 id="h-3944-q85-what-does-logout-do">Q85. What does <code>logout()</code> do?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<blockquote>It logs the user out and clears the authenticated session state.</blockquote>
+<hr>
+<h2 id="h-3945-q86-why-are-authenticate-and-login-separate">Q86. Why are <code>authenticate()</code> and <code>login()</code> separate?</h2>
+<blockquote><code>authenticate()</code> verifies credentials, while <code>login()</code> establishes the authenticated session.</blockquote>
+<p><strong>Very important answer.</strong></p>
+<hr>
+<h1 id="h-3946-part-24-request-user">PART 24 — <code>request.user</code></h1>
+<h2 id="h-3947-q87-what-is-request-user">Q87. What is <code>request.user</code>?</h2>
+<blockquote>It represents the user associated with the current request.</blockquote>
+<p>Authenticated:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>Anonymous:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>AnonymousUser</code></pre></div>
+<hr>
+<h2 id="h-3948-q88-is-is-authenticated-a-function">Q88. Is <code>is_authenticated</code> a function?</h2>
+<p>No.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated</code></pre></div>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.user.is_authenticated()</code></pre></div>
+<hr>
+<h1 id="h-3949-part-25-login-required">PART 25 — <code>login_required</code></h1>
+<h2 id="h-3950-q89-what-does-login-required-do">Q89. What does <code>@login_required</code> do?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<blockquote>It restricts access to authenticated users and redirects unauthenticated users to the configured login URL.</blockquote>
+<hr>
+<h2 id="h-3951-q90-does-login-required-check-permissions">Q90. Does <code>login_required</code> check permissions?</h2>
+<p><strong>No.</strong></p>
+<p>It checks authentication.</p>
+<p>For permissions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(...)</code></pre></div>
+<hr>
+<h1 id="h-3952-part-26-permissions">PART 26 — Permissions</h1>
+<h2 id="h-3953-q91-how-do-you-check-a-permission">Q91. How do you check a permission?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.has_perm(
+    "students.change_student"
+)</code></pre></div>
+<hr>
+<h2 id="h-3954-q92-what-is-a-group">Q92. What is a Group?</h2>
+<blockquote>A Group is a collection of users that can share permissions.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Teachers
+   ↓
+Users
+   ↓
+Shared permissions</code></pre></div>
+<hr>
+<h1 id="h-3955-part-27-cookies">PART 27 — Cookies</h1>
+<h2 id="h-3956-q93-what-is-a-cookie">Q93. What is a cookie?</h2>
+<blockquote>A cookie is a small piece of data stored by the browser and sent with subsequent matching requests.</blockquote>
+<hr>
+<h2 id="h-3957-q94-how-do-you-set-a-cookie">Q94. How do you set a cookie?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<hr>
+<h2 id="h-3958-q95-how-do-you-read-a-cookie">Q95. How do you read a cookie?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<hr>
+<h1 id="h-3959-part-28-sessions">PART 28 — Sessions</h1>
+<h2 id="h-3960-q96-what-is-a-session">Q96. What is a session?</h2>
+<blockquote>A session is a mechanism for maintaining user-specific state across multiple HTTP requests.</blockquote>
+<hr>
+<h2 id="h-3961-q97-how-do-you-store-data-in-a-django-session">Q97. How do you store data in a Django session?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session[
+    "username"
+] = "Aman"</code></pre></div>
+<hr>
+<h2 id="h-3962-q98-cookie-vs-session">Q98. Cookie vs Session?</h2>
+<blockquote>A cookie is data associated with the browser, while a session provides server-managed user state across requests; Django commonly uses a session ID cookie to identify server-side session data.</blockquote>
+<hr>
+<h1 id="h-3963-part-29-debugging">PART 29 — Debugging</h1>
+<h2 id="h-3964-q99-what-is-debugging">Q99. What is debugging?</h2>
+<blockquote>Debugging is the process of finding, understanding, fixing and retesting errors in software.</blockquote>
+<hr>
+<h2 id="h-3965-q100-what-does-debug-true-do">Q100. What does <code>DEBUG=True</code> do?</h2>
+<blockquote>It enables detailed debugging information during development.</blockquote>
+<p>Never use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DEBUG = True</code></pre></div>
+<p>in production.</p>
+<hr>
+<h1 id="h-3966-part-30-testing">PART 30 — Testing</h1>
+<h2 id="h-3967-q101-how-do-you-run-django-tests">Q101. How do you run Django tests?</h2>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py test</code></pre></div>
+<hr>
+<h2 id="h-3968-q102-what-is-django-s-test-client">Q102. What is Django's test client?</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>self.client</code></pre></div>
+<blockquote>It allows tests to simulate HTTP requests to Django views without requiring a real browser.</blockquote>
+<hr>
+<h2 id="h-3969-q103-what-is-setup">Q103. What is <code>setUp()</code>?</h2>
+<blockquote><code>setUp()</code> prepares common test data or state before each test method.</blockquote>
+<hr>
+<h1 id="h-3970-part-31-tricky-viva-questions">PART 31 — Tricky Viva Questions 🔥</h1>
+<p>These are the questions teachers often use to see whether you actually understand Django.</p>
+<hr>
+<h2 id="h-3971-q104-can-a-django-project-work-without-a-database">Q104. Can a Django project work without a database?</h2>
+<p><strong>Yes.</strong></p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse(
+        "Hello World"
+    )</code></pre></div>
+<p>No database is required for that view.</p>
+<hr>
+<h2 id="h-3972-q105-can-django-return-json-instead-of-html">Q105. Can Django return JSON instead of HTML?</h2>
+<p><strong>Yes.</strong></p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return JsonResponse({
+    "message": "Success"
+})</code></pre></div>
+<hr>
+<h2 id="h-3973-q106-can-django-use-databases-other-than-sqlite">Q106. Can Django use databases other than SQLite?</h2>
+<p>Yes.</p>
+<p>Common choices:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PostgreSQL
+MySQL
+MariaDB
+Oracle
+SQLite</code></pre></div>
+<hr>
+<h2 id="h-3974-q107-does-django-orm-eliminate-sql-completely">Q107. Does Django ORM eliminate SQL completely?</h2>
+<p><strong>No.</strong></p>
+<blockquote>ORM abstracts most database operations, but developers can still use raw SQL when necessary.</blockquote>
+<hr>
+<h2 id="h-3975-q108-is-django-only-for-frontend-development">Q108. Is Django only for frontend development?</h2>
+<p><strong>No.</strong></p>
+<p>Django is primarily a backend web framework that can render HTML templates and also provide APIs/responses.</p>
+<hr>
+<h2 id="h-3976-q109-is-django-the-same-as-react">Q109. Is Django the same as React?</h2>
+<p><strong>No.</strong></p>
+<p>Django is a Python web framework, while React is a JavaScript library primarily used for building user interfaces.</p>
+<p>They can be used together.</p>
+<hr>
+<h1 id="h-3977-part-32-code-based-viva">PART 32 — Code-Based Viva 🔥</h1>
+<p>Teacher may show you code and ask:</p>
+<blockquote>"What will this do?"</blockquote>
+<h3 id="h-3978-q110">Q110.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<p>Answer:</p>
+<blockquote>It retrieves students whose marks are greater than or equal to 80.</blockquote>
+<hr>
+<h3 id="h-3979-q111">Q111.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.filter(
+    course="CSE"
+).order_by("-marks")</code></pre></div>
+<p>Answer:</p>
+<blockquote>It retrieves CSE students and sorts them by marks in descending order.</blockquote>
+<hr>
+<h3 id="h-3980-q112">Q112.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+    marks=F("marks") + 5
+)</code></pre></div>
+<p>Answer:</p>
+<blockquote>It increases the marks of every selected record by 5 using a database-side field expression.</blockquote>
+<hr>
+<h3 id="h-3981-q113">Q113.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = get_object_or_404(
+    Student,
+    id=5
+)</code></pre></div>
+<p>Answer:</p>
+<blockquote>It retrieves the student with ID 5 and returns a 404 response if the object doesn't exist.</blockquote>
+<hr>
+<h3 id="h-3982-q114">Q114.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+    ...</code></pre></div>
+<p>Answer:</p>
+<blockquote>Only authenticated users can access this view.</blockquote>
+<hr>
+<h3 id="h-3983-q115">Q115.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if user is not None:
+    login(request, user)</code></pre></div>
+<p>Answer:</p>
+<blockquote>If authentication succeeds, Django establishes the user's authenticated session.</blockquote>
+<hr>
+<h1 id="h-3984-part-33-explain-your-project-viva">PART 33 — "Explain Your Project" Viva</h1>
+<p>If your teacher says:</p>
+<blockquote><strong>"Explain your Django project."</strong></blockquote>
+<p>Don't start randomly explaining files.</p>
+<p>Use this structure:</p>
+<h3 id="h-3985-step-1-project-purpose">Step 1 — Project purpose</h3>
+<blockquote>"My project is a Student Management System built using Django."</blockquote>
+<h3 id="h-3986-step-2-architecture">Step 2 — Architecture</h3>
+<blockquote>"I used Django's MVT architecture."</blockquote>
+<h3 id="h-3987-step-3-model">Step 3 — Model</h3>
+<blockquote>"The Student model stores information such as name, email, course, age and marks."</blockquote>
+<h3 id="h-3988-step-4-database">Step 4 — Database</h3>
+<blockquote>"I used Django ORM to interact with the database."</blockquote>
+<h3 id="h-3989-step-5-crud">Step 5 — CRUD</h3>
+<blockquote>"The application supports creating, viewing, updating and deleting students."</blockquote>
+<h3 id="h-3990-step-6-forms">Step 6 — Forms</h3>
+<blockquote>"I used ModelForm for handling student input and validation."</blockquote>
+<h3 id="h-3991-step-7-authentication">Step 7 — Authentication</h3>
+<blockquote>"I implemented user registration, login, logout and protected views."</blockquote>
+<h3 id="h-3992-step-8-security">Step 8 — Security</h3>
+<blockquote>"POST forms use CSRF protection, passwords are handled by Django's authentication system, and authorization is enforced server-side."</blockquote>
+<h3 id="h-3993-step-9-admin">Step 9 — Admin</h3>
+<blockquote>"I registered the model with Django Admin for administrative management."</blockquote>
+<p>That's a <strong>very strong project explanation</strong>.</p>
+<hr>
+<h1 id="h-3994-part-34-rapid-fire-round">PART 34 — Rapid Fire Round ⚡</h1>
+<p>Try answering these mentally before looking at the answer.</p>
+<h3 id="h-3995-1-django-language">1. Django language?</h3>
+<blockquote>Python.</blockquote>
+<h3 id="h-3996-2-architecture">2. Architecture?</h3>
+<blockquote>MVT.</blockquote>
+<h3 id="h-3997-3-database-abstraction">3. Database abstraction?</h3>
+<blockquote>ORM.</blockquote>
+<h3 id="h-3998-4-project-configuration">4. Project configuration?</h3>
+<blockquote><code>settings.py</code>.</blockquote>
+<h3 id="h-3999-5-url-configuration">5. URL configuration?</h3>
+<blockquote><code>urls.py</code>.</blockquote>
+<h3 id="h-4000-6-database-models">6. Database models?</h3>
+<blockquote><code>models.py</code>.</blockquote>
+<h3 id="h-4001-7-request-logic">7. Request logic?</h3>
+<blockquote><code>views.py</code>.</blockquote>
+<h3 id="h-4002-8-html-presentation">8. HTML presentation?</h3>
+<blockquote>Templates.</blockquote>
+<h3 id="h-4003-9-form-validation">9. Form validation?</h3>
+<blockquote><code>is_valid()</code>.</blockquote>
+<h3 id="h-4004-10-csrf-protection">10. CSRF protection?</h3>
+<blockquote><code>{% csrf_token %}</code>.</blockquote>
+<h3 id="h-4005-11-create-migrations">11. Create migrations?</h3>
+<blockquote><code>makemigrations</code>.</blockquote>
+<h3 id="h-4006-12-apply-migrations">12. Apply migrations?</h3>
+<blockquote><code>migrate</code>.</blockquote>
+<h3 id="h-4007-13-database-query">13. Database query?</h3>
+<blockquote>ORM / QuerySet.</blockquote>
+<h3 id="h-4008-14-create-user">14. Create user?</h3>
+<blockquote><code>create_user()</code>.</blockquote>
+<h3 id="h-4009-15-verify-credentials">15. Verify credentials?</h3>
+<blockquote><code>authenticate()</code>.</blockquote>
+<h3 id="h-4010-16-start-authenticated-session">16. Start authenticated session?</h3>
+<blockquote><code>login()</code>.</blockquote>
+<h3 id="h-4011-17-end-authentication">17. End authentication?</h3>
+<blockquote><code>logout()</code>.</blockquote>
+<h3 id="h-4012-18-current-user">18. Current user?</h3>
+<blockquote><code>request.user</code>.</blockquote>
+<h3 id="h-4013-19-protect-authenticated-view">19. Protect authenticated view?</h3>
+<blockquote><code>@login_required</code>.</blockquote>
+<h3 id="h-4014-20-check-permission">20. Check permission?</h3>
+<blockquote><code>has_perm()</code>.</blockquote>
+<h3 id="h-4015-21-admin-user">21. Admin user?</h3>
+<blockquote>Superuser.</blockquote>
+<h3 id="h-4016-22-cookie">22. Cookie?</h3>
+<blockquote>Browser-side stored data.</blockquote>
+<h3 id="h-4017-23-session">23. Session?</h3>
+<blockquote>User-specific state across requests.</blockquote>
+<h3 id="h-4018-24-404">24. 404?</h3>
+<blockquote>Not Found.</blockquote>
+<h3 id="h-4019-25-403">25. 403?</h3>
+<blockquote>Forbidden.</blockquote>
+<hr>
+<h1 id="h-4020-part-35-10-trap-questions">PART 35 — 10 "Trap" Questions</h1>
+<p>These are worth memorizing.</p>
+<h3 id="h-4021-trap-1">Trap 1</h3>
+<p><strong>Is <code>authenticate()</code> enough to log someone in?</strong></p>
+<blockquote>No. It verifies credentials; <code>login()</code> establishes the authenticated session.</blockquote>
+<hr>
+<h3 id="h-4022-trap-2">Trap 2</h3>
+<p><strong>Does <code>@login_required</code> check permissions?</strong></p>
+<blockquote>No. It checks whether the user is authenticated.</blockquote>
+<hr>
+<h3 id="h-4023-trap-3">Trap 3</h3>
+<p><strong>Does POST automatically encrypt data?</strong></p>
+<blockquote>No. HTTPS provides encryption.</blockquote>
+<hr>
+<h3 id="h-4024-trap-4">Trap 4</h3>
+<p><strong>Does <code>makemigrations</code> change the database?</strong></p>
+<blockquote>No. It creates migration files. <code>migrate</code> applies them.</blockquote>
+<hr>
+<h3 id="h-4025-trap-5">Trap 5</h3>
+<p><strong>Does <code>filter()</code> return one object?</strong></p>
+<blockquote>No. It returns a QuerySet.</blockquote>
+<hr>
+<h3 id="h-4026-trap-6">Trap 6</h3>
+<p><strong>Does <code>get()</code> return a QuerySet?</strong></p>
+<blockquote>No. It returns a single model object if exactly one match exists.</blockquote>
+<hr>
+<h3 id="h-4027-trap-7">Trap 7</h3>
+<p><strong>Is CSRF protection the same as authentication?</strong></p>
+<blockquote>No. CSRF protects against forged requests; authentication identifies users.</blockquote>
+<hr>
+<h3 id="h-4028-trap-8">Trap 8</h3>
+<p><strong>Is hiding a delete button authorization?</strong></p>
+<blockquote>No. The backend must enforce authorization.</blockquote>
+<hr>
+<h3 id="h-4029-trap-9">Trap 9</h3>
+<p><strong>Does <code>startapp</code> automatically register the app?</strong></p>
+<blockquote>No.</blockquote>
+<hr>
+<h3 id="h-4030-trap-10">Trap 10</h3>
+<p><strong>Are migrations database backups?</strong></p>
+<blockquote>No.</blockquote>
+<hr>
+<h1 id="h-4031-part-36-your-final-viva-memory-map">PART 36 — Your Final Viva Memory Map</h1>
+<p>If you forget everything during viva, rebuild Django from this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>DJANGO
+│
+├── Project
+│   ├── settings.py
+│   └── urls.py
+│
+├── App
+│   ├── views.py
+│   ├── models.py
+│   ├── forms.py
+│   ├── admin.py
+│   └── tests.py
+│
+├── URL
+│   ↓
+│  View
+│   ↓
+│  Model / Form
+│   ↓
+│  Database
+│   ↓
+│  Template
+│   ↓
+│  Response
+│
+├── Database
+│   ├── Model
+│   ├── Migration
+│   └── ORM
+│
+├── Security
+│   ├── CSRF
+│   ├── Authentication
+│   └── Authorization
+│
+└── State
+    ├── Cookies
+    └── Sessions</code></pre></div>
+<hr>
+<h1 id="h-4032-module-43-complete">Module 43 Complete ✅</h1>
+<p>You now have a strong set of <strong>conceptual + tricky + code-based viva answers</strong>.</p>
+<p>The final module is the most practical one:</p>
+<h1 id="h-4033-module-44-django-coding-question-masterclass">Module 44 — Django Coding Question Masterclass 💻</h1>
+<p>We'll practice coding questions from <strong>easy → medium → advanced</strong>, including questions such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Create a Django view
+2. Map a URL
+3. Pass URL parameters
+4. Create dynamic templates
+5. Build a form
+6. Validate form data
+7. Create a model
+8. Write ORM queries
+9. Implement CRUD
+10. Create ForeignKey relationships
+11. Customize Admin
+12. Implement registration
+13. Implement login/logout
+14. Protect views
+15. Implement permissions
+16. Use sessions/cookies
+17. Build a complete Django application</code></pre></div>
+<p>This will be the <strong>final coding preparation module</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-42.html">← Module 42: Complete Django Revision</a>
+<a class="pn-btn pn-next" href="module-44.html">Module 44: Django Coding Masterclass →</a>
+</div>
+
+</div>
+
+</body>
+</html>

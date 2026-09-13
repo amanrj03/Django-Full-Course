@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 31: Relationships & Foreign Keys — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 31 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 31 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Relationships &amp; Foreign Keys</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<span class="nav-item current">31. Relationships &amp; Foreign Keys</span>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-30.html">← Module 30: Advanced Django ORM</a>
+<a class="pn-btn pn-next" href="module-32.html">Module 32: Django Admin →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2524-module-31-django-relationships-foreign-keys">Module 31 — Django Relationships &amp; Foreign Keys</h1>
+<p>This is a <strong>very important Django module</strong> because real applications almost never have only one table.</p>
+<p>For example, a college application might have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department
+    ↓
+Students
+    ↓
+Courses
+    ↓
+Teachers</code></pre></div>
+<p>The database needs a way to connect these tables.</p>
+<p>Django provides:</p>
+<ul>
+<li><code>ForeignKey</code> → many-to-one</li>
+<li><code>OneToOneField</code> → one-to-one</li>
+<li><code>ManyToManyField</code> → many-to-many</li>
+</ul>
+<p>We'll start with <code>ForeignKey</code>, because it is the most commonly asked one.</p>
+<hr>
+<h1 id="h-2525-1-why-do-we-need-relationships">1. Why Do We Need Relationships?</h1>
+<p>Suppose we have a <code>Student</code> model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.CharField(max_length=50)</code></pre></div>
+<p>This works, but imagine 500 students.</p>
+<p>You might have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman   → CSE
+Rahul  → CSE
+Priya  → CSE
+Neha   → ECE
+Karan  → ECE</code></pre></div>
+<p>The word <code>CSE</code> is repeatedly stored.</p>
+<p>A better database design is:</p>
+<h3 id="h-2526-department-table">Department table</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id    name
+1     CSE
+2     ECE
+3     IT</code></pre></div>
+<h3 id="h-2527-student-table">Student table</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id    name      department_id
+1     Aman      1
+2     Rahul     1
+3     Priya     1
+4     Neha      2</code></pre></div>
+<p>Now students are connected to departments.</p>
+<p>This is called a <strong>relationship</strong>.</p>
+<hr>
+<h1 id="h-2528-2-foreign-key">2. Foreign Key</h1>
+<p>Django syntax:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>This creates a relationship between:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student → Department</code></pre></div>
+<p>A student belongs to one department, while a department can have many students.</p>
+<p>Therefore:</p>
+<blockquote><code>ForeignKey</code> represents a <strong>many-to-one relationship</strong>.</blockquote>
+<hr>
+<h1 id="h-2529-3-complete-example">3. Complete Example</h1>
+<p>Let's create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department
+    │
+    ├── Student
+    ├── Student
+    └── Student</code></pre></div>
+<hr>
+<h1 id="h-2530-4-why-is-it-called-foreign-key">4. Why Is It Called Foreign Key?</h1>
+<p>The <code>Student</code> table contains a reference to a record in another table.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.department_id
+          ↓
+Department.id</code></pre></div>
+<p>The referenced field is generally the primary key of the related model.</p>
+<p>Django handles the relationship for you.</p>
+<hr>
+<h1 id="h-2531-5-many-to-one">5. Many-to-One</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department: CSE</code></pre></div>
+<p>has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Priya</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>One Department
+      ↓
+Many Students</code></pre></div>
+<p>From the student's perspective:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Many Students → One Department</code></pre></div>
+<p>That's why we call it:</p>
+<blockquote><strong>Many-to-One</strong></blockquote>
+<hr>
+<h1 id="h-2532-6-creating-migrations">6. Creating Migrations</h1>
+<p>After adding the relationship:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Remember the migration workflow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+   ↓
+makemigrations
+   ↓
+migration file
+   ↓
+migrate
+   ↓
+database schema</code></pre></div>
+<hr>
+<h1 id="h-2533-7-creating-objects">7. Creating Objects</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse = Department.objects.create(
+    name="CSE"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman",
+    age=21,
+    department=cse
+)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman → CSE</code></pre></div>
+<hr>
+<h1 id="h-2534-8-using-the-department-id">8. Using the Department ID</h1>
+<p>You can also assign the primary key directly using the <code>_id</code> form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Rahul",
+    age=22,
+    department_id=1
+)</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>department</code></pre></div>
+<p>expects a <code>Department</code> object.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>department_id</code></pre></div>
+<p>expects the related object's primary-key value.</p>
+<p>This is a very common viva question.</p>
+<hr>
+<h1 id="h-2535-9-department-vs-department-id">9. <code>department</code> vs <code>department_id</code></h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.get(id=1)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>returns the related <code>Department</code> object.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE</code></pre></div>
+<p>while:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department_id</code></pre></div>
+<p>returns its primary key:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1</code></pre></div>
+<h3 id="h-2536-memorize">Memorize:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student.department
+        ↓
+Department object
+
+student.department_id
+        ↓
+Department primary-key value</code></pre></div>
+<hr>
+<h1 id="h-2537-10-accessing-related-data">10. Accessing Related Data</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>returns the CSE Department object.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department.name</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department.name</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+  ↓
+Department
+  ↓
+name</code></pre></div>
+<hr>
+<h1 id="h-2538-11-on-delete">11. <code>on_delete</code></h1>
+<p>This is one of the <strong>most important ForeignKey concepts</strong>.</p>
+<p>When we write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>we are telling Django:</p>
+<blockquote>What should happen to related students if the department is deleted?</blockquote>
+<hr>
+<h1 id="h-2539-12-cascade">12. <code>CASCADE</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>on_delete=models.CASCADE</code></pre></div>
+<p>means:</p>
+<blockquote>Delete related objects too.</blockquote>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ ├── Aman
+ ├── Rahul
+ └── Priya</code></pre></div>
+<p>Delete CSE:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE ❌
+Aman ❌
+Rahul ❌
+Priya ❌</code></pre></div>
+<p>This is cascading deletion.</p>
+<hr>
+<h1 id="h-2540-13-protect">13. <code>PROTECT</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>on_delete=models.PROTECT</code></pre></div>
+<p>means:</p>
+<blockquote>Don't allow the referenced object to be deleted if related objects still exist.</blockquote>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ ├── Aman
+ └── Rahul</code></pre></div>
+<p>Attempt to delete CSE:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>❌ Deletion prevented</code></pre></div>
+<p>This is useful when you don't want deleting a parent record to accidentally remove dependent data.</p>
+<hr>
+<h1 id="h-2541-14-set-null">14. <code>SET_NULL</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.SET_NULL,
+    null=True
+)</code></pre></div>
+<p>If the department is deleted:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department ❌
+     ↓
+Student remains
+     ↓
+department = NULL</code></pre></div>
+<p>Important:</p>
+<blockquote><code>SET_NULL</code> requires the field to allow <code>NULL</code>, normally with <code>null=True</code>.</blockquote>
+<hr>
+<h1 id="h-2542-15-set-default">15. <code>SET_DEFAULT</code></h1>
+<p>You can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>on_delete=models.SET_DEFAULT</code></pre></div>
+<p>Then the relationship is changed to the field's default value when the referenced object is deleted.</p>
+<p>Example conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    default=1,
+    on_delete=models.SET_DEFAULT
+)</code></pre></div>
+<p>The default must be meaningful and valid for the relationship.</p>
+<hr>
+<h1 id="h-2543-16-do-nothing">16. <code>DO_NOTHING</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>on_delete=models.DO_NOTHING</code></pre></div>
+<p>Django does not perform an automatic action.</p>
+<p>Depending on the database's foreign-key constraints, deletion may result in a database error.</p>
+<p>This is an advanced option and should be used carefully.</p>
+<hr>
+<h1 id="h-2544-17-on-delete-cheat-sheet">17. <code>on_delete</code> Cheat Sheet</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>CASCADE</code></td>
+<td>Delete related objects</td>
+</tr>
+<tr>
+<td><code>PROTECT</code></td>
+<td>Prevent deletion</td>
+</tr>
+<tr>
+<td><code>SET_NULL</code></td>
+<td>Set relation to NULL</td>
+</tr>
+<tr>
+<td><code>SET_DEFAULT</code></td>
+<td>Set relation to default</td>
+</tr>
+<tr>
+<td><code>DO_NOTHING</code></td>
+<td>Django takes no automatic action</td>
+</tr>
+</tbody></table></div>
+<p>The most commonly encountered:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CASCADE
+PROTECT
+SET_NULL</code></pre></div>
+<hr>
+<h1 id="h-2545-18-reverse-relationship">18. Reverse Relationship</h1>
+<p>Here's where things become interesting.</p>
+<p>We have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )</code></pre></div>
+<p>From Student:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>But what if we have a department and want its students?</p>
+<p>Django automatically provides a reverse relationship.</p>
+<p>By default:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department.student_set.all()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse = Department.objects.get(name="CSE")
+
+students = cse.student_set.all()</code></pre></div>
+<p>This returns all students belonging to CSE.</p>
+<hr>
+<h1 id="h-2546-19-why-student-set">19. Why <code>student_set</code>?</h1>
+<p>Because the model is named:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student</code></pre></div>
+<p>Django's default reverse manager is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student_set</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department.student_set.all()</code></pre></div>
+<p>means:</p>
+<blockquote>Give me all Student objects related to this Department.</blockquote>
+<hr>
+<h1 id="h-2547-20-related-name">20. <code>related_name</code></h1>
+<p>You don't have to use <code>student_set</code>.</p>
+<p>You can define your own name:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE,
+    related_name="students"
+)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse.students.all()</code></pre></div>
+<p>instead of:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse.student_set.all()</code></pre></div>
+<p>This is much more readable.</p>
+<hr>
+<h1 id="h-2548-21-related-name-example">21. <code>related_name</code> Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse.students.all()</code></pre></div>
+<p>returns all students in CSE.</p>
+<hr>
+<h1 id="h-2549-22-forward-vs-reverse-relationship">22. Forward vs Reverse Relationship</h1>
+<h3 id="h-2550-forward">Forward</h3>
+<p>Starting from Student:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student → Department</code></pre></div>
+<h3 id="h-2551-reverse">Reverse</h3>
+<p>Starting from Department:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department.students.all()</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department → Students</code></pre></div>
+<p>This distinction is commonly asked in interviews.</p>
+<hr>
+<h1 id="h-2552-23-querying-across-relationships">23. Querying Across Relationships</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Department(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )</code></pre></div>
+<p>You can find all CSE students:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<p>Notice:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>department__name</code></pre></div>
+<p>The double underscore means:</p>
+<blockquote>Traverse the relationship and query the related field.</blockquote>
+<hr>
+<h1 id="h-2553-24-more-relationship-queries">24. More Relationship Queries</h1>
+<p>Students from CSE:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<p>Students from departments whose name starts with C:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name__startswith="C"
+)</code></pre></div>
+<p>Students from departments containing "Engineering":</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name__icontains="Engineering"
+)</code></pre></div>
+<hr>
+<h1 id="h-2554-25-reverse-relationship-query">25. Reverse Relationship Query</h1>
+<p>If you use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>related_name="students"</code></pre></div>
+<p>you can query from Department:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.filter(
+    students__name="Aman"
+)</code></pre></div>
+<p>Meaning:</p>
+<blockquote>Find departments that have a student named Aman.</blockquote>
+<p>Without <code>related_name</code>, the reverse query name is based on Django's default reverse relationship.</p>
+<hr>
+<h1 id="h-2555-26-relationship-q-objects">26. Relationship + Q Objects</h1>
+<p>You can combine relationships with <code>Q</code>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q
+
+Student.objects.filter(
+    Q(department__name="CSE") |
+    Q(department__name="ECE")
+)</code></pre></div>
+<p>Meaning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Department = CSE
+OR
+Department = ECE</code></pre></div>
+<hr>
+<h1 id="h-2556-27-relationship-ordering">27. Relationship + Ordering</h1>
+<p>Find students in CSE and order by marks:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+).order_by(
+    "-marks"
+)</code></pre></div>
+<hr>
+<h1 id="h-2557-28-relationship-aggregation">28. Relationship + Aggregation</h1>
+<p>Now relationships become extremely powerful.</p>
+<p>Suppose we want:</p>
+<blockquote>Number of students in each department.</blockquote>
+<p>We can use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Count
+
+Department.objects.annotate(
+    student_count=Count("student")
+)</code></pre></div>
+<p>If using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>related_name="students"</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.annotate(
+    student_count=Count("students")
+)</code></pre></div>
+<p>Each department gets an additional calculated value:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE → 3
+ECE → 2
+IT  → 5</code></pre></div>
+<p>This is a major reason <code>annotate()</code> is important.</p>
+<hr>
+<h1 id="h-2558-29-annotate-foreignkey">29. <code>annotate()</code> + ForeignKey</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>departments = Department.objects.annotate(
+    student_count=Count("students")
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for department in departments:
+    print(
+        department.name,
+        department.student_count
+    )</code></pre></div>
+<p>Output:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE 3
+ECE 2
+IT 5</code></pre></div>
+<hr>
+<h1 id="h-2559-30-one-to-one-relationship">30. One-to-One Relationship</h1>
+<p>Now consider:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+   ↓
+Profile</code></pre></div>
+<p>Each student has exactly one profile.</p>
+<p>And each profile belongs to exactly one student.</p>
+<p>That's:</p>
+<blockquote><strong>One-to-One</strong></blockquote>
+<p>Django:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>profile = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<hr>
+<h1 id="h-2560-31-example-one-to-one">31. Example One-to-One</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentProfile(models.Model):
+
+    student = models.OneToOneField(
+        Student,
+        on_delete=models.CASCADE
+    )
+
+    phone = models.CharField(max_length=15)
+    address = models.TextField()</code></pre></div>
+<p>Relationship:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student 1 ───── 1 StudentProfile</code></pre></div>
+<hr>
+<h1 id="h-2561-32-why-use-one-to-one">32. Why Use One-to-One?</h1>
+<p>Suppose the Student model has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name
+age
+email
+course</code></pre></div>
+<p>You could put everything in one model.</p>
+<p>But perhaps profile information is separate:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+ ├── name
+ ├── age
+ └── email
+
+StudentProfile
+ ├── phone
+ ├── address
+ └── photo</code></pre></div>
+<p>One-to-one connects them.</p>
+<p>A classic real-world Django example is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User → Profile</code></pre></div>
+<hr>
+<h1 id="h-2562-33-accessing-one-to-one">33. Accessing One-to-One</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>profile = StudentProfile.objects.get(
+    student=student
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>profile.student</code></pre></div>
+<p>returns the Student.</p>
+<p>From the Student side, Django gives a reverse relationship based on the model name unless you specify a <code>related_name</code>.</p>
+<p>For example, depending on the model naming:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.studentprofile</code></pre></div>
+<p>can access the profile.</p>
+<p>You can make it clearer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE,
+    related_name="profile"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.profile</code></pre></div>
+<hr>
+<h1 id="h-2563-34-many-to-many">34. Many-to-Many</h1>
+<p>Now imagine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+   ↓
+Courses</code></pre></div>
+<p>A student can enroll in multiple courses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman → Python
+     → Django
+     → Java</code></pre></div>
+<p>And a course can have multiple students:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+ ├── Aman
+ ├── Rahul
+ └── Priya</code></pre></div>
+<p>This is:</p>
+<blockquote><strong>Many-to-Many</strong></blockquote>
+<hr>
+<h1 id="h-2564-35-django-manytomanyfield">35. Django <code>ManyToManyField</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Course(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    courses = models.ManyToManyField(
+        Course
+    )</code></pre></div>
+<p>Relationship:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Many Students ↔ Many Courses</code></pre></div>
+<hr>
+<h1 id="h-2565-36-creating-many-to-many-data">36. Creating Many-to-Many Data</h1>
+<p>Create courses:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>python_course = Course.objects.create(
+    name="Python"
+)
+
+django_course = Course.objects.create(
+    name="Django"
+)</code></pre></div>
+<p>Create student:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student.objects.create(
+    name="Aman"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.add(
+    python_course,
+    django_course
+)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+ ├── Python
+ └── Django</code></pre></div>
+<hr>
+<h1 id="h-2566-37-retrieve-many-to-many-data">37. Retrieve Many-to-Many Data</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.all()</code></pre></div>
+<p>Returns all courses for the student.</p>
+<hr>
+<h1 id="h-2567-38-add-another-course">38. Add Another Course</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.add(
+    java_course
+)</code></pre></div>
+<hr>
+<h1 id="h-2568-39-remove-a-course">39. Remove a Course</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.remove(
+    python_course
+)</code></pre></div>
+<p>Now Python is removed from that student's courses.</p>
+<hr>
+<h1 id="h-2569-40-clear-all-courses">40. Clear All Courses</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.clear()</code></pre></div>
+<p>This removes all many-to-many associations for that student.</p>
+<p>Important:</p>
+<blockquote>It removes the relationships, not the Course records themselves.</blockquote>
+<hr>
+<h1 id="h-2570-41-set-many-to-many-relationships">41. Set Many-to-Many Relationships</h1>
+<p>You can replace the current set:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.set([
+    python_course,
+    django_course
+])</code></pre></div>
+<p>This makes those the student's current course relationships.</p>
+<hr>
+<h1 id="h-2571-42-many-to-many-cheat-sheet">42. Many-to-Many Cheat Sheet</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.add(course)</code></pre></div>
+<p>Add.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.remove(course)</code></pre></div>
+<p>Remove.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.clear()</code></pre></div>
+<p>Remove all relationships.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.set([...])</code></pre></div>
+<p>Replace relationships.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.all()</code></pre></div>
+<p>Get related objects.</p>
+<hr>
+<h1 id="h-2572-43-three-relationship-types">43. Three Relationship Types</h1>
+<p>This is extremely important:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Relationship</th>
+<th>Django Field</th>
+<th>Example</th>
+</tr></thead><tbody>
+<tr>
+<td>Many-to-One</td>
+<td><code>ForeignKey</code></td>
+<td>Many Students → One Department</td>
+</tr>
+<tr>
+<td>One-to-One</td>
+<td><code>OneToOneField</code></td>
+<td>Student → One Profile</td>
+</tr>
+<tr>
+<td>Many-to-Many</td>
+<td><code>ManyToManyField</code></td>
+<td>Students ↔ Courses</td>
+</tr>
+</tbody></table></div>
+<p>Memorize this table.</p>
+<hr>
+<h1 id="h-2573-44-foreignkey-vs-onetoonefield">44. ForeignKey vs OneToOneField</h1>
+<h3 id="h-2574-foreignkey">ForeignKey</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>Multiple students can point to the same department.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ ↑ ↑ ↑
+ A R P</code></pre></div>
+<h3 id="h-2575-onetoonefield">OneToOneField</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>Only one profile corresponds to one student.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student 1 ─ Profile 1
+Student 2 ─ Profile 2</code></pre></div>
+<hr>
+<h1 id="h-2576-45-foreignkey-vs-manytomanyfield">45. ForeignKey vs ManyToManyField</h1>
+<h3 id="h-2577-foreignkey">ForeignKey</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student → Department</code></pre></div>
+<p>A student has one department.</p>
+<h3 id="h-2578-many-to-many">Many-to-many</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student ↔ Course</code></pre></div>
+<p>A student can have many courses, and each course can have many students.</p>
+<hr>
+<h1 id="h-2579-46-database-structure-behind-many-to-many">46. Database Structure Behind Many-to-Many</h1>
+<p>Django typically creates an intermediate/junction table for a <code>ManyToManyField</code>.</p>
+<p>Conceptually:</p>
+<h3 id="h-2580-student">Student</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id
+name</code></pre></div>
+<h3 id="h-2581-course">Course</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id
+name</code></pre></div>
+<h3 id="h-2582-student-course">Student_Course</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student_id
+course_id</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+   ↓
+Intermediate Table
+   ↓
+Course</code></pre></div>
+<p>Django manages this intermediate table automatically in the normal case.</p>
+<hr>
+<h1 id="h-2583-47-foreignkey-database-structure">47. ForeignKey Database Structure</h1>
+<p>For:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)</code></pre></div>
+<p>the Student table conceptually contains:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>id
+name
+department_id</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.department_id
+        ↓
+Department.id</code></pre></div>
+<hr>
+<h1 id="h-2584-48-select-related">48. <code>select_related()</code></h1>
+<p>Now we're entering an important optimization concept.</p>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.all()</code></pre></div>
+<p>and inside a loop:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for student in students:
+    print(student.department.name)</code></pre></div>
+<p>Django may need additional database queries to retrieve departments.</p>
+<p><code>select_related()</code> can optimize ForeignKey/OneToOne relationships:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>students = Student.objects.select_related(
+    "department"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for student in students:
+    print(student.department.name)</code></pre></div>
+<p>Django can fetch the related department data together using a SQL join.</p>
+<hr>
+<h1 id="h-2585-49-select-related-applies-to">49. <code>select_related()</code> Applies To</h1>
+<p>Primarily:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ForeignKey
+OneToOneField</code></pre></div>
+<p>Think:</p>
+<blockquote><strong>select_related = SQL JOIN for single-valued relationships</strong></blockquote>
+<hr>
+<h1 id="h-2586-50-prefetch-related">50. <code>prefetch_related()</code></h1>
+<p>For multi-valued relationships such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ManyToMany
+Reverse ForeignKey</code></pre></div>
+<p>use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>prefetch_related()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>departments = Department.objects.prefetch_related(
+    "students"
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for department in departments:
+    for student in department.students.all():
+        print(student.name)</code></pre></div>
+<p>Django can efficiently fetch the related collections.</p>
+<hr>
+<h1 id="h-2587-51-select-related-vs-prefetch-related">51. <code>select_related()</code> vs <code>prefetch_related()</code></h1>
+<p>Very important interview question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Method</th>
+<th>Common use</th>
+</tr></thead><tbody>
+<tr>
+<td><code>select_related()</code></td>
+<td>ForeignKey, OneToOne</td>
+</tr>
+<tr>
+<td><code>prefetch_related()</code></td>
+<td>ManyToMany, reverse ForeignKey</td>
+</tr>
+</tbody></table></div>
+<p>Simple memory trick:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>select_related
+    ↓
+single related object
+    ↓
+JOIN
+
+prefetch_related
+    ↓
+multiple related objects
+    ↓
+separate optimized query + Python-side joining</code></pre></div>
+<hr>
+<h1 id="h-2588-52-practical-example">52. Practical Example</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    marks = models.IntegerField()
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )</code></pre></div>
+<p>Find all students in CSE:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<p>Get their names:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+).values(
+    "name"
+)</code></pre></div>
+<p>Order by marks:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+).order_by(
+    "-marks"
+)</code></pre></div>
+<hr>
+<h1 id="h-2589-53-find-departments-with-at-least-5-students">53. Find Departments With At Least 5 Students</h1>
+<p>Using annotation:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Count
+
+Department.objects.annotate(
+    student_count=Count("students")
+).filter(
+    student_count__gte=5
+)</code></pre></div>
+<p>This is an excellent advanced ORM coding question.</p>
+<hr>
+<h1 id="h-2590-54-find-departments-and-their-student-counts">54. Find Departments and Their Student Counts</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>departments = Department.objects.annotate(
+    student_count=Count("students")
+)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>for department in departments:
+    print(
+        department.name,
+        department.student_count
+    )</code></pre></div>
+<hr>
+<h1 id="h-2591-55-find-students-with-department-name">55. Find Students With Department Name</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "department__name"
+)</code></pre></div>
+<p>Result conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>[
+    {"name": "Aman", "department__name": "CSE"},
+    {"name": "Rahul", "department__name": "ECE"}
+]</code></pre></div>
+<p>Notice again:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>department__name</code></pre></div>
+<p>The double underscore traverses the relationship.</p>
+<hr>
+<h1 id="h-2592-56-relationship-traversal">56. Relationship Traversal</h1>
+<p>This pattern is worth memorizing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Model.objects.filter(
+    relationship__field=value
+)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<p>For deeper relationships:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__college__name="ABC College"
+)</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+   ↓
+Department
+   ↓
+College
+   ↓
+name</code></pre></div>
+<hr>
+<h1 id="h-2593-57-viva-masterclass">57. Viva Masterclass</h1>
+<h3 id="h-2594-q1-what-is-a-relationship-in-a-database">Q1. What is a relationship in a database?</h3>
+<blockquote>A relationship defines how records in one table are associated with records in another table.</blockquote>
+<hr>
+<h3 id="h-2595-q2-what-is-a-foreignkey">Q2. What is a ForeignKey?</h3>
+<blockquote><code>ForeignKey</code> defines a many-to-one relationship between two Django models.</blockquote>
+<hr>
+<h3 id="h-2596-q3-give-an-example">Q3. Give an example.</h3>
+<blockquote>Many students can belong to one department, so <code>Student</code> can have a <code>ForeignKey</code> to <code>Department</code>.</blockquote>
+<hr>
+<h3 id="h-2597-q4-what-is-on-delete">Q4. What is <code>on_delete</code>?</h3>
+<blockquote><code>on_delete</code> specifies what Django should do with related objects when the referenced object is deleted.</blockquote>
+<hr>
+<h3 id="h-2598-q5-what-does-cascade-mean">Q5. What does <code>CASCADE</code> mean?</h3>
+<blockquote>Deleting the referenced object also deletes related objects.</blockquote>
+<hr>
+<h3 id="h-2599-q6-what-does-protect-mean">Q6. What does <code>PROTECT</code> mean?</h3>
+<blockquote>It prevents deletion of the referenced object while related objects still exist.</blockquote>
+<hr>
+<h3 id="h-2600-q7-what-does-set-null-mean">Q7. What does <code>SET_NULL</code> mean?</h3>
+<blockquote>It sets the foreign-key value to NULL when the referenced object is deleted, and the field must allow NULL.</blockquote>
+<hr>
+<h3 id="h-2601-q8-what-is-related-name">Q8. What is <code>related_name</code>?</h3>
+<blockquote><code>related_name</code> defines the name used to access the reverse relationship from the related model.</blockquote>
+<hr>
+<h3 id="h-2602-q9-what-is-the-difference-between">Q9. What is the difference between:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.department_id</code></pre></div>
+<blockquote><code>student.department</code> returns the related Department object, while <code>student.department_id</code> gives its primary-key value.</blockquote>
+<hr>
+<h3 id="h-2603-q10-what-is-a-one-to-one-relationship">Q10. What is a One-to-One relationship?</h3>
+<blockquote>A relationship where each object on one side is associated with at most one object on the other side.</blockquote>
+<p>Django:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>OneToOneField</code></pre></div>
+<hr>
+<h3 id="h-2604-q11-what-is-a-many-to-many-relationship">Q11. What is a Many-to-Many relationship?</h3>
+<blockquote>A relationship where multiple objects on each side can be associated with multiple objects on the other side.</blockquote>
+<p>Django:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>ManyToManyField</code></pre></div>
+<hr>
+<h3 id="h-2605-q12-how-do-you-add-a-many-to-many-relationship">Q12. How do you add a Many-to-Many relationship?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.add(course)</code></pre></div>
+<hr>
+<h3 id="h-2606-q13-how-do-you-remove-it">Q13. How do you remove it?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.remove(course)</code></pre></div>
+<hr>
+<h3 id="h-2607-q14-how-do-you-remove-all-relationships">Q14. How do you remove all relationships?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.clear()</code></pre></div>
+<hr>
+<h3 id="h-2608-q15-what-is-select-related">Q15. What is <code>select_related()</code>?</h3>
+<blockquote>It optimizes queries involving ForeignKey and OneToOne relationships by fetching related objects using SQL joins.</blockquote>
+<hr>
+<h3 id="h-2609-q16-what-is-prefetch-related">Q16. What is <code>prefetch_related()</code>?</h3>
+<blockquote>It optimizes fetching multi-valued relationships such as ManyToMany and reverse ForeignKey relationships, typically using separate queries and combining the results in Python.</blockquote>
+<hr>
+<h3 id="h-2610-q17-difference-between-select-related-and-prefetch">Q17. Difference between <code>select_related()</code> and <code>prefetch_related()</code>?</h3>
+<blockquote><code>select_related()</code> is generally used for single-valued relationships such as ForeignKey and OneToOne, while <code>prefetch_related()</code> is generally used for multi-valued relationships such as ManyToMany and reverse ForeignKey.</blockquote>
+<hr>
+<h1 id="h-2611-58-coding-questions-you-must-know">58. Coding Questions You Must Know</h1>
+<h3 id="h-2612-1-create-a-department">1. Create a department</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.create(
+    name="CSE"
+)</code></pre></div>
+<h3 id="h-2613-2-create-student-belonging-to-cse">2. Create student belonging to CSE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse = Department.objects.get(
+    name="CSE"
+)
+
+Student.objects.create(
+    name="Aman",
+    age=21,
+    department=cse
+)</code></pre></div>
+<h3 id="h-2614-3-find-all-cse-students">3. Find all CSE students</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<h3 id="h-2615-4-find-all-students-from-cse-or-ece">4. Find all students from CSE or ECE</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    Q(department__name="CSE") |
+    Q(department__name="ECE")
+)</code></pre></div>
+<h3 id="h-2616-5-get-all-students-of-a-department">5. Get all students of a department</h3>
+<p>If <code>related_name="students"</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse.students.all()</code></pre></div>
+<p>Without <code>related_name</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>cse.student_set.all()</code></pre></div>
+<h3 id="h-2617-6-count-students-in-each-department">6. Count students in each department</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.annotate(
+    student_count=Count("students")
+)</code></pre></div>
+<h3 id="h-2618-7-get-student-names-with-department-names">7. Get student names with department names</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.values(
+    "name",
+    "department__name"
+)</code></pre></div>
+<h3 id="h-2619-8-optimize-student-department-query">8. Optimize student → department query</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.select_related(
+    "department"
+)</code></pre></div>
+<hr>
+<h1 id="h-2620-59-final-mental-map">59. Final Mental Map</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    DJANGO RELATIONSHIPS
+                            │
+          ┌─────────────────┼─────────────────┐
+          ↓                 ↓                 ↓
+    ForeignKey         OneToOneField     ManyToManyField
+          │                 │                 │
+     many → one         one ↔ one         many ↔ many
+          │                 │                 │
+      Student →         Student →       Student ↔ Course
+      Department          Profile
+          │
+          ↓
+      on_delete
+          │
+    ┌─────┼─────┐
+    ↓     ↓     ↓
+CASCADE PROTECT SET_NULL</code></pre></div>
+<p>And for querying:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Forward:
+student.department
+
+Reverse:
+department.students.all()
+
+Across relationship:
+Student.objects.filter(
+    department__name="CSE"
+)
+
+Optimization:
+select_related()    → FK / OneToOne
+prefetch_related()  → ManyToMany / reverse FK</code></pre></div>
+<h3 id="h-2621-the-most-important-things-to-memorize">The most important things to memorize</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE,
+    related_name="students"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    department__name="CSE"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>department.students.all()</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.select_related(
+    "department"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Department.objects.prefetch_related(
+    "students"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.courses.add(course)
+student.courses.remove(course)
+student.courses.clear()
+student.courses.set([...])</code></pre></div>
+<p>You now know the three fundamental Django relationship types and how to query across them.</p>
+<p><strong>Next → Module 32: Django Admin</strong></p>
+<p>We'll learn how to register models in the admin panel, create a superuser, customize <code>ModelAdmin</code>, control displayed fields, searching, filtering, ordering, readonly fields, list editing, and admin permissions.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-30.html">← Module 30: Advanced Django ORM</a>
+<a class="pn-btn pn-next" href="module-32.html">Module 32: Django Admin →</a>
+</div>
+
+</div>
+
+</body>
+</html>

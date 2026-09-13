@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 27: Django Migrations in Depth — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 27 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 27 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Migrations in Depth</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<span class="nav-item current">27. Django Migrations in Depth</span>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-26.html">← Module 26: Model Fields &amp; Field Options</a>
+<a class="pn-btn pn-next" href="module-28.html">Module 28: Django ORM in Depth →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2102-module-27-django-migrations-in-depth">Module 27 — Django Migrations in Depth</h1>
+<p>Migrations are one of the <strong>most important database concepts in Django</strong>.</p>
+<p>You already know:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+    ↓
+makemigrations
+    ↓
+migration files
+    ↓
+migrate
+    ↓
+database</code></pre></div>
+<p>Now we're going to understand <strong>exactly what happens at each step</strong>, what migration files contain, how Django tracks applied migrations, and what to do when migrations go wrong.</p>
+<hr>
+<h1 id="h-2103-1-what-problem-do-migrations-solve">1. What Problem Do Migrations Solve?</h1>
+<p>Suppose your application starts with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Django needs a database table corresponding to this model.</p>
+<p>Later you change the model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<p>The database must also change.</p>
+<p>Originally:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+----------------
+id
+name</code></pre></div>
+<p>After adding <code>age</code>:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+----------------
+id
+name
+age</code></pre></div>
+<p>How does Django know what changed?</p>
+<h1 id="h-2104-migrations">Migrations.</h1>
+<hr>
+<h1 id="h-2105-2-what-is-a-migration">2. What Is a Migration?</h1>
+<p>A migration is a <strong>Python file that describes changes to your database schema</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py</code></pre></div>
+<p>The migration records operations such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create table
+Add field
+Remove field
+Alter field
+Rename field</code></pre></div>
+<p>Think of a migration as a <strong>version-controlled history of your database structure</strong>.</p>
+<hr>
+<h1 id="h-2106-3-model-vs-migration-vs-database">3. Model vs Migration vs Database</h1>
+<p>This distinction is extremely important.</p>
+<h3 id="h-2107-model">Model</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Describes what your application wants.</p>
+<h3 id="h-2108-migration">Migration</h3>
+<p>Describes:</p>
+<blockquote>What database changes are needed to reach that structure?</blockquote>
+<h3 id="h-2109-database">Database</h3>
+<p>Actually contains the tables and data.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+    ↓
+Desired structure
+    ↓
+makemigrations
+    ↓
+Migration
+    ↓
+migrate
+    ↓
+Actual database structure</code></pre></div>
+<hr>
+<h1 id="h-2110-4-what-does-makemigrations-do">4. What Does <code>makemigrations</code> Do?</h1>
+<p>Command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>It looks at your models and detects changes that haven't yet been represented in migration files.</p>
+<p>Then it generates migration files.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py changed
+       ↓
+makemigrations
+       ↓
+Django detects changes
+       ↓
+creates migration file</code></pre></div>
+<hr>
+<h1 id="h-2111-5-what-does-migrate-do">5. What Does <code>migrate</code> Do?</h1>
+<p>Command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>This applies migrations to the database.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration file
+      ↓
+migrate
+      ↓
+Database schema changes</code></pre></div>
+<p>So memorize:</p>
+<blockquote><strong><code>makemigrations</code> creates migration files.</strong></blockquote>
+<blockquote><strong><code>migrate</code> applies migration files to the database.</strong></blockquote>
+<hr>
+<h1 id="h-2112-6-example-from-scratch">6. Example From Scratch</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Django may output something similar to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migrations for 'students':
+  students/migrations/0001_initial.py
+    + Create model Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>The table is created in the database.</p>
+<hr>
+<h1 id="h-2113-7-what-s-inside-0001-initial-py">7. What's Inside <code>0001_initial.py</code>?</h1>
+<p>A migration file contains Python code.</p>
+<p>It will conceptually look something like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = []
+
+    operations = [
+        migrations.CreateModel(
+            name="Student",
+            fields=[
+                ...
+            ],
+        ),
+    ]</code></pre></div>
+<p>You normally <strong>shouldn't manually edit migration files</strong> unless you have a specific advanced reason.</p>
+<hr>
+<h1 id="h-2114-8-operations">8. <code>operations</code></h1>
+<p>The migration contains operations.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>operations = [
+    migrations.CreateModel(...)
+]</code></pre></div>
+<p>Other operations include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CreateModel
+AddField
+RemoveField
+AlterField
+RenameField
+DeleteModel
+RunPython
+RunSQL</code></pre></div>
+<p>These tell Django what needs to happen to the database schema/data.</p>
+<hr>
+<h1 id="h-2115-9-migration-numbering">9. Migration Numbering</h1>
+<p>Suppose we make changes over time.</p>
+<p>You might get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001_initial.py
+0002_student_age.py
+0003_student_email.py
+0004_student_course.py</code></pre></div>
+<p>This creates a migration history.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001
+ ↓
+0002
+ ↓
+0003
+ ↓
+0004</code></pre></div>
+<p>Each migration builds on previous migrations.</p>
+<hr>
+<h1 id="h-2116-10-example-adding-a-field">10. Example: Adding a Field</h1>
+<p>Initially:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>You get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001_initial.py</code></pre></div>
+<p>Now add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Django might create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0002_student_age.py</code></pre></div>
+<p>The new migration describes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Add age to Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>updates the database.</p>
+<hr>
+<h1 id="h-2117-11-why-not-just-modify-0001-initial-py">11. Why Not Just Modify <code>0001_initial.py</code>?</h1>
+<p>Suppose you already applied:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001_initial.py</code></pre></div>
+<p>and then you add a field.</p>
+<p>You generally <strong>don't go back and rewrite the already-applied migration</strong>.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001 → original database structure
+0002 → new change</code></pre></div>
+<p>This preserves the history of schema evolution.</p>
+<hr>
+<h1 id="h-2118-12-migration-history">12. Migration History</h1>
+<p>Django keeps track of migrations that have been applied.</p>
+<p>You can see them with:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<p>Example output might look like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>admin
+ [X] 0001_initial
+ [X] 0002_logentry_remove_auto_add
+ [X] 0003_logentry_add_action_flag_choices
+
+auth
+ [X] 0001_initial
+ [X] 0002_alter_permission_name_max_length
+
+students
+ [X] 0001_initial
+ [X] 0002_student_age</code></pre></div>
+<p><code>[X]</code> means the migration has been applied.</p>
+<hr>
+<h1 id="h-2119-13-what-does-unapplied-mean">13. What Does Unapplied Mean?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+ [X] 0001_initial
+ [ ] 0002_student_age</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>[X] → applied
+[ ] → not applied</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>and Django applies the pending migration.</p>
+<hr>
+<h1 id="h-2120-14-showmigrations">14. <code>showmigrations</code></h1>
+<p>This command is very useful when debugging.</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<p>It tells you:</p>
+<blockquote>Which migrations exist and which have been applied?</blockquote>
+<p>Remember this for practical troubleshooting.</p>
+<hr>
+<h1 id="h-2121-15-sqlmigrate">15. <code>sqlmigrate</code></h1>
+<p>Another useful command:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<p>It shows the SQL Django would use for that migration.</p>
+<p>For example, conceptually:</p>
+<div class="code-block-wrapper lang-sql"><span class="code-lang-label">SQL</span><pre><code>CREATE TABLE ...</code></pre></div>
+<p>This is useful when you want to understand what Django is doing at the SQL level.</p>
+<p>Important:</p>
+<blockquote><code>sqlmigrate</code> displays the SQL; it does not itself apply the migration.</blockquote>
+<hr>
+<h1 id="h-2122-16-migration-dependencies">16. Migration Dependencies</h1>
+<p>Migration files can depend on earlier migrations.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001
+ ↓
+0002
+ ↓
+0003</code></pre></div>
+<p>Inside a migration you may see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>dependencies = [
+    ("students", "0001_initial"),
+]</code></pre></div>
+<p>This means:</p>
+<blockquote>This migration depends on <code>0001_initial</code>.</blockquote>
+<p>Django uses these dependencies to determine the correct order in which migrations must be applied.</p>
+<hr>
+<h1 id="h-2123-17-migration-graph">17. Migration Graph</h1>
+<p>Django internally represents migrations as a dependency graph.</p>
+<p>For simple projects:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001 → 0002 → 0003</code></pre></div>
+<p>But in larger projects, dependencies can branch:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>          0002
+         ↗
+0001
+         ↘
+          0003</code></pre></div>
+<p>Django determines the required order from dependencies.</p>
+<p>This is an advanced viva concept.</p>
+<hr>
+<h1 id="h-2124-18-what-happens-if-you-run-migrate-without-makemig">18. What Happens If You Run <code>migrate</code> Without <code>makemigrations</code>?</h1>
+<p>Suppose you change:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<p>but haven't created a migration.</p>
+<p>If there is no migration describing the change, simply running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>doesn't automatically turn that model change into a new migration.</p>
+<p>Normally you should do:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-2125-19-the-correct-development-workflow">19. The Correct Development Workflow</h1>
+<p>Whenever you change models:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Edit models.py
+        ↓
+2. python manage.py makemigrations
+        ↓
+3. Check migration generated
+        ↓
+4. python manage.py migrate
+        ↓
+5. Test application</code></pre></div>
+<p>Memorize this.</p>
+<hr>
+<h1 id="h-2126-20-what-if-makemigrations-says-no-changes-detected">20. What If <code>makemigrations</code> Says "No Changes Detected"?</h1>
+<p>You might run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>and see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>No changes detected</code></pre></div>
+<p>Possible reasons include:</p>
+<h3 id="h-2127-1-you-didn-t-actually-change-the-model">1. You didn't actually change the model</h3>
+<h3 id="h-2128-2-wrong-app">2. Wrong app</h3>
+<h3 id="h-2129-3-app-isn-t-in-installed-apps">3. App isn't in <code>INSTALLED_APPS</code></h3>
+<h3 id="h-2130-4-you-re-editing-a-different-project-file-than-the">4. You're editing a different project/file than the one you're running</h3>
+<h3 id="h-2131-5-the-change-was-already-captured-by-an-existing-m">5. The change was already captured by an existing migration</h3>
+<p>Check:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<hr>
+<h1 id="h-2132-21-app-must-be-installed">21. App Must Be Installed</h1>
+<p>Suppose you created:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/</code></pre></div>
+<p>but forgot:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<p>Django may not detect the app's models as expected.</p>
+<p>So always remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Create app
+ ↓
+Add app to INSTALLED_APPS
+ ↓
+Define models
+ ↓
+makemigrations
+ ↓
+migrate</code></pre></div>
+<hr>
+<h1 id="h-2133-22-what-happens-if-you-add-a-required-field">22. What Happens If You Add a Required Field?</h1>
+<p>This is an important practical situation.</p>
+<p>Suppose your existing table contains:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>name</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Aman</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rahul</td>
+</tr>
+</tbody></table></div>
+<p>Now you add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Existing rows don't have an age.</p>
+<p>Django may ask you how to populate the new non-nullable field for existing records when generating the migration.</p>
+<p>You might provide a one-time default or modify the model appropriately.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    default=18
+)</code></pre></div>
+<p>Then existing records can receive a value during migration.</p>
+<hr>
+<h1 id="h-2134-23-why-does-django-ask-for-a-default">23. Why Does Django Ask for a Default?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age cannot be NULL</code></pre></div>
+<p>But existing rows have no <code>age</code>.</p>
+<p>Django needs to know:</p>
+<blockquote>What value should existing rows receive?</blockquote>
+<p>That's why migration generation may ask for a default.</p>
+<hr>
+<h1 id="h-2135-24-null-true-can-change-the-situation">24. <code>null=True</code> Can Change the Situation</h1>
+<p>If you define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    null=True
+)</code></pre></div>
+<p>then the database can store <code>NULL</code>.</p>
+<p>Therefore existing records can potentially have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>age = NULL</code></pre></div>
+<p>instead of requiring a concrete value.</p>
+<p>But whether <code>null=True</code> is appropriate depends on the application's data model.</p>
+<hr>
+<h1 id="h-2136-25-migration-files-should-usually-be-committed-to-">25. Migration Files Should Usually Be Committed to Git</h1>
+<p>This is important in real development.</p>
+<p>Suppose you work on a team.</p>
+<p>You create:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0002_student_age.py</code></pre></div>
+<p>and commit it.</p>
+<p>Another developer pulls your code.</p>
+<p>They can run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>and get the corresponding database schema change.</p>
+<p>Therefore migration files are generally treated as <strong>version-controlled project files</strong>.</p>
+<hr>
+<h1 id="h-2137-26-migrations-are-not-the-same-as-database-backups">26. Migrations Are Not the Same as Database Backups</h1>
+<p>Don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration</code></pre></div>
+<p>with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Backup</code></pre></div>
+<h3 id="h-2138-migration">Migration</h3>
+<p>Describes <strong>schema/data changes</strong>.</p>
+<h3 id="h-2139-backup">Backup</h3>
+<p>A copy of database data/state for recovery.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration ≠ Backup</code></pre></div>
+<hr>
+<h1 id="h-2140-27-migrations-vs-sql">27. Migrations vs SQL</h1>
+<p>You can modify databases using SQL directly.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-sql"><span class="code-lang-label">SQL</span><pre><code>ALTER TABLE student ADD COLUMN age INTEGER;</code></pre></div>
+<p>But Django migrations allow the schema changes to be represented in a Django-managed, versioned way.</p>
+<p>Instead of manually writing database-specific SQL every time:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+   ↓
+makemigrations
+   ↓
+migration
+   ↓
+Django database backend
+   ↓
+SQL</code></pre></div>
+<p>This is one of the benefits of Django's migration system.</p>
+<hr>
+<h1 id="h-2141-28-migrate-with-an-app">28. <code>migrate</code> With an App</h1>
+<p>You can run migrations for a specific app:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students</code></pre></div>
+<p>This can be useful when you want to focus on a particular app's migrations.</p>
+<hr>
+<h1 id="h-2142-29-migrating-to-a-specific-migration">29. Migrating to a Specific Migration</h1>
+<p>You can specify a migration target:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students 0002</code></pre></div>
+<p>This tells Django to migrate the <code>students</code> app to that migration state, subject to its dependency graph.</p>
+<p>You can also migrate an app back to an earlier migration state:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students 0001</code></pre></div>
+<p>This causes later migrations to be unapplied for that app, assuming dependencies allow it.</p>
+<p>This is called <strong>migration rollback</strong>.</p>
+<hr>
+<h1 id="h-2143-30-migration-rollback">30. Migration Rollback</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001
+ ↓
+0002
+ ↓
+0003</code></pre></div>
+<p>and all are applied.</p>
+<p>If you run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students 0001</code></pre></div>
+<p>Django will unapply migrations after <code>0001</code> as appropriate.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Before:
+
+0001 ✓
+0002 ✓
+0003 ✓
+
+After:
+
+0001 ✓
+0002 ✗
+0003 ✗</code></pre></div>
+<p>Be careful: reversing migrations can affect database schema and, depending on the migration, data.</p>
+<hr>
+<h1 id="h-2144-31-migrate-zero">31. <code>migrate zero</code></h1>
+<p>You can migrate an app back to zero:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students zero</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001
+ ↓
+0002
+ ↓
+0003</code></pre></div>
+<p>becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>no students migrations applied</code></pre></div>
+<p>This can remove the schema changes introduced by those migrations.</p>
+<p><strong>Do not casually use this on a production database.</strong></p>
+<hr>
+<h1 id="h-2145-32-data-migrations">32. Data Migrations</h1>
+<p>Migrations aren't limited to changing tables.</p>
+<p>Django can also perform data transformations using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>migrations.RunPython</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Old data
+   ↓
+Migration
+   ↓
+Transform data
+   ↓
+New data</code></pre></div>
+<p>This is called a <strong>data migration</strong>.</p>
+<p>We'll only introduce it here; it's an advanced topic.</p>
+<hr>
+<h1 id="h-2146-33-schema-migration-vs-data-migration">33. Schema Migration vs Data Migration</h1>
+<h3 id="h-2147-schema-migration">Schema migration</h3>
+<p>Changes database structure:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Add column
+Remove column
+Create table
+Rename field
+Change field</code></pre></div>
+<h3 id="h-2148-data-migration">Data migration</h3>
+<p>Changes existing data:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Convert old values
+Populate new fields
+Move data</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Schema → structure
+Data → contents</code></pre></div>
+<hr>
+<h1 id="h-2149-34-common-migration-error">34. Common Migration Error</h1>
+<p>You may see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>django.db.utils.OperationalError</code></pre></div>
+<p>with a message indicating that a table or column doesn't exist.</p>
+<p>A common cause is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py changed
+        ↓
+migration wasn't created/applied
+        ↓
+database schema doesn't match model expectations</code></pre></div>
+<p>Check:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<hr>
+<h1 id="h-2150-35-another-common-problem-migration-conflicts">35. Another Common Problem: Migration Conflicts</h1>
+<p>In team development, two developers might create migrations from the same base migration.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001
+ ├── 0002_add_age
+ └── 0002_add_email</code></pre></div>
+<p>Django may detect conflicting migration branches.</p>
+<p>You can inspect the situation and, where appropriate, use:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations --merge</code></pre></div>
+<p>This creates a merge migration when Django can safely merge the migration branches.</p>
+<p>Don't use it blindly; understand what each branch changed.</p>
+<hr>
+<h1 id="h-2151-36-don-t-delete-migrations-randomly">36. Don't Delete Migrations Randomly</h1>
+<p>Beginners often try:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Migration error → delete migrations folder"</code></pre></div>
+<p>This can make things worse, especially if the database already contains applied migrations.</p>
+<p>Migration files are part of your project's schema history.</p>
+<p>Don't delete them casually.</p>
+<p>For a throwaway local development database, resetting everything can sometimes be reasonable, but that is very different from doing it on a real/shared/production database.</p>
+<hr>
+<h1 id="h-2152-37-fake">37. <code>--fake</code></h1>
+<p>Django also has:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate --fake</code></pre></div>
+<p>This tells Django to mark migrations as applied/unapplied without actually running their database operations.</p>
+<p>This is an <strong>advanced operation</strong>.</p>
+<p>It can be useful when Django's migration history needs to be synchronized with a database whose schema already matches the expected state.</p>
+<p>But using <code>--fake</code> incorrectly can make migration history disagree with the actual database.</p>
+<p>So:</p>
+<blockquote>Don't use <code>--fake</code> just because a migration failed.</blockquote>
+<hr>
+<h1 id="h-2153-38-fake-initial">38. <code>--fake-initial</code></h1>
+<p>You may also encounter:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate --fake-initial</code></pre></div>
+<p>This can help Django recognize that an initial migration's tables already exist and mark the initial migration as applied when the existing schema matches appropriately.</p>
+<p>Again, this is an advanced troubleshooting tool.</p>
+<hr>
+<h1 id="h-2154-39-migration-commands-you-should-know">39. Migration Commands You Should Know</h1>
+<h3 id="h-2155-create-migrations">Create migrations</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<h3 id="h-2156-apply-migrations">Apply migrations</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<h3 id="h-2157-show-migrations">Show migrations</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<h3 id="h-2158-show-sql-for-migration">Show SQL for migration</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<h3 id="h-2159-migrate-app-to-specific-migration">Migrate app to specific migration</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students 0001</code></pre></div>
+<h3 id="h-2160-roll-back-app-migrations-to-zero">Roll back app migrations to zero</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students zero</code></pre></div>
+<hr>
+<h1 id="h-2161-40-important-concept-migration-state">40. Important Concept: Migration State</h1>
+<p>Django doesn't simply compare:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py</code></pre></div>
+<p>directly with the current database every time.</p>
+<p>Migrations form a historical representation of how Django expects the schema to evolve.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration 0001
+      ↓
+Migration 0002
+      ↓
+Migration 0003
+      ↓
+Current migration state</code></pre></div>
+<p>Django uses this migration state when generating future migrations.</p>
+<hr>
+<h1 id="h-2162-41-makemigrations-doesn-t-execute-sql">41. <code>makemigrations</code> Doesn't Execute SQL</h1>
+<p>This is a common trap.</p>
+<h3 id="h-2163-makemigrations"><code>makemigrations</code></h3>
+<p>Creates Python migration files.</p>
+<p>It doesn't normally change the database.</p>
+<h3 id="h-2164-migrate"><code>migrate</code></h3>
+<p>Executes the migration operations against the database.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations → files
+migrate → database</code></pre></div>
+<hr>
+<h1 id="h-2165-42-practical-example">42. Practical Example</h1>
+<p>Start with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001_initial.py</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Database:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+--------
+id
+name</code></pre></div>
+<p>Now change model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField(default=18)</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Result:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0002_student_age.py</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Database becomes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+--------
+id
+name
+age</code></pre></div>
+<hr>
+<h1 id="h-2166-43-full-migration-lifecycle">43. Full Migration Lifecycle</h1>
+<p>Memorize this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>       models.py
+           ↓
+     Change model
+           ↓
+   python manage.py
+      makemigrations
+           ↓
+   Migration file
+           ↓
+   Review migration
+           ↓
+   python manage.py
+        migrate
+           ↓
+      Database
+           ↓
+     Updated schema</code></pre></div>
+<hr>
+<h1 id="h-2167-44-viva-masterclass">44. Viva Masterclass</h1>
+<h3 id="h-2168-q1-what-is-a-migration">Q1. What is a migration?</h3>
+<blockquote>A migration is a versioned file describing changes to a Django project's database schema or data.</blockquote>
+<hr>
+<h3 id="h-2169-q2-why-are-migrations-needed">Q2. Why are migrations needed?</h3>
+<blockquote>They allow Django to keep the database schema synchronized with changes made to models in a controlled and versioned way.</blockquote>
+<hr>
+<h3 id="h-2170-q3-difference-between-makemigrations-and-migrate">Q3. Difference between <code>makemigrations</code> and <code>migrate</code>?</h3>
+<blockquote><code>makemigrations</code> creates migration files from model changes, while <code>migrate</code> applies those migrations to the database.</blockquote>
+<hr>
+<h3 id="h-2171-q4-does-makemigrations-change-the-database">Q4. Does <code>makemigrations</code> change the database?</h3>
+<blockquote>Normally, no. It creates migration files.</blockquote>
+<hr>
+<h3 id="h-2172-q5-does-migrate-create-migration-files">Q5. Does <code>migrate</code> create migration files?</h3>
+<blockquote>No. It applies existing migrations.</blockquote>
+<hr>
+<h3 id="h-2173-q6-what-is-showmigrations">Q6. What is <code>showmigrations</code>?</h3>
+<blockquote>It displays migrations and indicates which ones have been applied.</blockquote>
+<hr>
+<h3 id="h-2174-q7-what-does-x-mean-in-showmigrations">Q7. What does <code>[X]</code> mean in <code>showmigrations</code>?</h3>
+<blockquote>The migration has been applied.</blockquote>
+<hr>
+<h3 id="h-2175-q8-what-does-sqlmigrate-do">Q8. What does <code>sqlmigrate</code> do?</h3>
+<blockquote>It displays the SQL statements that a particular migration would execute for the configured database backend.</blockquote>
+<hr>
+<h3 id="h-2176-q9-what-is-migration-rollback">Q9. What is migration rollback?</h3>
+<blockquote>It means moving the database schema back to an earlier migration state by unapplying later migrations.</blockquote>
+<hr>
+<h3 id="h-2177-q10-should-migration-files-be-committed-to-git">Q10. Should migration files be committed to Git?</h3>
+<blockquote>Yes. Migration files are generally part of the project's version-controlled source code.</blockquote>
+<hr>
+<h3 id="h-2178-q11-what-is-a-data-migration">Q11. What is a data migration?</h3>
+<blockquote>A migration that performs controlled changes to existing database data rather than only changing the database schema.</blockquote>
+<hr>
+<h3 id="h-2179-q12-what-is-runpython">Q12. What is <code>RunPython</code>?</h3>
+<blockquote><code>RunPython</code> is a migration operation used to execute Python code as part of a migration, commonly for data transformations.</blockquote>
+<hr>
+<h1 id="h-2180-45-coding-practical-question">45. Coding/Practical Question</h1>
+<h3 id="h-2181-question">Question:</h3>
+<p>You add this field:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>phone = models.CharField(max_length=15)</code></pre></div>
+<p>What commands do you run?</p>
+<h3 id="h-2182-answer">Answer:</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-2183-46-practical-debugging-question">46. Practical Debugging Question</h1>
+<h3 id="h-2184-question">Question:</h3>
+<p>You added a field to <code>models.py</code>, but the database doesn't contain the corresponding column. What do you check?</p>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Is the app in INSTALLED_APPS?
+2. Did I run makemigrations?
+3. Was a migration generated?
+4. Did I run migrate?
+5. Does showmigrations show the migration as applied?</code></pre></div>
+<p>Commands:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py showmigrations
+python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-2185-47-exam-question">47. Exam Question</h1>
+<h3 id="h-2186-explain-django-migration-process">"Explain Django migration process."</h3>
+<p>A strong answer:</p>
+<blockquote>Django migrations are used to keep the database schema synchronized with changes made to Django models. When a model is created or modified, <code>python manage.py makemigrations</code> detects the changes and creates migration files. These files describe operations such as creating models, adding fields, or altering fields. The command <code>python manage.py migrate</code> applies these migration operations to the database. Django maintains migration history so that changes can be applied in the correct order. Commands such as <code>showmigrations</code> can be used to view migration status and <code>sqlmigrate</code> can be used to inspect the SQL generated for a migration.</blockquote>
+<hr>
+<h1 id="h-2187-48-must-memorize-commands">48. Must-Memorize Commands</h1>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>↓</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Check status:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<p>Inspect SQL:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<p>Rollback:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate students 0001</code></pre></div>
+<hr>
+<h1 id="h-2188-module-27-summary">Module 27 Summary</h1>
+<p>The single most important distinction:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+   ↓
+makemigrations
+   ↓
+Migration files
+   ↓
+migrate
+   ↓
+Database</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations → "What changed?"
+migrate        → "Apply those changes."
+showmigrations → "What's applied?"
+sqlmigrate     → "What SQL would this migration run?"</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration ≠ Database
+Migration ≠ Backup
+Migration ≠ Model</code></pre></div>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model      → desired data structure
+Migration  → versioned description of changes
+Database   → actual stored structure/data</code></pre></div>
+<hr>
+<h2 id="h-2189-next-module-28-django-orm-in-depth">Next → Module 28: Django ORM in Depth</h2>
+<p>This is another <strong>very important module</strong>. We'll learn how to query the database using Python:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()
+Student.objects.get()
+Student.objects.filter()
+Student.objects.exclude()
+Student.objects.create()</code></pre></div>
+<p>and understand <strong>QuerySets, managers, lookups, filtering, ordering, counting, existence checks, and how Django ORM translates your Python code into SQL</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-26.html">← Module 26: Model Fields &amp; Field Options</a>
+<a class="pn-btn pn-next" href="module-28.html">Module 28: Django ORM in Depth →</a>
+</div>
+
+</div>
+
+</body>
+</html>

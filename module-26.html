@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 26: Model Fields & Field Options — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 26 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 26 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Model Fields &amp; Field Options</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<span class="nav-item current">26. Model Fields &amp; Field Options</span>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-25.html">← Module 25: Databases &amp; Django Models</a>
+<a class="pn-btn pn-next" href="module-27.html">Module 27: Django Migrations in Depth →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2017-module-26-django-model-fields-field-options">Module 26 — Django Model Fields &amp; Field Options</h1>
+<p>Now that you understand what a <strong>Django model</strong> is, we need to learn how to define its fields correctly.</p>
+<p>This module is especially important because model-field questions are very common in <strong>coding rounds, exams, and viva</strong>.</p>
+<hr>
+<h1 id="h-2018-1-what-is-a-model-field">1. What Is a Model Field?</h1>
+<p>A model field defines:</p>
+<ol>
+<li>What type of data can be stored</li>
+<li>How that data is represented in the database</li>
+<li>Some validation and behavior rules</li>
+</ol>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()</code></pre></div>
+<p>Here:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name  → CharField
+age   → IntegerField
+email → EmailField</code></pre></div>
+<hr>
+<h1 id="h-2019-2-most-important-model-fields">2. Most Important Model Fields</h1>
+<p>You should know these:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Field</th>
+<th>Used for</th>
+</tr></thead><tbody>
+<tr>
+<td><code>CharField</code></td>
+<td>Short text</td>
+</tr>
+<tr>
+<td><code>TextField</code></td>
+<td>Long text</td>
+</tr>
+<tr>
+<td><code>IntegerField</code></td>
+<td>Integers</td>
+</tr>
+<tr>
+<td><code>FloatField</code></td>
+<td>Floating-point numbers</td>
+</tr>
+<tr>
+<td><code>DecimalField</code></td>
+<td>Precise decimal numbers</td>
+</tr>
+<tr>
+<td><code>BooleanField</code></td>
+<td>True/False</td>
+</tr>
+<tr>
+<td><code>DateField</code></td>
+<td>Date</td>
+</tr>
+<tr>
+<td><code>DateTimeField</code></td>
+<td>Date + time</td>
+</tr>
+<tr>
+<td><code>TimeField</code></td>
+<td>Time</td>
+</tr>
+<tr>
+<td><code>EmailField</code></td>
+<td>Email</td>
+</tr>
+<tr>
+<td><code>URLField</code></td>
+<td>URLs</td>
+</tr>
+<tr>
+<td><code>FileField</code></td>
+<td>Files</td>
+</tr>
+<tr>
+<td><code>ImageField</code></td>
+<td>Images</td>
+</tr>
+<tr>
+<td><code>ForeignKey</code></td>
+<td>Many-to-one relationship</td>
+</tr>
+</tbody></table></div>
+<p>We'll study <code>ForeignKey</code> separately in Module 31.</p>
+<hr>
+<h1 id="h-2020-3-charfield">3. <code>CharField</code></h1>
+<p>Used for relatively short strings.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Possible values:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Priya
+Computer Science</code></pre></div>
+<p>You should normally specify:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_length</code></pre></div>
+<p>for <code>CharField</code>.</p>
+<hr>
+<h1 id="h-2021-4-textfield">4. <code>TextField</code></h1>
+<p>Used for larger amounts of text.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>description = models.TextField()</code></pre></div>
+<p>Examples:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Blog article
+Product description
+Student feedback
+Comment
+Biography</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Product(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()</code></pre></div>
+<hr>
+<h1 id="h-2022-5-charfield-vs-textfield">5. <code>CharField</code> vs <code>TextField</code></h1>
+<p>Common viva question.</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>CharField</th>
+<th>TextField</th>
+</tr></thead><tbody>
+<tr>
+<td>Generally used for shorter strings</td>
+<td>Generally used for longer text</td>
+</tr>
+<tr>
+<td>Usually specify <code>max_length</code></td>
+<td><code>max_length</code> is not required</td>
+</tr>
+<tr>
+<td>Good for names, titles, usernames</td>
+<td>Good for descriptions, articles, comments</td>
+</tr>
+</tbody></table></div>
+<p>Simple rule:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name → CharField
+Description → TextField</code></pre></div>
+<hr>
+<h1 id="h-2023-6-integerfield">6. <code>IntegerField</code></h1>
+<p>Stores integers.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    age = models.IntegerField()</code></pre></div>
+<p>Values:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>18
+21
+50
+100</code></pre></div>
+<p>You can also add validation-related options:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    validators=[MinValueValidator(18)]
+)</code></pre></div>
+<p>But we'll keep validators for later concepts.</p>
+<hr>
+<h1 id="h-2024-7-floatfield">7. <code>FloatField</code></h1>
+<p>Stores floating-point numbers.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>rating = models.FloatField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>rating = models.FloatField()</code></pre></div>
+<p>Possible values:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>4.5
+3.14
+9.8</code></pre></div>
+<hr>
+<h1 id="h-2025-8-decimalfield">8. <code>DecimalField</code></h1>
+<p>This is very important when precision matters.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)</code></pre></div>
+<h3 id="h-2026-max-digits"><code>max_digits</code></h3>
+<p>Total number of digits.</p>
+<h3 id="h-2027-decimal-places"><code>decimal_places</code></h3>
+<p>Number of digits after the decimal point.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>12345.67</code></pre></div>
+<p>has:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>7 total digits
+2 decimal places</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.DecimalField(
+    max_digits=7,
+    decimal_places=2
+)</code></pre></div>
+<p>can represent that value.</p>
+<hr>
+<h1 id="h-2028-9-floatfield-vs-decimalfield">9. FloatField vs DecimalField</h1>
+<p>Very common viva question.</p>
+<h3 id="h-2029-float">Float</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = models.FloatField()</code></pre></div>
+<p>Uses floating-point representation.</p>
+<h3 id="h-2030-decimal">Decimal</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)</code></pre></div>
+<p>Provides decimal precision suitable for things such as monetary values.</p>
+<h3 id="h-2031-rule">Rule</h3>
+<blockquote>For values where exact decimal precision matters, such as prices, <code>DecimalField</code> is generally preferred.</blockquote>
+<hr>
+<h1 id="h-2032-10-booleanfield">10. <code>BooleanField</code></h1>
+<p>Stores Boolean values:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True
+False</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_active = models.BooleanField()</code></pre></div>
+<p>More commonly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_active = models.BooleanField(default=True)</code></pre></div>
+<p>Now new objects default to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_active = True</code></pre></div>
+<hr>
+<h1 id="h-2033-11-datefield">11. <code>DateField</code></h1>
+<p>Stores a date.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>birth_date = models.DateField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>2004-08-15</code></pre></div>
+<hr>
+<h1 id="h-2034-12-datetimefield">12. <code>DateTimeField</code></h1>
+<p>Stores both date and time.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>2026-09-12 20:30:00</code></pre></div>
+<p>Very common:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField(
+    auto_now_add=True
+)</code></pre></div>
+<p>This records the creation time when the object is first created.</p>
+<hr>
+<h1 id="h-2035-13-auto-now-add">13. <code>auto_now_add</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField(
+    auto_now_add=True
+)</code></pre></div>
+<p>When an object is created:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student created
+      ↓
+Django sets created_at</code></pre></div>
+<p>You generally don't manually provide the creation timestamp.</p>
+<hr>
+<h1 id="h-2036-14-auto-now">14. <code>auto_now</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>updated_at = models.DateTimeField(
+    auto_now=True
+)</code></pre></div>
+<p>This updates the timestamp whenever the model is saved.</p>
+<p>Typical usage:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField(auto_now_add=True)
+updated_at = models.DateTimeField(auto_now=True)</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>created_at → when created
+updated_at → when last saved</code></pre></div>
+<hr>
+<h1 id="h-2037-15-auto-now-add-vs-auto-now">15. <code>auto_now_add</code> vs <code>auto_now</code></h1>
+<p>Memorize this table:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Option</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td><code>auto_now_add=True</code></td>
+<td>Set when object is created</td>
+</tr>
+<tr>
+<td><code>auto_now=True</code></td>
+<td>Update when object is saved</td>
+</tr>
+</tbody></table></div>
+<p>Typical:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>created_at = models.DateTimeField(auto_now_add=True)
+updated_at = models.DateTimeField(auto_now=True)</code></pre></div>
+<hr>
+<h1 id="h-2038-16-timefield">16. <code>TimeField</code></h1>
+<p>Stores only time.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>start_time = models.TimeField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>10:30:00</code></pre></div>
+<hr>
+<h1 id="h-2039-17-emailfield">17. <code>EmailField</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField()</code></pre></div>
+<p>Useful for email addresses.</p>
+<p>It provides Django's email-oriented field behavior and validation.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    email = models.EmailField()</code></pre></div>
+<hr>
+<h1 id="h-2040-18-urlfield">18. <code>URLField</code></h1>
+<p>Used for URLs.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>website = models.URLField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>https://example.com</code></pre></div>
+<hr>
+<h1 id="h-2041-19-filefield">19. <code>FileField</code></h1>
+<p>Used for file uploads.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>resume = models.FileField(
+    upload_to="resumes/"
+)</code></pre></div>
+<p>The uploaded file is stored according to Django's file-storage configuration, while the database stores information about the file.</p>
+<hr>
+<h1 id="h-2042-20-imagefield">20. <code>ImageField</code></h1>
+<p>Used for image uploads.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>profile_picture = models.ImageField(
+    upload_to="profiles/"
+)</code></pre></div>
+<p>It provides image-specific validation behavior.</p>
+<p>Typically, Pillow is required for <code>ImageField</code>.</p>
+<hr>
+<h1 id="h-2043-21-now-the-most-important-part-field-options">21. Now the Most Important Part: Field Options</h1>
+<p>Field type alone isn't enough.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<p>You can customize behavior:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(
+    max_length=100,
+    blank=True,
+    null=True
+)</code></pre></div>
+<p>Important options include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>null
+blank
+default
+unique
+primary_key
+choices
+db_column</code></pre></div>
+<p>Let's understand them one by one.</p>
+<hr>
+<h1 id="h-2044-22-null">22. <code>null</code></h1>
+<p><code>null</code> controls whether the database can store SQL <code>NULL</code> for that field.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    null=True
+)</code></pre></div>
+<p>means the database can contain:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>NULL</code></pre></div>
+<p>for <code>age</code>.</p>
+<hr>
+<h1 id="h-2045-23-blank">23. <code>blank</code></h1>
+<p><code>blank</code> controls whether the field is allowed to be empty during Django's validation process.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField(
+    blank=True
+)</code></pre></div>
+<p>means the field can be blank from Django's validation perspective.</p>
+<hr>
+<h1 id="h-2046-24-null-vs-blank">24. <code>null</code> vs <code>blank</code></h1>
+<p>This is a <strong>very common viva question</strong>.</p>
+<h3 id="h-2047-null"><code>null</code></h3>
+<p>Database-level concept.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>null=True</code></pre></div>
+<p>means the database can store <code>NULL</code>.</p>
+<h3 id="h-2048-blank"><code>blank</code></h3>
+<p>Validation-level concept.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>blank=True</code></pre></div>
+<p>means Django's validation can allow an empty value.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>null → database
+blank → validation</code></pre></div>
+<hr>
+<h1 id="h-2049-25-example-of-both">25. Example of Both</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>phone = models.CharField(
+    max_length=15,
+    null=True,
+    blank=True
+)</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database → can store NULL
+Validation → can accept blank</code></pre></div>
+<p>However, for string fields such as <code>CharField</code> and <code>TextField</code>, Django convention generally prefers using an empty string rather than <code>NULL</code> for "no data", so <code>null=True</code> is often unnecessary.</p>
+<p>For exam purposes, remember the conceptual distinction first.</p>
+<hr>
+<h1 id="h-2050-26-default">26. <code>default</code></h1>
+<p>Used to provide a default value.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>is_active = models.BooleanField(
+    default=True
+)</code></pre></div>
+<p>If you create:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student = Student()</code></pre></div>
+<p>without specifying <code>is_active</code>, Django uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<hr>
+<h1 id="h-2051-27-default-with-integer">27. Default With Integer</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>marks = models.IntegerField(
+    default=0
+)</code></pre></div>
+<p>New records get:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>marks = 0</code></pre></div>
+<p>unless another value is provided.</p>
+<hr>
+<h1 id="h-2052-28-default-with-string">28. Default With String</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>status = models.CharField(
+    max_length=20,
+    default="pending"
+)</code></pre></div>
+<p>New objects default to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>pending</code></pre></div>
+<hr>
+<h1 id="h-2053-29-unique">29. <code>unique</code></h1>
+<p>Used when a value must be unique across records.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    unique=True
+)</code></pre></div>
+<p>Suppose the database contains:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>id</th>
+<th>email</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>[aman@gmail.com](mailto:aman@gmail.com)</td>
+</tr>
+</tbody></table></div>
+<p>Trying to create another record with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman@gmail.com</code></pre></div>
+<p>will violate the uniqueness constraint.</p>
+<hr>
+<h1 id="h-2054-30-unique-true-vs-primary-key">30. <code>unique=True</code> vs Primary Key</h1>
+<p>Don't confuse them.</p>
+<h3 id="h-2055-primary-key">Primary key</h3>
+<p>Uniquely identifies a record and serves as the table's primary identifier.</p>
+<h3 id="h-2056-unique-true"><code>unique=True</code></h3>
+<p>Requires values to be unique, but the field isn't necessarily the primary key.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    unique=True
+)</code></pre></div>
+<p>Email values must be unique, but the model can still have its own primary key.</p>
+<hr>
+<h1 id="h-2057-31-primary-key-true">31. <code>primary_key=True</code></h1>
+<p>You can explicitly define a primary key:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student_id = models.IntegerField(
+    primary_key=True
+)</code></pre></div>
+<p>Then Django uses:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>student_id</code></pre></div>
+<p>as the primary key.</p>
+<p>You generally don't need to do this because Django automatically provides a primary key if you don't define one.</p>
+<hr>
+<h1 id="h-2058-32-primary-key-rules">32. Primary Key Rules</h1>
+<p>A model can have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>one primary key</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student_id = models.IntegerField(
+    primary_key=True
+)</code></pre></div>
+<p>You shouldn't define multiple independent <code>primary_key=True</code> fields in one model.</p>
+<hr>
+<h1 id="h-2059-33-choices">33. <code>choices</code></h1>
+<p>This is extremely useful.</p>
+<p>Suppose a student can have only:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE
+ECE
+ME</code></pre></div>
+<p>You can define:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>COURSES = [
+    ("CSE", "Computer Science"),
+    ("ECE", "Electronics"),
+    ("ME", "Mechanical"),
+]</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>course = models.CharField(
+    max_length=3,
+    choices=COURSES
+)</code></pre></div>
+<p>The first value is stored:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSE</code></pre></div>
+<p>The second is the human-readable label:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Computer Science</code></pre></div>
+<hr>
+<h1 id="h-2060-34-choices-example">34. Choices Example</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+
+    COURSES = [
+        ("CSE", "Computer Science"),
+        ("ECE", "Electronics"),
+        ("ME", "Mechanical"),
+    ]
+
+    name = models.CharField(max_length=100)
+
+    course = models.CharField(
+        max_length=3,
+        choices=COURSES
+    )</code></pre></div>
+<p>This can also be used by Django forms/admin to present a selection.</p>
+<hr>
+<h1 id="h-2061-35-get-field-display">35. <code>get_&lt;field&gt;_display()</code></h1>
+<p>When a field uses <code>choices</code>, Django provides a way to get the human-readable label.</p>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.course = "CSE"</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.get_course_display()</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Computer Science</code></pre></div>
+<p>This is a useful practical/viva point.</p>
+<hr>
+<h1 id="h-2062-36-db-column">36. <code>db_column</code></h1>
+<p>Normally Django derives the database column name from the model field name.</p>
+<p>You can customize it:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student_name = models.CharField(
+    max_length=100,
+    db_column="student_name"
+)</code></pre></div>
+<p>This is an advanced option and is less commonly needed.</p>
+<hr>
+<h1 id="h-2063-37-verbose-name">37. <code>verbose_name</code></h1>
+<p>You can give a human-readable name:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(
+    "Student Name",
+    max_length=100
+)</code></pre></div>
+<p>This is useful in Django admin and forms.</p>
+<p>You may also see:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(
+    max_length=100,
+    verbose_name="Student Name"
+)</code></pre></div>
+<hr>
+<h1 id="h-2064-38-help-text">38. <code>help_text</code></h1>
+<p>Provides explanatory text for forms/admin.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    help_text="Enter your college email address."
+)</code></pre></div>
+<p>This can appear when Django generates forms/admin interfaces.</p>
+<hr>
+<h1 id="h-2065-39-complete-student-model">39. Complete Student Model</h1>
+<p>Let's combine everything:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Student(models.Model):
+
+    COURSES = [
+        ("CSE", "Computer Science"),
+        ("ECE", "Electronics"),
+        ("ME", "Mechanical"),
+    ]
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    email = models.EmailField(
+        unique=True
+    )
+
+    age = models.IntegerField()
+
+    course = models.CharField(
+        max_length=3,
+        choices=COURSES
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    birth_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )</code></pre></div>
+<p>This model demonstrates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CharField
+EmailField
+IntegerField
+BooleanField
+DateField
+DateTimeField
+choices
+unique
+default
+null
+blank
+auto_now_add
+auto_now</code></pre></div>
+<hr>
+<h1 id="h-2066-40-model-field-vs-form-field">40. Model Field vs Form Field</h1>
+<p>Don't confuse these.</p>
+<h3 id="h-2067-model-field">Model field</h3>
+<p>Defined in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<h3 id="h-2068-form-field">Form field</h3>
+<p>Defined in:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>forms.py</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField()</code></pre></div>
+<p>They are related concepts but serve different purposes.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model field → database/data model
+Form field  → user input/validation</code></pre></div>
+<hr>
+<h1 id="h-2069-41-does-max-length-mean-the-same-thing-everywhere">41. Does <code>max_length</code> Mean the Same Thing Everywhere?</h1>
+<p>For a model <code>CharField</code>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = models.CharField(max_length=100)</code></pre></div>
+<p>it defines the maximum length expected for that field and is also used by Django's validation/form generation.</p>
+<p>Database enforcement can vary by database/backend/version, so don't oversimplify this as "the database always physically rejects every longer value."</p>
+<p>For your exam:</p>
+<blockquote><code>max_length</code> specifies the maximum length for a <code>CharField</code>.</blockquote>
+<hr>
+<h1 id="h-2070-42-field-options-are-not-all-validation">42. Field Options Are Not All Validation</h1>
+<p>This is important.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>unique=True</code></pre></div>
+<p>is fundamentally a database uniqueness constraint, although Django can also perform validation around it in appropriate contexts.</p>
+<p>Similarly:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>null=True</code></pre></div>
+<p>is primarily about database storage.</p>
+<p>So don't say:</p>
+<blockquote>"Every model field option is a validator."</blockquote>
+<p>They control different aspects of model/database behavior.</p>
+<hr>
+<h1 id="h-2071-43-what-happens-after-changing-a-model">43. What Happens After Changing a Model?</h1>
+<p>Suppose you initially have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>Then add:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = models.IntegerField()</code></pre></div>
+<p>Run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Flow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Change models.py
+      ↓
+makemigrations
+      ↓
+Migration file
+      ↓
+migrate
+      ↓
+Database schema updated</code></pre></div>
+<hr>
+<h1 id="h-2072-44-important-coding-question">44. Important Coding Question</h1>
+<h3 id="h-2073-create-a-product-model-containing">Create a Product model containing:</h3>
+<ul>
+<li>Name</li>
+<li>Description</li>
+<li>Price</li>
+<li>Stock</li>
+<li>Available status</li>
+<li>Created time</li>
+</ul>
+<p>Answer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models
+
+
+class Product(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    description = models.TextField()
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    stock = models.IntegerField(
+        default=0
+    )
+
+    is_available = models.BooleanField(
+        default=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )</code></pre></div>
+<hr>
+<h1 id="h-2074-45-coding-question">45. Coding Question</h1>
+<h3 id="h-2075-create-a-userprofile-model-where">Create a UserProfile model where:</h3>
+<ul>
+<li>username must be unique</li>
+<li>age is optional</li>
+<li>active status defaults to True</li>
+</ul>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class UserProfile(models.Model):
+
+    username = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    age = models.IntegerField(
+        null=True,
+        blank=True
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )</code></pre></div>
+<hr>
+<h1 id="h-2076-46-coding-question">46. Coding Question</h1>
+<h3 id="h-2077-create-an-employee-model-with-department-choices">Create an Employee model with department choices.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Employee(models.Model):
+
+    DEPARTMENTS = [
+        ("IT", "Information Technology"),
+        ("HR", "Human Resources"),
+        ("FIN", "Finance"),
+    ]
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    department = models.CharField(
+        max_length=3,
+        choices=DEPARTMENTS
+    )</code></pre></div>
+<p>To get the displayed department:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>employee.get_department_display()</code></pre></div>
+<hr>
+<h1 id="h-2078-47-viva-masterclass">47. Viva Masterclass</h1>
+<h3 id="h-2079-q1-what-is-a-model-field">Q1. What is a model field?</h3>
+<blockquote>A model field defines the type and behavior of a piece of data stored by a Django model.</blockquote>
+<hr>
+<h3 id="h-2080-q2-difference-between-charfield-and-textfield">Q2. Difference between <code>CharField</code> and <code>TextField</code>?</h3>
+<blockquote><code>CharField</code> is generally used for shorter strings and requires <code>max_length</code>, while <code>TextField</code> is intended for larger amounts of text.</blockquote>
+<hr>
+<h3 id="h-2081-q3-difference-between-floatfield-and-decimalfield">Q3. Difference between <code>FloatField</code> and <code>DecimalField</code>?</h3>
+<blockquote><code>FloatField</code> uses floating-point representation, while <code>DecimalField</code> provides controlled decimal precision and is generally preferred for values such as monetary amounts.</blockquote>
+<hr>
+<h3 id="h-2082-q4-what-is-null-true">Q4. What is <code>null=True</code>?</h3>
+<blockquote>It allows the database to store SQL <code>NULL</code> for the field.</blockquote>
+<hr>
+<h3 id="h-2083-q5-what-is-blank-true">Q5. What is <code>blank=True</code>?</h3>
+<blockquote>It allows the field to be blank during Django's validation process.</blockquote>
+<hr>
+<h3 id="h-2084-q6-difference-between-null-and-blank">Q6. Difference between <code>null</code> and <code>blank</code>?</h3>
+<blockquote><code>null</code> concerns database storage, while <code>blank</code> concerns Django validation.</blockquote>
+<hr>
+<h3 id="h-2085-q7-what-does-default-do">Q7. What does <code>default</code> do?</h3>
+<blockquote>It specifies the value Django should use when a value isn't provided.</blockquote>
+<hr>
+<h3 id="h-2086-q8-what-does-unique-true-do">Q8. What does <code>unique=True</code> do?</h3>
+<blockquote>It ensures that values for that field are unique across records.</blockquote>
+<hr>
+<h3 id="h-2087-q9-what-does-primary-key-true-do">Q9. What does <code>primary_key=True</code> do?</h3>
+<blockquote>It makes the field the primary key of the model.</blockquote>
+<hr>
+<h3 id="h-2088-q10-what-is-choices">Q10. What is <code>choices</code>?</h3>
+<blockquote><code>choices</code> restricts a field to a predefined set of values and can provide human-readable labels.</blockquote>
+<hr>
+<h3 id="h-2089-q11-what-does-auto-now-add-true-do">Q11. What does <code>auto_now_add=True</code> do?</h3>
+<blockquote>It automatically sets the field when the object is first created.</blockquote>
+<hr>
+<h3 id="h-2090-q12-what-does-auto-now-true-do">Q12. What does <code>auto_now=True</code> do?</h3>
+<blockquote>It automatically updates the field whenever the object is saved.</blockquote>
+<hr>
+<h3 id="h-2091-q13-what-does-decimalfield-require">Q13. What does <code>DecimalField</code> require?</h3>
+<p>Usually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_digits
+decimal_places</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)</code></pre></div>
+<hr>
+<h3 id="h-2092-q14-how-do-you-get-the-display-value-of-a-choices-">Q14. How do you get the display value of a choices field?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>student.get_course_display()</code></pre></div>
+<hr>
+<h1 id="h-2093-48-quick-revision-table">48. Quick Revision Table</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Concept</th>
+<th>Code</th>
+</tr></thead><tbody>
+<tr>
+<td>Short text</td>
+<td><code>CharField(max_length=100)</code></td>
+</tr>
+<tr>
+<td>Long text</td>
+<td><code>TextField()</code></td>
+</tr>
+<tr>
+<td>Integer</td>
+<td><code>IntegerField()</code></td>
+</tr>
+<tr>
+<td>Decimal</td>
+<td><code>DecimalField(max_digits=10, decimal_places=2)</code></td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td><code>BooleanField()</code></td>
+</tr>
+<tr>
+<td>Date</td>
+<td><code>DateField()</code></td>
+</tr>
+<tr>
+<td>Date + time</td>
+<td><code>DateTimeField()</code></td>
+</tr>
+<tr>
+<td>Email</td>
+<td><code>EmailField()</code></td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>URLField()</code></td>
+</tr>
+<tr>
+<td>Optional validation</td>
+<td><code>blank=True</code></td>
+</tr>
+<tr>
+<td>Database NULL</td>
+<td><code>null=True</code></td>
+</tr>
+<tr>
+<td>Default</td>
+<td><code>default=...</code></td>
+</tr>
+<tr>
+<td>Unique</td>
+<td><code>unique=True</code></td>
+</tr>
+<tr>
+<td>Primary key</td>
+<td><code>primary_key=True</code></td>
+</tr>
+<tr>
+<td>Choices</td>
+<td><code>choices=...</code></td>
+</tr>
+<tr>
+<td>Created timestamp</td>
+<td><code>auto_now_add=True</code></td>
+</tr>
+<tr>
+<td>Updated timestamp</td>
+<td><code>auto_now=True</code></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2094-49-the-5-things-most-likely-to-be-asked">49. The 5 Things Most Likely to Be Asked</h1>
+<p>If your teacher gives you a model coding question, pay particular attention to:</p>
+<h3 id="h-2095-1-field-type">1. Field type</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.CharField(...)</code></pre></div>
+<h3 id="h-2096-2-max-length">2. <code>max_length</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_length=100</code></pre></div>
+<h3 id="h-2097-3-optional-field">3. Optional field</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>blank=True</code></pre></div>
+<p>and understand when <code>null=True</code> is appropriate.</p>
+<h3 id="h-2098-4-default">4. Default</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>default=True</code></pre></div>
+<h3 id="h-2099-5-unique">5. Unique</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>unique=True</code></pre></div>
+<p>These appear constantly in Django model questions.</p>
+<hr>
+<h1 id="h-2100-module-26-summary">Module 26 Summary</h1>
+<p>The most important concepts:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CharField       → short text
+TextField       → long text
+IntegerField    → integer
+FloatField      → floating-point
+DecimalField    → precise decimal
+BooleanField    → True/False
+DateField       → date
+DateTimeField   → date + time
+EmailField      → email
+URLField        → URL</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>null     → database NULL
+blank    → Django validation
+default  → default value
+unique   → unique values
+primary_key → primary key
+choices  → predefined options</code></pre></div>
+<p>Plus:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>auto_now_add → creation time
+auto_now     → update time</code></pre></div>
+<p>And the key distinction:</p>
+<blockquote><strong>Model field → database/data structure</strong></blockquote>
+<blockquote><strong>Form field → user input/validation</strong></blockquote>
+<hr>
+<h2 id="h-2101-next-module-27-django-migrations-in-depth">Next → Module 27: Django Migrations in Depth</h2>
+<p>We'll learn exactly what migrations do, how <code>0001_initial.py</code> works, why migration files are needed, <code>makemigrations</code> vs <code>migrate</code>, <code>showmigrations</code>, <code>sqlmigrate</code>, migration dependencies, what happens when models change, and the common migration errors you'll encounter while coding.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-25.html">← Module 25: Databases &amp; Django Models</a>
+<a class="pn-btn pn-next" href="module-27.html">Module 27: Django Migrations in Depth →</a>
+</div>
+
+</div>
+
+</body>
+</html>

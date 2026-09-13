@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 21: Django Forms — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 21 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 21 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Forms</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<span class="nav-item current">21. Django Forms</span>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-20.html">← Module 20: HTML Forms &amp; HTTP in Django</a>
+<a class="pn-btn pn-next" href="module-22.html">Module 22: Form Validation →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1609-module-21-django-forms">Module 21 — Django Forms</h1>
+<p>Now we move from <strong>manual HTML forms</strong> to Django's built-in <strong>Forms framework</strong>.</p>
+<p>This is a very important module because Django Forms combine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML generation
++
+Input handling
++
+Validation
++
+Error handling
++
+Cleaned data</code></pre></div>
+<p>into a structured Python class.</p>
+<hr>
+<h1 id="h-1610-1-why-django-forms">1. Why Django Forms?</h1>
+<p>Previously, we created a form manually:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    &lt;input type="text" name="name"&gt;
+
+    &lt;input type="email" name="email"&gt;
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Then manually processed:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = request.POST.get("name")
+email = request.POST.get("email")</code></pre></div>
+<p>For a small form, that's okay.</p>
+<p>But imagine 20 fields.</p>
+<p>You would need to manually handle:</p>
+<ul>
+<li>HTML fields</li>
+<li>validation</li>
+<li>required fields</li>
+<li>error messages</li>
+<li>type conversion</li>
+<li>redisplaying values</li>
+<li>security</li>
+<li>invalid input</li>
+</ul>
+<p>Django Forms simplify this.</p>
+<hr>
+<h1 id="h-1611-2-what-is-a-django-form">2. What Is a Django Form?</h1>
+<p>A Django Form is a <strong>Python class that describes and processes form fields</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()</code></pre></div>
+<p>This class describes a form containing:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name
+age
+email</code></pre></div>
+<hr>
+<h1 id="h-1612-3-where-do-we-put-forms">3. Where Do We Put Forms?</h1>
+<p>Django apps commonly have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/
+├── views.py
+├── models.py
+├── forms.py
+├── urls.py
+└── ...</code></pre></div>
+<p>Django doesn't necessarily create <code>forms.py</code> automatically with <code>startapp</code>.</p>
+<p>You can create it yourself.</p>
+<hr>
+<h1 id="h-1613-4-creating-forms-py">4. Creating <code>forms.py</code></h1>
+<p>Inside your app:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students/forms.py</code></pre></div>
+<p>Write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()</code></pre></div>
+<hr>
+<h1 id="h-1614-5-understanding-forms-form">5. Understanding <code>forms.Form</code></h1>
+<p>This:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):</code></pre></div>
+<p>means:</p>
+<blockquote>Create a Django form named <code>StudentForm</code>.</blockquote>
+<p>It inherits from:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>forms.Form</code></pre></div>
+<p>Django then provides the form-processing functionality.</p>
+<hr>
+<h1 id="h-1615-6-charfield">6. <code>CharField</code></h1>
+<p>For text:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    name = forms.CharField()</code></pre></div>
+<p>This corresponds conceptually to a text input.</p>
+<hr>
+<h1 id="h-1616-7-integerfield">7. <code>IntegerField</code></h1>
+<p>For integer values:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField()</code></pre></div>
+<p>Django can validate that the submitted value can be interpreted as an integer.</p>
+<hr>
+<h1 id="h-1617-8-emailfield">8. <code>EmailField</code></h1>
+<p>For email:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = forms.EmailField()</code></pre></div>
+<p>Django provides email-format validation.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>aman@example.com</code></pre></div>
+<p>is structurally email-like.</p>
+<p>Whereas:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>hello</code></pre></div>
+<p>would normally fail the field's email validation.</p>
+<hr>
+<h1 id="h-1618-9-complete-form">9. Complete Form</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()</code></pre></div>
+<p>This is enough for Django to know that your form has three fields.</p>
+<hr>
+<h1 id="h-1619-10-rendering-the-form">10. Rendering the Form</h1>
+<p>Now let's display it in a template.</p>
+<p>View:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<p>Template:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Django generates HTML for the form fields.</p>
+<hr>
+<h1 id="h-1620-11-what-does-form-do">11. What Does <code>{{ form }}</code> Do?</h1>
+<p>When you write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form }}</code></pre></div>
+<p>Django renders the form's fields as HTML.</p>
+<p>Conceptually, it produces fields corresponding to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name
+Age
+Email</code></pre></div>
+<p>You don't have to manually create every <code>&lt;input&gt;</code>.</p>
+<hr>
+<h1 id="h-1621-12-form-as-p">12. <code>{{ form.as_p }}</code></h1>
+<p>A common rendering method is:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.as_p }}</code></pre></div>
+<p>It renders each field wrapped in a paragraph structure.</p>
+<p>Example conceptually:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;p&gt;
+    &lt;label&gt;Name:&lt;/label&gt;
+    &lt;input ...&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+    &lt;label&gt;Age:&lt;/label&gt;
+    &lt;input ...&gt;
+&lt;/p&gt;</code></pre></div>
+<hr>
+<h1 id="h-1622-13-form-as-table">13. <code>{{ form.as_table }}</code></h1>
+<p>You can write:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.as_table }}</code></pre></div>
+<p>This renders the form as table rows.</p>
+<p>Typically you'd place it inside:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;table&gt;
+    {{ form.as_table }}
+&lt;/table&gt;</code></pre></div>
+<hr>
+<h1 id="h-1623-14-form-as-ul">14. <code>{{ form.as_ul }}</code></h1>
+<p>Another rendering option:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form.as_ul }}</code></pre></div>
+<p>It renders the fields as list items.</p>
+<p>Typically:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;ul&gt;
+    {{ form.as_ul }}
+&lt;/ul&gt;</code></pre></div>
+<hr>
+<h1 id="h-1624-15-comparison">15. Comparison</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Syntax</th>
+<th>Typical output structure</th>
+</tr></thead><tbody>
+<tr>
+<td><code>{{ form }}</code></td>
+<td>Default form rendering</td>
+</tr>
+<tr>
+<td><code>{{ form.as_p }}</code></td>
+<td>Paragraphs</td>
+</tr>
+<tr>
+<td><code>{{ form.as_table }}</code></td>
+<td>Table rows</td>
+</tr>
+<tr>
+<td><code>{{ form.as_ul }}</code></td>
+<td>List items</td>
+</tr>
+</tbody></table></div>
+<p>For exams, know all four.</p>
+<hr>
+<h1 id="h-1625-16-important-rendering-is-not-validation">16. Important: Rendering Is Not Validation</h1>
+<p>This is very important.</p>
+<p>Creating:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm()</code></pre></div>
+<p>only creates a form instance.</p>
+<p>It doesn't mean submitted data is valid.</p>
+<p>For submitted data:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<p>then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>performs validation.</p>
+<hr>
+<h1 id="h-1626-17-unbound-vs-bound-form">17. Unbound vs Bound Form</h1>
+<p>This terminology is important.</p>
+<h3 id="h-1627-unbound-form">Unbound form</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm()</code></pre></div>
+<p>It has no submitted data.</p>
+<p>Used when initially displaying the form.</p>
+<h3 id="h-1628-bound-form">Bound form</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<p>It contains submitted data and can be validated.</p>
+<hr>
+<h1 id="h-1629-18-visualizing-this">18. Visualizing This</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>StudentForm()
+     ↓
+Unbound form
+     ↓
+Display form</code></pre></div>
+<p>After submission:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>request.POST
+     ↓
+StudentForm(request.POST)
+     ↓
+Bound form
+     ↓
+is_valid()
+     ↓
+Validation</code></pre></div>
+<p>This distinction is very important for viva.</p>
+<hr>
+<h1 id="h-1630-19-is-valid">19. <code>is_valid()</code></h1>
+<p>The most important Django Forms method:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>It validates the submitted data.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+    print("Valid")
+else:
+    print("Invalid")</code></pre></div>
+<p>It returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<hr>
+<h1 id="h-1631-20-complete-get-post-form-view">20. Complete GET + POST Form View</h1>
+<p>This is a pattern you should memorize.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            print("Form is valid")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<p>Let's understand it carefully.</p>
+<hr>
+<h1 id="h-1632-21-first-visit-get">21. First Visit — GET</h1>
+<p>When the user opens:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/student-form/</code></pre></div>
+<p>the browser sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET</code></pre></div>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.method == "POST":</code></pre></div>
+<p>is false.</p>
+<p>Django executes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm()</code></pre></div>
+<p>An empty/unbound form is displayed.</p>
+<hr>
+<h1 id="h-1633-22-submission-post">22. Submission — POST</h1>
+<p>User fills:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman
+Age: 21
+Email: aman@example.com</code></pre></div>
+<p>and clicks Submit.</p>
+<p>Browser sends:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>POST</code></pre></div>
+<p>Django executes:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<p>Now the form is bound to submitted data.</p>
+<hr>
+<h1 id="h-1634-23-validation">23. Validation</h1>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():</code></pre></div>
+<p>Django validates:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name
+age
+email</code></pre></div>
+<p>If everything is valid:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>True</code></pre></div>
+<p>Otherwise:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<hr>
+<h1 id="h-1635-24-cleaned-data">24. <code>cleaned_data</code></h1>
+<p>If the form is valid:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data</code></pre></div>
+<p>contains the cleaned/validated values.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if form.is_valid():
+
+    name = form.cleaned_data["name"]
+    age = form.cleaned_data["age"]
+    email = form.cleaned_data["email"]</code></pre></div>
+<p>This is preferred over directly using:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.POST.get("name")</code></pre></div>
+<p>after form validation.</p>
+<hr>
+<h1 id="h-1636-25-why-cleaned-data">25. Why <code>cleaned_data</code>?</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField()</code></pre></div>
+<p>The browser sends form data as strings.</p>
+<p>After validation, Django can convert the valid value into the appropriate Python type.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["age"]</code></pre></div>
+<p>can be an integer.</p>
+<p>This is one of the major benefits of Django Forms.</p>
+<hr>
+<h1 id="h-1637-26-example">26. Example</h1>
+<p>Form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()</code></pre></div>
+<p>Submitted:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>name = "Aman"
+age = "21"</code></pre></div>
+<p>After:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>you can access:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["name"]</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["age"]</code></pre></div>
+<p>The second value can be an integer rather than the original raw string.</p>
+<hr>
+<h1 id="h-1638-27-form-errors">27. Form Errors</h1>
+<p>Suppose the user enters:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Age = abc</code></pre></div>
+<p>but:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField()</code></pre></div>
+<p>Validation fails.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<p>returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>False</code></pre></div>
+<p>and Django stores validation errors in the form.</p>
+<hr>
+<h1 id="h-1639-28-displaying-errors">28. Displaying Errors</h1>
+<p>If your template contains:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>Django can render the associated field errors along with the form.</p>
+<p>You can also access them explicitly.</p>
+<hr>
+<h1 id="h-1640-29-form-errors">29. <code>form.errors</code></h1>
+<p>In Python:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.errors</code></pre></div>
+<p>contains validation errors.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if not form.is_valid():
+
+    print(form.errors)</code></pre></div>
+<p>Useful for debugging and understanding validation.</p>
+<hr>
+<h1 id="h-1641-30-required-fields">30. Required Fields</h1>
+<p>By default, many Django form fields are required.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField()</code></pre></div>
+<p>If the user submits it empty, validation generally fails.</p>
+<hr>
+<h1 id="h-1642-31-required-false">31. <code>required=False</code></h1>
+<p>You can make a field optional:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>phone = forms.CharField(
+    required=False
+)</code></pre></div>
+<p>Now the user can leave it blank.</p>
+<hr>
+<h1 id="h-1643-32-label">32. <code>label</code></h1>
+<p>You can customize the field label:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(
+    label="Student Name"
+)</code></pre></div>
+<p>Django can use:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student Name</code></pre></div>
+<p>instead of deriving the default label from <code>name</code>.</p>
+<hr>
+<h1 id="h-1644-33-initial">33. <code>initial</code></h1>
+<p>You can provide an initial/default displayed value:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(
+    initial="Aman"
+)</code></pre></div>
+<p>The form initially displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>The user can modify it unless other restrictions apply.</p>
+<hr>
+<h1 id="h-1645-34-help-text">34. <code>help_text</code></h1>
+<p>You can provide additional information:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(
+    help_text="Enter your full name"
+)</code></pre></div>
+<p>This can help explain what the field expects.</p>
+<hr>
+<h1 id="h-1646-35-max-length">35. <code>max_length</code></h1>
+<p>For text:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(
+    max_length=100
+)</code></pre></div>
+<p>This limits the accepted string length during form validation and can influence the generated HTML widget.</p>
+<hr>
+<h1 id="h-1647-36-min-length">36. <code>min_length</code></h1>
+<p>You can also specify:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField(
+    min_length=3
+)</code></pre></div>
+<p>The submitted value must satisfy the minimum length requirement.</p>
+<hr>
+<h1 id="h-1648-37-integerfield-options">37. <code>IntegerField</code> Options</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    min_value=18,
+    max_value=100
+)</code></pre></div>
+<p>Now the form expects an integer within that range.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>21 → valid
+17 → invalid
+101 → invalid</code></pre></div>
+<hr>
+<h1 id="h-1649-38-emailfield">38. <code>EmailField</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = forms.EmailField()</code></pre></div>
+<p>Django validates that the value has a valid email-like structure.</p>
+<hr>
+<h1 id="h-1650-39-choicefield">39. <code>ChoiceField</code></h1>
+<p>For a fixed set of choices:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>course = forms.ChoiceField(
+    choices=[
+        ("cse", "Computer Science"),
+        ("it", "Information Technology"),
+        ("ece", "Electronics")
+    ]
+)</code></pre></div>
+<p>The first element is the submitted value.</p>
+<p>The second is the human-readable label.</p>
+<hr>
+<h1 id="h-1651-40-understanding-choices">40. Understanding Choices</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>("cse", "Computer Science")</code></pre></div>
+<p>means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>submitted value → cse
+displayed label → Computer Science</code></pre></div>
+<p>This distinction is very important.</p>
+<hr>
+<h1 id="h-1652-41-booleanfield">41. BooleanField</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>agree = forms.BooleanField()</code></pre></div>
+<p>This is useful for things such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>I agree to the terms</code></pre></div>
+<p>You can customize whether it is required.</p>
+<hr>
+<h1 id="h-1653-42-datefield">42. DateField</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>dob = forms.DateField()</code></pre></div>
+<p>Django can validate and convert the submitted date according to the field's configuration.</p>
+<hr>
+<h1 id="h-1654-43-multiple-fields">43. Multiple Fields</h1>
+<p>A realistic form:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100
+    )
+
+    age = forms.IntegerField(
+        min_value=16,
+        max_value=100
+    )
+
+    email = forms.EmailField()
+
+    course = forms.ChoiceField(
+        choices=[
+            ("cse", "Computer Science"),
+            ("it", "Information Technology"),
+        ]
+    )
+
+    dob = forms.DateField()</code></pre></div>
+<hr>
+<h1 id="h-1655-44-complete-template">44. Complete Template</h1>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+    &lt;title&gt;Student Form&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+
+    &lt;h1&gt;Student Registration&lt;/h1&gt;
+
+    &lt;form method="POST"&gt;
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        &lt;button type="submit"&gt;
+            Submit
+        &lt;/button&gt;
+
+    &lt;/form&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre></div>
+<hr>
+<h1 id="h-1656-45-complete-view">45. Complete View</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+            course = form.cleaned_data["course"]
+            dob = form.cleaned_data["dob"]
+
+            print(name)
+            print(age)
+            print(email)
+            print(course)
+            print(dob)
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<hr>
+<h1 id="h-1657-46-complete-flow">46. Complete Flow</h1>
+<p>Memorize this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                User opens page
+                      ↓
+                     GET
+                      ↓
+             StudentForm()
+                      ↓
+               Empty form
+                      ↓
+                  User fills
+                      ↓
+                    POST
+                      ↓
+          StudentForm(request.POST)
+                      ↓
+                 is_valid()
+                /          \
+              Yes           No
+               ↓             ↓
+        cleaned_data      form.errors
+               ↓             ↓
+          Process data    Show errors</code></pre></div>
+<p>This is the core Django Forms workflow.</p>
+<hr>
+<h1 id="h-1658-47-why-use-forms-form-instead-of-manual-html">47. Why Use <code>forms.Form</code> Instead of Manual HTML?</h1>
+<h3 id="h-1659-manual-approach">Manual approach:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML fields
+    ↓
+request.POST
+    ↓
+manual validation
+    ↓
+manual conversion
+    ↓
+manual errors</code></pre></div>
+<h3 id="h-1660-django-form">Django Form:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Form class
+    ↓
+request.POST
+    ↓
+is_valid()
+    ↓
+cleaned_data
+    ↓
+errors</code></pre></div>
+<p>Much cleaner.</p>
+<hr>
+<h1 id="h-1661-48-form-field-vs-model-field">48. Form Field vs Model Field</h1>
+<p>This distinction becomes extremely important later.</p>
+<h3 id="h-1662-form-field">Form field:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>forms.CharField()</code></pre></div>
+<p>Used for:</p>
+<blockquote>User input and validation.</blockquote>
+<h3 id="h-1663-model-field">Model field:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.CharField(max_length=100)</code></pre></div>
+<p>Used for:</p>
+<blockquote>Defining database structure.</blockquote>
+<p>We'll study ModelForms later when we reach Models.</p>
+<hr>
+<h1 id="h-1664-49-form-vs-modelform">49. <code>Form</code> vs <code>ModelForm</code></h1>
+<p>You will eventually encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>forms.Form</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>forms.ModelForm</code></pre></div>
+<h3 id="h-1665-form"><code>Form</code></h3>
+<p>You manually define form fields.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+    name = forms.CharField()</code></pre></div>
+<h3 id="h-1666-modelform"><code>ModelForm</code></h3>
+<p>Django can generate form fields based on a model.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = "__all__"</code></pre></div>
+<p>We'll study this later.</p>
+<hr>
+<h1 id="h-1667-50-common-mistake-forgetting-request-post">50. Common Mistake — Forgetting <code>request.POST</code></h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm()</code></pre></div>
+<p>when processing submitted data.</p>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<p>Otherwise Django doesn't have the submitted data to validate.</p>
+<hr>
+<h1 id="h-1668-51-common-mistake-calling-cleaned-data-before-vali">51. Common Mistake — Calling <code>cleaned_data</code> Before Validation</h1>
+<p>Wrong:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)
+
+name = form.cleaned_data["name"]</code></pre></div>
+<p>Correct:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)
+
+if form.is_valid():
+
+    name = form.cleaned_data["name"]</code></pre></div>
+<p><code>cleaned_data</code> should be used after successful validation.</p>
+<hr>
+<h1 id="h-1669-52-common-mistake-forgetting-csrf">52. Common Mistake — Forgetting CSRF</h1>
+<p>For a POST form:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+&lt;/form&gt;</code></pre></div>
+<p>We'll study CSRF in detail in Module 23.</p>
+<hr>
+<h1 id="h-1670-53-common-mistake-not-returning-the-form">53. Common Mistake — Not Returning the Form</h1>
+<p>Suppose validation fails.</p>
+<p>You generally want to render the bound form again:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return render(
+    request,
+    "student_form.html",
+    {"form": form}
+)</code></pre></div>
+<p>This allows Django to display validation errors and submitted values appropriately.</p>
+<hr>
+<h1 id="h-1671-54-viva-questions">54. Viva Questions</h1>
+<h3 id="h-1672-q1-what-is-a-django-form">Q1. What is a Django Form?</h3>
+<blockquote>A Django Form is a Python class used to define, render, validate, and process user input.</blockquote>
+<h3 id="h-1673-q2-which-module-provides-django-forms">Q2. Which module provides Django Forms?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms</code></pre></div>
+<h3 id="h-1674-q3-what-is-forms-form">Q3. What is <code>forms.Form</code>?</h3>
+<blockquote>It is the base class used to create standard Django forms.</blockquote>
+<h3 id="h-1675-q4-what-is-forms-charfield">Q4. What is <code>forms.CharField</code>?</h3>
+<blockquote>A form field designed primarily for text input and validation.</blockquote>
+<h3 id="h-1676-q5-what-is-forms-integerfield">Q5. What is <code>forms.IntegerField</code>?</h3>
+<blockquote>A form field that validates and converts integer input.</blockquote>
+<hr>
+<h1 id="h-1677-55-viva-bound-vs-unbound">55. Viva — Bound vs Unbound</h1>
+<h3 id="h-1678-teacher">Teacher:</h3>
+<blockquote>What is an unbound form?</blockquote>
+<p>Answer:</p>
+<blockquote>A form created without submitted data, such as <code>StudentForm()</code>, generally used to initially display an empty form.</blockquote>
+<h3 id="h-1679-teacher">Teacher:</h3>
+<blockquote>What is a bound form?</blockquote>
+<p>Answer:</p>
+<blockquote>A form created with submitted data, such as <code>StudentForm(request.POST)</code>, which can then be validated.</blockquote>
+<hr>
+<h1 id="h-1680-56-viva-is-valid">56. Viva — <code>is_valid()</code></h1>
+<h3 id="h-1681-teacher">Teacher:</h3>
+<blockquote>What does <code>is_valid()</code> do?</blockquote>
+<p>Answer:</p>
+<blockquote>It runs the form's validation process and returns <code>True</code> if the submitted data is valid and <code>False</code> otherwise.</blockquote>
+<hr>
+<h1 id="h-1682-57-viva-cleaned-data">57. Viva — <code>cleaned_data</code></h1>
+<h3 id="h-1683-teacher">Teacher:</h3>
+<blockquote>What is <code>cleaned_data</code>?</blockquote>
+<p>Answer:</p>
+<blockquote><code>cleaned_data</code> is a dictionary containing the cleaned and validated form values after successful validation.</blockquote>
+<hr>
+<h1 id="h-1684-58-viva-why-not-request-post">58. Viva — Why Not <code>request.POST</code>?</h1>
+<h3 id="h-1685-teacher">Teacher:</h3>
+<blockquote>Why use <code>cleaned_data</code> instead of directly processing <code>request.POST</code> after validation?</blockquote>
+<p>Answer:</p>
+<blockquote><code>cleaned_data</code> contains values after Django has performed the form field's validation and appropriate conversion, making it safer and easier to work with.</blockquote>
+<hr>
+<h1 id="h-1686-59-viva-forms-form-vs-modelform">59. Viva — <code>forms.Form</code> vs <code>ModelForm</code></h1>
+<p>Answer:</p>
+<blockquote><code>forms.Form</code> requires fields to be explicitly defined, while <code>forms.ModelForm</code> can generate form fields from a Django model and is commonly used when a form corresponds to database data.</blockquote>
+<hr>
+<h1 id="h-1687-60-coding-question">60. Coding Question</h1>
+<p>Create a form with:</p>
+<ul>
+<li>name</li>
+<li>age</li>
+<li>email</li>
+</ul>
+<h3 id="h-1688-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()</code></pre></div>
+<hr>
+<h1 id="h-1689-61-coding-question">61. Coding Question</h1>
+<p>Write a view that displays the form on GET and validates it on POST.</p>
+<h3 id="h-1690-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+
+            print(name)
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<hr>
+<h1 id="h-1691-62-coding-question">62. Coding Question</h1>
+<p>Render the form in a template.</p>
+<h3 id="h-1692-answer">Answer:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<hr>
+<h1 id="h-1693-63-coding-question">63. Coding Question</h1>
+<p>Create an age field accepting only ages from 18 to 60.</p>
+<h3 id="h-1694-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)</code></pre></div>
+<hr>
+<h1 id="h-1695-64-coding-question">64. Coding Question</h1>
+<p>Make phone number optional.</p>
+<h3 id="h-1696-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>phone = forms.CharField(
+    required=False
+)</code></pre></div>
+<hr>
+<h1 id="h-1697-65-coding-question">65. Coding Question</h1>
+<p>Create a course dropdown.</p>
+<h3 id="h-1698-answer">Answer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>course = forms.ChoiceField(
+    choices=[
+        ("cse", "Computer Science"),
+        ("it", "Information Technology"),
+        ("ece", "Electronics")
+    ]
+)</code></pre></div>
+<hr>
+<h1 id="h-1699-66-the-most-important-code-to-memorize">⭐ 66. The Most Important Code to Memorize</h1>
+<p>If your teacher asks:</p>
+<blockquote>"Create a Django form and handle GET and POST."</blockquote>
+<p>You should be able to immediately write:</p>
+<h3 id="h-1700-forms-py"><code>forms.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()</code></pre></div>
+<h3 id="h-1701-views-py"><code>views.py</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )</code></pre></div>
+<h3 id="h-1702-student-form-html"><code>student_form.html</code></h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;form method="POST"&gt;
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    &lt;button type="submit"&gt;
+        Submit
+    &lt;/button&gt;
+
+&lt;/form&gt;</code></pre></div>
+<p>This is the <strong>core Django Forms pattern</strong>.</p>
+<hr>
+<h1 id="h-1703-module-21-cheat-sheet">🧠 Module 21 Cheat Sheet</h1>
+<h3 id="h-1704-create-form">Create form:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):</code></pre></div>
+<h3 id="h-1705-text">Text:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>name = forms.CharField()</code></pre></div>
+<h3 id="h-1706-integer">Integer:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = forms.IntegerField()</code></pre></div>
+<h3 id="h-1707-email">Email:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = forms.EmailField()</code></pre></div>
+<h3 id="h-1708-choices">Choices:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>course = forms.ChoiceField(
+    choices=[...]
+)</code></pre></div>
+<h3 id="h-1709-optional">Optional:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>required=False</code></pre></div>
+<h3 id="h-1710-bind-post-data">Bind POST data:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form = StudentForm(request.POST)</code></pre></div>
+<h3 id="h-1711-validate">Validate:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.is_valid()</code></pre></div>
+<h3 id="h-1712-get-cleaned-value">Get cleaned value:</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>form.cleaned_data["name"]</code></pre></div>
+<h3 id="h-1713-render">Render:</h3>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{{ form }}
+{{ form.as_p }}
+{{ form.as_table }}
+{{ form.as_ul }}</code></pre></div>
+<h3 id="h-1714-run-flow">Run flow:</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+ ↓
+StudentForm()
+ ↓
+Display
+
+POST
+ ↓
+StudentForm(request.POST)
+ ↓
+is_valid()
+ ↓
+cleaned_data / errors</code></pre></div>
+<hr>
+<h2 id="h-1715-next-module-22-form-validation">Next → Module 22: Form Validation</h2>
+<p>Here we'll go much deeper into <strong>validation</strong>, including:</p>
+<ul>
+<li>Built-in validation</li>
+<li><code>required</code></li>
+<li><code>min_length</code> / <code>max_length</code></li>
+<li><code>min_value</code> / <code>max_value</code></li>
+<li>Email validation</li>
+<li><code>clean_&lt;field&gt;()</code></li>
+<li><code>clean()</code></li>
+<li>Custom validation</li>
+<li>Validation errors</li>
+<li><code>add_error()</code></li>
+<li>Cross-field validation</li>
+<li>Password confirmation</li>
+<li>How Django's validation pipeline works</li>
+<li>Practical coding questions</li>
+<li>Viva questions.</li>
+</ul>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-20.html">← Module 20: HTML Forms &amp; HTTP in Django</a>
+<a class="pn-btn pn-next" href="module-22.html">Module 22: Form Validation →</a>
+</div>
+
+</div>
+
+</body>
+</html>

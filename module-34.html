@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 34: Database Configuration — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 34 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 34 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Database Configuration</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<span class="nav-item current">34. Database Configuration</span>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-33.html">← Module 33: Users, Groups &amp; Permissions</a>
+<a class="pn-btn pn-next" href="module-35.html">Module 35: Cookies in Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2830-module-34-database-configuration-connection">Module 34 — Database Configuration &amp; Connection</h1>
+<p>Now we move from <strong>working with models and ORM</strong> to understanding <strong>how Django actually connects to a database</strong>.</p>
+<p>This is important because Django does not store your application's data itself. It uses a database such as:</p>
+<ul>
+<li>SQLite</li>
+<li>MySQL</li>
+<li>PostgreSQL</li>
+<li>MariaDB</li>
+<li>Oracle</li>
+</ul>
+<p>Django's ORM provides a common Python interface over these databases.</p>
+<hr>
+<h1 id="h-2831-1-the-big-picture">1. The Big Picture</h1>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django Application
+       ↓
+     Models
+       ↓
+      ORM
+       ↓
+Database Backend
+       ↓
+   Database</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.objects.all()
+       ↓
+      ORM
+       ↓
+SQL generated by Django
+       ↓
+    SQLite</code></pre></div>
+<p>or:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student.objects.all()
+       ↓
+      ORM
+       ↓
+    PostgreSQL</code></pre></div>
+<p>Your Python ORM code can remain mostly the same even when the database backend changes.</p>
+<hr>
+<h1 id="h-2832-2-where-is-database-configuration">2. Where Is Database Configuration?</h1>
+<p>Database configuration is normally inside:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>settings.py</code></pre></div>
+<p>Specifically:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    ...
+}</code></pre></div>
+<hr>
+<h1 id="h-2833-3-default-django-database">3. Default Django Database</h1>
+<p>When you create a new Django project, Django commonly configures:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}</code></pre></div>
+<p>This means:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database backend → SQLite
+Database file   → db.sqlite3</code></pre></div>
+<hr>
+<h1 id="h-2834-4-what-is-sqlite">4. What Is SQLite?</h1>
+<p>SQLite is a lightweight relational database that stores the database in a file.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+├── manage.py
+├── db.sqlite3
+└── students/</code></pre></div>
+<p>The file:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>db.sqlite3</code></pre></div>
+<p>contains your database.</p>
+<hr>
+<h1 id="h-2835-5-why-does-django-use-sqlite-by-default">5. Why Does Django Use SQLite by Default?</h1>
+<p>SQLite is convenient because:</p>
+<ul>
+<li>No separate database server is required</li>
+<li>Very easy to set up</li>
+<li>Comes as a file</li>
+<li>Good for development</li>
+<li>Good for learning</li>
+<li>Good for small applications</li>
+</ul>
+<p>You don't have to install MySQL or PostgreSQL just to start learning Django.</p>
+<hr>
+<h1 id="h-2836-6-sqlite-vs-server-database">6. SQLite vs Server Database</h1>
+<h3 id="h-2837-sqlite">SQLite</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+  ↓
+db.sqlite3</code></pre></div>
+<h3 id="h-2838-postgresql">PostgreSQL</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+  ↓
+PostgreSQL server
+  ↓
+Database</code></pre></div>
+<h3 id="h-2839-mysql">MySQL</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+  ↓
+MySQL server
+  ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-2840-7-understanding-databases">7. Understanding <code>DATABASES</code></h1>
+<p>Let's break down:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}</code></pre></div>
+<hr>
+<h2 id="h-2841-default"><code>"default"</code></h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"default"</code></pre></div>
+<p>is the name of the database connection.</p>
+<p>It is the default database Django uses.</p>
+<p>You can configure multiple databases later, but most applications start with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"default"</code></pre></div>
+<hr>
+<h1 id="h-2842-8-engine">8. <code>ENGINE</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"ENGINE": "django.db.backends.sqlite3"</code></pre></div>
+<p>This tells Django which database backend to use.</p>
+<p>Examples:</p>
+<h3 id="h-2843-sqlite">SQLite</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"ENGINE": "django.db.backends.sqlite3"</code></pre></div>
+<h3 id="h-2844-postgresql">PostgreSQL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"ENGINE": "django.db.backends.postgresql"</code></pre></div>
+<h3 id="h-2845-mysql">MySQL</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"ENGINE": "django.db.backends.mysql"</code></pre></div>
+<hr>
+<h1 id="h-2846-9-name">9. <code>NAME</code></h1>
+<p>For SQLite:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"NAME": BASE_DIR / "db.sqlite3"</code></pre></div>
+<p>means:</p>
+<blockquote>Use the <code>db.sqlite3</code> file as the database.</blockquote>
+<p>For server-based databases, <code>NAME</code> usually means the <strong>database name</strong>, not a file path.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"NAME": "college_db"</code></pre></div>
+<hr>
+<h1 id="h-2847-10-postgresql-configuration">10. PostgreSQL Configuration</h1>
+<p>A typical PostgreSQL configuration looks conceptually like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "college_db",
+        "USER": "postgres",
+        "PASSWORD": "your_password",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}</code></pre></div>
+<p>Let's understand each part.</p>
+<hr>
+<h1 id="h-2848-11-postgresql-name">11. PostgreSQL <code>NAME</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"NAME": "college_db"</code></pre></div>
+<p>This is the PostgreSQL database name.</p>
+<hr>
+<h1 id="h-2849-12-postgresql-user">12. PostgreSQL <code>USER</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"USER": "postgres"</code></pre></div>
+<p>This specifies the database user Django uses to connect.</p>
+<hr>
+<h1 id="h-2850-13-postgresql-password">13. PostgreSQL <code>PASSWORD</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"PASSWORD": "your_password"</code></pre></div>
+<p>This is the database user's password.</p>
+<h3 id="h-2851-important">Important:</h3>
+<p>Don't commit real passwords to Git.</p>
+<p>We'll discuss better configuration practices shortly.</p>
+<hr>
+<h1 id="h-2852-14-postgresql-host">14. PostgreSQL <code>HOST</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"HOST": "localhost"</code></pre></div>
+<p>This specifies where the database server is running.</p>
+<p>For a database running on your own computer:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>localhost</code></pre></div>
+<p>or sometimes:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>127.0.0.1</code></pre></div>
+<hr>
+<h1 id="h-2853-15-postgresql-port">15. PostgreSQL <code>PORT</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"PORT": "5432"</code></pre></div>
+<p>This is the port used by PostgreSQL in a typical installation.</p>
+<p>Different database servers use different ports/configurations.</p>
+<hr>
+<h1 id="h-2854-16-mysql-configuration">16. MySQL Configuration</h1>
+<p>A typical configuration:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "college_db",
+        "USER": "root",
+        "PASSWORD": "your_password",
+        "HOST": "localhost",
+        "PORT": "3306",
+    }
+}</code></pre></div>
+<p>Typical MySQL port:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>3306</code></pre></div>
+<hr>
+<h1 id="h-2855-17-database-configuration-comparison">17. Database Configuration Comparison</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Setting</th>
+<th>SQLite</th>
+<th>PostgreSQL</th>
+<th>MySQL</th>
+</tr></thead><tbody>
+<tr>
+<td>ENGINE</td>
+<td>sqlite3</td>
+<td>postgresql</td>
+<td>mysql</td>
+</tr>
+<tr>
+<td>NAME</td>
+<td>File path</td>
+<td>Database name</td>
+<td>Database name</td>
+</tr>
+<tr>
+<td>USER</td>
+<td>Usually unnecessary</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>PASSWORD</td>
+<td>Usually unnecessary</td>
+<td>Required</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>HOST</td>
+<td>Usually unnecessary</td>
+<td>Often localhost/server</td>
+<td>Often localhost/server</td>
+</tr>
+<tr>
+<td>PORT</td>
+<td>Usually unnecessary</td>
+<td>5432 commonly</td>
+<td>3306 commonly</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2856-18-do-you-need-to-change-models-py">18. Do You Need to Change <code>models.py</code>?</h1>
+<p>Usually, no.</p>
+<p>This:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()</code></pre></div>
+<p>doesn't need to be rewritten just because you change:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite → PostgreSQL</code></pre></div>
+<p>The ORM abstracts much of the database-specific SQL.</p>
+<hr>
+<h1 id="h-2857-19-but-you-need-the-correct-driver">19. But You Need the Correct Driver</h1>
+<p>Django needs a database adapter/driver to communicate with certain database systems.</p>
+<p>For PostgreSQL, you generally install a PostgreSQL Python driver.</p>
+<p>For MySQL, you generally install a compatible MySQL driver.</p>
+<p>The exact package choice can depend on your Django/Python environment and deployment setup.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django
+  ↓
+Python database driver
+  ↓
+Database server</code></pre></div>
+<hr>
+<h1 id="h-2858-20-why-is-a-driver-needed">20. Why Is a Driver Needed?</h1>
+<p>Django's Python code cannot directly communicate with every database protocol by itself.</p>
+<p>The driver acts as the bridge.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django ORM
+    ↓
+Database Driver
+    ↓
+PostgreSQL / MySQL</code></pre></div>
+<hr>
+<h1 id="h-2859-21-migrations-and-database-configuration">21. Migrations and Database Configuration</h1>
+<p>Remember Module 27:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>creates migration files.</p>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>applies those migrations to the configured database.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+   ↓
+makemigrations
+   ↓
+migration files
+   ↓
+migrate
+   ↓
+DATABASES["default"]
+   ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-2860-22-very-important-distinction">22. Very Important Distinction</h1>
+<h3 id="h-2861-makemigrations"><code>makemigrations</code></h3>
+<p>Creates migration files.</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<h3 id="h-2862-migrate"><code>migrate</code></h3>
+<p>Actually applies migrations to the configured database.</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Therefore:</p>
+<blockquote>Changing the model and running <code>makemigrations</code> alone does not update the database schema.</blockquote>
+<hr>
+<h1 id="h-2863-23-what-happens-when-you-run-migrate">23. What Happens When You Run <code>migrate</code>?</h1>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<p>You run:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<p>Django generates something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>0001_initial.py</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>Django translates the migration operations into database-specific SQL and applies them.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Migration
+   ↓
+Database-specific SQL
+   ↓
+Database schema</code></pre></div>
+<hr>
+<h1 id="h-2864-24-does-django-always-generate-the-same-sql">24. Does Django Always Generate the Same SQL?</h1>
+<p>No.</p>
+<p>Different databases have different SQL dialects and capabilities.</p>
+<p>Django's database backend translates ORM operations/migrations appropriately.</p>
+<p>That's one of the major benefits of using the ORM.</p>
+<hr>
+<h1 id="h-2865-25-checking-database-connection">25. Checking Database Connection</h1>
+<p>A useful command is:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py check</code></pre></div>
+<p>This checks for many Django project configuration issues.</p>
+<p>It isn't a universal database connectivity test, but it can identify configuration problems.</p>
+<p>Running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>also requires Django to communicate with the configured database, so connection problems often appear there.</p>
+<hr>
+<h1 id="h-2866-26-common-database-error">26. Common Database Error</h1>
+<p>You may see something like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>OperationalError</code></pre></div>
+<p>This is a broad database-operation error.</p>
+<p>Possible causes include:</p>
+<ul>
+<li>Database server isn't running</li>
+<li>Wrong database name</li>
+<li>Wrong username</li>
+<li>Wrong password</li>
+<li>Wrong host</li>
+<li>Wrong port</li>
+<li>Missing database driver</li>
+<li>Database doesn't exist</li>
+<li>Permission problem</li>
+<li>Network issue</li>
+</ul>
+<hr>
+<h1 id="h-2867-27-mysql-postgresql-server-must-be-running">27. MySQL/PostgreSQL Server Must Be Running</h1>
+<p>SQLite doesn't normally require you to start a separate database server.</p>
+<p>But PostgreSQL and MySQL generally use database server processes.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite:
+Django → File
+
+PostgreSQL:
+Django → PostgreSQL Server
+
+MySQL:
+Django → MySQL Server</code></pre></div>
+<p>If the PostgreSQL/MySQL server isn't running, Django may not be able to connect.</p>
+<hr>
+<h1 id="h-2868-28-environment-variables">28. Environment Variables</h1>
+<p>This is an important real-world concept.</p>
+<p>Instead of writing:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>PASSWORD = "my_real_password"</code></pre></div>
+<p>directly into source code, applications commonly use environment variables or a secrets-management mechanism.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Environment
+    ↓
+DB_PASSWORD
+    ↓
+settings.py
+    ↓
+DATABASES</code></pre></div>
+<hr>
+<h1 id="h-2869-29-example-with-environment-variables">29. Example With Environment Variables</h1>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>import os
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
+    }
+}</code></pre></div>
+<p>Now credentials don't have to be hard-coded directly into the Python source.</p>
+<hr>
+<h1 id="h-2870-30-why-environment-variables">30. Why Environment Variables?</h1>
+<p>Imagine you push your project to GitHub.</p>
+<p>If you have:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"PASSWORD": "MyRealPassword123"</code></pre></div>
+<p>you may accidentally expose your database credentials.</p>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"PASSWORD": os.environ.get("DB_PASSWORD")</code></pre></div>
+<p>allows the environment to supply the secret.</p>
+<hr>
+<h1 id="h-2871-31-development-vs-production">31. Development vs Production</h1>
+<p>For learning:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite</code></pre></div>
+<p>is extremely convenient.</p>
+<p>For production, depending on the application, a server-based relational database such as PostgreSQL is often a strong choice.</p>
+<p>But there is no universal rule that every production Django project must use PostgreSQL.</p>
+<p>The appropriate database depends on:</p>
+<ul>
+<li>Application requirements</li>
+<li>Scale</li>
+<li>Deployment environment</li>
+<li>Existing infrastructure</li>
+<li>Team expertise</li>
+<li>Database features required</li>
+</ul>
+<hr>
+<h1 id="h-2872-32-multiple-databases">32. Multiple Databases</h1>
+<p>Django can support more than one database.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        ...
+    },
+    "analytics": {
+        ...
+    },
+}</code></pre></div>
+<p>Then Django can route particular operations to different databases.</p>
+<p>This is an advanced topic.</p>
+<p>For your syllabus, understand the concept:</p>
+<blockquote>Django can be configured with multiple database connections.</blockquote>
+<hr>
+<h1 id="h-2873-33-database-router">33. Database Router</h1>
+<p>When using multiple databases, Django can use database routers to determine:</p>
+<blockquote>Which database should handle this model/query/migration operation?</blockquote>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+   ↓
+Router
+   ↓
+Database A
+
+Analytics
+   ↓
+Router
+   ↓
+Database B</code></pre></div>
+<p>You generally won't need to write a router unless you're actually using multiple databases.</p>
+<hr>
+<h1 id="h-2874-34-using">34. <code>using()</code></h1>
+<p>You can explicitly choose a database for a QuerySet:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.using("analytics").all()</code></pre></div>
+<p>Conceptually:</p>
+<blockquote>Execute this QuerySet against the database connection named <code>analytics</code>.</blockquote>
+<hr>
+<h1 id="h-2875-35-database-connection-vs-database">35. Database Connection vs Database</h1>
+<p>These terms are related but not identical.</p>
+<h3 id="h-2876-database">Database</h3>
+<p>The actual data store:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>college_db</code></pre></div>
+<h3 id="h-2877-connection">Connection</h3>
+<p>The configured way Django reaches it:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ENGINE
+NAME
+USER
+PASSWORD
+HOST
+PORT</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Connection configuration
+        ↓
+How to reach
+        ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-2878-36-db-sqlite3">36. <code>db.sqlite3</code></h1>
+<p>When using SQLite, you'll commonly see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>db.sqlite3</code></pre></div>
+<p>after migrations have been applied.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>College/
+├── manage.py
+├── db.sqlite3
+├── College/
+└── students/</code></pre></div>
+<p>This file contains the SQLite database.</p>
+<hr>
+<h1 id="h-2879-37-can-you-delete-db-sqlite3">37. Can You Delete <code>db.sqlite3</code>?</h1>
+<p>During development, sometimes developers delete and recreate a local SQLite database when intentionally resetting a disposable project.</p>
+<p>But don't treat this as a normal production database reset.</p>
+<p>Deleting it means:</p>
+<blockquote>You are deleting the database file and therefore the data stored in it.</blockquote>
+<p>If migrations remain, you can often create a fresh database by running:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<p>But this does <strong>not</strong> recover the old data.</p>
+<hr>
+<h1 id="h-2880-38-database-backup-vs-migration">38. Database Backup vs Migration</h1>
+<p>Another important distinction:</p>
+<h3 id="h-2881-migration">Migration</h3>
+<p>Describes database schema changes.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models changed
+   ↓
+migration</code></pre></div>
+<h3 id="h-2882-backup">Backup</h3>
+<p>Preserves actual database data.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Database
+   ↓
+Backup</code></pre></div>
+<p>Therefore:</p>
+<blockquote>Migrations are not backups.</blockquote>
+<hr>
+<h1 id="h-2883-39-orm-hides-much-of-the-database-difference">39. ORM Hides Much of the Database Difference</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    marks__gte=80
+)</code></pre></div>
+<p>You generally don't write different ORM code for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SQLite
+PostgreSQL
+MySQL</code></pre></div>
+<p>The Django database backend handles the database-specific details.</p>
+<p>That's one of the major benefits of Django ORM.</p>
+<hr>
+<h1 id="h-2884-40-but-orm-is-not-magic">40. But ORM Is Not Magic</h1>
+<p>Different databases can have:</p>
+<ul>
+<li>Different supported features</li>
+<li>Different SQL behavior</li>
+<li>Different performance characteristics</li>
+<li>Different indexing capabilities</li>
+<li>Different configuration requirements</li>
+</ul>
+<p>So switching databases isn't always completely effortless for every project.</p>
+<p>For basic Django CRUD, however, the ORM gives you a high level of portability.</p>
+<hr>
+<h1 id="h-2885-41-database-indexes">41. Database Indexes</h1>
+<p>An index is a database structure that can speed up certain queries.</p>
+<p>Suppose you frequently search:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+    email="aman@gmail.com"
+)</code></pre></div>
+<p>You may consider indexing the relevant field.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    db_index=True
+)</code></pre></div>
+<p>This tells Django to create a database index for that field through migrations.</p>
+<hr>
+<h1 id="h-2886-42-why-indexes-matter">42. Why Indexes Matter</h1>
+<p>Without a suitable index, the database may need to inspect many rows.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1,000,000 rows
+      ↓
+Search
+      ↓
+Potentially inspect many rows</code></pre></div>
+<p>With an appropriate index:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Index
+  ↓
+Locate matching rows faster</code></pre></div>
+<p>But indexes also have costs:</p>
+<ul>
+<li>Additional storage</li>
+<li>More work during inserts/updates/deletes</li>
+</ul>
+<p>Therefore:</p>
+<blockquote>Don't index every field blindly.</blockquote>
+<hr>
+<h1 id="h-2887-43-unique-fields-and-indexing">43. Unique Fields and Indexing</h1>
+<p>Consider:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>email = models.EmailField(
+    unique=True
+)</code></pre></div>
+<p>A uniqueness constraint generally requires the database to enforce uniqueness and is commonly backed by an index/unique structure depending on the database.</p>
+<p>This is one reason constraints are useful not just for application validation but for database integrity.</p>
+<hr>
+<h1 id="h-2888-44-database-connection-error-example">44. Database Connection Error Example</h1>
+<p>Suppose PostgreSQL configuration says:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"HOST": "localhost",
+"PORT": "5432",</code></pre></div>
+<p>but PostgreSQL isn't running.</p>
+<p>You might receive an error similar to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>could not connect to server</code></pre></div>
+<p>Debug systematically:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Is PostgreSQL installed?
+2. Is the server running?
+3. Is the database name correct?
+4. Is the username correct?
+5. Is the password correct?
+6. Is the host correct?
+7. Is the port correct?
+8. Is the Python driver installed?
+9. Does the user have permission?</code></pre></div>
+<hr>
+<h1 id="h-2889-45-database-configuration-error-example">45. Database Configuration Error Example</h1>
+<p>Suppose Django says:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>ModuleNotFoundError</code></pre></div>
+<p>related to the database backend/driver.</p>
+<p>This may mean:</p>
+<blockquote>The required Python database driver isn't installed or isn't available in the current virtual environment.</blockquote>
+<p>First check that you're using the correct virtual environment.</p>
+<p>Then install the appropriate driver according to your database/Django setup.</p>
+<hr>
+<h1 id="h-2890-46-important-connection-flow">46. Important Connection Flow</h1>
+<p>Memorize:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>settings.py
+     ↓
+DATABASES
+     ↓
+Django Database Backend
+     ↓
+Database Driver
+     ↓
+Database Server/File</code></pre></div>
+<p>For PostgreSQL:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>settings.py
+     ↓
+django.db.backends.postgresql
+     ↓
+PostgreSQL driver
+     ↓
+PostgreSQL server
+     ↓
+college_db</code></pre></div>
+<hr>
+<h1 id="h-2891-47-practical-question">47. Practical Question</h1>
+<h3 id="h-2892-what-database-does-a-default-django-project-usuall">What database does a default Django project usually use?</h3>
+<blockquote>SQLite.</blockquote>
+<h3 id="h-2893-where-is-it-configured">Where is it configured?</h3>
+<blockquote>In the <code>DATABASES</code> setting in <code>settings.py</code>.</blockquote>
+<h3 id="h-2894-where-is-the-database-stored">Where is the database stored?</h3>
+<p>For the default SQLite configuration:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>db.sqlite3</code></pre></div>
+<hr>
+<h1 id="h-2895-48-practical-question">48. Practical Question</h1>
+<h3 id="h-2896-configure-postgresql">Configure PostgreSQL.</h3>
+<p>A typical configuration is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "college_db",
+        "USER": "postgres",
+        "PASSWORD": "your_password",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}</code></pre></div>
+<p>In a real project, sensitive values should preferably come from environment variables/secrets rather than being committed directly.</p>
+<hr>
+<h1 id="h-2897-49-practical-question">49. Practical Question</h1>
+<h3 id="h-2898-configure-mysql">Configure MySQL.</h3>
+<p>Typical structure:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "college_db",
+        "USER": "root",
+        "PASSWORD": "your_password",
+        "HOST": "localhost",
+        "PORT": "3306",
+    }
+}</code></pre></div>
+<hr>
+<h1 id="h-2899-50-practical-question">50. Practical Question</h1>
+<h3 id="h-2900-what-commands-should-you-run-after-changing-models">What commands should you run after changing models?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre></div>
+<p>Remember:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>makemigrations → create migration files
+migrate        → apply migrations</code></pre></div>
+<hr>
+<h1 id="h-2901-51-practical-question">51. Practical Question</h1>
+<h3 id="h-2902-how-do-you-check-the-sql-generated-for-a-migration">How do you check the SQL generated for a migration?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py sqlmigrate students 0001</code></pre></div>
+<p>This displays SQL for the migration.</p>
+<p>It does <strong>not</strong> apply the migration.</p>
+<hr>
+<h1 id="h-2903-52-practical-question">52. Practical Question</h1>
+<h3 id="h-2904-how-do-you-see-which-migrations-have-been-applied">How do you see which migrations have been applied?</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py showmigrations</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>students
+ [X] 0001_initial
+ [X] 0002_student_email</code></pre></div>
+<p><code>[X]</code> means applied.</p>
+<hr>
+<h1 id="h-2905-53-important-viva-questions">53. Important Viva Questions</h1>
+<h3 id="h-2906-q1-where-is-django-s-database-configuration-stored">Q1. Where is Django's database configuration stored?</h3>
+<blockquote>In the <code>DATABASES</code> setting in <code>settings.py</code>.</blockquote>
+<hr>
+<h3 id="h-2907-q2-what-is-the-default-django-database">Q2. What is the default Django database?</h3>
+<blockquote>SQLite.</blockquote>
+<hr>
+<h3 id="h-2908-q3-what-is-the-default-sqlite-database-file-common">Q3. What is the default SQLite database file commonly called?</h3>
+<blockquote><code>db.sqlite3</code>.</blockquote>
+<hr>
+<h3 id="h-2909-q4-what-does-engine-specify">Q4. What does <code>ENGINE</code> specify?</h3>
+<blockquote>It specifies the Django database backend used to communicate with the database.</blockquote>
+<hr>
+<h3 id="h-2910-q5-what-does-name-mean">Q5. What does <code>NAME</code> mean?</h3>
+<blockquote>It identifies the database. For SQLite it is typically the database file path; for server-based databases it generally identifies the database name.</blockquote>
+<hr>
+<h3 id="h-2911-q6-what-is-a-database-driver">Q6. What is a database driver?</h3>
+<blockquote>A database driver is software that allows Django/Python to communicate with a particular database system.</blockquote>
+<hr>
+<h3 id="h-2912-q7-why-use-environment-variables-for-database-cred">Q7. Why use environment variables for database credentials?</h3>
+<blockquote>To avoid hard-coding sensitive credentials in source code and make configuration safer and easier across environments.</blockquote>
+<hr>
+<h3 id="h-2913-q8-can-django-use-multiple-databases">Q8. Can Django use multiple databases?</h3>
+<blockquote>Yes. Django supports configuring multiple database connections.</blockquote>
+<hr>
+<h3 id="h-2914-q9-what-is-the-difference-between-a-migration-and-">Q9. What is the difference between a migration and a database backup?</h3>
+<blockquote>A migration describes/applies schema changes, while a backup preserves database data for recovery.</blockquote>
+<hr>
+<h3 id="h-2915-q10-does-makemigrations-modify-the-database">Q10. Does <code>makemigrations</code> modify the database?</h3>
+<blockquote>No. It creates migration files based on model changes.</blockquote>
+<hr>
+<h3 id="h-2916-q11-does-migrate-modify-the-database">Q11. Does <code>migrate</code> modify the database?</h3>
+<blockquote>Yes. It applies migrations to the configured database.</blockquote>
+<hr>
+<h3 id="h-2917-q12-what-is-select-related-related-to">Q12. What is <code>select_related()</code> related to?</h3>
+<blockquote>It optimizes fetching single-valued relationships such as ForeignKey and OneToOne.</blockquote>
+<hr>
+<h1 id="h-2918-54-important-interview-question">54. Important Interview Question</h1>
+<h3 id="h-2919-if-i-change-from-sqlite-to-postgresql-do-i-have-to">"If I change from SQLite to PostgreSQL, do I have to rewrite all my ORM queries?"</h3>
+<p>A good answer:</p>
+<blockquote>"Usually no. Django's ORM abstracts much of the database-specific SQL, so normal model and QuerySet code can remain largely the same. However, database-specific features, constraints, behavior, performance, and configuration can require changes."</blockquote>
+<p>That's a strong interview answer.</p>
+<hr>
+<h1 id="h-2920-55-common-mistakes">55. Common Mistakes</h1>
+<h3 id="h-2921-mistake-1-wrong-engine">Mistake 1 — Wrong engine</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"ENGINE": "wrong.backend"</code></pre></div>
+<p>Django won't know how to use it.</p>
+<hr>
+<h3 id="h-2922-mistake-2-wrong-database-name">Mistake 2 — Wrong database name</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>"NAME": "wrong_db"</code></pre></div>
+<p>The database may not exist.</p>
+<hr>
+<h3 id="h-2923-mistake-3-database-server-not-running">Mistake 3 — Database server not running</h3>
+<p>Especially common with:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PostgreSQL
+MySQL</code></pre></div>
+<hr>
+<h3 id="h-2924-mistake-4-missing-driver">Mistake 4 — Missing driver</h3>
+<p>Django may not be able to communicate with the database.</p>
+<hr>
+<h3 id="h-2925-mistake-5-wrong-credentials">Mistake 5 — Wrong credentials</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>USER
+PASSWORD</code></pre></div>
+<hr>
+<h3 id="h-2926-mistake-6-wrong-port">Mistake 6 — Wrong port</h3>
+<p>Typical defaults:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>PostgreSQL → 5432
+MySQL      → 3306</code></pre></div>
+<p>but actual configurations can differ.</p>
+<hr>
+<h3 id="h-2927-mistake-7-forgetting-migrations">Mistake 7 — Forgetting migrations</h3>
+<p>After changing models:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre></div>
+<hr>
+<h1 id="h-2928-56-complete-database-workflow">56. Complete Database Workflow</h1>
+<p>Suppose you're starting a project.</p>
+<h3 id="h-2929-step-1">Step 1</h3>
+<p>Create project:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>django-admin startproject College</code></pre></div>
+<h3 id="h-2930-step-2">Step 2</h3>
+<p>Create app:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py startapp students</code></pre></div>
+<h3 id="h-2931-step-3">Step 3</h3>
+<p>Add model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+    name = models.CharField(max_length=100)</code></pre></div>
+<h3 id="h-2932-step-4">Step 4</h3>
+<p>Register app:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>INSTALLED_APPS = [
+    ...
+    "students",
+]</code></pre></div>
+<h3 id="h-2933-step-5">Step 5</h3>
+<p>Create migration:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations</code></pre></div>
+<h3 id="h-2934-step-6">Step 6</h3>
+<p>Apply migration:</p>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py migrate</code></pre></div>
+<h3 id="h-2935-step-7">Step 7</h3>
+<p>Use ORM:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.create(
+    name="Aman"
+)</code></pre></div>
+<h3 id="h-2936-step-8">Step 8</h3>
+<p>Data is stored in the configured database.</p>
+<hr>
+<h1 id="h-2937-57-final-mental-map">57. Final Mental Map</h1>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                    DJANGO DATABASE
+                          │
+                          ↓
+                    settings.py
+                          │
+                          ↓
+                     DATABASES
+                          │
+             ┌────────────┼────────────┐
+             ↓            ↓            ↓
+           SQLite      PostgreSQL     MySQL
+             │            │            │
+             ↓            ↓            ↓
+         db.sqlite3    DB Server     DB Server
+             │            │            │
+             └────────────┼────────────┘
+                          ↓
+                     Django ORM
+                          ↓
+                    Models / QuerySets</code></pre></div>
+<p>And the complete schema workflow:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>models.py
+    ↓
+makemigrations
+    ↓
+migration files
+    ↓
+migrate
+    ↓
+DATABASES configuration
+    ↓
+Database</code></pre></div>
+<hr>
+<h1 id="h-2938-58-must-memorize">58. Must Memorize</h1>
+<h3 id="h-2939-default-sqlite">Default SQLite</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}</code></pre></div>
+<h3 id="h-2940-postgresql-structure">PostgreSQL structure</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "college_db",
+        "USER": "postgres",
+        "PASSWORD": "...",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}</code></pre></div>
+<h3 id="h-2941-mysql-structure">MySQL structure</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "college_db",
+        "USER": "root",
+        "PASSWORD": "...",
+        "HOST": "localhost",
+        "PORT": "3306",
+    }
+}</code></pre></div>
+<h3 id="h-2942-migration-commands">Migration commands</h3>
+<div class="code-block-wrapper lang-bash"><span class="code-lang-label">BASH</span><pre><code>python manage.py makemigrations
+python manage.py migrate
+python manage.py showmigrations
+python manage.py sqlmigrate students 0001</code></pre></div>
+<h3 id="h-2943-most-important-concept">Most important concept:</h3>
+<blockquote><strong>Django ORM sits between your Python application and the database, allowing you to work with models and QuerySets while Django's database backend handles much of the database-specific communication.</strong></blockquote>
+<hr>
+<h2 id="h-2944-module-34-complete">🎯 Module 34 Complete</h2>
+<p>You now understand:</p>
+<ul>
+<li>SQLite</li>
+<li>PostgreSQL</li>
+<li>MySQL</li>
+<li><code>DATABASES</code></li>
+<li><code>ENGINE</code></li>
+<li><code>NAME</code></li>
+<li><code>USER</code></li>
+<li><code>PASSWORD</code></li>
+<li><code>HOST</code></li>
+<li><code>PORT</code></li>
+<li>Database drivers</li>
+<li>Environment variables</li>
+<li>Migrations and databases</li>
+<li>Multiple databases</li>
+<li>Database errors</li>
+<li>Indexes</li>
+<li>Database connection flow</li>
+</ul>
+<p><strong>Next → Module 35: Cookies in Django</strong></p>
+<p>We'll learn <strong>what cookies are, how browsers store them, <code>request.COOKIES</code>, <code>response.set_cookie()</code>, reading/updating/deleting cookies, cookie security flags (<code>HttpOnly</code>, <code>Secure</code>, <code>SameSite</code>), expiry, and practical Django cookie coding questions.</strong></p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-33.html">← Module 33: Users, Groups &amp; Permissions</a>
+<a class="pn-btn pn-next" href="module-35.html">Module 35: Cookies in Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

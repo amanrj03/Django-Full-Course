@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 35: Cookies in Django — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 35 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 35 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Cookies in Django</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<span class="nav-item current">35. Cookies in Django</span>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-34.html">← Module 34: Database Configuration</a>
+<a class="pn-btn pn-next" href="module-36.html">Module 36: Sessions in Django →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-2945-module-35-cookies-in-django">Module 35 — Cookies in Django</h1>
+<p>Now we enter <strong>Cookies &amp; Sessions</strong>, which are very important for understanding login systems and how websites remember information about users.</p>
+<p>We will first understand <strong>Cookies</strong>, then in Module 36 we'll learn <strong>Sessions</strong>.</p>
+<hr>
+<h1 id="h-2946-1-what-is-a-cookie">1. What Is a Cookie?</h1>
+<p>A <strong>cookie</strong> is a small piece of data that a website asks the user's browser to store.</p>
+<p>The browser then sends the cookie back to the website with later requests when the cookie matches the relevant rules.</p>
+<p>Simple example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↕
+Cookie
+   ↕
+Django Server</code></pre></div>
+<p>A cookie can contain information such as:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>theme = dark
+language = en
+cart_id = 123</code></pre></div>
+<hr>
+<h1 id="h-2947-2-why-do-websites-need-cookies">2. Why Do Websites Need Cookies?</h1>
+<p>HTTP is fundamentally <strong>stateless</strong>.</p>
+<p>Suppose you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /home/</code></pre></div>
+<p>Then later:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /profile/</code></pre></div>
+<p>HTTP doesn't inherently mean:</p>
+<blockquote>"These two requests came from the same person."</blockquote>
+<p>Cookies help a browser send information that allows the server to recognize or remember something across requests.</p>
+<hr>
+<h1 id="h-2948-3-http-is-stateless">3. HTTP Is Stateless</h1>
+<p>Imagine:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request 1:
+GET /home/
+
+Request 2:
+GET /profile/</code></pre></div>
+<p>Without some state mechanism:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request 1 → independent
+Request 2 → independent</code></pre></div>
+<p>Cookies can provide continuity:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Request 1
+   ↓
+Server sets cookie
+   ↓
+Browser stores cookie
+   ↓
+Request 2 includes cookie
+   ↓
+Server can use cookie</code></pre></div>
+<hr>
+<h1 id="h-2949-4-cookie-example">4. Cookie Example</h1>
+<p>Suppose a website wants to remember the user's preferred language.</p>
+<p>The server might set:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>language = english</code></pre></div>
+<p>The browser stores it.</p>
+<p>Later:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET /home/
+Cookie: language=english</code></pre></div>
+<p>Django can read it.</p>
+<hr>
+<h1 id="h-2950-5-creating-a-cookie-in-django">5. Creating a Cookie in Django</h1>
+<p>Cookies are set on the <strong>response</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def set_cookie(request):
+
+    response = HttpResponse(
+        "Cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman"
+    )
+
+    return response</code></pre></div>
+<p>Important:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(...)</code></pre></div>
+<hr>
+<h1 id="h-2951-6-why-is-the-cookie-set-on-the-response">6. Why Is the Cookie Set on the Response?</h1>
+<p>Because the server needs to tell the browser:</p>
+<blockquote>"Store this cookie."</blockquote>
+<p>The server sends this instruction as part of the HTTP response.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Request
+   ↓
+Django
+   ↓
+Response + Set-Cookie
+   ↓
+Browser stores cookie</code></pre></div>
+<hr>
+<h1 id="h-2952-7-reading-cookies">7. Reading Cookies</h1>
+<p>Cookies sent by the browser are available through:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES</code></pre></div>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def get_cookie(request):
+
+    username = request.COOKIES.get(
+        "username"
+    )
+
+    return HttpResponse(
+        username or "No cookie"
+    )</code></pre></div>
+<hr>
+<h1 id="h-2953-8-request-cookies">8. <code>request.COOKIES</code></h1>
+<p>This is essentially a dictionary-like collection of cookies received from the browser.</p>
+<p>You can inspect:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES</code></pre></div>
+<p>Example conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>{
+    "username": "Aman",
+    "language": "en"
+}</code></pre></div>
+<hr>
+<h1 id="h-2954-9-get-a-specific-cookie">9. Get a Specific Cookie</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<p>Using <code>.get()</code> is convenient because if the cookie doesn't exist, you can receive <code>None</code> rather than getting a <code>KeyError</code>.</p>
+<p>You can also provide a default:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>username = request.COOKIES.get(
+    "username",
+    "Guest"
+)</code></pre></div>
+<p>Now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Cookie exists → its value
+Cookie missing → Guest</code></pre></div>
+<hr>
+<h1 id="h-2955-10-delete-a-cookie">10. Delete a Cookie</h1>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "username"
+)</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response</code></pre></div>
+<hr>
+<h1 id="h-2956-11-updating-a-cookie">11. Updating a Cookie</h1>
+<p>There isn't a separate special <code>update_cookie()</code> method.</p>
+<p>You generally call:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Rahul"
+)</code></pre></div>
+<p>with the same cookie name.</p>
+<p>The browser will receive the new value according to the cookie's attributes.</p>
+<hr>
+<h1 id="h-2957-12-complete-cookie-crud">12. Complete Cookie CRUD</h1>
+<p>You can think of cookies similarly to CRUD.</p>
+<h3 id="h-2958-create-set">Create / Set</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<h3 id="h-2959-read">Read</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<h3 id="h-2960-update">Update</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Rahul"
+)</code></pre></div>
+<h3 id="h-2961-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "username"
+)</code></pre></div>
+<hr>
+<h1 id="h-2962-13-cookie-value-is-usually-a-string">13. Cookie Value Is Usually a String</h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "age",
+    "21"
+)</code></pre></div>
+<p>The cookie value is transmitted as cookie data, so don't think of it as a Python integer automatically.</p>
+<p>When you read it:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = request.COOKIES.get("age")</code></pre></div>
+<p>you'll generally receive:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"21"</code></pre></div>
+<p>If you need an integer:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>age = int(
+    request.COOKIES.get("age", "0")
+)</code></pre></div>
+<p>provided the value is valid.</p>
+<hr>
+<h1 id="h-2963-14-cookie-expiration">14. Cookie Expiration</h1>
+<p>You can specify how long a cookie should remain available.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)</code></pre></div>
+<p><code>max_age</code> is measured in seconds.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>3600 seconds = 1 hour</code></pre></div>
+<p>So this cookie is intended to expire after one hour.</p>
+<hr>
+<h1 id="h-2964-15-expires">15. <code>expires</code></h1>
+<p>You can also specify an expiration time using the <code>expires</code> option.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman",
+    expires=...
+)</code></pre></div>
+<p><code>expires</code> represents a specific expiration time/date, while <code>max_age</code> represents a lifetime.</p>
+<p>For most beginner-level Django work, <code>max_age</code> is easier to understand.</p>
+<hr>
+<h1 id="h-2965-16-session-cookie-vs-persistent-cookie">16. Session Cookie vs Persistent Cookie</h1>
+<p>A cookie can be:</p>
+<h3 id="h-2966-session-cookie">Session cookie</h3>
+<p>Generally expires when the browser session ends, depending on browser behavior.</p>
+<h3 id="h-2967-persistent-cookie">Persistent cookie</h3>
+<p>Has an explicit lifetime/expiration.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "theme",
+    "dark",
+    max_age=86400
+)</code></pre></div>
+<p>This is intended to persist for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>24 hours</code></pre></div>
+<hr>
+<h1 id="h-2968-17-max-age">17. <code>max_age</code></h1>
+<p>Examples:</p>
+<h3 id="h-2969-10-minutes">10 minutes</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_age=600</code></pre></div>
+<h3 id="h-2970-1-hour">1 hour</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_age=3600</code></pre></div>
+<h3 id="h-2971-1-day">1 day</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_age=86400</code></pre></div>
+<hr>
+<h1 id="h-2972-18-secure-cookie">18. Secure Cookie</h1>
+<p>A cookie can be marked:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>secure=True</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "token",
+    "abc123",
+    secure=True
+)</code></pre></div>
+<p>This tells the browser to send the cookie only over <strong>HTTPS</strong>.</p>
+<hr>
+<h1 id="h-2973-19-why-is-secure-important">19. Why Is <code>Secure</code> Important?</h1>
+<p>Suppose you have:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>username
+session identifier
+authentication-related data</code></pre></div>
+<p>You don't want it sent over an unencrypted HTTP connection.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>secure=True</code></pre></div>
+<p>is an important security setting for cookies that should only travel over HTTPS.</p>
+<hr>
+<h1 id="h-2974-20-httponly">20. <code>HttpOnly</code></h1>
+<p>Another important option:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>httponly=True</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "session_id",
+    "abc123",
+    httponly=True
+)</code></pre></div>
+<p>This tells the browser to prevent ordinary client-side JavaScript from accessing the cookie through APIs such as <code>document.cookie</code>.</p>
+<hr>
+<h1 id="h-2975-21-why-use-httponly">21. Why Use <code>HttpOnly</code>?</h1>
+<p>Suppose malicious JavaScript executes on your page.</p>
+<p>If a sensitive cookie is accessible to JavaScript, that script may be able to read it.</p>
+<p>With:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>httponly=True</code></pre></div>
+<p>the cookie isn't exposed through normal JavaScript cookie access.</p>
+<p>Important:</p>
+<blockquote><code>HttpOnly</code> helps reduce cookie theft through client-side JavaScript, but it does not prevent XSS itself.</blockquote>
+<hr>
+<h1 id="h-2976-22-samesite">22. <code>SameSite</code></h1>
+<p>Another important cookie attribute is:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>samesite</code></pre></div>
+<p>It controls when browsers send cookies in cross-site request contexts.</p>
+<p>Common values include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>"Lax"
+"Strict"
+"None"</code></pre></div>
+<hr>
+<h1 id="h-2977-23-samesite-lax">23. <code>SameSite="Lax"</code></h1>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "theme",
+    "dark",
+    samesite="Lax"
+)</code></pre></div>
+<p><code>Lax</code> is a common practical setting and helps reduce certain cross-site request risks while allowing some normal navigation behavior.</p>
+<hr>
+<h1 id="h-2978-24-samesite-strict">24. <code>SameSite="Strict"</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "theme",
+    "dark",
+    samesite="Strict"
+)</code></pre></div>
+<p>This applies stricter restrictions to cross-site cookie sending.</p>
+<p>It's more restrictive and can affect legitimate cross-site navigation/login scenarios.</p>
+<hr>
+<h1 id="h-2979-25-samesite-none">25. <code>SameSite="None"</code></h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "example",
+    "value",
+    samesite="None",
+    secure=True
+)</code></pre></div>
+<p>Modern browsers generally require:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>SameSite=None
++
+Secure</code></pre></div>
+<p>for cross-site cookies.</p>
+<hr>
+<h1 id="h-2980-26-cookie-security-cheat-sheet">26. Cookie Security Cheat Sheet</h1>
+<p>For a sensitive cookie, you may encounter:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "token",
+    "abc123",
+    secure=True,
+    httponly=True,
+    samesite="Lax"
+)</code></pre></div>
+<p>Think:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Secure
+   ↓
+HTTPS only
+
+HttpOnly
+   ↓
+Not accessible through normal JS
+
+SameSite
+   ↓
+Controls cross-site sending behavior</code></pre></div>
+<hr>
+<h1 id="h-2981-27-path">27. <code>path</code></h1>
+<p>Cookies can also have a path:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "theme",
+    "dark",
+    path="/"
+)</code></pre></div>
+<p>The cookie's <code>Path</code> attribute determines which URL paths the browser should send the cookie to.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>path="/shop/"</code></pre></div>
+<p>limits it to the relevant path scope.</p>
+<hr>
+<h1 id="h-2982-28-cookie-domain">28. Cookie Domain</h1>
+<p>Cookies can also have a domain attribute.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "example",
+    "value",
+    domain="example.com"
+)</code></pre></div>
+<p>This controls which host/domain the cookie applies to, subject to browser cookie rules.</p>
+<p>This is more advanced but useful to know for viva questions.</p>
+<hr>
+<h1 id="h-2983-29-complete-cookie-example">29. Complete Cookie Example</h1>
+<h3 id="h-2984-set-cookie">Set cookie</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def set_username(request):
+
+    response = HttpResponse(
+        "Username cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman",
+        max_age=3600,
+        httponly=True,
+        secure=True,
+        samesite="Lax"
+    )
+
+    return response</code></pre></div>
+<hr>
+<h1 id="h-2985-30-read-cookie">30. Read Cookie</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def get_username(request):
+
+    username = request.COOKIES.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-2986-31-delete-cookie">31. Delete Cookie</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def logout_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response</code></pre></div>
+<hr>
+<h1 id="h-2987-32-important-development-note-about-secure-true">32. Important Development Note About <code>secure=True</code></h1>
+<p>If you're developing locally using:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/</code></pre></div>
+<p>and set:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>secure=True</code></pre></div>
+<p>the browser will generally not send that cookie over plain HTTP.</p>
+<p>So during local development, this can make it appear that the cookie isn't working.</p>
+<p>In production, your site should normally use HTTPS, especially for authentication-related cookies.</p>
+<hr>
+<h1 id="h-2988-33-cookie-vs-server-side-data">33. Cookie vs Server-Side Data</h1>
+<p>Cookies are stored on the <strong>client/browser</strong>.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+ └── username=Aman</code></pre></div>
+<p>The server can receive it in later requests.</p>
+<p>But don't assume cookies are a secure place to store secrets merely because they are controlled by your application.</p>
+<p>The user/browser can potentially inspect and modify ordinary cookie values.</p>
+<hr>
+<h1 id="h-2989-34-never-trust-cookie-values">34. Never Trust Cookie Values</h1>
+<p>Suppose you set:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>is_admin=true</code></pre></div>
+<p>in a cookie.</p>
+<p>A malicious user could potentially modify that cookie.</p>
+<p>Therefore, never implement authorization like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>if request.COOKIES.get("is_admin") == "true":
+    allow_delete()</code></pre></div>
+<p>That's insecure.</p>
+<p>Authorization should be based on trusted server-side state and Django's authentication/permission system.</p>
+<hr>
+<h1 id="h-2990-35-cookie-vs-session">35. Cookie vs Session</h1>
+<p>This is <strong>very important</strong>.</p>
+<h3 id="h-2991-cookie">Cookie</h3>
+<p>Data is stored in the browser.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Cookie data</code></pre></div>
+<h3 id="h-2992-session">Session</h3>
+<p>Django's session framework normally stores session data <strong>server-side</strong>, while the browser holds a session identifier in a cookie.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+session cookie
+   ↓
+Django
+   ↓
+Session data</code></pre></div>
+<p>We'll study this in detail in Module 36.</p>
+<hr>
+<h1 id="h-2993-36-cookies-and-login">36. Cookies and Login</h1>
+<p>When you log into a Django website, Django's authentication system uses sessions.</p>
+<p>The browser receives a session cookie, commonly named:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>sessionid</code></pre></div>
+<p>The cookie identifies the session.</p>
+<p>The actual session data is generally maintained on the server side according to the configured session backend.</p>
+<p>This is why you shouldn't think:</p>
+<blockquote>"The password is stored in the session cookie."</blockquote>
+<p>That's not how the standard Django session mechanism works.</p>
+<hr>
+<h1 id="h-2994-37-cookie-vs-session-comparison">37. Cookie vs Session Comparison</h1>
+<div class="table-wrapper"><table><thead><tr>
+<th>Feature</th>
+<th>Cookie</th>
+<th>Session</th>
+</tr></thead><tbody>
+<tr>
+<td>Main data location</td>
+<td>Browser</td>
+<td>Usually server</td>
+</tr>
+<tr>
+<td>Client sends</td>
+<td>Cookie data</td>
+<td>Session ID cookie</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>Limited</td>
+<td>Depends on backend/configuration</td>
+</tr>
+<tr>
+<td>User can inspect normal cookie value</td>
+<td>Yes</td>
+<td>Session ID is visible, session data usually isn't</td>
+</tr>
+<tr>
+<td>Common use</td>
+<td>Preferences, identifiers</td>
+<td>Login state, temporary user state</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="h-2995-38-cookie-vs-csrf-token">38. Cookie vs CSRF Token</h1>
+<p>Don't confuse:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Cookie
+CSRF token
+Session</code></pre></div>
+<p>They serve different purposes.</p>
+<h3 id="h-2996-cookie">Cookie</h3>
+<p>Stores browser-side data.</p>
+<h3 id="h-2997-csrf-token">CSRF token</h3>
+<p>Helps Django verify state-changing requests came from an expected/trusted context.</p>
+<h3 id="h-2998-session">Session</h3>
+<p>Maintains server-side user/session state, normally identified by a session cookie.</p>
+<hr>
+<h1 id="h-2999-39-cookie-vs-authentication">39. Cookie vs Authentication</h1>
+<p>A cookie itself does not automatically mean:</p>
+<blockquote>"This person is authenticated."</blockquote>
+<p>Authentication systems can use cookies as part of maintaining login state, but you should distinguish the mechanisms.</p>
+<p>In Django:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Login
+ ↓
+Authentication
+ ↓
+Session
+ ↓
+Session cookie
+ ↓
+Future request
+ ↓
+request.user</code></pre></div>
+<hr>
+<h1 id="h-3000-40-cookie-example-with-url">40. Cookie Example With URL</h1>
+<p>Suppose:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "set-cookie/",
+        views.set_username,
+        name="set_cookie"
+    ),
+    path(
+        "get-cookie/",
+        views.get_username,
+        name="get_cookie"
+    ),
+    path(
+        "delete-cookie/",
+        views.logout_cookie,
+        name="delete_cookie"
+    ),
+]</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/set-cookie/</code></pre></div>
+<p>sets the cookie.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/get-cookie/</code></pre></div>
+<p>reads it.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/delete-cookie/</code></pre></div>
+<p>deletes it.</p>
+<hr>
+<h1 id="h-3001-41-practical-coding-question">41. Practical Coding Question</h1>
+<h3 id="h-3002-set-a-cookie-called-username-with-value-aman">Set a cookie called <code>username</code> with value <code>Aman</code>.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<hr>
+<h3 id="h-3003-read-it">Read it.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<hr>
+<h3 id="h-3004-delete-it">Delete it.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "username"
+)</code></pre></div>
+<hr>
+<h3 id="h-3005-make-it-expire-after-one-hour">Make it expire after one hour.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)</code></pre></div>
+<hr>
+<h3 id="h-3006-make-it-httponly">Make it HttpOnly.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman",
+    httponly=True
+)</code></pre></div>
+<hr>
+<h3 id="h-3007-make-it-https-only">Make it HTTPS-only.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman",
+    secure=True
+)</code></pre></div>
+<hr>
+<h1 id="h-3008-42-practical-coding-question">42. Practical Coding Question</h1>
+<h3 id="h-3009-write-a-view-that-sets-a-cookie">Write a view that sets a cookie.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+
+def set_cookie(request):
+
+    response = HttpResponse(
+        "Cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman"
+    )
+
+    return response</code></pre></div>
+<hr>
+<h1 id="h-3010-43-practical-coding-question">43. Practical Coding Question</h1>
+<h3 id="h-3011-write-a-view-that-reads-the-cookie">Write a view that reads the cookie.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def get_cookie(request):
+
+    username = request.COOKIES.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )</code></pre></div>
+<hr>
+<h1 id="h-3012-44-practical-coding-question">44. Practical Coding Question</h1>
+<h3 id="h-3013-write-a-view-that-deletes-the-cookie">Write a view that deletes the cookie.</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def delete_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response</code></pre></div>
+<hr>
+<h1 id="h-3014-45-viva-masterclass">45. Viva Masterclass</h1>
+<h3 id="h-3015-q1-what-is-a-cookie">Q1. What is a cookie?</h3>
+<blockquote>A cookie is a small piece of data stored by the user's browser and sent with subsequent matching requests to a website.</blockquote>
+<hr>
+<h3 id="h-3016-q2-why-are-cookies-used">Q2. Why are cookies used?</h3>
+<blockquote>They allow websites to maintain or remember certain information across otherwise stateless HTTP requests.</blockquote>
+<hr>
+<h3 id="h-3017-q3-how-do-you-set-a-cookie-in-django">Q3. How do you set a cookie in Django?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "name",
+    "value"
+)</code></pre></div>
+<hr>
+<h3 id="h-3018-q4-how-do-you-read-a-cookie">Q4. How do you read a cookie?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "name"
+)</code></pre></div>
+<hr>
+<h3 id="h-3019-q5-how-do-you-delete-a-cookie">Q5. How do you delete a cookie?</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "name"
+)</code></pre></div>
+<hr>
+<h3 id="h-3020-q6-what-is-max-age">Q6. What is <code>max_age</code>?</h3>
+<blockquote>It specifies the cookie lifetime in seconds.</blockquote>
+<hr>
+<h3 id="h-3021-q7-what-is-secure-true">Q7. What is <code>secure=True</code>?</h3>
+<blockquote>It tells the browser to send the cookie only over HTTPS.</blockquote>
+<hr>
+<h3 id="h-3022-q8-what-is-httponly-true">Q8. What is <code>httponly=True</code>?</h3>
+<blockquote>It prevents normal client-side JavaScript from accessing the cookie through browser APIs such as <code>document.cookie</code>.</blockquote>
+<hr>
+<h3 id="h-3023-q9-what-is-samesite">Q9. What is <code>SameSite</code>?</h3>
+<blockquote>It controls when a browser sends a cookie in cross-site request contexts.</blockquote>
+<hr>
+<h3 id="h-3024-q10-can-a-user-modify-a-normal-cookie">Q10. Can a user modify a normal cookie?</h3>
+<blockquote>Yes. Client-side cookie values should not be treated as inherently trusted.</blockquote>
+<hr>
+<h3 id="h-3025-q11-should-you-store-passwords-in-cookies">Q11. Should you store passwords in cookies?</h3>
+<blockquote>No. Passwords should never be stored in cookies.</blockquote>
+<hr>
+<h3 id="h-3026-q12-where-are-cookies-stored">Q12. Where are cookies stored?</h3>
+<blockquote>Cookies are stored by the browser/client.</blockquote>
+<hr>
+<h3 id="h-3027-q13-where-is-django-session-data-normally-stored">Q13. Where is Django session data normally stored?</h3>
+<blockquote>The session data is normally stored server-side according to the configured session backend, while the browser generally stores a session identifier in a cookie.</blockquote>
+<hr>
+<h3 id="h-3028-q14-what-is-the-difference-between-cookie-and-sess">Q14. What is the difference between cookie and session?</h3>
+<blockquote>A cookie is browser-side data sent with requests, while a Django session normally stores session data server-side and uses a cookie containing a session identifier to associate requests with that session.</blockquote>
+<hr>
+<h1 id="h-3029-46-important-security-question">46. Important Security Question</h1>
+<h3 id="h-3030-interviewer">Interviewer:</h3>
+<blockquote>"Can I store <code>is_admin=True</code> in a cookie and check it before allowing someone to delete data?"</blockquote>
+<p>Answer:</p>
+<blockquote>"No. Cookie values are client-controlled and shouldn't be trusted for authorization. I would use Django's authenticated user and permission system on the server side."</blockquote>
+<p>Excellent answer.</p>
+<hr>
+<h1 id="h-3031-47-another-interview-question">47. Another Interview Question</h1>
+<h3 id="h-3032-why-use-httponly">"Why use <code>HttpOnly</code>?"</h3>
+<p>Answer:</p>
+<blockquote>"<code>HttpOnly</code> prevents normal client-side JavaScript from reading the cookie, which helps reduce exposure of sensitive cookie values if malicious JavaScript executes. It does not itself prevent XSS."</blockquote>
+<hr>
+<h1 id="h-3033-48-another-interview-question">48. Another Interview Question</h1>
+<h3 id="h-3034-why-use-secure-cookies">"Why use Secure cookies?"</h3>
+<p>Answer:</p>
+<blockquote>"The Secure attribute tells the browser to send the cookie only over HTTPS, reducing the risk of exposing the cookie over an unencrypted HTTP connection."</blockquote>
+<hr>
+<h1 id="h-3035-49-another-interview-question">49. Another Interview Question</h1>
+<h3 id="h-3036-is-https-the-same-as-secure-cookie">"Is HTTPS the same as Secure cookie?"</h3>
+<p>No.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTTPS
+ ↓
+Encrypts communication
+
+Secure cookie
+ ↓
+Tells browser to send that cookie only over HTTPS</code></pre></div>
+<p>They work together but are not the same thing.</p>
+<hr>
+<h1 id="h-3037-50-cookie-security-mental-model">50. Cookie Security Mental Model</h1>
+<p>For a sensitive cookie:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>              COOKIE
+                 │
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+    Secure    HttpOnly   SameSite
+       │         │         │
+       ↓         ↓         ↓
+   HTTPS only  No normal   Cross-site
+               JS access   sending rules</code></pre></div>
+<p>But remember:</p>
+<blockquote>Cookie security flags reduce specific risks; they do not replace HTTPS, authentication, authorization, CSRF protection, or XSS defenses.</blockquote>
+<hr>
+<h1 id="h-3038-51-module-35-summary">51. Module 35 Summary</h1>
+<p>You should now know:</p>
+<h3 id="h-3039-set">Set</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<h3 id="h-3040-read">Read</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<h3 id="h-3041-delete">Delete</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.delete_cookie(
+    "username"
+)</code></pre></div>
+<h3 id="h-3042-expiration">Expiration</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>max_age=3600</code></pre></div>
+<h3 id="h-3043-security">Security</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>secure=True
+httponly=True
+samesite="Lax"</code></pre></div>
+<h3 id="h-3044-core-concept">Core concept</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+Cookie
+   ↓
+Future HTTP requests
+   ↓
+Django</code></pre></div>
+<hr>
+<h1 id="h-3045-52-final-exam-cheat-sheet">52. Final Exam Cheat Sheet</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Set
+response.set_cookie(
+    "username",
+    "Aman"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Read
+username = request.COOKIES.get(
+    "username"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Delete
+response.delete_cookie(
+    "username"
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Expiration
+response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># Secure cookie
+response.set_cookie(
+    "token",
+    "abc",
+    secure=True,
+    httponly=True,
+    samesite="Lax"
+)</code></pre></div>
+<h3 id="h-3046-most-important-distinction">Most important distinction:</h3>
+<blockquote><strong>Cookie = data stored by the browser.</strong><br><strong>Session = server-side user state typically associated with the browser through a session cookie.</strong></blockquote>
+<p><strong>Next → Module 36: Django Sessions</strong></p>
+<p>We'll learn how sessions work internally, <code>request.session</code>, setting/getting/deleting session data, session expiry, <code>flush()</code>, session cookies, session-based login state, and the difference between <strong>cookies, sessions, and authentication</strong>.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-34.html">← Module 34: Database Configuration</a>
+<a class="pn-btn pn-next" href="module-36.html">Module 36: Sessions in Django →</a>
+</div>
+
+</div>
+
+</body>
+</html>

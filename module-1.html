@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: Web & Django Fundamentals — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 1 of 44.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 1 of 44</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Web &amp; Django Fundamentals</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <span class="nav-item current">1. Web &amp; Django Fundamentals</span>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<span></span>
+<a class="pn-btn pn-next" href="module-2.html">Module 2: Python Environment &amp; Installation →</a>
+</div>
+
+    <hr>
+
+    <h1 id="h-1-module-1-web-django-fundamentals">Module 1 — Web &amp; Django Fundamentals</h1>
+<p>We’ll start from <strong>zero</strong>. By the end of this module, you should be able to explain the basic working of a web application and confidently answer the common viva questions about Django.</p>
+<hr>
+<h1 id="h-2-1-what-is-a-website">1. What is a Website?</h1>
+<p>A <strong>website</strong> is a collection of web pages that can be accessed through the internet using a web browser.</p>
+<p>Examples:</p>
+<ul>
+<li>Google</li>
+<li>YouTube</li>
+<li>Amazon</li>
+<li>Wikipedia</li>
+</ul>
+<p>A website generally contains:</p>
+<ul>
+<li><strong>HTML</strong> → structure</li>
+<li><strong>CSS</strong> → styling</li>
+<li><strong>JavaScript</strong> → behavior/interactivity</li>
+<li><strong>Backend</strong> → processing and business logic</li>
+<li><strong>Database</strong> → storing information</li>
+</ul>
+<p>For example, when you open an online shopping website:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>You → Browser → Website Server → Database
+                       ↓
+                    Response
+                       ↓
+                    Browser</code></pre></div>
+<hr>
+<h1 id="h-3-2-what-is-a-web-application">2. What is a Web Application?</h1>
+<p>A <strong>web application</strong> is a website that allows users to perform operations and interact with data.</p>
+<p>For example:</p>
+<h3 id="h-4-simple-website">Simple website</h3>
+<p>A page that says:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome to my website</code></pre></div>
+<p>There may be little or no user interaction.</p>
+<h3 id="h-5-web-application">Web application</h3>
+<p>An online shopping application allows you to:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Register
+Login
+Search products
+Add products to cart
+Place orders
+Make payments
+View previous orders</code></pre></div>
+<p>So:</p>
+<blockquote><strong>A web application is an application that runs through a web browser and allows users to interact with data and functionality provided by a server.</strong></blockquote>
+<p>Django is mainly used for developing the <strong>backend of web applications</strong>.</p>
+<hr>
+<h1 id="h-6-3-client-and-server">3. Client and Server</h1>
+<p>This is VERY important for understanding Django.</p>
+<h2 id="h-7-client">Client</h2>
+<p>The <strong>client</strong> is usually the user's device/browser that sends requests to a server.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Chrome
+Firefox
+Edge
+Safari</code></pre></div>
+<h2 id="h-8-server">Server</h2>
+<p>The <strong>server</strong> is a computer/program that receives requests, processes them, and sends responses.</p>
+<p>For example, when you type:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>youtube.com</code></pre></div>
+<p>your browser sends a request to YouTube's servers.</p>
+<p>The server processes it and sends information back.</p>
+<hr>
+<h1 id="h-9-4-request-and-response">4. Request and Response</h1>
+<p>The basic communication is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Client
+   |
+   | Request
+   ↓
+Server
+   |
+   | Response
+   ↓
+Client</code></pre></div>
+<h3 id="h-10-request">Request</h3>
+<p>The browser says:</p>
+<blockquote>"Give me this webpage."</blockquote>
+<h3 id="h-11-response">Response</h3>
+<p>The server says:</p>
+<blockquote>"Here is the webpage."</blockquote>
+<p>This concept is the foundation of Django.</p>
+<hr>
+<h1 id="h-12-5-example-of-request-response">5. Example of Request-Response</h1>
+<p>Suppose you visit:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>example.com/about</code></pre></div>
+<p>The process is approximately:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>1. Browser sends request
+          ↓
+2. Server receives request
+          ↓
+3. Django processes request
+          ↓
+4. Django determines what should happen
+          ↓
+5. Django generates response
+          ↓
+6. Server sends response
+          ↓
+7. Browser displays webpage</code></pre></div>
+<p>Later, we'll learn exactly how Django performs steps 3–5.</p>
+<hr>
+<h1 id="h-13-6-what-is-http">6. What is HTTP?</h1>
+<p><strong>HTTP = HyperText Transfer Protocol</strong></p>
+<p>HTTP is a protocol used for communication between a client and a web server.</p>
+<p>It defines how requests and responses are exchanged.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser ─── HTTP Request ───→ Server
+
+Browser ←── HTTP Response ─── Server</code></pre></div>
+<p>Common HTTP methods include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>GET
+POST
+PUT
+PATCH
+DELETE</code></pre></div>
+<p>For your Django syllabus, <strong>GET and POST are particularly important</strong>.</p>
+<p>We'll study them deeply in Unit II and Unit IV.</p>
+<hr>
+<h1 id="h-14-7-get-vs-post-basic-idea">7. GET vs POST — Basic Idea</h1>
+<p>Don't worry about the details yet.</p>
+<h3 id="h-15-get">GET</h3>
+<p>Generally used to <strong>request/retrieve data</strong>.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/products
+/products/10</code></pre></div>
+<h3 id="h-16-post">POST</h3>
+<p>Generally used to <strong>send data to the server</strong>.</p>
+<p>For example, submitting a registration form:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Name: Aman
+Email: aman@example.com
+Password: ********</code></pre></div>
+<p>The browser can send that information to the server using POST.</p>
+<p>We'll study this properly later.</p>
+<hr>
+<h1 id="h-17-8-frontend-vs-backend">8. Frontend vs Backend</h1>
+<p>A web application generally has two major sides.</p>
+<h2 id="h-18-frontend">Frontend</h2>
+<p>The frontend is what the user sees and interacts with.</p>
+<p>Technologies include:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>HTML
+CSS
+JavaScript
+React
+Angular
+Vue</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>+---------------------------+
+|       My Website          |
+|                           |
+| Name: [____________]      |
+|                           |
+|       [ Submit ]          |
++---------------------------+</code></pre></div>
+<p>That's frontend.</p>
+<hr>
+<h1 id="h-19-9-backend">9. Backend</h1>
+<p>The backend handles things that happen behind the scenes.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>User submits login
+        ↓
+Backend receives username/password
+        ↓
+Backend checks database
+        ↓
+Is user valid?
+      /    \
+    Yes     No
+     ↓       ↓
+ Dashboard  Error</code></pre></div>
+<p>Backend can handle:</p>
+<ul>
+<li>Authentication</li>
+<li>Database operations</li>
+<li>Business logic</li>
+<li>Form processing</li>
+<li>Security</li>
+<li>APIs</li>
+<li>Sessions</li>
+<li>User permissions</li>
+</ul>
+<p><strong>Django is a backend web framework.</strong></p>
+<hr>
+<h1 id="h-20-10-where-does-the-database-come-in">10. Where Does the Database Come In?</h1>
+<p>Suppose you create an account.</p>
+<p>The information needs to be stored somewhere:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Username
+Email
+Password</code></pre></div>
+<p>A database stores this information.</p>
+<p>So a simplified application looks like:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                Web Application
+
+Browser
+   ↓
+Request
+   ↓
+Django Backend
+   ↓
+Database
+   ↓
+Django Backend
+   ↓
+Response
+   ↓
+Browser</code></pre></div>
+<p>Django provides tools to communicate with the database.</p>
+<p>Later you'll learn something very important called:</p>
+<blockquote><strong>ORM — Object Relational Mapping</strong></blockquote>
+<hr>
+<h1 id="h-21-11-what-is-a-framework">11. What is a Framework?</h1>
+<p>Before understanding Django, you need to understand <strong>framework</strong>.</p>
+<p>Suppose you want to build a house.</p>
+<p>You could create everything from raw materials yourself:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Bricks
+Cement
+Doors
+Windows
+Electrical system
+Plumbing
+etc.</code></pre></div>
+<p>Or you could use an established structure/design that makes construction easier.</p>
+<p>A software framework provides a similar advantage.</p>
+<blockquote><strong>A framework is a collection of tools, libraries, conventions, and structures that helps developers build applications more efficiently.</strong></blockquote>
+<hr>
+<h1 id="h-22-12-why-do-we-need-frameworks">12. Why Do We Need Frameworks?</h1>
+<p>Imagine building a web application completely from scratch.</p>
+<p>You would have to handle:</p>
+<ul>
+<li>URL routing</li>
+<li>HTTP requests</li>
+<li>Database connections</li>
+<li>Authentication</li>
+<li>Security</li>
+<li>Forms</li>
+<li>Sessions</li>
+<li>Error handling</li>
+<li>HTML rendering</li>
+</ul>
+<p>Doing everything manually would take a lot of time.</p>
+<p>A framework provides many of these facilities.</p>
+<p>So instead of reinventing everything, you can focus on your application's functionality.</p>
+<hr>
+<h1 id="h-23-13-what-is-django">13. What is Django?</h1>
+<p>Now the main question.</p>
+<blockquote><strong>Django is a high-level, open-source Python web framework used for building web applications quickly, securely, and maintainably.</strong></blockquote>
+<p>Important keywords for viva:</p>
+<p><strong>Django</strong></p>
+<ul>
+<li>Python-based</li>
+<li>Web framework</li>
+<li>Open-source</li>
+<li>High-level</li>
+<li>Used for web application development</li>
+</ul>
+<p>You should remember this definition.</p>
+<hr>
+<h1 id="h-24-14-why-is-django-called-a-python-web-framework">14. Why is Django Called a Python Web Framework?</h1>
+<p>Because Django is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+   ↓
+Django
+   ↓
+Web Application</code></pre></div>
+<p>You write Django applications primarily using Python.</p>
+<p>For example, a very simple Django view can look like:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")</code></pre></div>
+<p>Don't worry if you don't understand this yet.</p>
+<p>We'll build this from scratch in later modules.</p>
+<hr>
+<h1 id="h-25-15-why-use-django">15. Why Use Django?</h1>
+<p>Django provides many things out of the box.</p>
+<h3 id="h-26-1-url-routing">1. URL Routing</h3>
+<p>It helps map URLs to application logic.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/about → about view
+/login → login view
+/products → products view</code></pre></div>
+<hr>
+<h3 id="h-27-2-templates">2. Templates</h3>
+<p>Django allows Python-generated data to be displayed in HTML.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Hello, Aman</code></pre></div>
+<p>can be dynamically generated.</p>
+<hr>
+<h3 id="h-28-3-forms">3. Forms</h3>
+<p>Django provides tools for creating and validating forms.</p>
+<hr>
+<h3 id="h-29-4-database-support">4. Database Support</h3>
+<p>Django provides an ORM for working with databases using Python.</p>
+<p>Instead of writing SQL for everything, you can write:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.all()</code></pre></div>
+<hr>
+<h3 id="h-30-5-authentication">5. Authentication</h3>
+<p>Django provides built-in support for:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Users
+Login
+Logout
+Passwords
+Permissions
+Groups</code></pre></div>
+<hr>
+<h3 id="h-31-6-security">6. Security</h3>
+<p>Django provides protections/features for common web security concerns, including:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>CSRF protection
+SQL injection protection through ORM usage
+Clickjacking protection
+XSS-related protections
+Secure password handling</code></pre></div>
+<hr>
+<h3 id="h-32-7-admin-panel">7. Admin Panel</h3>
+<p>One of Django's famous features is its built-in admin interface.</p>
+<p>You can manage database data through a web interface.</p>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django Application
+       ↓
+     Models
+       ↓
+   Django Admin
+       ↓
+Manage data</code></pre></div>
+<hr>
+<h1 id="h-33-16-django-s-batteries-included-philosophy">16. Django's "Batteries Included" Philosophy</h1>
+<p>You may hear this phrase in a viva.</p>
+<p>Django is often described as having a <strong>"batteries-included"</strong> philosophy.</p>
+<p>It means Django provides many commonly needed features as part of the framework.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Authentication
+Admin
+ORM
+Forms
+Sessions
+Security
+Templates
+URL routing</code></pre></div>
+<p>You don't need to build all of these from scratch.</p>
+<hr>
+<h1 id="h-34-17-what-is-mvt">17. What is MVT?</h1>
+<p>This is <strong>VERY IMPORTANT for your viva</strong>.</p>
+<p>Django follows an architectural pattern commonly described as:</p>
+<blockquote><strong>MVT = Model – View – Template</strong></blockquote>
+<p>The three components are:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model
+View
+Template</code></pre></div>
+<p>Let's understand each.</p>
+<hr>
+<h1 id="h-35-18-model">18. Model</h1>
+<p>The <strong>Model</strong> deals mainly with <strong>data and database structure</strong>.</p>
+<p>Suppose you have students.</p>
+<p>A model might represent:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Student
+----------------
+id
+name
+email
+age
+course</code></pre></div>
+<p>Django can use this model to interact with the database.</p>
+<p>Think:</p>
+<blockquote><strong>Model = Data + Database logic</strong></blockquote>
+<hr>
+<h1 id="h-36-19-view">19. View</h1>
+<p>The <strong>View</strong> contains the logic that processes a request and determines what response should be returned.</p>
+<p>For example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>def home(request):
+    return HttpResponse("Welcome")</code></pre></div>
+<p>Think:</p>
+<blockquote><strong>View = Business/request processing logic</strong></blockquote>
+<hr>
+<h1 id="h-37-20-template">20. Template</h1>
+<p>The <strong>Template</strong> is generally the presentation layer.</p>
+<p>It usually contains HTML with Django Template Language.</p>
+<p>Example:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>&lt;h1&gt;Welcome {{ name }}&lt;/h1&gt;</code></pre></div>
+<p>If the name is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman</code></pre></div>
+<p>the resulting page can display:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Welcome Aman</code></pre></div>
+<p>Think:</p>
+<blockquote><strong>Template = Presentation/UI</strong></blockquote>
+<hr>
+<h1 id="h-38-21-mvt-diagram">21. MVT Diagram</h1>
+<p>Remember this:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 USER
+                  |
+                  | Request
+                  ↓
+                URL
+                  |
+                  ↓
+                VIEW
+              /      \
+             ↓        ↓
+         MODEL     TEMPLATE
+           |           |
+           ↓           ↓
+       DATABASE      HTML
+             \       /
+              ↓     ↓
+                VIEW
+                  |
+                  | Response
+                  ↓
+                USER</code></pre></div>
+<p>This is a simplified conceptual diagram. Django internally handles some details differently, but this is the useful mental model for your course.</p>
+<hr>
+<h1 id="h-39-22-real-example-of-mvt">22. Real Example of MVT</h1>
+<p>Suppose the user visits:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<h3 id="h-40-step-1-url">Step 1 — URL</h3>
+<p>Django sees:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>/students/</code></pre></div>
+<p>and determines which view should handle it.</p>
+<h3 id="h-41-step-2-view">Step 2 — View</h3>
+<p>The view asks the model for student information.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View → Model</code></pre></div>
+<h3 id="h-42-step-3-model">Step 3 — Model</h3>
+<p>The model interacts with the database.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Model → Database</code></pre></div>
+<p>Database returns:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Aman
+Rahul
+Priya</code></pre></div>
+<h3 id="h-43-step-4-view">Step 4 — View</h3>
+<p>The view sends the data to a template.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>View → Template</code></pre></div>
+<h3 id="h-44-step-5-template">Step 5 — Template</h3>
+<p>The template generates HTML.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Template → HTML</code></pre></div>
+<h3 id="h-45-step-6-response">Step 6 — Response</h3>
+<p>Django sends the generated HTML back to the browser.</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django → Browser</code></pre></div>
+<p>The browser displays:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Students
+
+1. Aman
+2. Rahul
+3. Priya</code></pre></div>
+<hr>
+<h1 id="h-46-23-django-request-response-cycle">23. Django Request-Response Cycle</h1>
+<p>This is one of the most important things to understand.</p>
+<p>Suppose you enter:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>http://127.0.0.1:8000/about/</code></pre></div>
+<p>The simplified flow is:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   |
+   | HTTP Request
+   ↓
+Django
+   |
+   ↓
+URL Configuration
+   |
+   ↓
+View
+   |
+   ↓
+Model / Database
+   |
+   ↓
+Template
+   |
+   ↓
+HTTP Response
+   |
+   ↓
+Browser</code></pre></div>
+<p>You will gradually learn every part of this flow throughout the course.</p>
+<hr>
+<h1 id="h-47-24-what-is-127-0-0-1-8000">24. What is <code>127.0.0.1:8000</code>?</h1>
+<p>When we start Django's development server, you'll commonly see:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Starting development server at http://127.0.0.1:8000/</code></pre></div>
+<h3 id="h-48-127-0-0-1"><code>127.0.0.1</code></h3>
+<p>This means the <strong>local machine</strong> (localhost).</p>
+<h3 id="h-49-8000"><code>8000</code></h3>
+<p>This is the port on which Django's development server is listening by default.</p>
+<p>So:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>127.0.0.1:8000</code></pre></div>
+<p>means:</p>
+<blockquote>"Access the Django development server running on this computer at port 8000."</blockquote>
+<hr>
+<h1 id="h-50-25-django-vs-python">25. Django vs Python</h1>
+<p>A common viva question:</p>
+<h3 id="h-51-is-django-a-programming-language">Is Django a programming language?</h3>
+<p><strong>No.</strong></p>
+<p>Django is a <strong>web framework written in Python</strong>.</p>
+<p>Correct relationship:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Python
+  ↓
+Programming Language
+
+Django
+  ↓
+Python Web Framework</code></pre></div>
+<hr>
+<h1 id="h-52-26-django-vs-flask">26. Django vs Flask</h1>
+<p>You may be asked this in an interview/viva.</p>
+<p>Both are Python web frameworks.</p>
+<p>A simplified comparison:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Django</th>
+<th>Flask</th>
+</tr></thead><tbody>
+<tr>
+<td>More batteries-included</td>
+<td>More minimal</td>
+</tr>
+<tr>
+<td>Built-in ORM</td>
+<td>Doesn't force a specific ORM</td>
+</tr>
+<tr>
+<td>Built-in admin</td>
+<td>No built-in Django-style admin</td>
+</tr>
+<tr>
+<td>Built-in authentication tools</td>
+<td>Usually assembled through extensions/code</td>
+</tr>
+<tr>
+<td>More structured</td>
+<td>More flexible/minimal</td>
+</tr>
+<tr>
+<td>Suitable for large structured applications</td>
+<td>Useful for lightweight/custom applications too</td>
+</tr>
+</tbody></table></div>
+<p>Don't say:</p>
+<blockquote>"Django is always better than Flask."</blockquote>
+<p>Instead say:</p>
+<blockquote>"Both are useful Python web frameworks. Django provides more built-in functionality, while Flask is more lightweight and minimal."</blockquote>
+<hr>
+<h1 id="h-53-27-important-django-terminology">27. Important Django Terminology</h1>
+<p>Start becoming familiar with these words:</p>
+<div class="table-wrapper"><table><thead><tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr></thead><tbody>
+<tr>
+<td>Django</td>
+<td>Python web framework</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Overall Django application/configuration</td>
+</tr>
+<tr>
+<td>App</td>
+<td>Component that performs a particular functionality</td>
+</tr>
+<tr>
+<td>View</td>
+<td>Handles request/application logic</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>Represents/manages data</td>
+</tr>
+<tr>
+<td>Template</td>
+<td>Presentation layer</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>Maps requested paths to views</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>Allows database interaction using Python objects</td>
+</tr>
+<tr>
+<td>Migration</td>
+<td>Tracks/applies database schema changes</td>
+</tr>
+<tr>
+<td>Admin</td>
+<td>Built-in interface for managing data</td>
+</tr>
+<tr>
+<td>Form</td>
+<td>Handles user input</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>Stores user-specific state across requests</td>
+</tr>
+<tr>
+<td>Cookie</td>
+<td>Small data stored by the browser</td>
+</tr>
+</tbody></table></div>
+<p>We'll study every one of these in detail.</p>
+<hr>
+<h1 id="h-54-28-project-vs-app-important">28. Project vs App — Important</h1>
+<p>Students often confuse these.</p>
+<p>Imagine you're building an e-commerce website.</p>
+<p>The <strong>project</strong> could be:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>E-Commerce Website</code></pre></div>
+<p>Inside it, you could have apps:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>accounts
+products
+orders
+payments
+reviews</code></pre></div>
+<p>Conceptually:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>                 PROJECT
+                    |
+       +------------+------------+
+       |            |            |
+    accounts     products      orders
+       |            |            |
+    users        products      orders</code></pre></div>
+<h3 id="h-55-project">Project</h3>
+<p>The overall Django site/application configuration.</p>
+<h3 id="h-56-app">App</h3>
+<p>A component that handles a particular functionality.</p>
+<p>We'll learn exactly how to create both later.</p>
+<hr>
+<h1 id="h-57-29-what-you-should-be-able-to-explain-now">29. What You Should Be Able to Explain Now</h1>
+<p>If your teacher asks:</p>
+<h3 id="h-58-what-is-django">"What is Django?"</h3>
+<p>Answer:</p>
+<blockquote>Django is a high-level, open-source Python web framework used to develop web applications quickly, securely, and maintainably.</blockquote>
+<h3 id="h-59-what-is-mvt">"What is MVT?"</h3>
+<p>Answer:</p>
+<blockquote>MVT stands for Model, View, and Template. Model handles data and database-related operations, View handles request and application logic, and Template handles presentation.</blockquote>
+<h3 id="h-60-what-is-a-model">"What is a Model?"</h3>
+<p>Answer:</p>
+<blockquote>A Model is a Python class that represents the structure of application data and provides an interface for interacting with the database.</blockquote>
+<h3 id="h-61-what-is-a-view">"What is a View?"</h3>
+<p>Answer:</p>
+<blockquote>A View is responsible for processing a request and returning an appropriate response.</blockquote>
+<h3 id="h-62-what-is-a-template">"What is a Template?"</h3>
+<p>Answer:</p>
+<blockquote>A Template is used to define the presentation layer, usually HTML, and can contain Django Template Language for displaying dynamic data.</blockquote>
+<hr>
+<h1 id="h-63-30-viva-questions-module-1">30. Viva Questions — Module 1</h1>
+<p>Try answering these <strong>without looking above</strong>.</p>
+<h3 id="h-64-basic">Basic</h3>
+<p><strong>Q1. What is Django?</strong></p>
+<p><strong>Q2. Django is written in which programming language?</strong></p>
+<p><strong>Q3. Is Django a programming language?</strong></p>
+<p><strong>Q4. What is a web framework?</strong></p>
+<p><strong>Q5. What is a web application?</strong></p>
+<p><strong>Q6. What is HTTP?</strong></p>
+<p><strong>Q7. What is the difference between client and server?</strong></p>
+<p><strong>Q8. What is a request?</strong></p>
+<p><strong>Q9. What is a response?</strong></p>
+<hr>
+<h3 id="h-65-django-specific">Django-specific</h3>
+<p><strong>Q10. What does MVT stand for?</strong></p>
+<p><strong>Q11. What is the role of Model?</strong></p>
+<p><strong>Q12. What is the role of View?</strong></p>
+<p><strong>Q13. What is the role of Template?</strong></p>
+<p><strong>Q14. What is the difference between a Django project and an app?</strong></p>
+<p><strong>Q15. Why is Django called a batteries-included framework?</strong></p>
+<p><strong>Q16. What is Django ORM?</strong></p>
+<p><strong>Q17. What is Django Admin?</strong></p>
+<p><strong>Q18. What are some features provided by Django?</strong></p>
+<hr>
+<h3 id="h-66-slightly-harder">Slightly harder</h3>
+<p><strong>Q19. Explain the Django request-response cycle.</strong></p>
+<p><strong>Q20. A user visits <code>/students/</code>. What happens inside a Django application?</strong></p>
+<p><strong>Q21. Why do we need a framework instead of writing everything from scratch?</strong></p>
+<p><strong>Q22. Difference between Django and Flask?</strong></p>
+<p><strong>Q23. What is the purpose of <code>127.0.0.1:8000</code>?</strong></p>
+<hr>
+<h1 id="h-67-31-coding-understanding">31. Coding Understanding</h1>
+<p>We aren't going to properly code yet—that starts in the next modules.</p>
+<p>But look at this:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def hello(request):
+    return HttpResponse("Hello, Aman!")</code></pre></div>
+<p>Understand only the conceptual flow for now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Browser
+   ↓
+URL
+   ↓
+hello(request)
+   ↓
+HttpResponse("Hello, Aman!")
+   ↓
+Browser</code></pre></div>
+<p>Later, you'll learn exactly:</p>
+<ul>
+<li>where this code goes,</li>
+<li>how Django finds this function,</li>
+<li>how to create the project,</li>
+<li>how to create the app,</li>
+<li>how to connect the URL,</li>
+<li>how to run it.</li>
+</ul>
+<hr>
+<h1 id="h-68-module-1-what-you-must-remember">⭐ Module 1 — What You Must Remember</h1>
+<p>If you remember only these things for now:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Django = Python Web Framework
+
+MVT = Model + View + Template
+
+Model    → Data / Database
+View     → Request / Application Logic
+Template → Presentation / HTML
+
+Client → Request → Server
+Client ← Response ← Server
+
+Django provides:
+→ URL routing
+→ Templates
+→ Forms
+→ ORM
+→ Authentication
+→ Sessions
+→ Admin
+→ Security features</code></pre></div>
+<p>And the overall mental model:</p>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>             Django
+
+Browser
+   ↓
+Request
+   ↓
+URL
+   ↓
+View
+   ↓
+Model ←→ Database
+   ↓
+Template
+   ↓
+Response
+   ↓
+Browser</code></pre></div>
+<p><strong>Do not memorize the entire diagram blindly.</strong> Understand what each component does. That understanding will make the remaining 43 modules much easier.</p>
+<hr>
+<h2 id="h-69-mini-test">📝 Mini Test</h2>
+<p>Before saying <strong>next</strong>, try answering these 10:</p>
+<ol>
+<li>What is Django?</li>
+<li>Is Django a programming language?</li>
+<li>What is a framework?</li>
+<li>What does MVT stand for?</li>
+<li>What does a Model do?</li>
+<li>What does a View do?</li>
+<li>What does a Template do?</li>
+<li>What is the difference between a Django project and an app?</li>
+<li>What is ORM?</li>
+<li>Explain the Django request-response cycle in your own words.</li>
+</ol>
+<p>You can send your answers, and I'll <strong>check/correct them like a viva examiner</strong>. Then when you're ready, say <strong>“next”</strong> and we'll start <strong>Module 2 — Python Environment, Virtual Environment &amp; Django Installation</strong>.</p>
+
+    <div class="prev-next">
+<span></span>
+<a class="pn-btn pn-next" href="module-2.html">Module 2: Python Environment &amp; Installation →</a>
+</div>
+
+</div>
+
+</body>
+</html>
