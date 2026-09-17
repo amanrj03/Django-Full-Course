@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 45: Django Imports Cheat Sheet — Django Guide</title>
+    <meta name="description" content="Django study guide — Module 45 of 45.">
+<style>
+
+@page { size: A4; margin: 15mm; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0; padding: 0;
+    background-color: #f3f5f8;
+}
+
+/* ===================== PAGE CONTAINER (same as blockchain) ===================== */
+.page-container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 40px 55px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
+/* ===================== MODULE BANNER ===================== */
+.module-banner {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 50%, #3182ce 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-size: 24px; font-weight: 700; line-height: 1.3;
+    margin: 0;
+}
+
+/* ===================== NAVIGATION BAR ===================== */
+.nav-toggle {
+    margin-bottom: 24px;
+}
+.nav-toggle-btn {
+    display: inline-block;
+    background: #2b6cb0;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+.nav-toggle-btn:hover { background: #1a365d; }
+
+.nav-panel {
+    display: none;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #2b6cb0;
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+.nav-item:hover { background: #ebf8ff; color: #1a365d; }
+.nav-item.current {
+    background: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+/* ===================== HEADINGS (same as blockchain) ===================== */
+h1 {
+    font-size: 28px;
+    color: #1a365d;
+    border-bottom: 2px solid #3182ce;
+    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 22px;
+    line-height: 1.3;
+}
+h2 {
+    font-size: 23px;
+    color: #2b6cb0;
+    border-left: 5px solid #3182ce;
+    padding-left: 12px;
+    margin-top: 38px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-size: 19px;
+    color: #2c5282;
+    margin-top: 25px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* ===================== TEXT ===================== */
+p {
+    margin-top: 0; margin-bottom: 13px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    max-width: 100%;
+    text-align: left;
+}
+ul, ol { margin-top: 0; margin-bottom: 15px; padding-left: 28px; }
+li { margin-bottom: 6px; overflow-wrap: break-word; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+strong { color: inherit; }
+
+/* ===================== BLOCKQUOTES (same as blockchain) ===================== */
+blockquote {
+    background-color: #ebf8ff;
+    border-left: 5px solid #3182ce;
+    margin: 18px 0;
+    padding: 14px 18px;
+    font-style: normal;
+    color: #2c5282;
+    overflow-wrap: break-word;
+}
+
+/* ===================== INLINE CODE ===================== */
+code {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #edf2f7;
+    color: #9b2c2c;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #e2e8f0;
+}
+
+/* ===================== CODE BLOCKS ===================== */
+.code-block-wrapper {
+    position: relative;
+    margin: 16px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #cbd5e0;
+}
+.code-block-wrapper pre {
+    margin: 0;
+    padding: 14px 16px;
+    background-color: #f0f4f8;
+    overflow-x: auto;
+    line-height: 1.55;
+}
+.code-block-wrapper pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #2d3748;
+    display: block;
+    white-space: pre;
+    overflow-wrap: normal;
+    word-wrap: normal;
+}
+.code-lang-label {
+    position: absolute; top: 0; right: 0;
+    background: rgba(0,0,0,0.06);
+    color: #718096;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 0 6px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: Consolas, monospace;
+}
+.lang-python .code-lang-label { color: #3776ab; }
+.lang-html .code-lang-label { color: #e34c26; }
+.lang-bash .code-lang-label { color: #10b981; }
+
+/* ===================== TABLES (same as blockchain) ===================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 14px;
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #cbd5e0;
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: break-word;
+}
+th {
+    background-color: #2b6cb0;
+    color: #fff;
+    font-weight: 600;
+}
+tr:nth-child(even) td { background-color: #f7fafc; }
+
+/* ===================== IMAGES ===================== */
+.img-container { text-align: center; margin: 20px 0; }
+.img-container img { max-width: 90%; height: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
+
+/* ===================== PREV / NEXT ===================== */
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid #e2e8f0;
+}
+.pn-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #2b6cb0;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    max-width: 48%;
+}
+.pn-btn:hover { border-color: #3182ce; background: #ebf8ff; }
+.pn-next { text-align: right; }
+.pn-done {
+    text-align: center; color: #10b981;
+    border-color: rgba(16,185,129,0.3);
+    background: rgba(16,185,129,0.06);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+    .page-container { margin: 16px 10px; padding: 24px 18px; }
+    h1 { font-size: 22px; } h2 { font-size: 19px; } h3 { font-size: 16px; }
+    .module-banner { padding: 20px 18px; }
+    .module-banner-title { font-size: 20px; }
+    .prev-next { flex-direction: column; }
+    .pn-btn { max-width: 100%; }
+    .nav-panel { column-count: 1; }
+}
+
+@media print {
+    body { background: #fff; }
+    .page-container { box-shadow: none; margin: 0; padding: 0; }
+    .nav-toggle, .prev-next { display: none; }
+    .module-banner { background: #eee !important; color: #1a1a1a; }
+    .module-badge { background: #ddd; color: #333; border-color: #bbb; }
+    h1,h2,h3,.module-banner-title,strong { color: #1a1a1a; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 45 of 45</div>
+        <h1 class="module-banner-title" style="color:#fff;border:none;margin:0;padding:0;">Django Imports Cheat Sheet</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('navPanel').classList.toggle('open')">
+            📚 All Modules ▾
+        </button>
+        <div class="nav-panel" id="navPanel">
+            <a class="nav-item" href="module-1.html">1. Web &amp; Django Fundamentals</a>
+<a class="nav-item" href="module-2.html">2. Python Environment &amp; Installation</a>
+<a class="nav-item" href="module-3.html">3. Creating Your First Django Project</a>
+<a class="nav-item" href="module-4.html">4. Django Project Structure</a>
+<a class="nav-item" href="module-5.html">5. Creating a Django App</a>
+<a class="nav-item" href="module-6.html">6. Your First Django View</a>
+<a class="nav-item" href="module-7.html">7. URL Routing in Depth</a>
+<a class="nav-item" href="module-8.html">8. HTTP Requests &amp; Responses</a>
+<a class="nav-item" href="module-9.html">9. URL Parameters in Depth</a>
+<a class="nav-item" href="module-10.html">10. Regular Expressions in URLs</a>
+<a class="nav-item" href="module-11.html">11. Error Handling in Django</a>
+<a class="nav-item" href="module-12.html">12. Introduction to Templates</a>
+<a class="nav-item" href="module-13.html">13. Django Template Language (DTL)</a>
+<a class="nav-item" href="module-14.html">14. Template Tags: if, else, for</a>
+<a class="nav-item" href="module-15.html">15. Template Filters in Depth</a>
+<a class="nav-item" href="module-16.html">16. Dynamic Templates</a>
+<a class="nav-item" href="module-17.html">17. Template Inheritance</a>
+<a class="nav-item" href="module-18.html">18. Debugging Django</a>
+<a class="nav-item" href="module-19.html">19. Testing in Django</a>
+<a class="nav-item" href="module-20.html">20. HTML Forms &amp; HTTP in Django</a>
+<a class="nav-item" href="module-21.html">21. Django Forms</a>
+<a class="nav-item" href="module-22.html">22. Form Validation</a>
+<a class="nav-item" href="module-23.html">23. CSRF &amp; CSRF Protection</a>
+<a class="nav-item" href="module-24.html">24. POST Redirect Pattern (PRG)</a>
+<a class="nav-item" href="module-25.html">25. Databases &amp; Django Models</a>
+<a class="nav-item" href="module-26.html">26. Model Fields &amp; Field Options</a>
+<a class="nav-item" href="module-27.html">27. Django Migrations in Depth</a>
+<a class="nav-item" href="module-28.html">28. Django ORM in Depth</a>
+<a class="nav-item" href="module-29.html">29. Django Shell &amp; CRUD</a>
+<a class="nav-item" href="module-30.html">30. Advanced Django ORM</a>
+<a class="nav-item" href="module-31.html">31. Relationships &amp; Foreign Keys</a>
+<a class="nav-item" href="module-32.html">32. Django Admin</a>
+<a class="nav-item" href="module-33.html">33. Users, Groups &amp; Permissions</a>
+<a class="nav-item" href="module-34.html">34. Database Configuration</a>
+<a class="nav-item" href="module-35.html">35. Cookies in Django</a>
+<a class="nav-item" href="module-36.html">36. Sessions in Django</a>
+<a class="nav-item" href="module-37.html">37. Django Users</a>
+<a class="nav-item" href="module-38.html">38. Django Login &amp; Logout</a>
+<a class="nav-item" href="module-39.html">39. Protecting Views</a>
+<a class="nav-item" href="module-40.html">40. Complete CRUD Project</a>
+<a class="nav-item" href="module-41.html">41. Complete Auth Project</a>
+<a class="nav-item" href="module-42.html">42. Complete Django Revision</a>
+<a class="nav-item" href="module-43.html">43. Django Viva Masterclass</a>
+<a class="nav-item" href="module-44.html">44. Django Coding Masterclass</a>
+<span class="nav-item current">45. Django Imports Cheat Sheet</span>
+        </div>
+    </div>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-44.html">← Module 44: Django Coding Masterclass</a>
+<span class="pn-btn pn-done">🎉 Course Complete!</span>
+</div>
+
+    <hr>
+
+    <p>If you mean <strong>all important Django imports you should remember for your syllabus/exams</strong>, here is a compact cheat sheet.</p>
+<h2 id="h-4164-1-basic-django-imports">1. Basic Django Imports</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import path, include, reverse, re_path</code></pre></div>
+<div class="table-wrapper"><table><thead><tr>
+<th>Import</th>
+<th>Used for</th>
+</tr></thead><tbody>
+<tr>
+<td><code>HttpResponse</code></td>
+<td>Return plain/text HTTP response</td>
+</tr>
+<tr>
+<td><code>render</code></td>
+<td>Return HTML template with context</td>
+</tr>
+<tr>
+<td><code>redirect</code></td>
+<td>Redirect to another URL</td>
+</tr>
+<tr>
+<td><code>get_object_or_404</code></td>
+<td>Get object or automatically raise 404</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>Define URL patterns</td>
+</tr>
+<tr>
+<td><code>include</code></td>
+<td>Include app URLs</td>
+</tr>
+<tr>
+<td><code>reverse</code></td>
+<td>Generate URL from URL name</td>
+</tr>
+<tr>
+<td><code>re_path</code></td>
+<td>Regex-based URL</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="h-4165-2-views">2. Views</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse, JsonResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404</code></pre></div>
+<h3 id="h-4166-json-response">JSON response</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import JsonResponse</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>return JsonResponse({"name": "Aman"})</code></pre></div>
+<h3 id="h-4167-raise-404">Raise 404</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import Http404</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise Http404("Student not found")</code></pre></div>
+<hr>
+<h2 id="h-4168-3-urls">3. URLs</h2>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path, include, reverse, re_path</code></pre></div>
+<p>Typical:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import path
+from . import views</code></pre></div>
+<p>With regex:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.urls import re_path</code></pre></div>
+<hr>
+<h1 id="h-4169-4-models">4. Models</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class Student(models.Model):
+name = models.CharField(max_length=100)
+age = models.IntegerField()</code></pre></div>
+<h3 id="h-4170-important-field-related-imports">Important field-related imports</h3>
+<p>Usually you <strong>don't import individual fields</strong>.</p>
+<p>❌ Don't do:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import CharField</code></pre></div>
+<p>Instead:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models</code></pre></div>
+<p>and use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>models.CharField()
+models.IntegerField()
+models.ForeignKey()</code></pre></div>
+<hr>
+<h1 id="h-4171-5-orm-querying">5. ORM — Querying</h1>
+<p>Basic model import:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from .models import Student</code></pre></div>
+<p>or from another app:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from students.models import Student</code></pre></div>
+<h3 id="h-4172-q-objects">Q objects</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.filter(
+Q(course="CSE") | Q(course="ECE")
+)</code></pre></div>
+<h3 id="h-4173-f-expressions">F expressions</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import F</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.update(
+marks=F("marks") + 5
+)</code></pre></div>
+<h3 id="h-4174-aggregation">Aggregation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Count, Sum, Avg, Max, Min</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.objects.aggregate(
+Avg("marks")
+)</code></pre></div>
+<h3 id="h-4175-common-combined-import">Common combined import</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models import Q, F, Count, Sum, Avg, Max, Min</code></pre></div>
+<hr>
+<h1 id="h-4176-6-forms">6. Forms</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.Form):
+name = forms.CharField()
+age = forms.IntegerField()</code></pre></div>
+<h3 id="h-4177-validation">Validation</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>raise forms.ValidationError("Invalid marks")</code></pre></div>
+<hr>
+<h1 id="h-4178-7-modelform">7. ModelForm</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+from .models import Student</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentForm(forms.ModelForm):
+class Meta:
+model = Student
+fields = ["name", "email", "marks"]</code></pre></div>
+<hr>
+<h1 id="h-4179-8-authentication">8. Authentication</h1>
+<p>These are <strong>extremely important</strong>:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import authenticate, login, logout</code></pre></div>
+<h3 id="h-4180-authenticate"><code>authenticate()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = authenticate(
+request,
+username=username,
+password=password
+)</code></pre></div>
+<h3 id="h-4181-login"><code>login()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>login(request, user)</code></pre></div>
+<h3 id="h-4182-logout"><code>logout()</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>logout(request)</code></pre></div>
+<hr>
+<h1 id="h-4183-9-django-user-model">9. Django User Model</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User</code></pre></div>
+<p>Create user:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user = User.objects.create_user(
+username="aman",
+password="password123"
+)</code></pre></div>
+<hr>
+<h1 id="h-4184-10-usercreationform">10. UserCreationForm</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.forms import UserCreationForm</code></pre></div>
+<p>Usually combined with:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class RegisterForm(UserCreationForm):
+email = forms.EmailField(required=True)
+
+class Meta:
+model = User
+fields = ["username", "email", "password1", "password2"]</code></pre></div>
+<hr>
+<h1 id="h-4185-11-login-protection">11. Login Protection</h1>
+<h3 id="h-4186-login-required"><code>login_required</code></h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import login_required</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@login_required
+def dashboard(request):
+...</code></pre></div>
+<h3 id="h-4187-permission-checking">Permission checking</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import permission_required</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@permission_required(
+"students.delete_student",
+raise_exception=True
+)
+def delete_student(request, id):
+...</code></pre></div>
+<h3 id="h-4188-user-test">User test</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.decorators import user_passes_test</code></pre></div>
+<hr>
+<h1 id="h-4189-12-groups-permissions">12. Groups &amp; Permissions</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import User, Group</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>group = Group.objects.create(name="Teachers")</code></pre></div>
+<p>Permission-related imports can include:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.models import Permission</code></pre></div>
+<hr>
+<h1 id="h-4190-13-admin">13. Admin</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin</code></pre></div>
+<p>Import your model:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from .models import Student</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>admin.site.register(Student)</code></pre></div>
+<p>Customized admin:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import admin
+from .models import Student</code></pre></div>
+<hr>
+<h1 id="h-4191-14-cookies">14. Cookies</h1>
+<p><strong>Cookies usually don't require a special import.</strong></p>
+<p>Use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.COOKIES</code></pre></div>
+<p>and:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>response.set_cookie()
+response.delete_cookie()</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.http import HttpResponse
+
+def set_cookie(request):
+response = HttpResponse("Cookie set")
+response.set_cookie("username", "Aman")
+return response</code></pre></div>
+<hr>
+<h1 id="h-4192-15-sessions">15. Sessions</h1>
+<p>Sessions also generally don't require a special import.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session["username"] = "Aman"</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.session.get("username")</code></pre></div>
+<p>For authentication logout, use:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth import logout</code></pre></div>
+<hr>
+<h1 id="h-4193-16-csrf">16. CSRF</h1>
+<h3 id="h-4194-template">Template</h3>
+<p>No Python import needed:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% csrf_token %}</code></pre></div>
+<h3 id="h-4195-csrf-decorator">CSRF decorator</h3>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.decorators.csrf import csrf_exempt</code></pre></div>
+<p>Then:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@csrf_exempt
+def my_view(request):
+...</code></pre></div>
+<p>⚠️ <code>csrf_exempt</code> disables CSRF protection, so don't use it casually.</p>
+<p>Other useful imports:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_protect</code></pre></div>
+<hr>
+<h1 id="h-4196-17-testing">17. Testing</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.test import TestCase</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>class StudentTest(TestCase):
+def test_home(self):
+response = self.client.get("/students/")
+self.assertEqual(response.status_code, 200)</code></pre></div>
+<p>You can also import models:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from .models import Student</code></pre></div>
+<hr>
+<h1 id="h-4197-18-class-based-views">18. Class-Based Views</h1>
+<p>Important imports:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views import View</code></pre></div>
+<p>Generic views:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.views.generic import (
+ListView,
+DetailView,
+CreateView,
+UpdateView,
+DeleteView
+)</code></pre></div>
+<p>Authentication mixins:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.mixins import (
+LoginRequiredMixin,
+PermissionRequiredMixin,
+UserPassesTestMixin
+)</code></pre></div>
+<hr>
+<h1 id="h-4198-19-generic-authentication-views">19. Generic Authentication Views</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.views import (
+LoginView,
+LogoutView
+)</code></pre></div>
+<hr>
+<h1 id="h-4199-20-messages-framework">20. Messages Framework</h1>
+<p>Very useful in real Django projects:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib import messages</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>messages.success(request, "Student created successfully.")
+messages.error(request, "Something went wrong.")
+messages.warning(request, "Please check your data.")
+messages.info(request, "Information")</code></pre></div>
+<hr>
+<h1 id="h-4200-21-static-files">21. Static Files</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.templatetags.static import static</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>image_url = static("images/logo.png")</code></pre></div>
+<p>Usually in templates:</p>
+<div class="code-block-wrapper lang-html"><span class="code-lang-label">HTML</span><pre><code>{% load static %}</code></pre></div>
+<hr>
+<h1 id="h-4201-22-file-uploads">22. File Uploads</h1>
+<p>No special import is needed for basic uploaded files.</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>request.FILES</code></pre></div>
+<p>For models:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import models</code></pre></div>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>image = models.ImageField(upload_to="images/")
+file = models.FileField(upload_to="files/")</code></pre></div>
+<hr>
+<h1 id="h-4202-23-time-date">23. Time/Date</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.utils import timezone</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>now = timezone.now()</code></pre></div>
+<hr>
+<h1 id="h-4203-24-transactions">24. Transactions</h1>
+<p>For database transactions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db import transaction</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>with transaction.atomic():
+...</code></pre></div>
+<hr>
+<h1 id="h-4204-25-exceptions">25. Exceptions</h1>
+<p>Useful ORM exceptions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.exceptions import (
+ValidationError,
+ObjectDoesNotExist
+)</code></pre></div>
+<p>More specifically:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.exceptions import ValidationError</code></pre></div>
+<p>For model-specific exceptions:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>Student.DoesNotExist
+Student.MultipleObjectsReturned</code></pre></div>
+<hr>
+<h1 id="h-4205-26-password-hashing">26. Password Hashing</h1>
+<p>Normally you should use the User methods:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>user.set_password("password")
+user.check_password("password")</code></pre></div>
+<p>For lower-level password utilities:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.contrib.auth.hashers import (
+make_password,
+check_password
+)</code></pre></div>
+<hr>
+<h1 id="h-4206-27-email">27. Email</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.mail import send_mail</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>send_mail(
+"Subject",
+"Message",
+"from@example.com",
+["to@example.com"]
+)</code></pre></div>
+<hr>
+<h1 id="h-4207-28-pagination">28. Pagination</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.paginator import Paginator</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>paginator = Paginator(students, 10)</code></pre></div>
+<hr>
+<h1 id="h-4208-29-file-storage">29. File Storage</h1>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.core.files.storage import default_storage</code></pre></div>
+<hr>
+<h1 id="h-4209-30-signals">30. Signals</h1>
+<p>Important if your syllabus goes deeper:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.db.models.signals import (
+pre_save,
+post_save,
+pre_delete,
+post_delete
+)</code></pre></div>
+<p>And:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>from django.dispatch import receiver</code></pre></div>
+<p>Example:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code>@receiver(post_save, sender=Student)
+def student_created(sender, instance, created, **kwargs):
+...</code></pre></div>
+<hr>
+<h1 id="h-4210-most-important-imports-for-your-exam">⭐ Most Important Imports for Your Exam</h1>
+<p>If your goal is <strong>Django college exam + viva + coding questions</strong>, memorize these first:</p>
+<div class="code-block-wrapper lang-python"><span class="code-lang-label">PYTHON</span><pre><code># HTTP / Views
+from django.http import HttpResponse, JsonResponse, Http404
+
+# Shortcuts
+from django.shortcuts import render, redirect, get_object_or_404
+
+# URLs
+from django.urls import path, include, reverse, re_path
+
+# Models
+from django.db import models
+
+# ORM
+from django.db.models import Q, F, Count, Sum, Avg, Max, Min
+
+# Forms
+from django import forms
+
+# Authentication
+from django.contrib.auth import authenticate, login, logout
+
+# User
+from django.contrib.auth.models import User, Group
+
+# Authentication decorators
+from django.contrib.auth.decorators import login_required, permission_required
+
+# User registration
+from django.contrib.auth.forms import UserCreationForm
+
+# Admin
+from django.contrib import admin
+
+# Testing
+from django.test import TestCase
+
+# CSRF
+from django.views.decorators.csrf import csrf_exempt
+
+# Timezone
+from django.utils import timezone
+
+# Messages
+from django.contrib import messages
+
+# Transactions
+from django.db import transaction
+
+# Exceptions
+from django.core.exceptions import ValidationError</code></pre></div>
+<h3 id="h-4211-one-line-memory-map">🧠 One-line memory map</h3>
+<div class="code-block-wrapper lang-text"><span class="code-lang-label">TEXT</span><pre><code>Views → django.http / django.shortcuts
+URLs → django.urls
+Models → django.db.models
+ORM → django.db.models (Q, F, Avg, Count...)
+Forms → django
+Auth → django.contrib.auth
+Users → django.contrib.auth.models
+Admin → django.contrib.admin
+Testing → django.test
+CSRF → django.views.decorators.csrf
+Messages → django.contrib.messages
+Timezone → django.utils.timezone</code></pre></div>
+<p>This covers the <strong>important imports across essentially all 44 modules we studied</strong>, rather than trying to list every internal Django module.</p>
+
+    <div class="prev-next">
+<a class="pn-btn pn-prev" href="module-44.html">← Module 44: Django Coding Masterclass</a>
+<span class="pn-btn pn-done">🎉 Course Complete!</span>
+</div>
+
+</div>
+
+</body>
+</html>
