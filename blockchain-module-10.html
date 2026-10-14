@@ -3,359 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 10: Classification & Traditional Consensus (Paxos, Raft, PBFT) — Blockchain Study Guide</title>
-    <meta name="description" content="Blockchain & Cryptography study guide — Module 10 of 13: Classification & Traditional Consensus (Paxos, Raft, PBFT).">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <title>Module 10: Classification & Traditional Consensus (Paxos, Raft, PBFT) — Blockchain Engineering</title>
     <link rel="stylesheet" href="shared.css">
-
-    <!-- MathJax for LaTeX rendering -->
-    <script>
-    MathJax = {
-        tex: {
-            inlineMath: [['\\(', '\\)'], ['$', '$']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        },
-        options: {
-            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-    };
-    </script>
+    <!-- MathJax for crystal clear mathematical equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-<style>
-@page { size: A4; margin: 15mm; }
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--text-body, #2d3748);
-    margin: 0; padding: 0;
-    background-color: var(--bg-body, #f3f5f8);
-}
-
-.page-container {
-    max-width: 1100px;
-    margin: 25px auto 40px;
-    padding: 40px 55px;
-    background-color: var(--bg-page, #ffffff);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-}
-
-.module-banner {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
-    border-radius: 10px;
-    padding: 28px 32px;
-    margin-bottom: 28px;
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
-}
-.module-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.18);
-    font-size: 12px; font-weight: 700;
-    padding: 4px 16px; border-radius: 20px;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    border: 1px solid rgba(255,255,255,0.25);
-    margin-bottom: 10px;
-}
-.module-banner-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 26px; font-weight: 700; line-height: 1.3;
-    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
-}
-
-.nav-toggle { margin-bottom: 24px; }
-.nav-toggle-btn {
-    display: inline-block;
-    background: #0284c7;
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-.nav-toggle-btn:hover { background: #0369a1; }
-
-.nav-panel {
-    display: none;
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-top: 8px;
-    column-count: 2;
-    column-gap: 24px;
-}
-.nav-panel.open { display: block; }
-
-.nav-item {
-    display: block;
-    padding: 6px 10px;
-    font-size: 13px;
-    color: var(--link-color, #0284c7);
-    text-decoration: none;
-    border-radius: 4px;
-    break-inside: avoid;
-    transition: all 0.15s;
-}
-.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
-.nav-item.current {
-    background: #0284c7;
-    color: #fff !important;
-    font-weight: 600;
-}
-
-h1 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 26px;
-    color: var(--heading-color, #0f172a);
-    border-bottom: 2px solid #0284c7;
-    padding-bottom: 10px;
-    margin-top: 36px; margin-bottom: 20px;
-    line-height: 1.3;
-}
-h2 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 21px;
-    color: var(--heading-h2, #0369a1);
-    border-left: 5px solid #0284c7;
-    padding-left: 12px;
-    margin-top: 34px; margin-bottom: 16px;
-    line-height: 1.35;
-}
-h3 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 18px;
-    color: var(--heading-h3, #075985);
-    margin-top: 24px; margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
-ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
-li { margin-bottom: 6px; }
-hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
-
-blockquote {
-    background-color: var(--bg-blockquote, #f0f9ff);
-    border-left: 5px solid #0284c7;
-    margin: 18px 0;
-    padding: 14px 18px;
-    color: var(--text-blockquote, #0369a1);
-    border-radius: 0 6px 6px 0;
-}
-
-pre {
-    background-color: var(--bg-code-block, #0f172a);
-    color: #f8fafc;
-    padding: 16px 20px;
-    border-radius: 8px;
-    overflow-x: auto;
-    font-family: 'JetBrains Mono', Consolas, monospace;
-    font-size: 13.5px;
-    line-height: 1.5;
-    margin: 18px 0;
-}
-code {
-    font-family: 'JetBrains Mono', Consolas, monospace;
-    font-size: 13px;
-    background-color: var(--bg-code-inline, #e2e8f0);
-    color: var(--text-code-inline, #be185d);
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-pre code {
-    background: transparent;
-    color: inherit;
-    padding: 0;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 14px;
-}
-th, td {
-    border: 1px solid var(--border-color, #cbd5e0);
-    padding: 10px 14px;
-    text-align: left;
-    vertical-align: top;
-}
-th {
-    background: #0284c7;
-    color: #ffffff;
-    font-weight: 600;
-}
-tr:nth-child(even) td {
-    background: var(--bg-table-stripe, #f8fafc);
-}
-
-.ref-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 12px;
-    background: rgba(2, 132, 199, 0.1);
-    color: #0284c7;
-    font-size: 12px;
-    font-weight: 600;
-    margin: 4px 0 12px;
-}
-
-.math-display {
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #cbd5e0);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 16px 0;
-    text-align: center;
-    overflow-x: auto;
-}
-
-.exam-header-banner {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 16px;
-    margin: 28px 0 16px;
-}
-
-.memory-trick-banner {
-    background: #fef3c7;
-    color: #92400e;
-    border-left: 4px solid #f59e0b;
-    padding: 10px 16px;
-    border-radius: 4px;
-    font-weight: 700;
-    margin: 20px 0 14px;
-}
-
-.prev-next {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-top: 40px;
-    padding-top: 24px;
-    border-top: 2px solid var(--border-color, #e2e8f0);
-}
-.pn-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #cbd5e0);
-    border-radius: 8px;
-    color: #0284c7;
-    font-size: 14px; font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-.pn-btn:hover {
-    border-color: #0284c7;
-    background: rgba(2, 132, 199, 0.08);
-    transform: translateY(-1px);
-}
-.pn-reader {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    background: #0f172a;
-    color: #fff;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 13px; font-weight: 600;
-}
-.pn-reader:hover { background: #1e293b; }
-
-@media (max-width: 768px) {
-    .page-container { margin: 12px; padding: 22px 18px; }
-    .prev-next { flex-direction: column; align-items: stretch; }
-    .pn-btn { justify-content: center; }
-    .nav-panel { column-count: 1; }
-}
-</style>
+    <style>
+        .module-page-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+        @media (max-width: 900px) {
+            .module-page-container {
+                grid-template-columns: 1fr;
+            }
+            .module-sidebar {
+                display: none;
+            }
+        }
+        .module-sidebar {
+            position: sticky;
+            top: 88px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        .nav-item {
+            display: block;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            text-decoration: none;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            transition: all 0.15s;
+        }
+        .nav-item:hover {
+            color: var(--bc-accent);
+            background: rgba(2, 132, 199, 0.08);
+        }
+        .nav-item.current {
+            background: var(--bc-accent);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .content-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px 48px;
+            box-shadow: var(--shadow-sm);
+            line-height: 1.75;
+            color: var(--text-body);
+        }
+        @media (max-width: 600px) {
+            .content-card {
+                padding: 24px 20px;
+            }
+        }
+        .module-banner {
+            background: var(--bc-gradient);
+            color: #ffffff;
+            padding: 28px 32px;
+            border-radius: var(--radius-md);
+            margin-bottom: 36px;
+        }
+        .module-banner-num {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.85;
+            font-weight: 600;
+        }
+        .module-banner-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            margin: 6px 0 12px;
+            line-height: 1.3;
+        }
+        .module-nav-btns {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+        .mod-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-heading);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .mod-btn:hover {
+            border-color: var(--bc-accent);
+            color: var(--bc-accent);
+            background: rgba(2, 132, 199, 0.05);
+        }
+        .mod-btn.primary {
+            background: var(--bc-accent);
+            color: #ffffff;
+            border-color: var(--bc-accent);
+        }
+        .mod-btn.primary:hover {
+            background: var(--bc-accent-hover);
+        }
+        .ref-pill {
+            display: inline-block;
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--bc-accent);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin: 4px 0 12px;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+        .exam-header-banner {
+            background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b25 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-heading);
+            margin: 28px 0 16px;
+        }
+        .memory-trick-banner {
+            background: linear-gradient(135deg, #10b98115 0%, #10b98125 100%);
+            border-left: 4px solid #10b981;
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-heading);
+            margin: 24px 0 14px;
+        }
+        .math-display {
+            overflow-x: auto;
+            padding: 12px 0;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .math-inline {
+            display: inline-block;
+        }
+        /* Markdown generated elements styling */
+        .content-card h1, .content-card h2, .content-card h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-heading);
+            margin-top: 36px;
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+        .content-card h1 { font-size: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .content-card h2 { font-size: 20px; }
+        .content-card h3 { font-size: 17px; }
+        .content-card p { margin-bottom: 14px; }
+        .content-card ul, .content-card ol {
+            margin: 12px 0 18px 24px;
+        }
+        .content-card li {
+            margin-bottom: 6px;
+        }
+        .content-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 14px;
+        }
+        .content-card th, .content-card td {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .content-card th {
+            background: var(--bg-subtle);
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+        .content-card pre {
+            background: var(--bg-code-block);
+            color: #f8fafc;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 13.5px;
+        }
+        .content-card code {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+        .content-card p code, .content-card li code {
+            background: var(--bg-code-inline);
+            color: var(--text-code-inline);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- GLOBAL NAVIGATION HEADER -->
-<header class="global-navbar">
-    <div class="nav-container">
-        <a href="index.html" class="nav-brand">
-            <span class="nav-brand-icon">⚡</span>
-            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
-        </a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
-            <div class="nav-dropdown">
-                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
-                <div class="nav-dropdown-menu">
-                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
-                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
-                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
-                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
-                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
-                    <a href="blockchain-module-5.html">Module 5: Symmetric Cryptography</a>
-                    <a href="blockchain-module-6.html">Module 6: Public Key Cryptography</a>
-                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
-                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
-                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
-                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
-                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
-                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
-                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
-                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
-                </div>
+    <!-- Global Top Navbar -->
+    <header class="global-navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-icon">🎓</span>
+                <span class="brand-name">OmniCourse</span>
+                <span class="brand-badge">Engineering Portal</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="django.html" class="nav-link">Django</a>
+                <a href="blockchain.html" class="nav-link active">Blockchain</a>
+                <a href="maths.html" class="nav-link">Maths</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">
+                    <span class="theme-icon light-icon">☀️</span>
+                    <span class="theme-icon dark-icon">🌙</span>
+                </button>
             </div>
-            <div class="nav-dropdown">
-                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
-                <div class="nav-dropdown-menu">
-                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
-                    <a href="module-1.html">Module 1: Fundamentals</a>
-                    <a href="module-7.html">Module 7: URL Routing</a>
-                    <a href="module-12.html">Module 12: Templates</a>
-                    <a href="module-21.html">Module 21: Forms</a>
-                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
-                    <a href="module-37.html">Module 37: Authentication</a>
-                    <a href="module-42.html">Module 42: Complete Revision</a>
-                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
-                </div>
-            </div>
-            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
         </div>
-        <div class="nav-actions">
-            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
-            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 Syllabus</a>
-        </div>
-    </div>
-</header>
+    </header>
 
-<div class="page-container">
-
-    <div class="module-banner">
-        <div class="module-badge">Module 10 of 13 — Blockchain &amp; Cryptography</div>
-        <h1 class="module-banner-title">Classification & Traditional Consensus (Paxos, Raft, PBFT)</h1>
-    </div>
-
-    <div class="nav-toggle">
-        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
-            📚 All Blockchain Modules (13) ▾
-        </button>
-        <div class="nav-panel" id="bcNavPanel">
-<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+    <!-- Main Container -->
+    <main class="module-page-container">
+        <!-- Sidebar Navigation -->
+        <aside class="module-sidebar">
+            <div class="sidebar-title">Blockchain Modules</div>
+            <a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
 <a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
 <a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
 <a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
@@ -368,11 +274,18 @@ tr:nth-child(even) td {
 <a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
 <a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
 <a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
-        </div>
-    </div>
+        </aside>
 
-    <div class="module-content">
-<p>Based primarily on your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span><span class="ref-pill">📄 Slides Reference:  and PBFT Algorithm.pptx</span>.</p>
+        <!-- Main Content Card -->
+        <article class="content-card">
+            <div class="module-banner">
+                <div class="module-banner-num">Chapter 3 &bull; Module 10 of 13</div>
+                <h1 class="module-banner-title">Classification & Traditional Consensus (Paxos, Raft, PBFT)</h1>
+                <div style="font-size: 14px; opacity: 0.9;">Comprehensive lecture notes, algorithms, architectural diagrams & exam-ready answers</div>
+            </div>
+
+            <div class="module-body">
+                <p>Based primarily on your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span> <span class="ref-pill">📄 Slides Reference: and PBFT Algorithm.pptx</span>.</p>
 <p>In Module 1, we learned what consensus is, why it is necessary, and how faulty nodes affect distributed systems. Now we'll study how consensus algorithms are classified and how traditional algorithms actually work.</p>
 <p>This module focuses on:</p>
 <ol>
@@ -399,9 +312,8 @@ tr:nth-child(even) td {
 <p>Your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span> divides consensus algorithms into two broad categories:</p>
 <ol>
 <li>Traditional — voting-based consensus</li>
-<li>Lottery-based — Nakamoto and post-Nakamoto consensus&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+<li>Lottery-based — Nakamoto and post-Nakamoto consensus</li>
 </ol>
-<p>CONSENSUS UNIT-3.pptx</span></p>
 <p>Let's understand each category.</p>
 <h2>1.2 Traditional voting-based consensus</h2>
 <p>Traditional consensus algorithms were developed in distributed-systems research before Bitcoin.</p>
@@ -418,8 +330,7 @@ tr:nth-child(even) td {
 <p>The purpose is to ensure that failures do not cause different honest replicas to decide conflicting values.</p>
 <p>Important: quorum rules depend on the particular algorithm. Consensus is not always equivalent to taking a simple majority vote.</p>
 <h2>1.3 Lottery-based consensus</h2>
-<p>Your teacher's PPT calls the second category lottery-based or Nakamoto-type consensus. It identifies Bitcoin as the first example of this category.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT calls the second category lottery-based or Nakamoto-type consensus. It identifies Bitcoin as the first example of this category.</p>
 <p>Rather than requiring a fixed, known group of validators to vote on every decision, Nakamoto-style systems use a mechanism that determines who gets to propose the next block.</p>
 <p>In Bitcoin, this mechanism is Proof of Work (PoW).</p>
 <p>Miners compete to find a block satisfying the network's difficulty requirement. Nodes follow the protocol's chain-selection rules to determine the accepted blockchain history.</p>
@@ -470,9 +381,8 @@ tr:nth-child(even) td {
 <p>Your teacher's PPT identifies Paxos as a Crash Fault Tolerance (CFT) algorithm and describes it as a two-phase protocol:</p>
 <ol>
 <li>Prepare phase</li>
-<li>Accept phase&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+<li>Accept phase</li>
 </ol>
-<p>CONSENSUS UNIT-3.pptx</span></p>
 <h2>2.1 Why do we need Paxos?</h2>
 <p>Imagine three servers maintaining a replicated database.</p>
 <p>A client requests that the database store the value <code>100</code>.</p>
@@ -484,14 +394,55 @@ tr:nth-child(even) td {
 <p>How can the system decide on a value without requiring every server to be operational?</p>
 <p>Paxos uses proposal numbers and responses from a majority of acceptors to achieve agreement while tolerating certain failures.</p>
 <h2>2.2 The three roles in Paxos</h2>
-<p>Your teacher's PPT identifies three roles: proposer, acceptor and learner. A single process may perform more than one role.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
-<p>1. Proposer</p>
-<p>Suggests a value for the system to decide. It sends proposal messages to acceptors.</p>
-<p>2. Acceptor</p>
-<p>Responds to proposals and participates in deciding which value is chosen. A majority of acceptors is important to the protocol.</p>
-<p>3. Learner</p>
-<p>Learns the value that has been chosen. It does not need to initiate proposals.</p>
+<p>Your teacher's PPT identifies three roles: proposer, acceptor and learner. A single process may perform more than one role.</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">The Three Roles in Paxos</h4>
+<div class="diagram-subtitle">Processes can assume one or more roles to achieve consensus</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title">Proposer <span class='node-badge'>Active</span></div>
+<div class="diagram-node-desc">Suggests a value & sends proposal messages</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor <span class='node-badge'>Quorum</span></div>
+<div class="diagram-node-desc">Responds to proposals & forms quorum majority</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+<div class="diagram-node-title">Learner <span class='node-badge'>Observer</span></div>
+<div class="diagram-node-desc">Learns chosen value without proposing</div>
+</div>
+
+</div>
+<div class="diagram-footer">A majority of operational acceptors is sufficient for safety and progress.</div>
+</div>
 <h3>Easy example</h3>
 <p>Suppose five nodes participate:</p>
 <ul>
@@ -516,41 +467,134 @@ tr:nth-child(even) td {
 <p>The proposer chooses a proposal number _<strong>MATH_INL_0</strong>_ and sends a <code>Prepare(n)</code> message to acceptors.</p>
 <p>The acceptors check the proposal number against the promises they have already made.</p>
 <p>If _<strong>MATH_INL_1</strong>_ is sufficiently high, an acceptor promises not to accept proposals numbered lower than _<strong>MATH_INL_2</strong>_. It also reports information about the highest-numbered proposal it has already accepted, if any.</p>
-<pre><code>              Proposer
-                  |
-          Prepare(n) message
-           /      |      \
-          v       v       v
-      Acceptor Acceptor Acceptor
-          |       |       |
-          └───────┴───────┘
-            Promise / reply
-                  |
-                  v
-        Proposer collects replies
-</code></pre>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Paxos Phase 1 — Prepare Phase</h4>
+<div class="diagram-subtitle">Proposer claims proposal number n and gathers promises from acceptors</div>
+</div>
+<div class="fork-root-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title">Proposer</div>
+<div class="diagram-node-desc">Selects unique proposal number n</div>
+</div>
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Prepare(n) Message Broadcast</span></div>
+<div class="diagram-nodes-row">
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 1</div>
+<div class="diagram-node-desc">Promises not to accept proposals &lt; n</div>
+</div>
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 2</div>
+<div class="diagram-node-desc">Promises not to accept proposals &lt; n</div>
+</div>
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 3</div>
+<div class="diagram-node-desc">Promises not to accept proposals &lt; n</div>
+</div>
+</div>
+<div class="diagram-arrow">↑ <span class="diagram-arrow-label">Promise Replies Returned</span></div>
+<div class="diagram-footer">If proposer receives promises from a majority of acceptors, it proceeds to Phase 2.</div>
+</div>
 <p>The proposer needs replies from a majority of acceptors to proceed.</p>
 <p>Remember: the prepare phase establishes promises and gathers information about earlier accepted proposals.</p>
 <h2>2.5 Phase 2 — Accept</h2>
 <p>After receiving responses from a majority, the proposer determines which value to propose in the accept phase.</p>
 <p>An important Paxos rule is that if an acceptor reported an earlier accepted proposal, the proposer must respect the protocol's rule for selecting the value—normally choosing the value associated with the highest-numbered previously accepted proposal among the responses.</p>
 <p>The proposer then sends an accept request containing the proposal number and value.</p>
-<pre><code>              Proposer
-                  |
-           Accept(n, value)
-           /      |      \
-          v       v       v
-      Acceptor Acceptor Acceptor
-          |       |       |
-          └───────┴───────┘
-          Accept responses
-                  |
-                  v
-       Value chosen by majority
-                  |
-                  v
-              Learners
-</code></pre>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Paxos Phase 2 — Accept Phase</h4>
+<div class="diagram-subtitle">Proposer sends value; majority acceptance commits the decision</div>
+</div>
+<div class="fork-root-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title">Proposer</div>
+<div class="diagram-node-desc">Proposes Accept(n, value)</div>
+</div>
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Accept(n, value) Request</span></div>
+<div class="diagram-nodes-row">
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 1</div>
+<div class="diagram-node-desc">Accepts proposal n</div>
+</div>
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 2</div>
+<div class="diagram-node-desc">Accepts proposal n</div>
+</div>
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Acceptor 3</div>
+<div class="diagram-node-desc">Accepts proposal n</div>
+</div>
+</div>
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Majority Accepted → Decision Chosen!</span></div>
+<div class="fork-root-node" style="border-color: #10b981;">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+<div class="diagram-node-title" style="color: #34d399;">Learners</div>
+<div class="diagram-node-desc">Learn and execute the agreed value</div>
+</div>
+<div class="diagram-footer">Once a majority of acceptors accepts the same proposal, the value is permanently decided.</div>
+</div>
 <p>When a majority of acceptors accepts the same proposal, the value is chosen. Learners can then learn the decision.</p>
 <h3>What if one acceptor fails?</h3>
 <p>Suppose there are five acceptors and one fails. Four remain operational.</p>
@@ -593,8 +637,7 @@ tr:nth-child(even) td {
 <li>Diagram and conclusion</li>
 </ol>
 <h1>Topic 3: Raft Algorithm</h1>
-<p>Raft is another Crash Fault Tolerance (CFT) consensus algorithm. Your teacher's PPT describes it as a replicated-log algorithm in which a leader is elected and log entries are replicated to followers.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Raft is another Crash Fault Tolerance (CFT) consensus algorithm. Your teacher's PPT describes it as a replicated-log algorithm in which a leader is elected and log entries are replicated to followers.</p>
 <h2>3.1 Basic idea</h2>
 <p>Imagine five servers maintaining the same database.</p>
 <p>Instead of allowing every server to independently coordinate every update, Raft elects a leader. Clients send requests to the leader, which replicates the changes to followers.</p>
@@ -606,12 +649,54 @@ tr:nth-child(even) td {
 </ol>
 <h2>3.2 The three server states</h2>
 <p>Every Raft server can be in one of three states.</p>
-<p>Leader</p>
-<p>Receives client requests and coordinates log replication.</p>
-<p>Follower</p>
-<p>Receives instructions and log entries from the leader.</p>
-<p>Candidate</p>
-<p>Requests votes during a leader election.</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">The Three Raft Server States</h4>
+<div class="diagram-subtitle">Every node in a Raft cluster transitions dynamically between these states</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title">Leader <span class='node-badge'>Active Head</span></div>
+<div class="diagram-node-desc">Coordinates log replication & serves clients</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Follower <span class='node-badge'>Replicant</span></div>
+<div class="diagram-node-desc">Passive; receives heartbeats and entries</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+<circle cx="12" cy="7" r="4"></circle>
+</svg>
+<div class="diagram-node-title">Candidate <span class='node-badge'>Election</span></div>
+<div class="diagram-node-desc">Transitions on timeout to request election votes</div>
+</div>
+
+</div>
+<div class="diagram-footer">At most one valid leader exists per term; followers become candidates when heartbeat timeouts expire.</div>
+</div>
 <h2>3.3 Step 1 — Leader election</h2>
 <p>When the system starts, servers generally begin as followers.</p>
 <p>If a follower does not receive the expected communication from a leader within its election timeout, it may become a candidate and request votes.</p>
@@ -621,12 +706,51 @@ tr:nth-child(even) td {
 <p>Suppose a client requests:</p>
 <p><code>Set account balance = 500</code></p>
 <p>The process is:</p>
-<p>Client request</p>
-<p>Set balance to 500</p>
-<p>Leader appends entry to its log</p>
-<p>Leader replicates entry to followers</p>
-<p>Required majority confirms replication</p>
-<p>Entry is committed and applied</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Raft Log Replication Flow</h4>
+<div class='diagram-subtitle'>How a client state change propagates to replicated followers</div>
+</div>
+<div class="diagram-flow-row">
+
+<div class="flow-step-card">
+<div class="flow-step-num">1</div>
+<div class="flow-step-title">Client Request</div>
+<div class='flow-step-desc'>Client submits: Set balance = 500</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">2</div>
+<div class="flow-step-title">Leader Appends</div>
+<div class='flow-step-desc'>Leader writes entry to its uncommitted log</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">3</div>
+<div class="flow-step-title">Follower Replication</div>
+<div class='flow-step-desc'>Leader sends AppendEntries RPCs to followers</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">4</div>
+<div class="flow-step-title">Majority Quorum</div>
+<div class='flow-step-desc'>Majority of followers acknowledge receipt</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">5</div>
+<div class="flow-step-title">Committed & Applied</div>
+<div class='flow-step-desc'>Leader commits entry and notifies replicas to execute</div>
+</div>
+
+
+</div>
+<div class="diagram-footer">Commitment requires acknowledgment from a majority quorum before execution.</div>
+</div>
 <p>The leader does not treat an entry as committed merely because it was written to its own log. Commitment depends on Raft's replication and safety rules.</p>
 <p>Once an entry is committed, the leader informs followers so they can apply the entry to their replicated state machines.</p>
 <h2>3.5 Step 3 — Safety</h2>
@@ -698,20 +822,17 @@ tr:nth-child(even) td {
 <li>A synchronous environment</li>
 <li>Reliable communication channels</li>
 <li>A fully connected network</li>
-<li>Receivers knowing the identities of senders&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+<li>Receivers knowing the identities of senders</li>
 </ul>
-<p>PBFT Algorithm.pptx</span></p>
 <p>These assumptions make the classical problem easier to analyse, but they may be too restrictive for real-world networks.</p>
 <p>This motivates practical Byzantine Fault Tolerance.</p>
 <h2>4.3 Why do we need PBFT?</h2>
 <p>PBFT was designed to make Byzantine fault tolerance practical for replicated services.</p>
-<p>The PPT highlights the use of cryptographic techniques and identifies PBFT as a practical approach that accommodates an asynchronous environment, with safety taking priority when progress cannot be guaranteed.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>PBFT Algorithm.pptx</span></p>
+<p>The PPT highlights the use of cryptographic techniques and identifies PBFT as a practical approach that accommodates an asynchronous environment, with safety taking priority when progress cannot be guaranteed.</p>
 <p>We'll now study the algorithm's operation.</p>
 <h1>Topic 5: Practical Byzantine Fault Tolerance (PBFT)</h1>
 <p>PBFT stands for Practical Byzantine Fault Tolerance. It is a consensus algorithm designed to keep replicated services consistent even when some replicas behave maliciously.</p>
-<p>Your teacher's PBFT PPT covers the replica requirement, primary and backups, views, normal operation, view change, checkpointing, and the three main phases.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>PBFT Algorithm.pptx</span></p>
+<p>Your teacher's PBFT PPT covers the replica requirement, primary and backups, views, normal operation, view change, checkpointing, and the three main phases.</p>
 <h2>5.1 Number of replicas required</h2>
 <p>PBFT uses the following relationship:</p>
 <p>_<strong>MATH_DISP_0</strong>_</p>
@@ -738,14 +859,44 @@ tr:nth-child(even) td {
 <p>A configuration of the system is called a view. Each view has a unique view number, and one replica serves as the primary in that view.</p>
 <p>If the primary is suspected of being faulty, the replicas can initiate a view change to move to a new primary.</p>
 <h2>5.3 Overall PBFT working</h2>
-<p>Client sends request</p>
-<p>1. PRE-PREPARE</p>
-<p>Primary assigns a sequence number and proposes request ordering.</p>
-<p>2. PREPARE</p>
-<p>Replicas exchange messages to check agreement on the proposed request and its ordering.</p>
-<p>3. COMMIT</p>
-<p>Replicas exchange commit messages and determine when the request can be executed.</p>
-<p>Execute request and reply to client</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">PBFT 3-Phase Consensus Pipeline</h4>
+<div class='diagram-subtitle'>Tolerates up to F Byzantine nodes in a system of N ≥ 3F + 1 replicas</div>
+</div>
+<div class="diagram-flow-row">
+
+<div class="flow-step-card">
+<div class="flow-step-num">1</div>
+<div class="flow-step-title">1. Pre-Prepare</div>
+<div class='flow-step-desc'>Primary assigns sequence number n and view v to request</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">2</div>
+<div class="flow-step-title">2. Prepare</div>
+<div class='flow-step-desc'>Replicas broadcast PREPARE; verify 2F matching messages</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">3</div>
+<div class="flow-step-title">3. Commit</div>
+<div class='flow-step-desc'>Replicas broadcast COMMIT; wait for 2F+1 matching messages</div>
+</div>
+<div class="flow-arrow">→</div>
+
+<div class="flow-step-card">
+<div class="flow-step-num">4</div>
+<div class="flow-step-title">Execution & Reply</div>
+<div class='flow-step-desc'>Replicas execute operation and reply directly to client</div>
+</div>
+
+
+</div>
+<div class="diagram-footer">PBFT achieves deterministic finality without mining or forks through quadratic message rounds.</div>
+</div>
 <p>Let's understand each phase.</p>
 <h2>5.4 Phase 1 — Pre-prepare</h2>
 <p>The primary receives a request from the client.</p>
@@ -767,8 +918,7 @@ tr:nth-child(even) td {
 <h2>5.6 Phase 3 — Commit</h2>
 <p>Once the prepare condition is satisfied, a replica sends a <code>COMMIT</code> message to all replicas.</p>
 <p>The replicas collect valid commit messages for the same request, view and sequence number.</p>
-<p>In the PPT's description, the replica waits for _<strong>MATH_INL_8</strong>_ valid commit messages before executing the request and sending its result to the client.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>PBFT Algorithm.pptx</span></p>
+<p>In the PPT's description, the replica waits for _<strong>MATH_INL_8</strong>_ valid commit messages before executing the request and sending its result to the client.</p>
 <p>For _<strong>MATH_INL_9</strong>_:</p>
 <p>_<strong>MATH_DISP_2</strong>_</p>
 <p>Therefore, three valid commit messages satisfy the stated commit threshold.</p>
@@ -919,16 +1069,52 @@ tr:nth-child(even) td {
 <p>For Raft:</p>
 <p>Leader election → Log replication → Commit</p>
 <p>Module 2 is complete. When you're ready, say NEXT MODULE to begin Module 3: Blockchain Consensus Algorithms and Choosing an Algorithm, covering Proof of Work, Proof of Stake, Nakamoto consensus, attacks and the criteria for selecting a consensus mechanism.</p>
-    </div>
+            </div>
 
-    <div class="prev-next">
-        <a class="pn-btn" href="blockchain-module-9.html">&larr; Module 9</a>
-        <a class="pn-reader" href="blockchain.html">📋 All 13 Modules Syllabus</a>
-        <a class="pn-btn" href="blockchain-module-11.html">Module 11 &rarr;</a>
-    </div>
+            <!-- Footer Navigation Buttons -->
+            <div class="module-nav-btns">
+                <a href="blockchain-module-9.html" class="mod-btn">&larr; Module 9</a>
+                <a href="blockchain-module-11.html" class="mod-btn primary">Module 11 &rarr;</a>
+            </div>
+        </article>
+    </main>
 
-</div>
+    <!-- Global Footer -->
+    <footer class="portal-footer">
+        <div class="portal-footer-container">
+            <div class="footer-col brand-col">
+                <div class="footer-brand">
+                    <span class="brand-icon">🎓</span>
+                    <span class="brand-name">OmniCourse</span>
+                </div>
+                <p class="footer-desc">
+                    Comprehensive study portal for Engineering courses: Django, Blockchain Technology & Applied Mathematics.
+                </p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Course Tracks</h4>
+                <ul>
+                    <li><a href="blockchain.html">Blockchain Technology (13 Modules)</a></li>
+                    <li><a href="django.html">Django Full Course (13 Modules)</a></li>
+                    <li><a href="maths.html">Applied Mathematics</a></li>
+                </ul>
+            </div>
 
-<script src="shared.js"></script>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="blockchain.html">Blockchain Syllabus</a></li>
+                    <li><a href="blockchain-module-9.html">Consensus & Algorithms</a></li>
+                    <li><a href="blockchain-module-13.html">Bitcoin Mining & Forks</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; 2026 OmniCourse Education Portal. Designed for exam preparation & engineering mastery.</div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
 </body>
 </html>

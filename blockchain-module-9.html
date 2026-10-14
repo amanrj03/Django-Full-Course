@@ -3,359 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 9: Consensus Problem, Analysis & Design — Blockchain Study Guide</title>
-    <meta name="description" content="Blockchain & Cryptography study guide — Module 9 of 13: Consensus Problem, Analysis & Design.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <title>Module 9: Consensus Problem, Analysis & Design — Blockchain Engineering</title>
     <link rel="stylesheet" href="shared.css">
-
-    <!-- MathJax for LaTeX rendering -->
-    <script>
-    MathJax = {
-        tex: {
-            inlineMath: [['\\(', '\\)'], ['$', '$']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        },
-        options: {
-            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-        }
-    };
-    </script>
+    <!-- MathJax for crystal clear mathematical equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-<style>
-@page { size: A4; margin: 15mm; }
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-    font-family: 'Inter', Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
-    color: var(--text-body, #2d3748);
-    margin: 0; padding: 0;
-    background-color: var(--bg-body, #f3f5f8);
-}
-
-.page-container {
-    max-width: 1100px;
-    margin: 25px auto 40px;
-    padding: 40px 55px;
-    background-color: var(--bg-page, #ffffff);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border-radius: 12px;
-}
-
-.module-banner {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
-    border-radius: 10px;
-    padding: 28px 32px;
-    margin-bottom: 28px;
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
-}
-.module-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.18);
-    font-size: 12px; font-weight: 700;
-    padding: 4px 16px; border-radius: 20px;
-    text-transform: uppercase; letter-spacing: 1.5px;
-    border: 1px solid rgba(255,255,255,0.25);
-    margin-bottom: 10px;
-}
-.module-banner-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 26px; font-weight: 700; line-height: 1.3;
-    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
-}
-
-.nav-toggle { margin-bottom: 24px; }
-.nav-toggle-btn {
-    display: inline-block;
-    background: #0284c7;
-    color: #fff;
-    padding: 8px 18px;
-    border-radius: 6px;
-    font-size: 13px; font-weight: 600;
-    cursor: pointer;
-    border: none;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-.nav-toggle-btn:hover { background: #0369a1; }
-
-.nav-panel {
-    display: none;
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-top: 8px;
-    column-count: 2;
-    column-gap: 24px;
-}
-.nav-panel.open { display: block; }
-
-.nav-item {
-    display: block;
-    padding: 6px 10px;
-    font-size: 13px;
-    color: var(--link-color, #0284c7);
-    text-decoration: none;
-    border-radius: 4px;
-    break-inside: avoid;
-    transition: all 0.15s;
-}
-.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
-.nav-item.current {
-    background: #0284c7;
-    color: #fff !important;
-    font-weight: 600;
-}
-
-h1 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 26px;
-    color: var(--heading-color, #0f172a);
-    border-bottom: 2px solid #0284c7;
-    padding-bottom: 10px;
-    margin-top: 36px; margin-bottom: 20px;
-    line-height: 1.3;
-}
-h2 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 21px;
-    color: var(--heading-h2, #0369a1);
-    border-left: 5px solid #0284c7;
-    padding-left: 12px;
-    margin-top: 34px; margin-bottom: 16px;
-    line-height: 1.35;
-}
-h3 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 18px;
-    color: var(--heading-h3, #075985);
-    margin-top: 24px; margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
-ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
-li { margin-bottom: 6px; }
-hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
-
-blockquote {
-    background-color: var(--bg-blockquote, #f0f9ff);
-    border-left: 5px solid #0284c7;
-    margin: 18px 0;
-    padding: 14px 18px;
-    color: var(--text-blockquote, #0369a1);
-    border-radius: 0 6px 6px 0;
-}
-
-pre {
-    background-color: var(--bg-code-block, #0f172a);
-    color: #f8fafc;
-    padding: 16px 20px;
-    border-radius: 8px;
-    overflow-x: auto;
-    font-family: 'JetBrains Mono', Consolas, monospace;
-    font-size: 13.5px;
-    line-height: 1.5;
-    margin: 18px 0;
-}
-code {
-    font-family: 'JetBrains Mono', Consolas, monospace;
-    font-size: 13px;
-    background-color: var(--bg-code-inline, #e2e8f0);
-    color: var(--text-code-inline, #be185d);
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-pre code {
-    background: transparent;
-    color: inherit;
-    padding: 0;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    font-size: 14px;
-}
-th, td {
-    border: 1px solid var(--border-color, #cbd5e0);
-    padding: 10px 14px;
-    text-align: left;
-    vertical-align: top;
-}
-th {
-    background: #0284c7;
-    color: #ffffff;
-    font-weight: 600;
-}
-tr:nth-child(even) td {
-    background: var(--bg-table-stripe, #f8fafc);
-}
-
-.ref-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 12px;
-    background: rgba(2, 132, 199, 0.1);
-    color: #0284c7;
-    font-size: 12px;
-    font-weight: 600;
-    margin: 4px 0 12px;
-}
-
-.math-display {
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #cbd5e0);
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 16px 0;
-    text-align: center;
-    overflow-x: auto;
-}
-
-.exam-header-banner {
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 16px;
-    margin: 28px 0 16px;
-}
-
-.memory-trick-banner {
-    background: #fef3c7;
-    color: #92400e;
-    border-left: 4px solid #f59e0b;
-    padding: 10px 16px;
-    border-radius: 4px;
-    font-weight: 700;
-    margin: 20px 0 14px;
-}
-
-.prev-next {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-top: 40px;
-    padding-top: 24px;
-    border-top: 2px solid var(--border-color, #e2e8f0);
-}
-.pn-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 22px;
-    background: var(--bg-subtle, #f8fafc);
-    border: 1px solid var(--border-color, #cbd5e0);
-    border-radius: 8px;
-    color: #0284c7;
-    font-size: 14px; font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-.pn-btn:hover {
-    border-color: #0284c7;
-    background: rgba(2, 132, 199, 0.08);
-    transform: translateY(-1px);
-}
-.pn-reader {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    background: #0f172a;
-    color: #fff;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 13px; font-weight: 600;
-}
-.pn-reader:hover { background: #1e293b; }
-
-@media (max-width: 768px) {
-    .page-container { margin: 12px; padding: 22px 18px; }
-    .prev-next { flex-direction: column; align-items: stretch; }
-    .pn-btn { justify-content: center; }
-    .nav-panel { column-count: 1; }
-}
-</style>
+    <style>
+        .module-page-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+        @media (max-width: 900px) {
+            .module-page-container {
+                grid-template-columns: 1fr;
+            }
+            .module-sidebar {
+                display: none;
+            }
+        }
+        .module-sidebar {
+            position: sticky;
+            top: 88px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+        }
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        .nav-item {
+            display: block;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            text-decoration: none;
+            margin-bottom: 4px;
+            line-height: 1.4;
+            transition: all 0.15s;
+        }
+        .nav-item:hover {
+            color: var(--bc-accent);
+            background: rgba(2, 132, 199, 0.08);
+        }
+        .nav-item.current {
+            background: var(--bc-accent);
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .content-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px 48px;
+            box-shadow: var(--shadow-sm);
+            line-height: 1.75;
+            color: var(--text-body);
+        }
+        @media (max-width: 600px) {
+            .content-card {
+                padding: 24px 20px;
+            }
+        }
+        .module-banner {
+            background: var(--bc-gradient);
+            color: #ffffff;
+            padding: 28px 32px;
+            border-radius: var(--radius-md);
+            margin-bottom: 36px;
+        }
+        .module-banner-num {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            opacity: 0.85;
+            font-weight: 600;
+        }
+        .module-banner-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            margin: 6px 0 12px;
+            line-height: 1.3;
+        }
+        .module-nav-btns {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+        .mod-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            color: var(--text-heading);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .mod-btn:hover {
+            border-color: var(--bc-accent);
+            color: var(--bc-accent);
+            background: rgba(2, 132, 199, 0.05);
+        }
+        .mod-btn.primary {
+            background: var(--bc-accent);
+            color: #ffffff;
+            border-color: var(--bc-accent);
+        }
+        .mod-btn.primary:hover {
+            background: var(--bc-accent-hover);
+        }
+        .ref-pill {
+            display: inline-block;
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--bc-accent);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin: 4px 0 12px;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+        .exam-header-banner {
+            background: linear-gradient(135deg, #f59e0b15 0%, #f59e0b25 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-heading);
+            margin: 28px 0 16px;
+        }
+        .memory-trick-banner {
+            background: linear-gradient(135deg, #10b98115 0%, #10b98125 100%);
+            border-left: 4px solid #10b981;
+            padding: 12px 16px;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-heading);
+            margin: 24px 0 14px;
+        }
+        .math-display {
+            overflow-x: auto;
+            padding: 12px 0;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .math-inline {
+            display: inline-block;
+        }
+        /* Markdown generated elements styling */
+        .content-card h1, .content-card h2, .content-card h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-heading);
+            margin-top: 36px;
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+        .content-card h1 { font-size: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .content-card h2 { font-size: 20px; }
+        .content-card h3 { font-size: 17px; }
+        .content-card p { margin-bottom: 14px; }
+        .content-card ul, .content-card ol {
+            margin: 12px 0 18px 24px;
+        }
+        .content-card li {
+            margin-bottom: 6px;
+        }
+        .content-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 14px;
+        }
+        .content-card th, .content-card td {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .content-card th {
+            background: var(--bg-subtle);
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+        .content-card pre {
+            background: var(--bg-code-block);
+            color: #f8fafc;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 13.5px;
+        }
+        .content-card code {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+        .content-card p code, .content-card li code {
+            background: var(--bg-code-inline);
+            color: var(--text-code-inline);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- GLOBAL NAVIGATION HEADER -->
-<header class="global-navbar">
-    <div class="nav-container">
-        <a href="index.html" class="nav-brand">
-            <span class="nav-brand-icon">⚡</span>
-            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
-        </a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
-            <div class="nav-dropdown">
-                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
-                <div class="nav-dropdown-menu">
-                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
-                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
-                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
-                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
-                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
-                    <a href="blockchain-module-5.html">Module 5: Symmetric Cryptography</a>
-                    <a href="blockchain-module-6.html">Module 6: Public Key Cryptography</a>
-                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
-                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
-                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
-                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
-                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
-                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
-                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
-                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
-                </div>
+    <!-- Global Top Navbar -->
+    <header class="global-navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-icon">🎓</span>
+                <span class="brand-name">OmniCourse</span>
+                <span class="brand-badge">Engineering Portal</span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="django.html" class="nav-link">Django</a>
+                <a href="blockchain.html" class="nav-link active">Blockchain</a>
+                <a href="maths.html" class="nav-link">Maths</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">
+                    <span class="theme-icon light-icon">☀️</span>
+                    <span class="theme-icon dark-icon">🌙</span>
+                </button>
             </div>
-            <div class="nav-dropdown">
-                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
-                <div class="nav-dropdown-menu">
-                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
-                    <a href="module-1.html">Module 1: Fundamentals</a>
-                    <a href="module-7.html">Module 7: URL Routing</a>
-                    <a href="module-12.html">Module 12: Templates</a>
-                    <a href="module-21.html">Module 21: Forms</a>
-                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
-                    <a href="module-37.html">Module 37: Authentication</a>
-                    <a href="module-42.html">Module 42: Complete Revision</a>
-                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
-                </div>
-            </div>
-            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
         </div>
-        <div class="nav-actions">
-            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
-            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 Syllabus</a>
-        </div>
-    </div>
-</header>
+    </header>
 
-<div class="page-container">
-
-    <div class="module-banner">
-        <div class="module-badge">Module 9 of 13 — Blockchain &amp; Cryptography</div>
-        <h1 class="module-banner-title">Consensus Problem, Analysis & Design</h1>
-    </div>
-
-    <div class="nav-toggle">
-        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
-            📚 All Blockchain Modules (13) ▾
-        </button>
-        <div class="nav-panel" id="bcNavPanel">
-<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+    <!-- Main Container -->
+    <main class="module-page-container">
+        <!-- Sidebar Navigation -->
+        <aside class="module-sidebar">
+            <div class="sidebar-title">Blockchain Modules</div>
+            <a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
 <a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
 <a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
 <a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
@@ -368,11 +274,18 @@ tr:nth-child(even) td {
 <a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
 <a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
 <a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
-        </div>
-    </div>
+        </aside>
 
-    <div class="module-content">
-<p>Based on your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span>, with beginner-friendly explanations and exam-oriented notes.</p>
+        <!-- Main Content Card -->
+        <article class="content-card">
+            <div class="module-banner">
+                <div class="module-banner-num">Chapter 3 &bull; Module 9 of 13</div>
+                <h1 class="module-banner-title">Consensus Problem, Analysis & Design</h1>
+                <div style="font-size: 14px; opacity: 0.9;">Comprehensive lecture notes, algorithms, architectural diagrams & exam-ready answers</div>
+            </div>
+
+            <div class="module-body">
+                <p>Based on your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span>, with beginner-friendly explanations and exam-oriented notes.</p>
 <p>This module covers the first part of your syllabus: introducing the consensus problem, analysing consensus algorithms, and understanding their design. We'll build the fundamentals carefully before studying individual algorithms in Module 2.</p>
 <h2>Module 1 roadmap</h2>
 <ol>
@@ -393,15 +306,50 @@ tr:nth-child(even) td {
 <p>A distributed system is a collection of independent computers that communicate and coordinate with one another to perform a task.</p>
 <p>Each computer can process information independently, but the computers cooperate to provide a common service.</p>
 <p>For example, imagine a banking system with three computers:</p>
-<p>Banking application</p>
-<p>A user requests a money transfer.</p>
-<p>Node A</p>
-<p>Balance data</p>
-<p>Node B</p>
-<p>Transaction log</p>
-<p>Node C</p>
-<p>Backup copy</p>
-<p>The nodes communicate to keep the system consistent.</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Banking application</h4>
+<div class="diagram-subtitle">A user requests a money transfer.</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node A </div>
+<div class="diagram-node-desc">Balance data</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node B </div>
+<div class="diagram-node-desc">Transaction log</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node C </div>
+<div class="diagram-node-desc">Backup copy</div>
+</div>
+
+</div>
+<div class="diagram-footer">The nodes communicate to keep the system consistent.</div>
+</div>
 <p>Here, a node is a computer or process participating in the system.</p>
 <p>A distributed system offers several benefits:</p>
 <ul>
@@ -444,8 +392,7 @@ tr:nth-child(even) td {
 </tr>
 </tbody>
 </table>
-<p>In the blockchain context covered by your PPT, the important model is message passing: nodes communicate by sending messages to one another.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>In the blockchain context covered by your PPT, the important model is message passing: nodes communicate by sending messages to one another.</p>
 <h1>Topic 2: What is consensus?</h1>
 <h2>2.1 Basic meaning</h2>
 <p>The word consensus means agreement.</p>
@@ -453,17 +400,61 @@ tr:nth-child(even) td {
 <p>In blockchain, nodes need to agree on which transactions and blocks are accepted and on the resulting ledger state.</p>
 <h3>Simple example</h3>
 <p>Suppose four nodes must decide whether a transaction should be accepted.</p>
-<p>Proposed transaction</p>
-<p>Aman sends 2 coins to Rahul.</p>
-<p>Node A</p>
-<p>Valid</p>
-<p>Node B</p>
-<p>Valid</p>
-<p>Node C</p>
-<p>Valid</p>
-<p>Node D</p>
-<p>Valid</p>
-<p>Common decision: Accept the transaction</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Proposed transaction</h4>
+<div class="diagram-subtitle">Aman sends 2 coins to Rahul.</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node A <span class='node-badge'>✓ Valid</span></div>
+<div class="diagram-node-desc">Valid</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node B <span class='node-badge'>✓ Valid</span></div>
+<div class="diagram-node-desc">Valid</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node C <span class='node-badge'>✓ Valid</span></div>
+<div class="diagram-node-desc">Valid</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node D <span class='node-badge'>✓ Valid</span></div>
+<div class="diagram-node-desc">Valid</div>
+</div>
+
+</div>
+<div class="diagram-footer">Common decision: Accept the transaction</div>
+</div>
 <p>The nodes don't necessarily need to receive messages simultaneously. They need to follow the protocol so that honest participants reach compatible decisions under the protocol's assumptions.</p>
 <p>Important: Consensus is not always a simple majority vote. Different algorithms use different mechanisms, including voting, cryptographic proofs, and computational work.</p>
 <h2>2.2 Why does blockchain need consensus?</h2>
@@ -476,8 +467,7 @@ tr:nth-child(even) td {
 <li>Consistency: replicated ledgers should converge on a compatible state.</li>
 <li>Transaction ordering: conflicting transactions need to be handled consistently.</li>
 </ol>
-<p>Your teacher's PPT identifies Bitcoin as a public blockchain using Proof of Work, also known as Nakamoto consensus, and contrasts it with traditional consensus approaches used by many permissioned blockchains.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT identifies Bitcoin as a public blockchain using Proof of Work, also known as Nakamoto consensus, and contrasts it with traditional consensus approaches used by many permissioned blockchains.</p>
 <h2>2.3 A crucial distinction: validation vs consensus</h2>
 <p>These terms are related but not identical.</p>
 <table>
@@ -507,19 +497,38 @@ tr:nth-child(even) td {
 <p>This is one of the most important concepts in consensus algorithms and a strong candidate for a 5-mark or 10-mark theory question.</p>
 <h2>3.1 What is the Byzantine Generals Problem?</h2>
 <p>The Byzantine Generals Problem is a classic problem in distributed computing that explains how a group of participants can reach a common decision when some participants may be faulty or deliberately dishonest.</p>
-<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span> uses the military analogy of generals coordinating an attack or retreat.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span> uses the military analogy of generals coordinating an attack or retreat.</p>
 <h3>Understand the story</h3>
 <p>Imagine an army surrounding a city. Three generals command different army units. They must decide whether to attack or retreat.</p>
 <p>They communicate through messengers because they are in different locations.</p>
 <p>However, one general may be a traitor and send contradictory messages.</p>
-<p>Commander</p>
-<p>Sends conflicting instructions</p>
-<p>General A</p>
-<p>Receives "Attack"</p>
-<p>General B</p>
-<p>Receives "Retreat"</p>
-<p>Problem: How can the loyal generals agree on one decision despite the traitor?</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Commander (Traitor / Faulty)</h4>
+<div class="diagram-subtitle">Sends conflicting instructions to army units across the field</div>
+</div>
+<div class="diagram-arrow">↓ <span class='diagram-arrow-label'>Conflicting Messages</span></div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<div class="diagram-node-title">General A <span class='node-badge'>Loyal</span></div>
+<div class="diagram-node-desc">Receives "Attack"</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<div class="diagram-node-title">General B <span class='node-badge'>Loyal</span></div>
+<div class="diagram-node-desc">Receives "Retreat"</div>
+</div>
+
+</div>
+<div class="diagram-footer">Problem: How can the loyal generals agree on one decision despite the traitor?</div>
+</div>
 <p>If loyal generals follow conflicting instructions, the army may fail even though most generals are honest.</p>
 <p>The challenge is to design a protocol that allows the honest participants to agree despite a limited number of malicious participants.</p>
 <h2>3.2 Mapping the problem to blockchain</h2>
@@ -593,9 +602,8 @@ tr:nth-child(even) td {
 <p>Your teacher's PPT classifies fault-tolerant consensus into two major categories:</p>
 <ul>
 <li>Crash Fault Tolerance (CFT)</li>
-<li>Byzantine Fault Tolerance (BFT)&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+<li>Byzantine Fault Tolerance (BFT)</li>
 </ul>
-<p>CONSENSUS UNIT-3.pptx</span></p>
 <h2>4.2 Crash Fault Tolerance (CFT)</h2>
 <p>CFT handles nodes that fail in relatively predictable ways, such as crashing or stopping communication.</p>
 <p>Imagine five servers maintaining copies of a database. One server suddenly switches off. The remaining servers can still reach a decision using the protocol's rules.</p>
@@ -668,46 +676,146 @@ tr:nth-child(even) td {
 <p>Why do we need it?</p>
 <p>Suppose a blockchain stores all its data on only one computer. If that computer fails, the ledger may become unavailable.</p>
 <p>Instead, multiple nodes maintain copies of the ledger.</p>
-<p>Transaction history</p>
-<p>Copy A</p>
-<p>Copy B</p>
-<p>Copy C</p>
-<p>Multiple nodes store replicas of the system state.</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Transaction history replication</h4>
+<div class="diagram-subtitle">State replicas distributed across nodes</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Copy A </div>
+<div class="diagram-node-desc">Replicated ledger state</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Copy B </div>
+<div class="diagram-node-desc">Replicated ledger state</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Copy C </div>
+<div class="diagram-node-desc">Replicated ledger state</div>
+</div>
+
+</div>
+<div class="diagram-footer">Multiple nodes store replicas of the system state to ensure fault tolerance.</div>
+</div>
 <p>Replication improves availability and fault tolerance. However, merely copying data is not enough: the copies must be updated consistently.</p>
 <p>For example, if Node A processes a transfer before Node B does, both nodes need to process the relevant transactions in a compatible order.</p>
 <p>This is where consensus and replication work together.</p>
 <h2>5.2 Types of replication</h2>
-<p>Your teacher's PPT mentions two replication techniques: active replication and passive replication.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT mentions two replication techniques: active replication and passive replication.</p>
 <h3>A. Active replication</h3>
 <p>In active replication, multiple replicas process the same requests in the same order.</p>
 <p>The replicas independently execute the requests and should reach the same state, assuming they start from the same state and process requests deterministically.</p>
-<pre><code>             Client request
-                   │
-          Ordered broadcast
-                   │
-          ┌────────┼────────┐
-          ▼        ▼        ▼
-        Node A   Node B   Node C
-        Execute  Execute  Execute
-          │        │        │
-          ▼        ▼        ▼
-         Same resulting state
-</code></pre>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Active Replication Architecture</h4>
+<div class="diagram-subtitle">Every replica executes the exact same ordered requests deterministically</div>
+</div>
+<div class="diagram-arrow">↓ <span class='diagram-arrow-label'>Total-Ordered Broadcast</span></div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node A </div>
+<div class="diagram-node-desc">Executes request independently</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node B </div>
+<div class="diagram-node-desc">Executes request independently</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Node C </div>
+<div class="diagram-node-desc">Executes request independently</div>
+</div>
+
+</div>
+<div class="diagram-footer">Replicas achieve the same resulting state because inputs are processed in identical total order.</div>
+</div>
 <p>Key point: all replicas actively execute the ordered requests.</p>
 <h3>B. Passive replication</h3>
 <p>In passive replication, a primary node processes requests and communicates the relevant state changes to backup replicas.</p>
-<pre><code>             Client request
-                   │
-                   ▼
-              Primary
-             processes it
-                   │
-          State updates sent
-             ┌─────┴─────┐
-             ▼           ▼
-          Backup A    Backup B
-</code></pre>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Passive Replication Architecture (Primary-Backup)</h4>
+<div class="diagram-subtitle">Primary executes transactions and pushes state updates to backup replicas</div>
+</div>
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Client Request</span></div>
+<div class="fork-root-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Primary Node</div>
+<div class="diagram-node-desc">Processes request & computes state changes</div>
+</div>
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">State Updates Sent</span></div>
+<div class="diagram-nodes-row">
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Backup A</div>
+<div class="diagram-node-desc">Applies state update & maintains standby</div>
+</div>
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">Backup B</div>
+<div class="diagram-node-desc">Applies state update & maintains standby</div>
+</div>
+</div>
+<div class="diagram-footer">The primary performs execution; backups maintain replicas and support failover recovery.</div>
+</div>
 <p>Key point: the primary performs the main processing, while backups maintain the state and can support recovery.</p>
 <table>
 <thead>
@@ -745,8 +853,7 @@ tr:nth-child(even) td {
 <h3>State machine replication (SMR)</h3>
 <p>State machine replication means maintaining multiple copies of a state machine and ensuring that they process the same requests in the same order.</p>
 <p>If all replicas begin with the same state and deterministically execute the same ordered requests, they should arrive at the same final state.</p>
-<p>Your teacher's PPT describes a primary/backup approach in which requests are broadcast in a total order so replicas process them in the same sequence. It also connects total-order broadcast with distributed consensus.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT describes a primary/backup approach in which requests are broadcast in a total order so replicas process them in the same sequence. It also connects total-order broadcast with distributed consensus.</p>
 <h3>Why is request ordering important?</h3>
 <p>Suppose an account contains ₹1,000 and receives two operations:</p>
 <ol>
@@ -759,8 +866,7 @@ tr:nth-child(even) td {
 <p>State machine replication is a fault-tolerance technique in which multiple replicas of a state machine process the same ordered requests to maintain a consistent system state.</p>
 <h1>Topic 6: Properties of Consensus — Safety and Liveness</h1>
 <p>This is a particularly important exam topic because it explains what a correct consensus algorithm must guarantee.</p>
-<p>Your teacher's PPT divides the requirements into safety and liveness, with agreement, validity, integrity and termination as the associated properties.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT divides the requirements into safety and liveness, with agreement, validity, integrity and termination as the associated properties.</p>
 <h2>6.1 What is safety?</h2>
 <p>Safety means, broadly, nothing incorrect happens.</p>
 <p>A consensus protocol must prevent honest nodes from deciding on conflicting values.</p>
@@ -842,8 +948,7 @@ tr:nth-child(even) td {
 <li>Network conditions</li>
 <li>Timing assumptions</li>
 </ol>
-<p>These assumptions help us analyse whether an algorithm will work correctly.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>These assumptions help us analyse whether an algorithm will work correctly.</p>
 <h3>1. Processes</h3>
 <p>A process is an executing participant in a distributed system.</p>
 <p>We must decide:</p>
@@ -937,8 +1042,7 @@ tr:nth-child(even) td {
 <h2>8.3 Partially synchronous network</h2>
 <p>A partially synchronous network lies between the two.</p>
 <p>The delays may be unpredictable, or the upper bound may exist but be unknown to the nodes. In an eventual-synchrony model, the network eventually behaves synchronously for long enough that the protocol can make progress.</p>
-<p>Your teacher's PPT calls the time after which the network becomes sufficiently synchronous the Global Stabilization Time (GST). Nodes do not know the exact GST in advance.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT calls the time after which the network becomes sufficiently synchronous the Global Stabilization Time (GST). Nodes do not know the exact GST in advance.</p>
 <p>Key point: the system may initially behave asynchronously but eventually provides sufficiently predictable communication.</p>
 <h2>8.4 Comparison table</h2>
 <table>
@@ -990,8 +1094,7 @@ tr:nth-child(even) td {
 <p>In simplified terms, it proves that no deterministic consensus algorithm can guarantee termination in every possible execution of a fully asynchronous message-passing system if even one process may crash, under the model's assumptions.</p>
 <p>This does not mean that consensus is impossible in practice.</p>
 <p>It means that a deterministic protocol cannot guarantee that it will always terminate under every allowed asynchronous execution while also meeting the required consensus properties.</p>
-<p>Your teacher's PPT explicitly includes FLP impossibility and lists common approaches used to address its practical implications.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's PPT explicitly includes FLP impossibility and lists common approaches used to address its practical implications.</p>
 <h2>9.2 Why does this happen?</h2>
 <p>Suppose Node A proposes a value and waits for Node B's response.</p>
 <p>No response arrives.</p>
@@ -1038,8 +1141,7 @@ tr:nth-child(even) td {
 <p>_<strong>MATH_DISP_4</strong>_</p>
 <p>Therefore, at least 4 nodes are required under this bound.</p>
 <p>The difference arises because Byzantine nodes can behave maliciously and send conflicting messages, making the problem harder than simply handling crashed nodes.</p>
-<p>Your teacher's slides state the lower bounds as _<strong>MATH_INL_6</strong>_ for CFT and _<strong>MATH_INL_7</strong>_ for BFT.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
-<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Your teacher's slides state the lower bounds as _<strong>MATH_INL_6</strong>_ for CFT and _<strong>MATH_INL_7</strong>_ for BFT.</p>
 <h2>10.3 Practice examples</h2>
 <table>
 <thead>
@@ -1193,16 +1295,52 @@ tr:nth-child(even) td {
 <p>Reset quiz</p>
 <p>Module 1 is complete. We have covered the consensus problem, its design assumptions, fault tolerance, replication, safety and liveness, network timing, FLP impossibility, and node-count formulas.</p>
 <p>When you're ready, say NEXT MODULE to begin Module 2: Classification and Traditional Consensus Algorithms, including Paxos and PBFT, with their working and exam diagrams.</p>
-    </div>
+            </div>
 
-    <div class="prev-next">
-        <a class="pn-btn" href="blockchain-module-8.html">&larr; Module 8</a>
-        <a class="pn-reader" href="blockchain.html">📋 All 13 Modules Syllabus</a>
-        <a class="pn-btn" href="blockchain-module-10.html">Module 10 &rarr;</a>
-    </div>
+            <!-- Footer Navigation Buttons -->
+            <div class="module-nav-btns">
+                <a href="blockchain-module-8.html" class="mod-btn">&larr; Module 8</a>
+                <a href="blockchain-module-10.html" class="mod-btn primary">Module 10 &rarr;</a>
+            </div>
+        </article>
+    </main>
 
-</div>
+    <!-- Global Footer -->
+    <footer class="portal-footer">
+        <div class="portal-footer-container">
+            <div class="footer-col brand-col">
+                <div class="footer-brand">
+                    <span class="brand-icon">🎓</span>
+                    <span class="brand-name">OmniCourse</span>
+                </div>
+                <p class="footer-desc">
+                    Comprehensive study portal for Engineering courses: Django, Blockchain Technology & Applied Mathematics.
+                </p>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Course Tracks</h4>
+                <ul>
+                    <li><a href="blockchain.html">Blockchain Technology (13 Modules)</a></li>
+                    <li><a href="django.html">Django Full Course (13 Modules)</a></li>
+                    <li><a href="maths.html">Applied Mathematics</a></li>
+                </ul>
+            </div>
 
-<script src="shared.js"></script>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="blockchain.html">Blockchain Syllabus</a></li>
+                    <li><a href="blockchain-module-9.html">Consensus & Algorithms</a></li>
+                    <li><a href="blockchain-module-13.html">Bitcoin Mining & Forks</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; 2026 OmniCourse Education Portal. Designed for exam preparation & engineering mastery.</div>
+        </div>
+    </footer>
+
+    <script src="shared.js"></script>
 </body>
 </html>
