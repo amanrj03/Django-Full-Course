@@ -1,0 +1,2730 @@
+# Module 42 — Complete Django Revision
+
+This module is your **full Django revision from Unit I to Unit VI**.
+
+The goal is not to learn new concepts. The goal is to connect everything so that if your teacher asks:
+
+> “Explain Django.”
+
+or gives you a coding question like:
+
+> “Create a student CRUD application with login and permissions.”
+
+you can build the answer from memory.
+
+---
+
+# 1. Django in One Sentence
+
+**Django is a high-level, open-source Python web framework used to develop secure, scalable and maintainable web applications quickly.**
+
+---
+
+# 2. Django Architecture — MVT
+
+Django primarily follows:
+
+```text
+M → Model
+V → View
+T → Template
+```
+
+### Model
+
+Handles:
+
+```text
+Database
+Data structure
+Relationships
+ORM
+```
+
+Example:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+```
+
+---
+
+### View
+
+Handles:
+
+```text
+Request
+Business logic
+Database operations
+Response
+```
+
+Example:
+
+```python
+def home(request):
+    return HttpResponse("Hello")
+```
+
+---
+
+### Template
+
+Handles:
+
+```text
+HTML
+Presentation
+Dynamic data
+```
+
+Example:
+
+```html
+<h1>Hello {{ name }}</h1>
+```
+
+---
+
+# 3. Complete Django Request Flow
+
+This is **extremely important for viva**.
+
+Suppose the browser requests:
+
+```text
+/students/
+```
+
+The flow is:
+
+```text
+Browser
+   ↓
+HTTP Request
+   ↓
+Project urls.py
+   ↓
+App urls.py
+   ↓
+View
+   ↓
+Model / ORM
+   ↓
+Database
+   ↓
+View
+   ↓
+Context
+   ↓
+Template
+   ↓
+HttpResponse
+   ↓
+Browser
+```
+
+Remember:
+
+> **URL → View → Model → Template → Response**
+
+Not every request necessarily uses all components, but this is the common pattern.
+
+---
+
+# 4. Project vs App
+
+### Project
+
+The complete Django website/application configuration.
+
+Example:
+
+```text
+College
+```
+
+### App
+
+A specific functional component.
+
+Examples:
+
+```text
+students
+accounts
+courses
+payments
+```
+
+Think:
+
+```text
+Project
+│
+├── students
+├── accounts
+├── courses
+└── payments
+```
+
+### Viva Answer
+
+> A Django project represents the complete application, while an app represents a specific feature or functionality within the project.
+
+---
+
+# 5. Creating a Project
+
+```bash
+python -m django startproject College
+```
+
+or:
+
+```bash
+django-admin startproject College
+```
+
+Then:
+
+```bash
+cd College
+```
+
+Run:
+
+```bash
+python manage.py runserver
+```
+
+---
+
+# 6. Creating an App
+
+```bash
+python manage.py startapp students
+```
+
+Then add it to:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+Important:
+
+> `startapp` creates the app but does not automatically register it in `INSTALLED_APPS`.
+
+---
+
+# 7. Important Django Files
+
+```text
+manage.py
+settings.py
+urls.py
+views.py
+models.py
+forms.py
+admin.py
+tests.py
+apps.py
+```
+
+### `manage.py`
+
+Project-specific command-line utility.
+
+### `settings.py`
+
+Configuration.
+
+### `urls.py`
+
+URL routing.
+
+### `views.py`
+
+Request/response logic.
+
+### `models.py`
+
+Database models.
+
+### `forms.py`
+
+Forms and validation.
+
+### `admin.py`
+
+Admin configuration.
+
+### `tests.py`
+
+Automated tests.
+
+### `apps.py`
+
+Application configuration.
+
+---
+
+# 8. Important Commands
+
+Memorize these:
+
+```bash
+python manage.py runserver
+```
+
+```bash
+python manage.py startapp students
+```
+
+```bash
+python manage.py makemigrations
+```
+
+```bash
+python manage.py migrate
+```
+
+```bash
+python manage.py createsuperuser
+```
+
+```bash
+python manage.py shell
+```
+
+```bash
+python manage.py test
+```
+
+```bash
+python manage.py showmigrations
+```
+
+```bash
+python manage.py sqlmigrate students 0001
+```
+
+---
+
+# 9. Django View
+
+Basic view:
+
+```python
+from django.http import HttpResponse
+
+
+def home(request):
+    return HttpResponse("Hello World")
+```
+
+Important:
+
+```text
+request → HttpRequest object
+response → HttpResponse object
+```
+
+---
+
+# 10. URL Routing
+
+Basic:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+]
+```
+
+Project-level:
+
+```python
+from django.urls import path, include
+
+urlpatterns = [
+    path(
+        "students/",
+        include("students.urls")
+    ),
+]
+```
+
+---
+
+# 11. URL Parameters
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+)
+```
+
+View:
+
+```python
+def student_detail(request, id):
+    return HttpResponse(
+        f"Student ID: {id}"
+    )
+```
+
+Important built-in converters:
+
+```text
+str
+int
+slug
+uuid
+path
+```
+
+---
+
+# 12. URL Parameter vs Query Parameter
+
+### URL parameter
+
+```text
+/student/10/
+```
+
+Access:
+
+```python
+def student(request, id):
+```
+
+### Query parameter
+
+```text
+/student/?id=10
+```
+
+Access:
+
+```python
+request.GET.get("id")
+```
+
+---
+
+# 13. Named URLs
+
+```python
+path(
+    "about/",
+    views.about,
+    name="about"
+)
+```
+
+Template:
+
+```django
+{% url "about" %}
+```
+
+Python:
+
+```python
+reverse("about")
+```
+
+Why use named URLs?
+
+Because URLs can change without requiring us to change every link manually.
+
+---
+
+# 14. `path()` vs `re_path()`
+
+Normal URL:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student
+)
+```
+
+Regex:
+
+```python
+re_path(
+    r"^student/(?P<id>\d+)/$",
+    views.student
+)
+```
+
+Use `path()` when Django's converters are enough.
+
+Use `re_path()` when you genuinely need regex matching.
+
+---
+
+# 15. HTTP Methods
+
+Most important:
+
+```text
+GET
+POST
+PUT
+PATCH
+DELETE
+```
+
+For your syllabus, focus heavily on:
+
+```text
+GET
+POST
+```
+
+### GET
+
+Usually used for:
+
+```text
+retrieving
+searching
+filtering
+displaying
+```
+
+### POST
+
+Usually used for:
+
+```text
+creating
+updating
+deleting
+submitting
+```
+
+POST is **not automatically secure**. HTTPS is still required.
+
+---
+
+# 16. Request Object
+
+Common properties:
+
+```python
+request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user
+request.session
+```
+
+Example:
+
+```python
+if request.method == "POST":
+    name = request.POST.get("name")
+```
+
+---
+
+# 17. Response Types
+
+### HttpResponse
+
+```python
+return HttpResponse("Hello")
+```
+
+### JsonResponse
+
+```python
+return JsonResponse({
+    "name": "Aman",
+    "age": 21
+})
+```
+
+For a top-level list:
+
+```python
+JsonResponse(
+    data,
+    safe=False
+)
+```
+
+---
+
+# 18. Templates
+
+Instead of:
+
+```python
+return HttpResponse(
+    "<h1>Hello</h1>"
+)
+```
+
+use:
+
+```python
+return render(
+    request,
+    "students/home.html"
+)
+```
+
+Dynamic data:
+
+```python
+return render(
+    request,
+    "students/home.html",
+    {
+        "name": "Aman"
+    }
+)
+```
+
+Template:
+
+```html
+<h1>Hello {{ name }}</h1>
+```
+
+---
+
+# 19. DTL
+
+Django Template Language:
+
+### Variable
+
+```django
+{{ name }}
+```
+
+### Tag
+
+```django
+{% if age >= 18 %}
+```
+
+### Comment
+
+```django
+{# This is a comment #}
+```
+
+Remember:
+
+```text
+{{ }} → variable
+{% %} → tag
+{# #} → comment
+```
+
+---
+
+# 20. Template Conditions
+
+```django
+{% if marks >= 40 %}
+
+    Pass
+
+{% else %}
+
+    Fail
+
+{% endif %}
+```
+
+Can use:
+
+```text
+==
+!=
+>
+<
+>=
+<=
+and
+or
+not
+```
+
+---
+
+# 21. Template Loops
+
+```django
+{% for student in students %}
+
+    <p>
+        {{ student.name }}
+    </p>
+
+{% empty %}
+
+    <p>No students found.</p>
+
+{% endfor %}
+```
+
+Important loop variables:
+
+```text
+forloop.counter
+forloop.counter0
+forloop.first
+forloop.last
+forloop.revcounter
+forloop.revcounter0
+```
+
+---
+
+# 22. Template Filters
+
+Syntax:
+
+```django
+{{ name|upper }}
+```
+
+Important filters:
+
+```text
+upper
+lower
+title
+length
+default
+default_if_none
+truncatechars
+join
+add
+cut
+slugify
+floatformat
+date
+time
+safe
+escape
+```
+
+Filters can be chained:
+
+```django
+{{ name|upper|length }}
+```
+
+---
+
+# 23. Template Inheritance
+
+Parent:
+
+```html
+{% block content %}
+{% endblock %}
+```
+
+Child:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Students</h1>
+
+{% endblock %}
+```
+
+### `extends` vs `include`
+
+`extends`:
+
+> Inherit the overall page layout.
+
+`include`:
+
+> Reuse a smaller template fragment.
+
+---
+
+# 24. Forms
+
+Basic HTML:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="text"
+        name="name"
+    >
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Remember:
+
+> The `name` attribute determines the key submitted to the server.
+
+---
+
+# 25. Django Forms
+
+Create:
+
+```python
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100
+    )
+
+    age = forms.IntegerField()
+```
+
+View:
+
+```python
+if request.method == "POST":
+
+    form = StudentForm(
+        request.POST
+    )
+
+    if form.is_valid():
+
+        name = form.cleaned_data["name"]
+```
+
+---
+
+# 26. Form Validation
+
+Built-in:
+
+```python
+required=True
+max_length=100
+min_length=3
+min_value=0
+max_value=100
+```
+
+Custom field validation:
+
+```python
+def clean_name(self):
+
+    name = self.cleaned_data["name"]
+
+    if " " in name:
+        raise forms.ValidationError(
+            "Spaces are not allowed."
+        )
+
+    return name
+```
+
+Cross-field validation:
+
+```python
+def clean(self):
+
+    cleaned_data = super().clean()
+
+    password = cleaned_data.get("password")
+    confirm = cleaned_data.get("confirm")
+
+    if password != confirm:
+
+        raise forms.ValidationError(
+            "Passwords do not match."
+        )
+
+    return cleaned_data
+```
+
+---
+
+# 27. CSRF
+
+CSRF:
+
+> Cross-Site Request Forgery.
+
+For POST forms:
+
+```django
+{% csrf_token %}
+```
+
+Django's CSRF middleware checks the token.
+
+Typical failure:
+
+```text
+403 Forbidden
+```
+
+Never disable CSRF just to make a POST form work.
+
+---
+
+# 28. POST-Redirect-GET
+
+Correct:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return redirect(
+        "student_list"
+    )
+```
+
+Flow:
+
+```text
+POST
+ ↓
+Process
+ ↓
+Redirect
+ ↓
+GET
+```
+
+Why?
+
+To prevent accidental duplicate form submission on refresh.
+
+---
+
+# 29. Models
+
+Example:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    marks = models.IntegerField()
+```
+
+Concept:
+
+```text
+Model class → table
+Field → column
+Object → row
+```
+
+---
+
+# 30. Primary Key
+
+If you don't specify one:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Django automatically provides a primary key.
+
+Usually you access it as:
+
+```python
+student.id
+```
+
+or:
+
+```python
+student.pk
+```
+
+---
+
+# 31. Important Model Fields
+
+Know these:
+
+```text
+CharField
+TextField
+IntegerField
+FloatField
+DecimalField
+BooleanField
+DateField
+DateTimeField
+EmailField
+URLField
+FileField
+ImageField
+ForeignKey
+OneToOneField
+ManyToManyField
+```
+
+---
+
+# 32. Important Field Options
+
+### `null`
+
+Database-level NULL.
+
+```python
+age = models.IntegerField(
+    null=True
+)
+```
+
+### `blank`
+
+Validation-level empty value.
+
+```python
+age = models.IntegerField(
+    blank=True
+)
+```
+
+### `default`
+
+```python
+marks = models.IntegerField(
+    default=0
+)
+```
+
+### `unique`
+
+```python
+email = models.EmailField(
+    unique=True
+)
+```
+
+---
+
+# 33. `null` vs `blank`
+
+Very common viva question.
+
+| Option       | Meaning                          |
+| ------------ | -------------------------------- |
+| `null=True`  | Database may store NULL          |
+| `blank=True` | Validation may allow empty input |
+
+They are **not the same**.
+
+---
+
+# 34. Migrations
+
+Model changed?
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Remember:
+
+```text
+makemigrations
+    ↓
+creates migration files
+
+migrate
+    ↓
+applies migrations to database
+```
+
+---
+
+# 35. Migration Commands
+
+```bash
+python manage.py showmigrations
+```
+
+shows migration status.
+
+```bash
+python manage.py sqlmigrate students 0001
+```
+
+shows SQL generated for a migration.
+
+```bash
+python manage.py migrate students zero
+```
+
+rolls back that app's migrations to zero.
+
+---
+
+# 36. ORM
+
+ORM:
+
+> Object-Relational Mapping.
+
+Instead of writing:
+
+```sql
+SELECT * FROM students;
+```
+
+you can write:
+
+```python
+Student.objects.all()
+```
+
+---
+
+# 37. Basic ORM
+
+### All
+
+```python
+Student.objects.all()
+```
+
+### Filter
+
+```python
+Student.objects.filter(
+    course="CSE"
+)
+```
+
+### Get
+
+```python
+Student.objects.get(
+    id=1
+)
+```
+
+### Create
+
+```python
+Student.objects.create(
+    name="Aman",
+    age=21,
+    marks=90
+)
+```
+
+---
+
+# 38. `filter()` vs `get()`
+
+Very important.
+
+### `filter()`
+
+Returns:
+
+```text
+QuerySet
+```
+
+Can contain:
+
+```text
+0
+1
+many
+```
+
+### `get()`
+
+Returns:
+
+```text
+one object
+```
+
+Raises:
+
+```text
+DoesNotExist
+MultipleObjectsReturned
+```
+
+if the result isn't exactly one.
+
+---
+
+# 39. ORM Lookups
+
+Examples:
+
+```python
+Student.objects.filter(
+    marks__gte=80
+)
+```
+
+```python
+Student.objects.filter(
+    age__lt=18
+)
+```
+
+```python
+Student.objects.filter(
+    name__icontains="aman"
+)
+```
+
+Common:
+
+```text
+exact
+iexact
+gt
+gte
+lt
+lte
+in
+contains
+icontains
+startswith
+endswith
+range
+isnull
+```
+
+---
+
+# 40. Ordering
+
+Ascending:
+
+```python
+Student.objects.order_by(
+    "marks"
+)
+```
+
+Descending:
+
+```python
+Student.objects.order_by(
+    "-marks"
+)
+```
+
+Top 5:
+
+```python
+Student.objects.order_by(
+    "-marks"
+)[:5]
+```
+
+---
+
+# 41. `Q` Objects
+
+Used for complex conditions.
+
+OR:
+
+```python
+from django.db.models import Q
+
+Student.objects.filter(
+    Q(course="CSE") |
+    Q(course="ECE")
+)
+```
+
+NOT:
+
+```python
+Student.objects.filter(
+    ~Q(course="CSE")
+)
+```
+
+---
+
+# 42. `F` Expressions
+
+Used for database-side field calculations.
+
+```python
+from django.db.models import F
+
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+Meaning:
+
+> Increase every student's marks by 5 at the database level.
+
+---
+
+# 43. Aggregation
+
+```python
+from django.db.models import (
+    Avg,
+    Max,
+    Min,
+    Sum,
+    Count
+)
+```
+
+Example:
+
+```python
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+Returns a summary dictionary.
+
+---
+
+# 44. `aggregate()` vs `annotate()`
+
+### `aggregate()`
+
+Produces an overall summary.
+
+```python
+Student.objects.aggregate(
+    avg_marks=Avg("marks")
+)
+```
+
+### `annotate()`
+
+Adds calculated information to individual/grouped results.
+
+Example:
+
+```python
+Department.objects.annotate(
+    student_count=Count("students")
+)
+```
+
+---
+
+# 45. Relationships
+
+### ForeignKey
+
+Many students → one department.
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)
+```
+
+### OneToOne
+
+One student → one profile.
+
+```python
+profile = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)
+```
+
+### ManyToMany
+
+Many students ↔ many courses.
+
+```python
+courses = models.ManyToManyField(
+    Course
+)
+```
+
+---
+
+# 46. `on_delete`
+
+Important:
+
+```text
+CASCADE
+PROTECT
+SET_NULL
+SET_DEFAULT
+DO_NOTHING
+```
+
+Most commonly:
+
+```python
+on_delete=models.CASCADE
+```
+
+Meaning:
+
+> If the referenced parent is deleted, related objects are also deleted.
+
+---
+
+# 47. Relationship Traversal
+
+Suppose:
+
+```python
+department = models.ForeignKey(
+    Department,
+    related_name="students",
+    on_delete=models.CASCADE
+)
+```
+
+Forward:
+
+```python
+student.department
+```
+
+Reverse:
+
+```python
+department.students.all()
+```
+
+Query across relationship:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+---
+
+# 48. `select_related()` vs `prefetch_related()`
+
+### `select_related()`
+
+Best for:
+
+```text
+ForeignKey
+OneToOneField
+```
+
+Uses SQL joins.
+
+Example:
+
+```python
+Student.objects.select_related(
+    "department"
+)
+```
+
+### `prefetch_related()`
+
+Best for:
+
+```text
+ManyToMany
+reverse relationships
+```
+
+Example:
+
+```python
+Department.objects.prefetch_related(
+    "students"
+)
+```
+
+---
+
+# 49. CRUD
+
+CRUD:
+
+```text
+C → Create
+R → Read
+U → Update
+D → Delete
+```
+
+### Create
+
+```python
+Student.objects.create(
+    name="Aman",
+    age=21,
+    marks=90
+)
+```
+
+### Read
+
+```python
+Student.objects.all()
+```
+
+### Update
+
+```python
+student.marks = 95
+student.save()
+```
+
+### Delete
+
+```python
+student.delete()
+```
+
+---
+
+# 50. ModelForm
+
+For CRUD, `ModelForm` is extremely useful.
+
+```python
+class StudentForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Student
+
+        fields = [
+            "name",
+            "email",
+            "age",
+            "course",
+            "marks",
+        ]
+```
+
+---
+
+# 51. `instance=` — Extremely Important
+
+Create:
+
+```python
+form = StudentForm(
+    request.POST
+)
+```
+
+Update:
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+Why?
+
+Without `instance`:
+
+```text
+form.save()
+ ↓
+new object
+```
+
+With `instance`:
+
+```text
+form.save()
+ ↓
+existing object updated
+```
+
+This is a **very common coding/viva question**.
+
+---
+
+# 52. Delete Correctly
+
+Don't delete using GET.
+
+Bad design:
+
+```text
+GET /student/5/delete/
+→ immediately delete
+```
+
+Better:
+
+```text
+GET
+ ↓
+show confirmation
+
+POST
+ ↓
+delete
+ ↓
+redirect
+```
+
+Example:
+
+```python
+if request.method == "POST":
+
+    student.delete()
+
+    return redirect(
+        "student_list"
+    )
+```
+
+---
+
+# 53. `get_object_or_404()`
+
+Instead of:
+
+```python
+student = Student.objects.get(
+    id=id
+)
+```
+
+you can use:
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+If object doesn't exist:
+
+```text
+404
+```
+
+instead of an unhandled `DoesNotExist` exception.
+
+---
+
+# 54. Django Admin
+
+Create superuser:
+
+```bash
+python manage.py createsuperuser
+```
+
+Register:
+
+```python
+from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)
+```
+
+Customization:
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+    )
+```
+
+---
+
+# 55. Staff vs Superuser
+
+### Staff
+
+```python
+user.is_staff
+```
+
+Allows admin-site access subject to permissions.
+
+### Superuser
+
+```python
+user.is_superuser
+```
+
+Has all permissions by default.
+
+Therefore:
+
+> `is_staff` and `is_superuser` are not the same thing.
+
+---
+
+# 56. Authentication vs Authorization
+
+Memorize this exactly:
+
+> **Authentication = Who are you?**
+
+> **Authorization = What are you allowed to do?**
+
+Example:
+
+```text
+Login
+ ↓
+Authentication
+```
+
+Then:
+
+```text
+Can this user delete a student?
+ ↓
+Authorization
+```
+
+---
+
+# 57. Django User
+
+Import:
+
+```python
+from django.contrib.auth.models import User
+```
+
+Create:
+
+```python
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+Never store passwords as plaintext.
+
+---
+
+# 58. `authenticate()`
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+Possible results:
+
+```text
+valid credentials → User object
+invalid credentials → None
+```
+
+---
+
+# 59. `login()`
+
+```python
+login(
+    request,
+    user
+)
+```
+
+This establishes the authenticated session.
+
+---
+
+# 60. `logout()`
+
+```python
+logout(request)
+```
+
+Ends the authenticated session.
+
+---
+
+# 61. `request.user`
+
+For an authenticated user:
+
+```python
+request.user
+```
+
+returns the User.
+
+Check authentication:
+
+```python
+request.user.is_authenticated
+```
+
+Important:
+
+```python
+request.user.is_authenticated()
+```
+
+is wrong.
+
+It is a property.
+
+---
+
+# 62. `@login_required`
+
+```python
+from django.contrib.auth.decorators import (
+    login_required
+)
+
+
+@login_required
+def dashboard(request):
+
+    ...
+```
+
+Unauthenticated user:
+
+```text
+Protected view
+     ↓
+login page
+```
+
+---
+
+# 63. Permissions
+
+Check:
+
+```python
+user.has_perm(
+    "students.change_student"
+)
+```
+
+Decorator:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+```
+
+Remember:
+
+```text
+@login_required
+```
+
+checks authentication.
+
+```text
+@permission_required
+```
+
+checks authorization.
+
+---
+
+# 64. Groups
+
+A group collects users and permissions.
+
+```python
+from django.contrib.auth.models import Group
+
+teachers = Group.objects.create(
+    name="Teachers"
+)
+```
+
+Add:
+
+```python
+user.groups.add(
+    teachers
+)
+```
+
+Now permissions assigned to the group can apply to the user.
+
+---
+
+# 65. Cookies
+
+Cookie:
+
+> Small piece of data stored by the browser and sent with subsequent matching requests.
+
+Set:
+
+```python
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+Read:
+
+```python
+request.COOKIES.get(
+    "username"
+)
+```
+
+Delete:
+
+```python
+response.delete_cookie(
+    "username"
+)
+```
+
+---
+
+# 66. Cookie Security
+
+Important options:
+
+```python
+secure=True
+httponly=True
+samesite="Lax"
+```
+
+### `secure=True`
+
+Cookie should be sent over HTTPS.
+
+### `httponly=True`
+
+Prevents normal JavaScript access through `document.cookie`.
+
+### `SameSite`
+
+Controls cross-site cookie behavior.
+
+---
+
+# 67. Sessions
+
+Session allows Django to maintain user-specific state across requests.
+
+Set:
+
+```python
+request.session["username"] = "Aman"
+```
+
+Read:
+
+```python
+request.session.get(
+    "username"
+)
+```
+
+Delete one:
+
+```python
+del request.session["username"]
+```
+
+Clear:
+
+```python
+request.session.clear()
+```
+
+Flush:
+
+```python
+request.session.flush()
+```
+
+---
+
+# 68. Cookie vs Session
+
+Very important viva question.
+
+| Cookie                        | Session                           |
+| ----------------------------- | --------------------------------- |
+| Stored by browser             | Usually stored server-side        |
+| Client sends cookie data      | Browser commonly sends session ID |
+| Can directly store small data | Used for server-managed state     |
+| Client-controlled             | Better for server-managed state   |
+| `request.COOKIES`             | `request.session`                 |
+
+Django's default database-backed sessions typically store session data server-side and use a `sessionid` cookie to identify the session.
+
+---
+
+# 69. Authentication + Session + Cookie
+
+This complete flow is important:
+
+```text
+User Login
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+Session ID
+    ↓
+Cookie
+    ↓
+Browser
+    ↓
+Future Request
+    ↓
+Django identifies session
+    ↓
+request.user
+```
+
+---
+
+# 70. Database Configuration
+
+SQLite:
+
+```python
+DATABASES = {
+
+    "default": {
+
+        "ENGINE":
+            "django.db.backends.sqlite3",
+
+        "NAME":
+            BASE_DIR / "db.sqlite3",
+    }
+}
+```
+
+PostgreSQL:
+
+```python
+DATABASES = {
+
+    "default": {
+
+        "ENGINE":
+            "django.db.backends.postgresql",
+
+        "NAME": "college_db",
+
+        "USER": "postgres",
+
+        "PASSWORD": "password",
+
+        "HOST": "localhost",
+
+        "PORT": "5432",
+    }
+}
+```
+
+---
+
+# 71. Debugging
+
+Development:
+
+```python
+DEBUG = True
+```
+
+Production:
+
+```python
+DEBUG = False
+```
+
+When an error occurs:
+
+```text
+Exception type
+      ↓
+Error message
+      ↓
+File
+      ↓
+Line number
+      ↓
+Relevant layer
+      ↓
+Fix
+      ↓
+Retest
+```
+
+Common errors:
+
+```text
+ModuleNotFoundError
+TemplateDoesNotExist
+NoReverseMatch
+ViewDoesNotExist
+AttributeError
+TypeError
+DoesNotExist
+OperationalError
+403 CSRF
+404
+500
+```
+
+---
+
+# 72. Testing
+
+Basic:
+
+```python
+from django.test import TestCase
+
+
+class StudentTest(TestCase):
+
+    def test_home(self):
+
+        response = self.client.get(
+            "/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+```
+
+Run:
+
+```bash
+python manage.py test
+```
+
+Important concepts:
+
+```text
+TestCase
+self.client
+setUp()
+assertEqual()
+assertContains()
+assertRedirects()
+assertTemplateUsed()
+```
+
+---
+
+# 73. Error Handling
+
+Raise 404:
+
+```python
+from django.http import Http404
+
+raise Http404(
+    "Student not found"
+)
+```
+
+Or:
+
+```python
+get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+Common status codes:
+
+```text
+200 → OK
+201 → Created
+400 → Bad Request
+401 → Unauthorized
+403 → Forbidden
+404 → Not Found
+500 → Server Error
+```
+
+---
+
+# 74. 401 vs 403
+
+A common trap.
+
+### 401
+
+Generally means authentication is required/failed.
+
+### 403
+
+Means the server understands the request but refuses access.
+
+In Django:
+
+```text
+CSRF failure → commonly 403
+permission denied → commonly 403
+```
+
+---
+
+# 75. Complete Student CRUD Architecture
+
+You should now be able to recreate this from memory:
+
+```text
+students/
+│
+├── models.py
+├── forms.py
+├── views.py
+├── urls.py
+├── admin.py
+│
+└── templates/
+    └── students/
+        ├── student_list.html
+        ├── student_form.html
+        └── student_confirm_delete.html
+```
+
+---
+
+# 76. CRUD View Flow
+
+### List
+
+```python
+students = Student.objects.all()
+```
+
+### Create
+
+```python
+form = StudentForm(request.POST)
+
+if form.is_valid():
+    form.save()
+    return redirect("student_list")
+```
+
+### Update
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+
+if form.is_valid():
+    form.save()
+```
+
+### Delete
+
+```python
+student.delete()
+```
+
+---
+
+# 77. Complete Application Architecture
+
+Now combine **everything**:
+
+```text
+                    DJANGO PROJECT
+                         │
+          ┌──────────────┴──────────────┐
+          │                             │
+      accounts                      students
+          │                             │
+    Registration                    Models
+    Login                           ORM
+    Logout                          Forms
+    Dashboard                       CRUD
+    Permissions                     Admin
+          │                             │
+          └──────────────┬──────────────┘
+                         │
+                       User
+                         │
+                    Authentication
+                         │
+                       Session
+                         │
+                     request.user
+                         │
+                    Authorization
+                         │
+                     Permissions
+```
+
+---
+
+# 78. The Most Important Django Coding Pattern
+
+If you get a form-based coding question, think:
+
+```python
+def my_view(request):
+
+    if request.method == "POST":
+
+        form = MyForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            # process data
+
+            return redirect(
+                "success"
+            )
+
+    else:
+
+        form = MyForm()
+
+    return render(
+        request,
+        "form.html",
+        {
+            "form": form
+        }
+    )
+```
+
+This pattern solves a huge number of Django questions.
+
+---
+
+# 79. The Most Important CRUD Pattern
+
+```text
+GET
+ ↓
+Display data/form
+
+POST
+ ↓
+Validate
+ ↓
+Save/update/delete
+ ↓
+Redirect
+```
+
+---
+
+# 80. The Most Important Authentication Pattern
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+
+    login(
+        request,
+        user
+    )
+
+    return redirect(
+        "dashboard"
+    )
+```
+
+---
+
+# 81. The Most Important Protection Pattern
+
+```python
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+---
+
+# 82. The Most Important Model Pattern
+
+```python
+class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    marks = models.IntegerField()
+```
+
+Then:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+---
+
+# 83. Django Exam Cheat Sheet
+
+If you have only **5 minutes before an exam**, memorize this:
+
+```text
+Django
+↓
+Python Web Framework
+
+MVT
+↓
+Model = Data
+View = Logic
+Template = Presentation
+
+URL
+↓
+View
+
+Model
+↓
+Database
+
+ORM
+↓
+Python objects ↔ Database
+
+makemigrations
+↓
+Create migration
+
+migrate
+↓
+Apply migration
+
+Form
+↓
+Input + Validation
+
+CSRF
+↓
+Protect state-changing requests
+
+GET
+↓
+Read
+
+POST
+↓
+Submit/change state
+
+CRUD
+↓
+Create Read Update Delete
+
+authenticate()
+↓
+Verify credentials
+
+login()
+↓
+Start authenticated session
+
+logout()
+↓
+End authentication
+
+request.user
+↓
+Current user
+
+@login_required
+↓
+Protect authenticated view
+
+has_perm()
+↓
+Check permission
+
+Cookie
+↓
+Browser-side data
+
+Session
+↓
+User-specific state across requests
+```
+
+---
+
+# 84. 20 Questions You MUST Be Able to Answer
+
+Before your viva, make sure you can answer these without looking:
+
+1. What is Django?
+2. What is MVT?
+3. Difference between project and app?
+4. What is `manage.py`?
+5. What is `settings.py`?
+6. What is URL routing?
+7. Difference between `path()` and `re_path()`?
+8. Difference between GET and POST?
+9. What is DTL?
+10. What is template inheritance?
+11. What is CSRF?
+12. What is a Django Form?
+13. What is a ModelForm?
+14. What is a migration?
+15. What is ORM?
+16. Difference between `filter()` and `get()`?
+17. What is ForeignKey?
+18. What is authentication vs authorization?
+19. What do `authenticate()`, `login()` and `logout()` do?
+20. What does `@login_required` do?
+
+You should be able to answer all 20 confidently now.
+
+---
+
+# 85. Final Mental Model
+
+Don't memorize Django as hundreds of disconnected commands.
+
+Think of it as this:
+
+```text
+                   USER
+                    │
+                    ↓
+                 URL
+                    │
+                    ↓
+                  VIEW
+                 /    \
+                /      \
+               ↓        ↓
+            MODEL     FORM
+               │        │
+               ↓        ↓
+           DATABASE   VALIDATION
+               │        │
+               └───┬────┘
+                   ↓
+                CONTEXT
+                   ↓
+                TEMPLATE
+                   ↓
+               RESPONSE
+                   ↓
+                 USER
+```
+
+And authentication sits alongside it:
+
+```text
+User
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+session
+ ↓
+request.user
+ ↓
+@login_required
+ ↓
+permissions
+```
+
+---
+
+# 86. Where You Are Now
+
+You have completed:
+
+```text
+✅ Unit I — Django Fundamentals
+✅ Unit II — Views & URLs
+✅ Unit III — Templates, Debugging & Testing
+✅ Unit IV — Forms
+✅ Unit V — Models, Migrations, ORM & Admin
+✅ Unit VI — Cookies, Sessions & Authentication
+```
+
+And:
+
+```text
+✅ Complete CRUD Project
+✅ Complete Authentication Project
+```
+
+The remaining two modules are **exam/interview focused** rather than new syllabus:
+
+### Module 43
+
+**Django Viva Masterclass**
+
+We'll go through likely teacher questions from **basic → intermediate → tricky**, including questions where the interviewer gives you code and asks what it does.
+
+### Module 44
+
+**Django Coding Question Masterclass**
+
+We'll solve practical coding questions covering:
+
+```text
+Views
+URLs
+Templates
+Forms
+Validation
+Models
+ORM
+Relationships
+CRUD
+Admin
+Authentication
+Sessions
+Cookies
+Permissions
+```
+
+These two modules are where we'll turn the knowledge you've learned into **answer-writing and coding ability**.

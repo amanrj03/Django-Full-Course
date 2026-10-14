@@ -1,0 +1,1936 @@
+# Module 31 — Django Relationships & Foreign Keys
+
+This is a **very important Django module** because real applications almost never have only one table.
+
+For example, a college application might have:
+
+```text
+Department
+    ↓
+Students
+    ↓
+Courses
+    ↓
+Teachers
+```
+
+The database needs a way to connect these tables.
+
+Django provides:
+
+* `ForeignKey` → many-to-one
+* `OneToOneField` → one-to-one
+* `ManyToManyField` → many-to-many
+
+We'll start with `ForeignKey`, because it is the most commonly asked one.
+
+---
+
+# 1. Why Do We Need Relationships?
+
+Suppose we have a `Student` model:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    course = models.CharField(max_length=50)
+```
+
+This works, but imagine 500 students.
+
+You might have:
+
+```text
+Aman   → CSE
+Rahul  → CSE
+Priya  → CSE
+Neha   → ECE
+Karan  → ECE
+```
+
+The word `CSE` is repeatedly stored.
+
+A better database design is:
+
+### Department table
+
+```text
+id    name
+1     CSE
+2     ECE
+3     IT
+```
+
+### Student table
+
+```text
+id    name      department_id
+1     Aman      1
+2     Rahul     1
+3     Priya     1
+4     Neha      2
+```
+
+Now students are connected to departments.
+
+This is called a **relationship**.
+
+---
+
+# 2. Foreign Key
+
+Django syntax:
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)
+```
+
+This creates a relationship between:
+
+```text
+Student → Department
+```
+
+A student belongs to one department, while a department can have many students.
+
+Therefore:
+
+> `ForeignKey` represents a **many-to-one relationship**.
+
+---
+
+# 3. Complete Example
+
+Let's create:
+
+```python
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+```
+
+Then:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return self.name
+```
+
+Conceptually:
+
+```text
+Department
+    │
+    ├── Student
+    ├── Student
+    └── Student
+```
+
+---
+
+# 4. Why Is It Called Foreign Key?
+
+The `Student` table contains a reference to a record in another table.
+
+Conceptually:
+
+```text
+Student.department_id
+          ↓
+Department.id
+```
+
+The referenced field is generally the primary key of the related model.
+
+Django handles the relationship for you.
+
+---
+
+# 5. Many-to-One
+
+Suppose:
+
+```text
+Department: CSE
+```
+
+has:
+
+```text
+Aman
+Rahul
+Priya
+```
+
+Then:
+
+```text
+One Department
+      ↓
+Many Students
+```
+
+From the student's perspective:
+
+```text
+Many Students → One Department
+```
+
+That's why we call it:
+
+> **Many-to-One**
+
+---
+
+# 6. Creating Migrations
+
+After adding the relationship:
+
+```bash
+python manage.py makemigrations
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Remember the migration workflow:
+
+```text
+models.py
+   ↓
+makemigrations
+   ↓
+migration file
+   ↓
+migrate
+   ↓
+database schema
+```
+
+---
+
+# 7. Creating Objects
+
+Suppose:
+
+```python
+cse = Department.objects.create(
+    name="CSE"
+)
+```
+
+Then:
+
+```python
+student = Student.objects.create(
+    name="Aman",
+    age=21,
+    department=cse
+)
+```
+
+Now:
+
+```text
+Aman → CSE
+```
+
+---
+
+# 8. Using the Department ID
+
+You can also assign the primary key directly using the `_id` form:
+
+```python
+student = Student.objects.create(
+    name="Rahul",
+    age=22,
+    department_id=1
+)
+```
+
+Here:
+
+```text
+department
+```
+
+expects a `Department` object.
+
+Whereas:
+
+```text
+department_id
+```
+
+expects the related object's primary-key value.
+
+This is a very common viva question.
+
+---
+
+# 9. `department` vs `department_id`
+
+Suppose:
+
+```python
+student = Student.objects.get(id=1)
+```
+
+Then:
+
+```python
+student.department
+```
+
+returns the related `Department` object.
+
+For example:
+
+```text
+CSE
+```
+
+while:
+
+```python
+student.department_id
+```
+
+returns its primary key:
+
+```text
+1
+```
+
+### Memorize:
+
+```text
+student.department
+        ↓
+Department object
+
+student.department_id
+        ↓
+Department primary-key value
+```
+
+---
+
+# 10. Accessing Related Data
+
+Suppose:
+
+```python
+student.department
+```
+
+returns the CSE Department object.
+
+Then:
+
+```python
+student.department.name
+```
+
+returns:
+
+```text
+CSE
+```
+
+So:
+
+```python
+student.department.name
+```
+
+means:
+
+```text
+Student
+  ↓
+Department
+  ↓
+name
+```
+
+---
+
+# 11. `on_delete`
+
+This is one of the **most important ForeignKey concepts**.
+
+When we write:
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)
+```
+
+we are telling Django:
+
+> What should happen to related students if the department is deleted?
+
+---
+
+# 12. `CASCADE`
+
+```python
+on_delete=models.CASCADE
+```
+
+means:
+
+> Delete related objects too.
+
+Suppose:
+
+```text
+CSE
+ ├── Aman
+ ├── Rahul
+ └── Priya
+```
+
+Delete CSE:
+
+```text
+CSE ❌
+Aman ❌
+Rahul ❌
+Priya ❌
+```
+
+This is cascading deletion.
+
+---
+
+# 13. `PROTECT`
+
+```python
+on_delete=models.PROTECT
+```
+
+means:
+
+> Don't allow the referenced object to be deleted if related objects still exist.
+
+Example:
+
+```text
+CSE
+ ├── Aman
+ └── Rahul
+```
+
+Attempt to delete CSE:
+
+```text
+❌ Deletion prevented
+```
+
+This is useful when you don't want deleting a parent record to accidentally remove dependent data.
+
+---
+
+# 14. `SET_NULL`
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.SET_NULL,
+    null=True
+)
+```
+
+If the department is deleted:
+
+```text
+Department ❌
+     ↓
+Student remains
+     ↓
+department = NULL
+```
+
+Important:
+
+> `SET_NULL` requires the field to allow `NULL`, normally with `null=True`.
+
+---
+
+# 15. `SET_DEFAULT`
+
+You can use:
+
+```python
+on_delete=models.SET_DEFAULT
+```
+
+Then the relationship is changed to the field's default value when the referenced object is deleted.
+
+Example conceptually:
+
+```python
+department = models.ForeignKey(
+    Department,
+    default=1,
+    on_delete=models.SET_DEFAULT
+)
+```
+
+The default must be meaningful and valid for the relationship.
+
+---
+
+# 16. `DO_NOTHING`
+
+```python
+on_delete=models.DO_NOTHING
+```
+
+Django does not perform an automatic action.
+
+Depending on the database's foreign-key constraints, deletion may result in a database error.
+
+This is an advanced option and should be used carefully.
+
+---
+
+# 17. `on_delete` Cheat Sheet
+
+| Option        | Meaning                          |
+| ------------- | -------------------------------- |
+| `CASCADE`     | Delete related objects           |
+| `PROTECT`     | Prevent deletion                 |
+| `SET_NULL`    | Set relation to NULL             |
+| `SET_DEFAULT` | Set relation to default          |
+| `DO_NOTHING`  | Django takes no automatic action |
+
+The most commonly encountered:
+
+```text
+CASCADE
+PROTECT
+SET_NULL
+```
+
+---
+
+# 18. Reverse Relationship
+
+Here's where things become interesting.
+
+We have:
+
+```python
+class Student(models.Model):
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )
+```
+
+From Student:
+
+```python
+student.department
+```
+
+But what if we have a department and want its students?
+
+Django automatically provides a reverse relationship.
+
+By default:
+
+```python
+department.student_set.all()
+```
+
+Example:
+
+```python
+cse = Department.objects.get(name="CSE")
+
+students = cse.student_set.all()
+```
+
+This returns all students belonging to CSE.
+
+---
+
+# 19. Why `student_set`?
+
+Because the model is named:
+
+```python
+Student
+```
+
+Django's default reverse manager is:
+
+```text
+student_set
+```
+
+For example:
+
+```python
+department.student_set.all()
+```
+
+means:
+
+> Give me all Student objects related to this Department.
+
+---
+
+# 20. `related_name`
+
+You don't have to use `student_set`.
+
+You can define your own name:
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE,
+    related_name="students"
+)
+```
+
+Now:
+
+```python
+cse.students.all()
+```
+
+instead of:
+
+```python
+cse.student_set.all()
+```
+
+This is much more readable.
+
+---
+
+# 21. `related_name` Example
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )
+```
+
+Now:
+
+```python
+cse.students.all()
+```
+
+returns all students in CSE.
+
+---
+
+# 22. Forward vs Reverse Relationship
+
+### Forward
+
+Starting from Student:
+
+```python
+student.department
+```
+
+means:
+
+```text
+Student → Department
+```
+
+### Reverse
+
+Starting from Department:
+
+```python
+department.students.all()
+```
+
+means:
+
+```text
+Department → Students
+```
+
+This distinction is commonly asked in interviews.
+
+---
+
+# 23. Querying Across Relationships
+
+Suppose:
+
+```python
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+and:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE
+    )
+```
+
+You can find all CSE students:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+Notice:
+
+```text
+department__name
+```
+
+The double underscore means:
+
+> Traverse the relationship and query the related field.
+
+---
+
+# 24. More Relationship Queries
+
+Students from CSE:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+Students from departments whose name starts with C:
+
+```python
+Student.objects.filter(
+    department__name__startswith="C"
+)
+```
+
+Students from departments containing "Engineering":
+
+```python
+Student.objects.filter(
+    department__name__icontains="Engineering"
+)
+```
+
+---
+
+# 25. Reverse Relationship Query
+
+If you use:
+
+```python
+related_name="students"
+```
+
+you can query from Department:
+
+```python
+Department.objects.filter(
+    students__name="Aman"
+)
+```
+
+Meaning:
+
+> Find departments that have a student named Aman.
+
+Without `related_name`, the reverse query name is based on Django's default reverse relationship.
+
+---
+
+# 26. Relationship + Q Objects
+
+You can combine relationships with `Q`.
+
+Example:
+
+```python
+from django.db.models import Q
+
+Student.objects.filter(
+    Q(department__name="CSE") |
+    Q(department__name="ECE")
+)
+```
+
+Meaning:
+
+```text
+Department = CSE
+OR
+Department = ECE
+```
+
+---
+
+# 27. Relationship + Ordering
+
+Find students in CSE and order by marks:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+).order_by(
+    "-marks"
+)
+```
+
+---
+
+# 28. Relationship + Aggregation
+
+Now relationships become extremely powerful.
+
+Suppose we want:
+
+> Number of students in each department.
+
+We can use:
+
+```python
+from django.db.models import Count
+
+Department.objects.annotate(
+    student_count=Count("student")
+)
+```
+
+If using:
+
+```python
+related_name="students"
+```
+
+then:
+
+```python
+Department.objects.annotate(
+    student_count=Count("students")
+)
+```
+
+Each department gets an additional calculated value:
+
+```text
+CSE → 3
+ECE → 2
+IT  → 5
+```
+
+This is a major reason `annotate()` is important.
+
+---
+
+# 29. `annotate()` + ForeignKey
+
+Conceptually:
+
+```python
+departments = Department.objects.annotate(
+    student_count=Count("students")
+)
+```
+
+Then:
+
+```python
+for department in departments:
+    print(
+        department.name,
+        department.student_count
+    )
+```
+
+Output:
+
+```text
+CSE 3
+ECE 2
+IT 5
+```
+
+---
+
+# 30. One-to-One Relationship
+
+Now consider:
+
+```text
+Student
+   ↓
+Profile
+```
+
+Each student has exactly one profile.
+
+And each profile belongs to exactly one student.
+
+That's:
+
+> **One-to-One**
+
+Django:
+
+```python
+profile = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)
+```
+
+---
+
+# 31. Example One-to-One
+
+```python
+class StudentProfile(models.Model):
+
+    student = models.OneToOneField(
+        Student,
+        on_delete=models.CASCADE
+    )
+
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+```
+
+Relationship:
+
+```text
+Student 1 ───── 1 StudentProfile
+```
+
+---
+
+# 32. Why Use One-to-One?
+
+Suppose the Student model has:
+
+```text
+name
+age
+email
+course
+```
+
+You could put everything in one model.
+
+But perhaps profile information is separate:
+
+```text
+Student
+ ├── name
+ ├── age
+ └── email
+
+StudentProfile
+ ├── phone
+ ├── address
+ └── photo
+```
+
+One-to-one connects them.
+
+A classic real-world Django example is:
+
+```text
+User → Profile
+```
+
+---
+
+# 33. Accessing One-to-One
+
+Suppose:
+
+```python
+profile = StudentProfile.objects.get(
+    student=student
+)
+```
+
+Then:
+
+```python
+profile.student
+```
+
+returns the Student.
+
+From the Student side, Django gives a reverse relationship based on the model name unless you specify a `related_name`.
+
+For example, depending on the model naming:
+
+```python
+student.studentprofile
+```
+
+can access the profile.
+
+You can make it clearer:
+
+```python
+student = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE,
+    related_name="profile"
+)
+```
+
+Then:
+
+```python
+student.profile
+```
+
+---
+
+# 34. Many-to-Many
+
+Now imagine:
+
+```text
+Student
+   ↓
+Courses
+```
+
+A student can enroll in multiple courses:
+
+```text
+Aman → Python
+     → Django
+     → Java
+```
+
+And a course can have multiple students:
+
+```text
+Django
+ ├── Aman
+ ├── Rahul
+ └── Priya
+```
+
+This is:
+
+> **Many-to-Many**
+
+---
+
+# 35. Django `ManyToManyField`
+
+Example:
+
+```python
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    courses = models.ManyToManyField(
+        Course
+    )
+```
+
+Relationship:
+
+```text
+Many Students ↔ Many Courses
+```
+
+---
+
+# 36. Creating Many-to-Many Data
+
+Create courses:
+
+```python
+python_course = Course.objects.create(
+    name="Python"
+)
+
+django_course = Course.objects.create(
+    name="Django"
+)
+```
+
+Create student:
+
+```python
+student = Student.objects.create(
+    name="Aman"
+)
+```
+
+Then:
+
+```python
+student.courses.add(
+    python_course,
+    django_course
+)
+```
+
+Now:
+
+```text
+Aman
+ ├── Python
+ └── Django
+```
+
+---
+
+# 37. Retrieve Many-to-Many Data
+
+```python
+student.courses.all()
+```
+
+Returns all courses for the student.
+
+---
+
+# 38. Add Another Course
+
+```python
+student.courses.add(
+    java_course
+)
+```
+
+---
+
+# 39. Remove a Course
+
+```python
+student.courses.remove(
+    python_course
+)
+```
+
+Now Python is removed from that student's courses.
+
+---
+
+# 40. Clear All Courses
+
+```python
+student.courses.clear()
+```
+
+This removes all many-to-many associations for that student.
+
+Important:
+
+> It removes the relationships, not the Course records themselves.
+
+---
+
+# 41. Set Many-to-Many Relationships
+
+You can replace the current set:
+
+```python
+student.courses.set([
+    python_course,
+    django_course
+])
+```
+
+This makes those the student's current course relationships.
+
+---
+
+# 42. Many-to-Many Cheat Sheet
+
+```python
+student.courses.add(course)
+```
+
+Add.
+
+```python
+student.courses.remove(course)
+```
+
+Remove.
+
+```python
+student.courses.clear()
+```
+
+Remove all relationships.
+
+```python
+student.courses.set([...])
+```
+
+Replace relationships.
+
+```python
+student.courses.all()
+```
+
+Get related objects.
+
+---
+
+# 43. Three Relationship Types
+
+This is extremely important:
+
+| Relationship | Django Field      | Example                        |
+| ------------ | ----------------- | ------------------------------ |
+| Many-to-One  | `ForeignKey`      | Many Students → One Department |
+| One-to-One   | `OneToOneField`   | Student → One Profile          |
+| Many-to-Many | `ManyToManyField` | Students ↔ Courses             |
+
+Memorize this table.
+
+---
+
+# 44. ForeignKey vs OneToOneField
+
+### ForeignKey
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)
+```
+
+Multiple students can point to the same department.
+
+```text
+CSE
+ ↑ ↑ ↑
+ A R P
+```
+
+### OneToOneField
+
+```python
+student = models.OneToOneField(
+    Student,
+    on_delete=models.CASCADE
+)
+```
+
+Only one profile corresponds to one student.
+
+```text
+Student 1 ─ Profile 1
+Student 2 ─ Profile 2
+```
+
+---
+
+# 45. ForeignKey vs ManyToManyField
+
+### ForeignKey
+
+```text
+Student → Department
+```
+
+A student has one department.
+
+### Many-to-many
+
+```text
+Student ↔ Course
+```
+
+A student can have many courses, and each course can have many students.
+
+---
+
+# 46. Database Structure Behind Many-to-Many
+
+Django typically creates an intermediate/junction table for a `ManyToManyField`.
+
+Conceptually:
+
+### Student
+
+```text
+id
+name
+```
+
+### Course
+
+```text
+id
+name
+```
+
+### Student_Course
+
+```text
+student_id
+course_id
+```
+
+So:
+
+```text
+Student
+   ↓
+Intermediate Table
+   ↓
+Course
+```
+
+Django manages this intermediate table automatically in the normal case.
+
+---
+
+# 47. ForeignKey Database Structure
+
+For:
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE
+)
+```
+
+the Student table conceptually contains:
+
+```text
+id
+name
+department_id
+```
+
+So:
+
+```text
+Student.department_id
+        ↓
+Department.id
+```
+
+---
+
+# 48. `select_related()`
+
+Now we're entering an important optimization concept.
+
+Suppose you have:
+
+```python
+students = Student.objects.all()
+```
+
+and inside a loop:
+
+```python
+for student in students:
+    print(student.department.name)
+```
+
+Django may need additional database queries to retrieve departments.
+
+`select_related()` can optimize ForeignKey/OneToOne relationships:
+
+```python
+students = Student.objects.select_related(
+    "department"
+)
+```
+
+Then:
+
+```python
+for student in students:
+    print(student.department.name)
+```
+
+Django can fetch the related department data together using a SQL join.
+
+---
+
+# 49. `select_related()` Applies To
+
+Primarily:
+
+```text
+ForeignKey
+OneToOneField
+```
+
+Think:
+
+> **select_related = SQL JOIN for single-valued relationships**
+
+---
+
+# 50. `prefetch_related()`
+
+For multi-valued relationships such as:
+
+```text
+ManyToMany
+Reverse ForeignKey
+```
+
+use:
+
+```python
+prefetch_related()
+```
+
+Example:
+
+```python
+departments = Department.objects.prefetch_related(
+    "students"
+)
+```
+
+Then:
+
+```python
+for department in departments:
+    for student in department.students.all():
+        print(student.name)
+```
+
+Django can efficiently fetch the related collections.
+
+---
+
+# 51. `select_related()` vs `prefetch_related()`
+
+Very important interview question.
+
+| Method               | Common use                     |
+| -------------------- | ------------------------------ |
+| `select_related()`   | ForeignKey, OneToOne           |
+| `prefetch_related()` | ManyToMany, reverse ForeignKey |
+
+Simple memory trick:
+
+```text
+select_related
+    ↓
+single related object
+    ↓
+JOIN
+
+prefetch_related
+    ↓
+multiple related objects
+    ↓
+separate optimized query + Python-side joining
+```
+
+---
+
+# 52. Practical Example
+
+Suppose:
+
+```python
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    marks = models.IntegerField()
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )
+```
+
+Find all students in CSE:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+Get their names:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+).values(
+    "name"
+)
+```
+
+Order by marks:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+).order_by(
+    "-marks"
+)
+```
+
+---
+
+# 53. Find Departments With At Least 5 Students
+
+Using annotation:
+
+```python
+from django.db.models import Count
+
+Department.objects.annotate(
+    student_count=Count("students")
+).filter(
+    student_count__gte=5
+)
+```
+
+This is an excellent advanced ORM coding question.
+
+---
+
+# 54. Find Departments and Their Student Counts
+
+```python
+departments = Department.objects.annotate(
+    student_count=Count("students")
+)
+```
+
+Then:
+
+```python
+for department in departments:
+    print(
+        department.name,
+        department.student_count
+    )
+```
+
+---
+
+# 55. Find Students With Department Name
+
+```python
+Student.objects.values(
+    "name",
+    "department__name"
+)
+```
+
+Result conceptually:
+
+```python
+[
+    {"name": "Aman", "department__name": "CSE"},
+    {"name": "Rahul", "department__name": "ECE"}
+]
+```
+
+Notice again:
+
+```text
+department__name
+```
+
+The double underscore traverses the relationship.
+
+---
+
+# 56. Relationship Traversal
+
+This pattern is worth memorizing:
+
+```python
+Model.objects.filter(
+    relationship__field=value
+)
+```
+
+Example:
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+For deeper relationships:
+
+```python
+Student.objects.filter(
+    department__college__name="ABC College"
+)
+```
+
+Conceptually:
+
+```text
+Student
+   ↓
+Department
+   ↓
+College
+   ↓
+name
+```
+
+---
+
+# 57. Viva Masterclass
+
+### Q1. What is a relationship in a database?
+
+> A relationship defines how records in one table are associated with records in another table.
+
+---
+
+### Q2. What is a ForeignKey?
+
+> `ForeignKey` defines a many-to-one relationship between two Django models.
+
+---
+
+### Q3. Give an example.
+
+> Many students can belong to one department, so `Student` can have a `ForeignKey` to `Department`.
+
+---
+
+### Q4. What is `on_delete`?
+
+> `on_delete` specifies what Django should do with related objects when the referenced object is deleted.
+
+---
+
+### Q5. What does `CASCADE` mean?
+
+> Deleting the referenced object also deletes related objects.
+
+---
+
+### Q6. What does `PROTECT` mean?
+
+> It prevents deletion of the referenced object while related objects still exist.
+
+---
+
+### Q7. What does `SET_NULL` mean?
+
+> It sets the foreign-key value to NULL when the referenced object is deleted, and the field must allow NULL.
+
+---
+
+### Q8. What is `related_name`?
+
+> `related_name` defines the name used to access the reverse relationship from the related model.
+
+---
+
+### Q9. What is the difference between:
+
+```python
+student.department
+```
+
+and:
+
+```python
+student.department_id
+```
+
+> `student.department` returns the related Department object, while `student.department_id` gives its primary-key value.
+
+---
+
+### Q10. What is a One-to-One relationship?
+
+> A relationship where each object on one side is associated with at most one object on the other side.
+
+Django:
+
+```python
+OneToOneField
+```
+
+---
+
+### Q11. What is a Many-to-Many relationship?
+
+> A relationship where multiple objects on each side can be associated with multiple objects on the other side.
+
+Django:
+
+```python
+ManyToManyField
+```
+
+---
+
+### Q12. How do you add a Many-to-Many relationship?
+
+```python
+student.courses.add(course)
+```
+
+---
+
+### Q13. How do you remove it?
+
+```python
+student.courses.remove(course)
+```
+
+---
+
+### Q14. How do you remove all relationships?
+
+```python
+student.courses.clear()
+```
+
+---
+
+### Q15. What is `select_related()`?
+
+> It optimizes queries involving ForeignKey and OneToOne relationships by fetching related objects using SQL joins.
+
+---
+
+### Q16. What is `prefetch_related()`?
+
+> It optimizes fetching multi-valued relationships such as ManyToMany and reverse ForeignKey relationships, typically using separate queries and combining the results in Python.
+
+---
+
+### Q17. Difference between `select_related()` and `prefetch_related()`?
+
+> `select_related()` is generally used for single-valued relationships such as ForeignKey and OneToOne, while `prefetch_related()` is generally used for multi-valued relationships such as ManyToMany and reverse ForeignKey.
+
+---
+
+# 58. Coding Questions You Must Know
+
+### 1. Create a department
+
+```python
+Department.objects.create(
+    name="CSE"
+)
+```
+
+### 2. Create student belonging to CSE
+
+```python
+cse = Department.objects.get(
+    name="CSE"
+)
+
+Student.objects.create(
+    name="Aman",
+    age=21,
+    department=cse
+)
+```
+
+### 3. Find all CSE students
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+### 4. Find all students from CSE or ECE
+
+```python
+Student.objects.filter(
+    Q(department__name="CSE") |
+    Q(department__name="ECE")
+)
+```
+
+### 5. Get all students of a department
+
+If `related_name="students"`:
+
+```python
+cse.students.all()
+```
+
+Without `related_name`:
+
+```python
+cse.student_set.all()
+```
+
+### 6. Count students in each department
+
+```python
+Department.objects.annotate(
+    student_count=Count("students")
+)
+```
+
+### 7. Get student names with department names
+
+```python
+Student.objects.values(
+    "name",
+    "department__name"
+)
+```
+
+### 8. Optimize student → department query
+
+```python
+Student.objects.select_related(
+    "department"
+)
+```
+
+---
+
+# 59. Final Mental Map
+
+```text
+                    DJANGO RELATIONSHIPS
+                            │
+          ┌─────────────────┼─────────────────┐
+          ↓                 ↓                 ↓
+    ForeignKey         OneToOneField     ManyToManyField
+          │                 │                 │
+     many → one         one ↔ one         many ↔ many
+          │                 │                 │
+      Student →         Student →       Student ↔ Course
+      Department          Profile
+          │
+          ↓
+      on_delete
+          │
+    ┌─────┼─────┐
+    ↓     ↓     ↓
+CASCADE PROTECT SET_NULL
+```
+
+And for querying:
+
+```text
+Forward:
+student.department
+
+Reverse:
+department.students.all()
+
+Across relationship:
+Student.objects.filter(
+    department__name="CSE"
+)
+
+Optimization:
+select_related()    → FK / OneToOne
+prefetch_related()  → ManyToMany / reverse FK
+```
+
+### The most important things to memorize
+
+```python
+department = models.ForeignKey(
+    Department,
+    on_delete=models.CASCADE,
+    related_name="students"
+)
+```
+
+```python
+Student.objects.filter(
+    department__name="CSE"
+)
+```
+
+```python
+department.students.all()
+```
+
+```python
+Student.objects.select_related(
+    "department"
+)
+```
+
+```python
+Department.objects.prefetch_related(
+    "students"
+)
+```
+
+```python
+student.courses.add(course)
+student.courses.remove(course)
+student.courses.clear()
+student.courses.set([...])
+```
+
+You now know the three fundamental Django relationship types and how to query across them.
+
+**Next → Module 32: Django Admin**
+
+We'll learn how to register models in the admin panel, create a superuser, customize `ModelAdmin`, control displayed fields, searching, filtering, ordering, readonly fields, list editing, and admin permissions.

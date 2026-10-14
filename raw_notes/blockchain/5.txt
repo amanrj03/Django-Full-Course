@@ -1,0 +1,1153 @@
+# MODULE 5 — SYMMETRIC CRYPTOGRAPHY 🔐
+
+### Unit II — Part 1
+
+Now we enter **Unit II**, and this module is important because your exam can easily ask a **10-mark question on AES**, or a 5-mark question on symmetric cryptography, cryptographic primitives, or OpenSSL.
+
+Your syllabus says:
+
+> **Symmetric Cryptography:** working with the OpenSSL command line, cryptographic primitives, Advanced Encryption Standard (AES)
+
+I’ll follow your **Unit 2 Symmetric Key PPT + the provided cryptography book** rather than adding unrelated material.
+
+---
+
+# 1. What is Cryptography?
+
+**Cryptography** is the study and application of techniques used to protect information by transforming it so that unauthorized parties cannot understand or modify it.
+
+The basic objective is to provide security services such as:
+
+### Confidentiality
+
+Information should be available only to authorized entities.
+
+### Integrity
+
+Information should only be modified by authorized entities.
+
+### Authentication
+
+Provides assurance about the identity of an entity or the validity/source of a message.
+
+### Non-repudiation
+
+An entity should not be able to deny a previous action when there is sufficient evidence.
+
+### Accountability
+
+Actions affecting security can be traced back to the responsible party.
+
+These security objectives are explicitly covered in your Unit 2 PPT. 
+
+---
+
+# 2. Basic Encryption Model ⭐⭐⭐⭐⭐
+
+This is the first thing you need to understand.
+
+Suppose:
+
+* Alice = sender
+* Bob = receiver
+* M = plaintext/message
+* C = ciphertext
+* K = secret key
+
+The process is:
+
+```text
+             SECRET KEY K
+                  ↓
+Alice → Plaintext M → ENCRYPTION → Ciphertext C
+                                      ↓
+                                  Channel
+                                      ↓
+                              DECRYPTION
+                                      ↓
+                                  Plaintext M → Bob
+```
+
+Mathematically:
+
+### Encryption
+
+$$
+C = E(K,M)
+$$
+
+### Decryption
+
+$$
+M = D(K,C)
+$$
+
+The book defines plaintext as the original message, ciphertext as the scrambled message, encryption as converting plaintext to ciphertext, and decryption as restoring plaintext from ciphertext. 
+
+---
+
+# 3. Symmetric Cryptography ⭐⭐⭐⭐⭐
+
+Symmetric cryptography is also called:
+
+* **Symmetric encryption**
+* **Conventional encryption**
+* **Single-key encryption**
+
+The most important characteristic:
+
+> **The same secret key is used for encryption and decryption.**
+
+```text
+              SAME SECRET KEY
+              ┌──────────────┐
+              ↓              ↓
+Plaintext → Encryption → Ciphertext
+                          ↓
+                       Decryption
+                          ↓
+                       Plaintext
+```
+
+The book describes symmetric encryption as conventional/single-key encryption and identifies plaintext, encryption algorithm, secret key, ciphertext and decryption algorithm as the basic components. 
+
+---
+
+# 4. Five Components of a Symmetric Cryptosystem ⭐⭐⭐⭐⭐
+
+This is a **very good 5-mark question**.
+
+According to the book, a symmetric encryption scheme has five ingredients:
+
+### 1. Plaintext
+
+The original readable message.
+
+Example:
+
+```text
+HELLO AMAN
+```
+
+### 2. Encryption Algorithm
+
+Algorithm that transforms plaintext into ciphertext.
+
+### 3. Secret Key
+
+A value used by the encryption algorithm.
+
+### 4. Ciphertext
+
+The scrambled/unintelligible output.
+
+### 5. Decryption Algorithm
+
+Transforms ciphertext back into plaintext using the secret key.
+
+
+
+---
+
+# 5. Why is the Key Important?
+
+Suppose:
+
+```text
+Plaintext = HELLO
+
+Key A → Ciphertext X
+Key B → Ciphertext Y
+```
+
+Even if the plaintext is the same, changing the key changes the ciphertext.
+
+The book explicitly notes that for a given message, different keys produce different ciphertexts. 
+
+Therefore:
+
+> **The security should depend on keeping the key secret, not on keeping the algorithm secret.**
+
+---
+
+# 6. Types of Symmetric Ciphers ⭐⭐⭐⭐⭐
+
+Your PPT divides symmetric ciphers into **two types**:
+
+```text
+             SYMMETRIC CIPHERS
+                    │
+             ┌──────┴──────┐
+             ↓             ↓
+        Stream Cipher   Block Cipher
+             │             │
+            RC4        DES / AES
+```
+
+Your PPT specifically lists stream ciphers and block ciphers, with RC4/A5 as stream-cipher examples and DES/AES as block-cipher examples. 
+
+---
+
+# 7. Stream Cipher
+
+A stream cipher encrypts data **one bit or byte at a time** using a keystream.
+
+Conceptually:
+
+```text
+Plaintext:
+P1 P2 P3 P4 P5 ...
+
+Keystream:
+K1 K2 K3 K4 K5 ...
+
+       ↓ XOR
+
+Ciphertext:
+C1 C2 C3 C4 C5 ...
+```
+
+Your PPT describes stream ciphers as applying encryption on a bit-by-bit basis using a keystream. 
+
+Examples in the PPT:
+
+* RC4
+* A5
+
+---
+
+# 8. Block Cipher ⭐⭐⭐⭐⭐
+
+A block cipher divides plaintext into **fixed-size blocks** and encrypts each block through the cipher algorithm.
+
+Example:
+
+```text
+Plaintext:
+
+ABCDEFGHIJKLMNOP
+
+       ↓ divide
+
+ABCD | EFGH | IJKL | MNOP
+
+       ↓ encryption
+
+XXXX | YYYY | ZZZZ | WWWW
+```
+
+Your PPT says block ciphers break plaintext into blocks of a fixed length and apply encryption block-by-block. 
+
+Examples:
+
+* DES
+* AES
+
+---
+
+# 9. Block Cipher Structure
+
+Your PPT mentions two important design approaches:
+
+### Feistel Cipher
+
+Used by many traditional block ciphers.
+
+The data is divided into two parts:
+
+```text
+        INPUT
+          ↓
+    ┌─────────────┐
+    │             │
+   LEFT         RIGHT
+    │             │
+    └──────┬──────┘
+           ↓
+       Round function
+           ↓
+        Next round
+```
+
+### Substitution-Permutation Network — SPN
+
+AES is based on substitution and permutation rather than a traditional Feistel structure.
+
+Your PPT identifies AES/Rijndael as using a **Substitution-Permutation Network (SPN)**. 
+
+The book specifically notes that AES **is not a Feistel structure**; it processes the entire data block as a matrix. 
+
+---
+
+# 10. Confusion and Diffusion ⭐⭐⭐⭐
+
+These are important cryptographic concepts.
+
+### Confusion
+
+The relationship between the **key and ciphertext** should be complicated.
+
+### Diffusion
+
+A small change in plaintext should spread its effect over many ciphertext bits.
+
+Your PPT associates Feistel/block-cipher design with the cryptographic properties of **confusion and diffusion**. 
+
+For AES, the substitution and permutation stages provide confusion, diffusion and nonlinearity. 
+
+---
+
+# 11. Cryptographic Primitives ⭐⭐⭐⭐⭐
+
+Your PPT divides cryptographic primitives into three groups:
+
+```text
+                 CRYPTOGRAPHIC PRIMITIVES
+                         │
+       ┌─────────────────┼─────────────────┐
+       ↓                 ↓                 ↓
+    Keyless          Symmetric          Asymmetric
+    primitives       primitives         primitives
+       │                 │                 │
+       ├─ Random       ├─ Secret-key     ├─ Digital
+       │  numbers         ciphers          signatures
+       │               ├─ Block          └─ Public-key
+       └─ Hash            ciphers             ciphers
+          function      ├─ Stream
+                        │  ciphers
+                        └─ MACs
+```
+
+This classification appears directly in your PPT. 
+
+---
+
+# 12. Keyless Cryptographic Primitives
+
+The PPT identifies:
+
+### Random Numbers
+
+Randomness is important because cryptographic keys need to be unpredictable.
+
+The PPT explains that private keys should be generated randomly so they cannot easily be guessed. 
+
+There are:
+
+### RNG
+
+Random Number Generator.
+
+### PRNG
+
+Pseudo-Random Number Generator.
+
+A PRNG is deterministic but starts with a random initial value called a **seed**.
+
+The PPT gives **Blum-Blum-Shub (BBS)** as an example. 
+
+---
+
+# 13. Hash Function ⭐⭐⭐⭐⭐
+
+A cryptographic hash function:
+
+```text
+Input message of ANY size
+          ↓
+    HASH FUNCTION
+          ↓
+Fixed-size output
+```
+
+For example:
+
+```text
+Message M
+   ↓
+SHA-256
+   ↓
+256-bit digest
+```
+
+Your PPT explains that a hash function accepts an arbitrarily sized string and produces a fixed-size output; it uses 256 bits as the blockchain example. 
+
+---
+
+# 14. Hash Function in Blockchain ⭐⭐⭐⭐⭐
+
+This is particularly important for your subject.
+
+Your PPT gives two major blockchain uses:
+
+### Hash Function
+
+Used to connect blocks in a chain in a tamper-resistant way.
+
+### Digital Signature
+
+Used to digitally sign data so its authenticity can be checked and the signer cannot easily deny the activity.
+
+
+
+Conceptually:
+
+```text
+Block N
+   │
+   └── Hash
+         ↓
+       Block N+1
+```
+
+If the contents of an earlier block change, its hash changes, breaking the expected chain relationship.
+
+---
+
+# 15. Message Authentication Code — MAC ⭐⭐⭐⭐
+
+A MAC is a cryptographic checksum generated using a **secret key**.
+
+Concept:
+
+```text
+Message M + Secret Key K
+          ↓
+         MAC
+```
+
+The receiver uses the same secret key to calculate the MAC again.
+
+```text
+Received Message
+      +
+Secret Key
+      ↓
+New MAC
+      ↓
+Compare
+```
+
+If the two MACs match:
+
+> The message has not been modified by an unauthorized entity.
+
+Your PPT explains this mechanism and identifies CBC-MAC as a way of generating a MAC using block ciphers in CBC mode. 
+
+---
+
+# 16. DES — Why AES Was Needed
+
+Before AES, **DES** was an important symmetric encryption algorithm.
+
+But DES had a major problem:
+
+> **56-bit key**
+
+Your PPT notes that DES's 56-bit key raised security concerns. Triple DES addressed this by using three DES executions and a larger effective key structure, but it remained limited by slower performance and its 64-bit block size. 
+
+This led to AES becoming the modern standard.
+
+---
+
+# 17. AES — Advanced Encryption Standard ⭐⭐⭐⭐⭐
+
+Now the most important part.
+
+**AES = Advanced Encryption Standard**
+
+AES is a **symmetric block cipher**.
+
+It works on:
+
+> **128-bit plaintext blocks**
+
+And supports:
+
+* AES-128
+* AES-192
+* AES-256
+
+depending on key length. 
+
+---
+
+# 18. AES Parameters ⭐⭐⭐⭐⭐
+
+MEMORIZE THIS TABLE.
+
+| AES Version | Key Size | Block Size | Rounds |
+| ----------- | -------: | ---------: | -----: |
+| **AES-128** | 128 bits |   128 bits | **10** |
+| **AES-192** | 192 bits |   128 bits | **12** |
+| **AES-256** | 256 bits |   128 bits | **14** |
+
+The provided book gives exactly these parameters. 
+
+### Easy memory:
+
+> **128 → 10**
+
+> **192 → 12**
+
+> **256 → 14**
+
+---
+
+# 19. AES State Matrix ⭐⭐⭐⭐⭐
+
+AES works on a **4 × 4 matrix of bytes** called the **State**.
+
+Since:
+
+```text
+4 × 4 = 16 bytes
+16 × 8 = 128 bits
+```
+
+the AES block size is 128 bits.
+
+```text
+       4 bytes
+   ┌───┬───┬───┬───┐
+   │   │   │   │   │
+   ├───┼───┼───┼───┤
+   │   │   │   │   │
+   ├───┼───┼───┼───┤
+   │   │   │   │   │
+   ├───┼───┼───┼───┤
+   │   │   │   │   │
+   └───┴───┴───┴───┘
+        4 rows
+
+      4 × 4 = 16 bytes
+```
+
+The book states that the 128-bit input is represented as a 4 × 4 matrix of bytes and copied into the State array. 
+
+---
+
+# 20. AES Encryption Process ⭐⭐⭐⭐⭐
+
+This is **THE diagram to memorize for a 10-mark answer**.
+
+```text
+                 PLAINTEXT
+                     ↓
+              Initial AddRoundKey
+                     ↓
+        ┌───────────────────────────┐
+        │        ROUND 1            │
+        │                           │
+        │       SubBytes            │
+        │          ↓                │
+        │       ShiftRows           │
+        │          ↓                │
+        │       MixColumns          │
+        │          ↓                │
+        │       AddRoundKey         │
+        └────────────┬──────────────┘
+                     ↓
+                 ROUND 2
+                     ↓
+                    ...
+                     ↓
+                ROUND N-1
+                     ↓
+                Final Round
+                     │
+             ┌───────┴────────┐
+             │   SubBytes     │
+             ↓                │
+             │   ShiftRows    │
+             ↓                │
+             │   AddRoundKey  │
+             └───────┬────────┘
+                     ↓
+                 CIPHERTEXT
+```
+
+For AES-128:
+
+```text
+Initial AddRoundKey
+       +
+9 complete rounds
+       +
+1 final round
+       =
+10 rounds
+```
+
+The first 9 rounds contain all four transformations; the final round omits MixColumns. 
+
+---
+
+# 21. The Four AES Transformations ⭐⭐⭐⭐⭐
+
+You MUST know these:
+
+### 1. SubBytes
+
+### 2. ShiftRows
+
+### 3. MixColumns
+
+### 4. AddRoundKey
+
+The book identifies these four stages explicitly. 
+
+Now let's understand each.
+
+---
+
+# 22. SubBytes
+
+Each byte in the State is replaced with another byte using an **S-box (Substitution box)**.
+
+```text
+Before:
+
+A1 B2 C3 D4
+...
+
+      ↓ SubBytes
+
+S(A1) S(B2) S(C3) S(D4)
+...
+```
+
+So:
+
+> **SubBytes = byte-by-byte substitution using S-box**
+
+The book describes SubBytes as using an S-box to perform byte-by-byte substitution. 
+
+### Purpose
+
+Provides:
+
+* Nonlinearity
+* Confusion
+
+---
+
+# 23. ShiftRows
+
+This is a **permutation operation**.
+
+Rows of the State are shifted by different amounts.
+
+Conceptually:
+
+```text
+Before:
+
+A B C D
+E F G H
+I J K L
+M N O P
+```
+
+After ShiftRows:
+
+```text
+A B C D
+F G H E
+K L I J
+P M N O
+```
+
+The exact direction/amount follows AES's row-shifting rule.
+
+The important exam point:
+
+> **ShiftRows = permutation of bytes among rows.**
+
+The book calls ShiftRows a simple permutation. 
+
+---
+
+# 24. MixColumns ⭐⭐⭐⭐⭐
+
+This transformation operates on each **column** of the State.
+
+Conceptually:
+
+```text
+Column:
+
+[a]
+[b]
+[c]
+[d]
+
+   ↓ MixColumns
+
+[new column]
+```
+
+It uses arithmetic over:
+
+$$
+GF(2^8)
+$$
+
+The book explicitly states that MixColumns uses arithmetic over \(GF(2^8)\). 
+
+The transformation mixes the four bytes in each column.
+
+### Purpose:
+
+> **Diffusion**
+
+A change in one byte spreads to multiple bytes.
+
+---
+
+# 25. AddRoundKey ⭐⭐⭐⭐⭐
+
+This is the simplest transformation.
+
+The current State is XORed with the appropriate round key.
+
+$$
+State' = State \oplus RoundKey
+$$
+
+Conceptually:
+
+```text
+State
+  XOR
+Round Key
+  ↓
+New State
+```
+
+The book describes AddRoundKey as a bitwise XOR of the current block with a portion of the expanded key. 
+
+### VERY IMPORTANT:
+
+> **AddRoundKey is the only AES transformation that directly uses the key.** 
+
+---
+
+# 26. Why is MixColumns Missing in the Final Round?
+
+This is a classic theory question.
+
+AES's final round consists of:
+
+```text
+SubBytes
+   ↓
+ShiftRows
+   ↓
+AddRoundKey
+```
+
+There is **no MixColumns** in the final round.
+
+The book explicitly states that the final round contains only three transformations. 
+
+For exam:
+
+> "The final AES round omits MixColumns and consists of SubBytes, ShiftRows and AddRoundKey."
+
+---
+
+# 27. AES Key Expansion ⭐⭐⭐⭐⭐
+
+AES doesn't simply use the original key in every round.
+
+Instead:
+
+> The original key is expanded to generate separate **round keys**.
+
+For AES-128:
+
+```text
+Original key
+    ↓
+Key Expansion
+    ↓
+44 words
+    ↓
+11 round keys
+```
+
+Why 11?
+
+```text
+Round 0
+Round 1
+Round 2
+...
+Round 10
+
+= 11 keys
+```
+
+The book states that a 16-byte AES-128 key is expanded into **44 words / 176 bytes**, providing a round key for the initial AddRoundKey and each of the 10 rounds. 
+
+---
+
+# 28. AES Key Sizes and Expanded Keys
+
+| AES     | Original Key | Expanded Key |
+| ------- | -----------: | -----------: |
+| AES-128 |     128 bits |    176 bytes |
+| AES-192 |     192 bits |    208 bytes |
+| AES-256 |     256 bits |    240 bytes |
+
+The book's AES parameter table gives these values. 
+
+---
+
+# 29. AES vs DES ⭐⭐⭐⭐⭐
+
+Very likely 5 marks.
+
+| DES               | AES                         |
+| ----------------- | --------------------------- |
+| 56-bit key        | 128/192/256-bit keys        |
+| 64-bit block      | 128-bit block               |
+| Older standard    | Modern standard             |
+| Feistel structure | SPN/non-Feistel structure   |
+| Relatively weaker | Much stronger               |
+| Slower/limited    | Better performance/security |
+| 16 rounds         | 10/12/14 rounds             |
+
+Your PPT specifically highlights DES's 56-bit key and 64-bit block limitations.  The book states AES uses a 128-bit block and 128/192/256-bit keys. 
+
+---
+
+# 30. Block Cipher Modes of Operation ⭐⭐⭐⭐⭐
+
+Your PPT lists:
+
+1. **ECB** — Electronic Codebook
+2. **CBC** — Cipher Block Chaining
+3. **OFB** — Output Feedback
+4. **CTR** — Counter
+
+
+
+These modes specify **how a block cipher is applied to plaintext blocks**.
+
+---
+
+# 31. ECB
+
+Electronic Codebook is the simplest mode.
+
+```text
+P1 → AES → C1
+
+P2 → AES → C2
+
+P3 → AES → C3
+```
+
+Each block is independently encrypted.
+
+### Major problem:
+
+Identical plaintext blocks produce identical ciphertext blocks under the same key.
+
+Therefore, patterns can remain visible.
+
+Your PPT explicitly says ECB is straightforward but **should not be used in practice because it is insecure and can reveal information**. 
+
+---
+
+# 32. CBC
+
+Cipher Block Chaining links blocks together.
+
+Conceptually:
+
+```text
+          IV
+           ↓
+P1 → XOR → AES → C1
+             ↓
+P2 → XOR → AES → C2
+             ↓
+P3 → XOR → AES → C3
+```
+
+The previous ciphertext block influences encryption of the next plaintext block.
+
+### Important term:
+
+**IV = Initialization Vector**
+
+---
+
+# 33. OpenSSL ⭐⭐⭐⭐⭐
+
+Now the practical part of your syllabus.
+
+Your PPT specifically includes an example of using **OpenSSL to encrypt and decrypt a file using AES-256 in CBC mode**. 
+
+You should understand what the command is doing, even if your exam is theoretical.
+
+General structure:
+
+```bash
+openssl enc -aes-256-cbc -in plaintext.txt -out encrypted.txt
+```
+
+Meaning:
+
+```text
+openssl
+   ↓
+enc
+   ↓
+AES-256
+   ↓
+CBC mode
+   ↓
+input file
+   ↓
+output encrypted file
+```
+
+For decryption, conceptually:
+
+```bash
+openssl enc -d -aes-256-cbc -in encrypted.txt -out plaintext.txt
+```
+
+### `-d`
+
+means **decrypt**.
+
+---
+
+# 34. OpenSSL Flow
+
+For your exam, remember:
+
+```text
+STEP 1
+Create plaintext file
+       ↓
+STEP 2
+Run OpenSSL
+       ↓
+AES-256-CBC encryption
+       ↓
+Ciphertext file
+       ↓
+STEP 3
+Use OpenSSL decryption
+       ↓
+Original plaintext
+```
+
+The PPT specifically introduces the example in this sequence. 
+
+---
+
+# 🔥 35. THE MOST IMPORTANT AES ANSWER
+
+If the examiner asks:
+
+### "Explain AES algorithm in detail."
+
+Write this structure:
+
+**1. Definition**
+
+> AES (Advanced Encryption Standard) is a symmetric block cipher that operates on 128-bit blocks and supports 128-, 192-, and 256-bit keys.
+
+**2. Parameters**
+
+| Version |     Key | Rounds |
+| ------- | ------: | -----: |
+| AES-128 | 128 bit |     10 |
+| AES-192 | 192 bit |     12 |
+| AES-256 | 256 bit |     14 |
+
+**3. State**
+
+Explain 4 × 4 byte State matrix.
+
+**4. Key Expansion**
+
+Explain generation of round keys.
+
+**5. Initial AddRoundKey**
+
+$$
+State = State \oplus RoundKey
+$$
+
+**6. Main rounds**
+
+```text
+SubBytes
+↓
+ShiftRows
+↓
+MixColumns
+↓
+AddRoundKey
+```
+
+**7. Final round**
+
+```text
+SubBytes
+↓
+ShiftRows
+↓
+AddRoundKey
+```
+
+**8. Ciphertext**
+
+Final State becomes ciphertext.
+
+That is a strong **10-mark answer structure**.
+
+---
+
+# 🚨 36. MUST MEMORIZE
+
+Before moving ahead, make sure these are in your head:
+
+### Symmetric cryptography
+
+> **Same secret key for encryption and decryption.**
+
+### Two symmetric cipher types
+
+> **Stream + Block**
+
+### Examples
+
+> Stream → **RC4**
+
+> Block → **DES, AES**
+
+### AES
+
+> **128-bit block**
+
+> **128/192/256-bit key**
+
+> **10/12/14 rounds**
+
+### Four AES transformations
+
+> **SubBytes → ShiftRows → MixColumns → AddRoundKey**
+
+### Final round
+
+> **No MixColumns**
+
+### Key
+
+> **AddRoundKey is the only transformation that directly uses the key**
+
+### AES structure
+
+> **SPN, not Feistel**
+
+### Block modes in your PPT
+
+> **ECB, CBC, OFB, CTR**
+
+### Cryptographic primitives
+
+> **Random numbers, hash functions, symmetric ciphers, MACs, public-key ciphers, digital signatures**
+
+### Blockchain
+
+> **Hash → connects blocks**
+
+> **Digital signature → authenticity/non-repudiation**
+
+### OpenSSL
+
+> **AES-256-CBC encryption/decryption of a file**
+
+---
+
+# 🎯 Likely Questions From This Module
+
+### 5 marks
+
+1. Define symmetric cryptography.
+2. Explain the symmetric cryptosystem model.
+3. Differentiate stream cipher and block cipher.
+4. Explain cryptographic primitives.
+5. Explain cryptographic hash functions.
+6. What is a MAC?
+7. Explain AES parameters.
+8. Explain the four AES transformations.
+9. Explain AES key expansion.
+10. Differentiate DES and AES.
+11. Explain ECB and CBC.
+12. Explain OpenSSL AES encryption/decryption.
+
+### 10 marks
+
+**Very high priority:**
+
+> **"Explain AES algorithm in detail with its structure, transformations and key expansion."**
+
+Also prepare:
+
+> **"Explain symmetric cryptography and different types of symmetric ciphers."**
+
+> **"Explain AES encryption process with a neat diagram."**
+
+> **"Explain cryptographic primitives and their role in blockchain technology."**
+
+---
+
+## 🧠 Final mental picture
+
+```text
+                 CRYPTOGRAPHY
+                      │
+          ┌───────────┴───────────┐
+          ↓                       ↓
+      SYMMETRIC               ASYMMETRIC
+          │
+    ┌─────┴─────┐
+    ↓           ↓
+ Stream       Block
+    │           │
+   RC4       DES / AES
+                │
+                ↓
+               AES
+                │
+       ┌────────┴────────┐
+       ↓                 ↓
+    128-bit           Key sizes
+     block          128/192/256
+       │
+       ↓
+   AES ROUNDS
+       │
+       ↓
+SubBytes
+   ↓
+ShiftRows
+   ↓
+MixColumns
+   ↓
+AddRoundKey
+   ↓
+Ciphertext
+```
+
+**Next module = Public Key Cryptography**, covering **asymmetric cryptography + cryptographic constructs + blockchain technology**. When you say **"next"**, we'll go there.

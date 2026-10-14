@@ -1,0 +1,1607 @@
+# Module 32 — Django Admin
+
+Django Admin is one of Django's biggest advantages.
+
+Instead of building a separate interface to manage database records, Django can automatically provide an **administration panel** where authorized users can:
+
+* Add records
+* View records
+* Edit records
+* Delete records
+* Search records
+* Filter records
+* Manage users
+* Manage permissions
+
+---
+
+# 1. What Is Django Admin?
+
+Django Admin is a **built-in web-based administration interface** provided by Django.
+
+It works with your Django models.
+
+For example, if you have:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    marks = models.IntegerField()
+```
+
+you can register `Student` with Django Admin and manage students through a browser.
+
+Conceptually:
+
+```text
+Model
+  ↓
+Register in Admin
+  ↓
+Django generates admin interface
+  ↓
+Browser
+  ↓
+/admin/
+```
+
+---
+
+# 2. Why Is Django Admin Useful?
+
+Imagine your application has:
+
+```text
+1000 students
+500 courses
+50 teachers
+```
+
+You don't want to create custom CRUD pages just for administrators to manage all this data.
+
+Django Admin gives you a ready-made interface.
+
+This is why Django is often described as having:
+
+> **"Batteries included."**
+
+---
+
+# 3. Admin URL
+
+In your project's `urls.py`, Django normally includes:
+
+```python
+from django.contrib import admin
+from django.urls import path
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+]
+```
+
+So the admin panel is available at:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+assuming your development server is running.
+
+---
+
+# 4. Default Admin Setup
+
+When you create a Django project, Django normally already includes:
+
+```python
+'django.contrib.admin'
+```
+
+in:
+
+```python
+INSTALLED_APPS
+```
+
+It also includes the necessary admin-related middleware and URL configuration in a standard project.
+
+So you generally don't have to build the admin system yourself.
+
+---
+
+# 5. Create a Superuser
+
+To log into the admin panel, create an administrative user.
+
+Run:
+
+```bash
+python manage.py createsuperuser
+```
+
+Django will ask for details such as:
+
+```text
+Username:
+Email address:
+Password:
+Password (again):
+```
+
+After successful creation:
+
+```text
+Superuser created successfully.
+```
+
+---
+
+# 6. Run the Server
+
+```bash
+python manage.py runserver
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+Log in using the superuser credentials.
+
+---
+
+# 7. What Is a Superuser?
+
+A superuser is a user with all permissions by default.
+
+Typically, a superuser has:
+
+```text
+is_staff = True
+is_superuser = True
+```
+
+and can access the admin site and perform administrative operations according to Django's permission system.
+
+---
+
+# 8. Create Your First Admin Model
+
+Suppose your model is:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+```
+
+Go to:
+
+```text
+students/admin.py
+```
+
+Import the model:
+
+```python
+from django.contrib import admin
+from .models import Student
+```
+
+Then:
+
+```python
+admin.site.register(Student)
+```
+
+That's enough to make the model appear in the admin interface.
+
+---
+
+# 9. Complete Basic `admin.py`
+
+```python
+from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)
+```
+
+Now restart/refresh the admin page.
+
+You should see:
+
+```text
+Students
+```
+
+---
+
+# 10. Why `admin.site.register()`?
+
+This tells Django:
+
+> Make this model available in the Django Admin site.
+
+Without registration:
+
+```python
+class Student(models.Model):
+    ...
+```
+
+the model exists in the database, but it won't automatically appear in the default admin interface.
+
+---
+
+# 11. Adding a Student Through Admin
+
+Once registered:
+
+```text
+Admin
+ ↓
+Students
+ ↓
+Add Student
+```
+
+You can enter:
+
+```text
+Name: Aman
+Age: 21
+Email: aman@gmail.com
+Course: CSE
+Marks: 85
+```
+
+Then click:
+
+```text
+Save
+```
+
+Django saves the object to the database.
+
+So Admin is effectively giving you a UI over Django's model/database functionality.
+
+---
+
+# 12. Admin and ORM
+
+Remember what you learned earlier.
+
+When you use:
+
+```text
+Admin → Add Student
+```
+
+Django ultimately uses its model/database machinery to persist the data.
+
+Conceptually:
+
+```text
+Admin Form
+    ↓
+Validation
+    ↓
+Model
+    ↓
+ORM
+    ↓
+Database
+```
+
+---
+
+# 13. Basic Admin Is Often Not Enough
+
+Suppose your Student model has:
+
+```text
+id
+name
+age
+email
+course
+marks
+is_active
+```
+
+The default admin interface works, but perhaps you want:
+
+* Name visible in list
+* Course visible
+* Marks visible
+* Search by name/email
+* Filter by course
+* Sort by marks
+* Make ID readonly
+* Customize how records are displayed
+
+For that, use `ModelAdmin`.
+
+---
+
+# 14. `ModelAdmin`
+
+Example:
+
+```python
+from django.contrib import admin
+from .models import Student
+
+
+class StudentAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+
+admin.site.register(Student, StudentAdmin)
+```
+
+Now the student list page displays those fields.
+
+---
+
+# 15. `list_display`
+
+`list_display` controls the columns shown on the model's list page.
+
+Example:
+
+```python
+list_display = (
+    "name",
+    "course",
+    "marks",
+)
+```
+
+Instead of showing only a generic representation, the admin list can show:
+
+| Name  | Course | Marks |
+| ----- | ------ | ----: |
+| Aman  | CSE    |    85 |
+| Rahul | ECE    |    75 |
+| Priya | CSE    |    92 |
+
+---
+
+# 16. `list_display` With `__str__()`
+
+If you have:
+
+```python
+def __str__(self):
+    return self.name
+```
+
+Django has a human-readable representation for each object.
+
+But `list_display` lets you show multiple fields in the list.
+
+---
+
+# 17. `search_fields`
+
+Suppose you want administrators to search students.
+
+Use:
+
+```python
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "course",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+```
+
+Now the admin page provides a search box.
+
+Searching:
+
+```text
+Aman
+```
+
+can find matching students.
+
+---
+
+# 18. What Can `search_fields` Search?
+
+It can search fields such as:
+
+```python
+search_fields = (
+    "name",
+    "email",
+    "course",
+)
+```
+
+It can also traverse relationships.
+
+For example:
+
+```python
+search_fields = (
+    "name",
+    "department__name",
+)
+```
+
+This uses the same double-underscore relationship traversal you learned in ORM.
+
+---
+
+# 19. `list_filter`
+
+Suppose you want filters on the right side of the admin page.
+
+```python
+list_filter = (
+    "course",
+    "is_active",
+)
+```
+
+Now administrators can filter records based on those fields.
+
+Conceptually:
+
+```text
+Filter
+ ├── CSE
+ ├── ECE
+ └── IT
+```
+
+---
+
+# 20. `ordering`
+
+You can control default ordering:
+
+```python
+ordering = (
+    "-marks",
+)
+```
+
+This means:
+
+> Show highest marks first.
+
+Remember:
+
+```text
+marks
+```
+
+means ascending.
+
+```text
+-marks
+```
+
+means descending.
+
+---
+
+# 21. `list_per_page`
+
+Suppose there are thousands of students.
+
+You can control how many appear per page:
+
+```python
+list_per_page = 20
+```
+
+Now the admin list shows 20 records per page.
+
+---
+
+# 22. `list_editable`
+
+Some fields can be edited directly from the list page.
+
+Example:
+
+```python
+list_display = (
+    "name",
+    "course",
+    "marks",
+)
+
+list_editable = (
+    "marks",
+)
+```
+
+Now marks can be edited directly in the list view.
+
+### Important:
+
+A field in `list_editable` must also be present in `list_display`.
+
+---
+
+# 23. Important `list_editable` Rule
+
+This is a common viva/trick question.
+
+Wrong:
+
+```python
+list_display = (
+    "name",
+    "course",
+)
+
+list_editable = (
+    "marks",
+)
+```
+
+because `marks` isn't displayed.
+
+Correct:
+
+```python
+list_display = (
+    "name",
+    "course",
+    "marks",
+)
+
+list_editable = (
+    "marks",
+)
+```
+
+---
+
+# 24. `readonly_fields`
+
+Suppose you don't want administrators to change a field manually.
+
+Use:
+
+```python
+readonly_fields = (
+    "id",
+)
+```
+
+Now `id` is displayed but cannot be edited through the admin form.
+
+You can also make timestamp fields read-only.
+
+---
+
+# 25. `fieldsets`
+
+For more control over the add/edit form:
+
+```python
+fieldsets = (
+    (
+        "Personal Information",
+        {
+            "fields": (
+                "name",
+                "age",
+                "email",
+            )
+        }
+    ),
+    (
+        "Academic Information",
+        {
+            "fields": (
+                "course",
+                "marks",
+            )
+        }
+    ),
+)
+```
+
+This groups fields into sections.
+
+Conceptually:
+
+```text
+Personal Information
+--------------------
+Name
+Age
+Email
+
+Academic Information
+--------------------
+Course
+Marks
+```
+
+---
+
+# 26. `exclude`
+
+You can exclude a field from the admin form:
+
+```python
+exclude = (
+    "is_active",
+)
+```
+
+The field won't appear in the admin form.
+
+Be careful: this is a UI/form configuration; it doesn't remove the field from the database.
+
+---
+
+# 27. Complete `ModelAdmin`
+
+A useful example:
+
+```python
+from django.contrib import admin
+from .models import Student
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+        "is_active",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )
+
+    list_per_page = 20
+
+    readonly_fields = (
+        "id",
+    )
+```
+
+This is a very useful pattern to remember.
+
+---
+
+# 28. `@admin.register()`
+
+Instead of:
+
+```python
+admin.site.register(Student, StudentAdmin)
+```
+
+you can write:
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    ...
+```
+
+This decorator registers the model with the admin site.
+
+Both approaches are valid.
+
+---
+
+# 29. Two Registration Styles
+
+### Style 1
+
+```python
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ("name", "marks")
+
+
+admin.site.register(Student, StudentAdmin)
+```
+
+### Style 2
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ("name", "marks")
+```
+
+The second is concise and commonly used in modern Django code.
+
+---
+
+# 30. Admin With ForeignKey
+
+Suppose:
+
+```python
+class Department(models.Model):
+    name = models.CharField(max_length=100)
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.CASCADE,
+        related_name="students"
+    )
+```
+
+In the Student admin form, Django can provide a selection for:
+
+```text
+Department
+```
+
+For example:
+
+```text
+Department:
+[ CSE ▼ ]
+```
+
+You don't manually enter `department_id` in the normal admin form.
+
+---
+
+# 31. Admin for Department
+
+You can also register:
+
+```python
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+    )
+
+    search_fields = (
+        "name",
+    )
+```
+
+Now both models can be managed.
+
+---
+
+# 32. Admin and `__str__()`
+
+This is another reason `__str__()` matters.
+
+Suppose Department has:
+
+```python
+def __str__(self):
+    return self.name
+```
+
+Then in the Student admin form, instead of seeing:
+
+```text
+Department object (1)
+Department object (2)
+```
+
+you can see:
+
+```text
+CSE
+ECE
+IT
+```
+
+Much easier for administrators.
+
+---
+
+# 33. Custom Admin Methods
+
+You can display calculated information.
+
+Suppose:
+
+```python
+class StudentAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "marks",
+        "result",
+    )
+
+    def result(self, obj):
+        if obj.marks >= 40:
+            return "Pass"
+        return "Fail"
+```
+
+Now the admin list can show:
+
+| Name  | Marks | Result |
+| ----- | ----: | ------ |
+| Aman  |    85 | Pass   |
+| Rahul |    32 | Fail   |
+
+Here:
+
+```python
+result(self, obj)
+```
+
+is an admin display method.
+
+---
+
+# 34. `@admin.display`
+
+Modern Django provides:
+
+```python
+@admin.display(description="Result")
+def result(self, obj):
+    if obj.marks >= 40:
+        return "Pass"
+    return "Fail"
+```
+
+Now the column heading can be:
+
+```text
+Result
+```
+
+instead of the method name.
+
+---
+
+# 35. Admin Display Method Example
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "marks",
+        "result",
+    )
+
+    @admin.display(description="Result")
+    def result(self, obj):
+        if obj.marks >= 40:
+            return "Pass"
+
+        return "Fail"
+```
+
+---
+
+# 36. Admin Actions
+
+Django Admin allows administrators to perform an action on multiple selected records.
+
+For example:
+
+> Mark selected students as active.
+
+```python
+@admin.action(description="Mark selected students as active")
+def make_active(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+```
+
+Then:
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    actions = (
+        make_active,
+    )
+```
+
+Now administrators can select multiple students and apply the action.
+
+---
+
+# 37. Why Admin Actions Are Useful
+
+Imagine:
+
+```text
+10,000 students
+```
+
+You don't want to edit them individually.
+
+An admin action can perform a bulk operation:
+
+```text
+Select students
+      ↓
+Choose action
+      ↓
+Update selected records
+```
+
+This connects directly with the ORM:
+
+```python
+queryset.update(...)
+```
+
+which you learned in Module 29/30.
+
+---
+
+# 38. Admin Permissions
+
+Django's authentication system includes permissions.
+
+Typical model permissions include:
+
+```text
+add
+change
+delete
+view
+```
+
+For example:
+
+```text
+Can add student
+Can change student
+Can delete student
+Can view student
+```
+
+These permissions can be assigned to users and groups.
+
+We'll go deeper into this in **Module 33**.
+
+---
+
+# 39. Staff User vs Superuser
+
+This distinction is important.
+
+### Staff
+
+A user with:
+
+```python
+is_staff = True
+```
+
+can access the Django admin interface, but their actual permissions determine what they can do.
+
+### Superuser
+
+A user with:
+
+```python
+is_superuser = True
+```
+
+has all permissions by default.
+
+Therefore:
+
+```text
+Staff ≠ automatically full access
+Superuser = full permissions
+```
+
+---
+
+# 40. Django Admin Does Not Replace Your Frontend
+
+This is important conceptually.
+
+Django Admin is mainly designed for:
+
+> **trusted/internal administration**
+
+It is not normally intended to be the public-facing interface of your application.
+
+For example:
+
+```text
+Public website
+    ↓
+Custom templates/views
+
+Admin
+    ↓
+Internal management
+```
+
+---
+
+# 41. Admin Security
+
+Never treat the admin panel as something that should be exposed carelessly.
+
+Important practices include:
+
+* Use strong passwords
+* Use HTTPS in production
+* Restrict administrative access appropriately
+* Use least-privilege permissions for staff
+* Keep Django and dependencies updated
+* Don't expose sensitive information unnecessarily
+
+---
+
+# 42. Common Admin Error
+
+### Error:
+
+```text
+Student doesn't appear in admin.
+```
+
+Check:
+
+### 1. Is the model registered?
+
+```python
+admin.site.register(Student)
+```
+
+### 2. Is the app installed?
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+### 3. Is the admin URL configured?
+
+```python
+path("admin/", admin.site.urls)
+```
+
+### 4. Is the server running?
+
+```bash
+python manage.py runserver
+```
+
+### 5. Are you logged in with a user who can access admin?
+
+---
+
+# 43. Another Common Error
+
+You registered:
+
+```python
+admin.site.register(Student)
+```
+
+but get an import error.
+
+Check:
+
+```python
+from .models import Student
+```
+
+The model must be imported correctly.
+
+---
+
+# 44. Admin Workflow
+
+Remember this complete process:
+
+```text
+Create Model
+     ↓
+Run migrations
+     ↓
+Register Model
+     ↓
+Create Superuser
+     ↓
+Run Server
+     ↓
+/admin/
+     ↓
+Login
+     ↓
+Manage Model
+```
+
+Commands:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+---
+
+# 45. Practical Admin Setup
+
+Suppose your `Student` model is:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+```
+
+Your `admin.py`:
+
+```python
+from django.contrib import admin
+from .models import Student
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "marks",
+        "is_active",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )
+```
+
+This is a very good exam/interview example.
+
+---
+
+# 46. What Happens Behind the Scenes?
+
+Suppose you click:
+
+```text
+Add Student
+```
+
+and submit:
+
+```text
+Aman
+21
+CSE
+85
+```
+
+Conceptually:
+
+```text
+Browser
+   ↓
+Admin URL
+   ↓
+Django Admin
+   ↓
+Admin form
+   ↓
+Validation
+   ↓
+Student model
+   ↓
+ORM
+   ↓
+Database
+```
+
+When you open the list:
+
+```text
+Database
+   ↓
+ORM
+   ↓
+Admin
+   ↓
+HTML
+   ↓
+Browser
+```
+
+So Django Admin is built on top of Django's existing framework machinery.
+
+---
+
+# 47. Viva Masterclass
+
+### Q1. What is Django Admin?
+
+> Django Admin is Django's built-in web-based administrative interface for managing application data and users.
+
+---
+
+### Q2. How do you register a model?
+
+```python
+admin.site.register(Student)
+```
+
+---
+
+### Q3. Where do you normally register models?
+
+> In the app's `admin.py` file.
+
+---
+
+### Q4. How do you create a superuser?
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+### Q5. What URL is commonly used for admin?
+
+```text
+/admin/
+```
+
+For a local development server:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+---
+
+### Q6. What is `ModelAdmin`?
+
+> `ModelAdmin` is used to customize how a model is displayed and managed in Django Admin.
+
+---
+
+### Q7. What is `list_display`?
+
+> It specifies the fields or display methods shown as columns in the model's admin list page.
+
+---
+
+### Q8. What is `search_fields`?
+
+> It specifies fields that Django Admin should search when the administrator uses the search box.
+
+---
+
+### Q9. What is `list_filter`?
+
+> It specifies fields that can be used to filter records in the admin list page.
+
+---
+
+### Q10. What is `ordering`?
+
+> It specifies the default ordering of records in the admin list.
+
+---
+
+### Q11. What is `readonly_fields`?
+
+> It specifies fields displayed in the admin form that cannot be edited through that form.
+
+---
+
+### Q12. What is `list_editable`?
+
+> It allows specified fields to be edited directly from the admin list page.
+
+---
+
+### Q13. What is `fieldsets`?
+
+> It allows fields in the admin form to be organized into sections.
+
+---
+
+### Q14. What is `related_name` useful for in Admin?
+
+> It defines the reverse relationship name and can make related-object access and queries clearer.
+
+---
+
+### Q15. Difference between staff and superuser?
+
+> A staff user can access the admin if permitted, while a superuser has all permissions by default.
+
+---
+
+# 48. Common Interview Question
+
+### Question:
+
+How would you customize Django Admin to display name, email and marks, add search and filtering?
+
+Answer:
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+    )
+```
+
+You should be able to write this without looking.
+
+---
+
+# 49. Another Coding Question
+
+### Question:
+
+Create an admin interface where students are sorted by highest marks first.
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "marks",
+    )
+
+    ordering = (
+        "-marks",
+    )
+```
+
+---
+
+# 50. Another Coding Question
+
+### Question:
+
+Make student IDs read-only.
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    readonly_fields = (
+        "id",
+    )
+```
+
+---
+
+# 51. Another Coding Question
+
+### Question:
+
+Allow administrators to search by student name and email.
+
+```python
+search_fields = (
+    "name",
+    "email",
+)
+```
+
+---
+
+# 52. Another Coding Question
+
+### Question:
+
+Allow filtering by course and active status.
+
+```python
+list_filter = (
+    "course",
+    "is_active",
+)
+```
+
+---
+
+# 53. Most Important Admin Cheat Sheet
+
+```python
+from django.contrib import admin
+from .models import Student
+```
+
+### Basic registration
+
+```python
+admin.site.register(Student)
+```
+
+### Customized registration
+
+```python
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "name",
+        "email",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+        "is_active",
+    )
+
+    ordering = (
+        "-marks",
+    )
+```
+
+### Superuser
+
+```bash
+python manage.py createsuperuser
+```
+
+### Admin URL
+
+```text
+/admin/
+```
+
+---
+
+# 54. Final Mental Map
+
+```text
+                    DJANGO ADMIN
+                         │
+             ┌───────────┴───────────┐
+             ↓                       ↓
+         Authentication           Models
+             │                       │
+       Superuser/Staff          Register model
+             │                       │
+             └───────────┬───────────┘
+                         ↓
+                    ModelAdmin
+                         │
+        ┌────────────────┼────────────────┐
+        ↓                ↓                ↓
+ list_display       search_fields     list_filter
+        │
+        ├── ordering
+        ├── readonly_fields
+        ├── list_editable
+        ├── fieldsets
+        └── actions
+```
+
+## What you absolutely need to remember
+
+```text
+createsuperuser
+      ↓
+login to /admin/
+      ↓
+admin.site.register(Model)
+      ↓
+ModelAdmin
+      ↓
+list_display
+search_fields
+list_filter
+ordering
+readonly_fields
+list_editable
+fieldsets
+actions
+```
+
+And one very important conceptual distinction:
+
+> **Django Admin is an internal management interface generated around your models; it is not the same thing as the public UI of your application.**
+
+**Next → Module 33: Django Users, Groups & Permissions**
+
+We'll learn Django's authentication/authorization system in depth: **User model, staff vs superuser, groups, permissions, `has_perm()`, `user.is_authenticated`, `login_required`, assigning permissions, and restricting what different users can do.**

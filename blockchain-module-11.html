@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11: Blockchain Consensus (PoW, PoS, DPoS) & Selection — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 11 of 13: Blockchain Consensus (PoW, PoS, DPoS) & Selection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)'], ['$', '$']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 4px 0 12px;
+}
+
+.math-display {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    text-align: center;
+    overflow-x: auto;
+}
+
+.exam-header-banner {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 28px 0 16px;
+}
+
+.memory-trick-banner {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin: 20px 0 14px;
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Cryptography</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Cryptography</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 Syllabus</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 11 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Blockchain Consensus (PoW, PoS, DPoS) & Selection</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules (13) ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<span class="nav-item current">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</span>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<p>Based on your teacher'<span class="ref-pill">📄 Slides Reference: s POW Consensus.pptx</span>,<span class="ref-pill">📄 Slides Reference:  CONSENSUS UNIT-3.pptx</span><span class="ref-pill">📄 Slides Reference:  and Consensus Protocol.pptx</span>.</p>
+<p>This module covers the consensus mechanisms used in blockchain, especially Proof of Work (PoW), Proof of Stake (PoS), other algorithms listed in your teacher's PPT, and how to choose a suitable algorithm.</p>
+<h2>Module roadmap</h2>
+<ol>
+<li>Permissionless blockchain and its consensus challenges</li>
+<li>Proof of Work (PoW)</li>
+<li>Nakamoto consensus and chain properties</li>
+<li>Proof of Stake (PoS) and Delegated Proof of Stake (DPoS)</li>
+<li>Other consensus algorithms from your PPT</li>
+<li>Sybil attacks and 51% attacks</li>
+<li>Comparing consensus mechanisms</li>
+<li>Choosing an appropriate consensus algorithm</li>
+</ol>
+<h1>Topic 1: Why does a public blockchain need a different approach?</h1>
+<p>In Module 2, we learned algorithms such as Paxos and PBFT. These algorithms coordinate participants through proposals, messages and quorum rules.</p>
+<p>But consider a public blockchain such as Bitcoin.</p>
+<p>Anyone may participate, and nodes may not know one another. There is no single administrator who decides which participant is trusted to add the next block.</p>
+<p>This creates several challenges.</p>
+<ul>
+<li>Participants may be anonymous or pseudonymous.</li>
+<li>A malicious user may create many identities.</li>
+<li>Nodes may receive blocks in different orders.</li>
+<li>Network messages may be delayed.</li>
+<li>Different miners may propose different blocks at approximately the same time.</li>
+</ul>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s POW Consensus.pptx</span> highlights these challenges and explains that PoW helps mitigate Sybil attacks in permissionless networks.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>POW Consensus.pptx</span></p>
+<h2>1.1 What is a Sybil attack?</h2>
+<p>A Sybil attack occurs when one adversary creates or controls many identities to appear as multiple independent participants.</p>
+<p>For example, imagine a network that accepts one vote per account.</p>
+<p>An attacker creates 1,000 accounts and tries to control the vote. Although there is only one attacker, the network may incorrectly treat the accounts as 1,000 independent participants.</p>
+<p>Traditional one-account-one-vote rules are therefore difficult to use safely when participants can create identities cheaply.</p>
+<h2>1.2 How does Proof of Work help?</h2>
+<p>PoW makes block proposals depend on performing computational work, rather than simply creating more identities.</p>
+<p>Creating 1,000 accounts does not automatically provide 1,000 times the computational power.</p>
+<p>The attacker must obtain real computational resources to gain a greater chance of producing blocks.</p>
+<p>Important: PoW does not make Sybil attacks impossible. It raises the cost of influencing the network by tying influence to computational work.</p>
+<h1>Topic 2: Proof of Work (PoW)</h1>
+<h2>2.1 Definition</h2>
+<p>Proof of Work is a blockchain consensus mechanism in which miners perform computational work to find a block whose cryptographic hash satisfies a specified target.</p>
+<p>Bitcoin uses PoW, commonly associated with Nakamoto consensus. Your teacher's PPT also lists Litecoin and other cryptocurrency blockchains as examples of PoW use.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<p>The basic idea is simple:</p>
+<ul>
+<li>Finding a valid hash can require many attempts.</li>
+<li>Checking a proposed hash is comparatively easy.</li>
+<li>The successful miner broadcasts the block.</li>
+<li>Other nodes verify it before accepting it under their blockchain rules.</li>
+</ul>
+<h2>2.2 What is a hash?</h2>
+<p>A cryptographic hash function converts input data into a fixed-length output called a hash or digest.</p>
+<p>For example, SHA-256 produces a 256-bit hash.</p>
+<p>Even a small change in the input usually produces a very different output.</p>
+<p>Miners use the hash function repeatedly while trying different inputs to find a hash below the required target.</p>
+<h2>2.3 What is a nonce?</h2>
+<p>A nonce is a number that a miner can vary while searching for a valid block hash.</p>
+<p>Suppose the block header includes a nonce. The miner changes the nonce and calculates a new hash each time.</p>
+<p>Candidate block header</p>
+<p>Previous block hash + transaction summary + nonce</p>
+<p>Cryptographic hash function</p>
+<p>Compare hash with target</p>
+<p>Hash too high</p>
+<p>Try another nonce</p>
+<p>Hash below target</p>
+<p>Valid PoW found</p>
+<h2>2.4 The PoW condition</h2>
+<p>Your teacher's PPT expresses the condition in this form:</p>
+<p>_<strong>MATH_DISP_0</strong>_</p>
+<p>Where:</p>
+<ul>
+<li>_<strong>MATH_INL_0</strong>_ = cryptographic hash function</li>
+<li>_<strong>MATH_INL_1</strong>_ = nonce</li>
+<li>_<strong>MATH_INL_2</strong>_ = previous block hash</li>
+<li>_<strong>MATH_INL_3</strong>_ = transaction data</li>
+<li>_<strong>MATH_INL_4</strong>_ = target or threshold value</li>
+<li>_<strong>MATH_INL_5</strong>_ = concatenation of inputs</li>
+</ul>
+<p>This is a conceptual representation of the PoW condition. Bitcoin hashes its block header; the header commits to transaction data through the Merkle root rather than directly concatenating every transaction into the header.</p>
+<p>Remember: a smaller target means a stricter condition, so finding a valid hash becomes harder on average.</p>
+<h2>2.5 Step-by-step working of PoW</h2>
+<p>According to your teacher's POW Consensus PPT, the process is as follows.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>POW Consensus.pptx</span></p>
+<p>Step 1 — Transactions are broadcast. Users send transactions to the network.</p>
+<p>Step 2 — Miners collect transactions. Each miner selects transactions and builds a candidate block.</p>
+<p>Step 3 — Include the previous block hash. The candidate block is linked to the existing blockchain.</p>
+<p>Step 4 — Try different nonce values. The miner calculates hashes while changing the nonce and, when needed, other permitted header data.</p>
+<p>Step 5 — Check the target. If the hash does not satisfy the target, the miner tries again.</p>
+<p>Step 6 — Broadcast the successful block. A miner that finds a valid PoW announces its block to the network.</p>
+<p>Step 7 — Other nodes verify the block. Nodes independently check the proof, transactions and protocol rules. A valid block can then be accepted under the network's chain-selection rules.</p>
+<p>Transactions received</p>
+<p>Build candidate block</p>
+<p>Calculate hash using nonce</p>
+<p>Is hash below target?</p>
+<p>No</p>
+<p>Try again</p>
+<p>Yes</p>
+<p>Broadcast block</p>
+<p>Simplified mining flow</p>
+<h2>2.6 A simple numerical illustration</h2>
+<p>Suppose a toy hash function produces numbers between 0 and 999, and the target is 10.</p>
+<p>The miner must find a hash value satisfying:</p>
+<p>_<strong>MATH_DISP_1</strong>_</p>
+<p>Examples:</p>
+<table>
+<thead>
+<tr>
+<th>Attempt</th>
+<th>Hash result</th>
+<th>Valid?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nonce 1</td>
+<td>583</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Nonce 2</td>
+<td>219</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Nonce 3</td>
+<td>8</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>In this simplified example, nonce 3 succeeds.</p>
+<p>Real Bitcoin mining uses SHA-256-based block-header hashing and a much larger numerical space. The toy example only demonstrates the target-checking idea.</p>
+<h2>2.7 What is mining difficulty?</h2>
+<p>Mining difficulty describes how difficult it is, on average, to find a valid PoW hash.</p>
+<ul>
+<li>A lower target means greater difficulty.</li>
+<li>A higher target means lower difficulty.</li>
+</ul>
+<p>Your teacher's Bitcoin material explains that Bitcoin adjusts difficulty every 2,016 blocks to keep the average block interval near ten minutes.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<p>The important concept is that miners may perform many unsuccessful hash calculations before one finds a valid block.</p>
+<h2>2.8 Why is PoW secure?</h2>
+<p>PoW makes it expensive to repeatedly produce competing blocks because miners must expend computational resources.</p>
+<p>An attacker attempting to rewrite an established chain generally needs substantial hash power and must compete with honest mining activity.</p>
+<p>Security depends on assumptions about the distribution of hash power, network behaviour, incentives and the attacker's resources.</p>
+<p>PoW is not mathematically impossible to attack. Its security is based on making certain attacks sufficiently costly and difficult under the protocol's assumptions.</p>
+<h2>2.9 Advantages and limitations of PoW</h2>
+<p>Advantages</p>
+<ol>
+<li>Supports permissionless participation.</li>
+<li>Does not require a fixed, trusted validator group.</li>
+<li>Makes block production depend on computational work.</li>
+<li>Helps mitigate Sybil attacks.</li>
+<li>Has a long operational history through Bitcoin.</li>
+</ol>
+<p>Limitations</p>
+<ol>
+<li>High energy consumption.</li>
+<li>Mining hardware and electricity can be expensive.</li>
+<li>Block production and confirmation take time.</li>
+<li>Mining power may become concentrated among large operators.</li>
+<li>Temporary forks can occur when different miners find competing blocks.</li>
+</ol>
+<div class="exam-header-banner">🎯 Exam-ready 10-mark structure: PoW</div>
+<p>For the question "Explain the Proof of Work consensus algorithm", write:</p>
+<ol>
+<li>Definition</li>
+<li>Need for PoW in permissionless networks</li>
+<li>Hash function and nonce</li>
+<li>PoW target condition</li>
+<li>Step-by-step mining process</li>
+<li>Mining difficulty</li>
+<li>How PoW helps mitigate Sybil attacks</li>
+<li>Advantages and limitations</li>
+<li>Diagram</li>
+<li>Conclusion</li>
+</ol>
+<h1>Topic 3: Nakamoto Consensus and Blockchain Properties</h1>
+<p>PoW is the computational-work mechanism. Nakamoto consensus refers more broadly to Bitcoin's approach to achieving agreement using PoW, block production, and chain selection.</p>
+<h2>3.1 Why can forks happen?</h2>
+<p>Suppose two miners find valid blocks at nearly the same time.</p>
+<p>Some nodes receive Block A first, while others receive Block B first.</p>
+<p>Common previous block</p>
+<p>Block A</p>
+<p>Miner A</p>
+<p>Block B</p>
+<p>Miner B</p>
+<p>Temporary fork: different nodes initially see different tips.</p>
+<p>When miners continue producing blocks, one branch may accumulate more proof of work. Bitcoin nodes follow the valid chain with the most cumulative proof of work, not simply the chain with the largest number of blocks.</p>
+<p>As the network converges on a branch, the competing block may become stale.</p>
+<h2>3.2 Why are confirmations important?</h2>
+<p>When a transaction is included in a block, it has one confirmation. When another block is added on top, it has two confirmations, and so on.</p>
+<p>More confirmations generally make reversal more difficult because an attacker must overcome the accumulated work securing the accepted history.</p>
+<p>However, confirmations do not create absolute mathematical finality: the practical security depends on network conditions and the attacker's resources.</p>
+<h2>3.3 Three chain properties in your teacher's PPT</h2>
+<p>Your POW Consensus PPT explains three important properties: common prefix, chain quality and chain growth.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>POW Consensus.pptx</span></p>
+<h3>A. Common prefix</h3>
+<p>The common-prefix property means that honest nodes' blockchains share a sufficiently long common history, apart from a limited number of recent blocks that may be reorganised.</p>
+<p>It supports agreement: honest nodes should not remain permanently committed to conflicting histories.</p>
+<h3>B. Chain quality</h3>
+<p>Chain quality refers to the proportion of blocks produced by honest participants relative to adversarial participants under the protocol's assumptions.</p>
+<p>It helps ensure that a malicious participant cannot dominate block production beyond the security bounds.</p>
+<h3>C. Chain growth</h3>
+<p>Chain growth means that the blockchain continues to grow as new blocks are added.</p>
+<p>It supports liveness by ensuring that the network can keep processing transactions and extending its history.</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Main idea</th>
+<th>Related consensus guarantee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Common prefix</td>
+<td>Honest chains share a common history</td>
+<td>Agreement / safety</td>
+</tr>
+<tr>
+<td>Chain quality</td>
+<td>Sufficient honest block contribution</td>
+<td>Validity and resistance to adversarial dominance</td>
+</tr>
+<tr>
+<td>Chain growth</td>
+<td>The chain continues to extend</td>
+<td>Liveness</td>
+</tr>
+</tbody>
+</table>
+<p>Memory trick: C–Q–G</p>
+<ul>
+<li>Common prefix — shared history</li>
+<li>Quality — honest block contribution</li>
+<li>Growth — new blocks continue to appear</li>
+</ul>
+<h1>Topic 4: Proof of Stake (PoS)</h1>
+<h2>4.1 What is Proof of Stake?</h2>
+<p>Proof of Stake (PoS) is a consensus mechanism in which a participant's stake in the system helps determine their opportunity to propose or validate blocks.</p>
+<p>A stake is an amount of cryptocurrency committed under the protocol's rules.</p>
+<p>Unlike PoW, where miners compete by performing computational work, PoS selects validators through a protocol-specific selection mechanism that considers stake and may include other factors.</p>
+<p>Your teacher's POW Consensus PPT presents PoS as an energy-efficient alternative to PoW and describes validators as miners, minters or stakeholders.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>POW Consensus.pptx</span></p>
+<h2>4.2 How does PoS work?</h2>
+<p>Consider a blockchain with three participants:</p>
+<ul>
+<li>Alice stakes 100 coins.</li>
+<li>Bob stakes 50 coins.</li>
+<li>Charlie stakes 25 coins.</li>
+</ul>
+<p>A PoS protocol uses its selection rules to choose a validator or block proposer.</p>
+<p>In a simple stake-proportional illustration, Alice's share of the total stake is:</p>
+<p>_<strong>MATH_DISP_2</strong>_</p>
+<p>Alice would have a 57.14% selection probability if this particular protocol used direct stake-proportional selection. This is only an illustration; actual PoS protocols may use committees, randomness, eligibility rules and other mechanisms.</p>
+<p>After selection, the validator proposes or validates a block according to the protocol.</p>
+<p>Depending on the design, validators may lose some of their stake for specific kinds of misconduct. This is commonly called slashing.</p>
+<h2>4.3 PoW vs PoS</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Proof of Work</th>
+<th>Proof of Stake</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main resource</td>
+<td>Computational work</td>
+<td>Staked assets and protocol-defined selection</td>
+</tr>
+<tr>
+<td>Participant</td>
+<td>Miner</td>
+<td>Validator or block proposer</td>
+</tr>
+<tr>
+<td>Block selection</td>
+<td>Successful hash puzzle and chain-selection rules</td>
+<td>Stake-based or stake-influenced selection</td>
+</tr>
+<tr>
+<td>Energy use</td>
+<td>Can be high</td>
+<td>Generally much lower</td>
+</tr>
+<tr>
+<td>Main cost</td>
+<td>Hardware and electricity</td>
+<td>Capital committed as stake</td>
+</tr>
+<tr>
+<td>Main security concern</td>
+<td>Concentration of hash power and attacks on accumulated work</td>
+<td>Stake concentration, validator collusion and protocol-specific attacks</td>
+</tr>
+</tbody>
+</table>
+<h2>4.4 Advantages of PoS</h2>
+<ol>
+<li>Lower energy consumption than PoW.</li>
+<li>Does not require continuous mining competition.</li>
+<li>Can support efficient block production.</li>
+<li>Economic penalties can discourage certain malicious actions, depending on the protocol.</li>
+</ol>
+<h2>4.5 Limitations of PoS</h2>
+<ol>
+<li>Stake may become concentrated among a small group.</li>
+<li>A large stake may give a participant greater influence.</li>
+<li>Validator selection and incentive design can be complex.</li>
+<li>Security depends on the specific protocol's assumptions and mechanisms.</li>
+</ol>
+<p>Exam point: Do not write that every PoS algorithm works exactly the same way. Different protocols use different selection and finality rules.</p>
+<h2>4.6 Variants of PoS in your teacher's PPT</h2>
+<p>Your POW Consensus PPT lists these PoS variants:</p>
+<ul>
+<li>Chain-based PoS</li>
+<li>Committee-based PoS</li>
+<li>BFT-based PoS</li>
+<li>Delegated PoS</li>
+<li>Leased PoS</li>
+<li>Masternode PoS&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+</ul>
+<p>POW Consensus.pptx</span></p>
+<p>For a theory answer, explain the general principle of PoS first, then mention the variants as examples.</p>
+<h1>Topic 5: Delegated Proof of Stake (DPoS)</h1>
+<h2>5.1 Definition</h2>
+<p>Delegated Proof of Stake (DPoS) is a consensus approach in which stakeholders vote to select or delegate block validation to a smaller group of representatives.</p>
+<p>Your teacher's Consensus Protocol PPT describes DPoS as allowing stakeholders to delegate validation through voting and mentions BitShares as an example.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<h2>5.2 How does it work?</h2>
+<p>Stakeholders</p>
+<p>Vote for representatives</p>
+<p>Selected delegates / validators</p>
+<p>Propose or validate blocks</p>
+<p>Network accepts blocks under protocol rules</p>
+<p>The main steps are:</p>
+<ol>
+<li>Stakeholders vote for delegates.</li>
+<li>The protocol selects a group of delegates.</li>
+<li>The selected delegates participate in block production or validation.</li>
+<li>Stakeholders may be able to replace delegates through later voting, depending on the protocol.</li>
+</ol>
+<h2>5.3 Advantages and limitations</h2>
+<p>Advantages</p>
+<ul>
+<li>Can reduce the number of active block producers.</li>
+<li>Can improve transaction throughput and reduce confirmation delays.</li>
+<li>Provides stakeholders with a voting role.</li>
+</ul>
+<p>Limitations</p>
+<ul>
+<li>A small delegate group may concentrate power.</li>
+<li>Voter participation can be low.</li>
+<li>Delegates may collude.</li>
+<li>Governance becomes an important security consideration.</li>
+</ul>
+<h3>PoS vs DPoS</h3>
+<table>
+<thead>
+<tr>
+<th>PoS</th>
+<th>DPoS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validators are selected under a stake-based protocol.</td>
+<td>Stakeholders vote for or delegate to representatives.</td>
+</tr>
+<tr>
+<td>The validator set may be large or small, depending on the protocol.</td>
+<td>Active block producers are often a smaller selected group.</td>
+</tr>
+<tr>
+<td>Influence depends on the protocol's stake and selection rules.</td>
+<td>Voting and delegation are central to selecting representatives.</td>
+</tr>
+</tbody>
+</table>
+<h1>Topic 6: Other Consensus Algorithms from Your Teacher's PPT</h1>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s Consensus Protocol.pptx</span> lists several additional consensus mechanisms. These are important for short notes, definitions and comparison questions.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<h2>6.1 Proof of Elapsed Time (PoET)</h2>
+<p>PoET selects a participant using a randomly assigned waiting time.</p>
+<p>The participant whose waiting period expires first may be allowed to propose the next block, subject to the protocol's rules.</p>
+<p>Your PPT explains that PoET uses a Trusted Execution Environment (TEE) to support randomness and security in leader selection. It specifically mentions Intel SGX as the security technology in the presented design.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<p>Advantage: can avoid the energy-intensive competition of PoW.</p>
+<p>Limitation: security depends on the trusted hardware and execution environment.</p>
+<h2>6.2 Proof of Deposit (PoD)</h2>
+<p>In the mechanism described in your teacher's PPT, participants must make a security deposit before they can participate in mining or block proposals.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<p>The deposit provides an economic commitment that may be used to discourage misconduct, depending on the protocol's rules.</p>
+<p>Remember: PoD is based on depositing funds as a participation condition.</p>
+<h2>6.3 Proof of Importance (PoI)</h2>
+<p>Proof of Importance assigns an importance score to participants and uses that score to influence the selection of block producers.</p>
+<p>Your PPT associates PoI with NEM and explains that factors can include transaction activity, vested currency and network activity.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>Consensus Protocol.pptx</span></p>
+<p>Remember: PoI considers more than merely holding coins; its importance calculation can include activity-related factors.</p>
+<h2>6.4 Federated Byzantine Consensus</h2>
+<p>Federated Byzantine consensus uses groups of participants that trust selected subsets of other participants.</p>
+<p>Agreement emerges when the relevant trusted groups overlap sufficiently according to the protocol's rules.</p>
+<p>Advantage: can support Byzantine fault tolerance without requiring every participant to trust every other participant directly.</p>
+<p>Limitation: security depends on the structure of trust relationships and the required quorum overlap.</p>
+<h2>6.5 Reputation-based consensus</h2>
+<p>Reputation-based mechanisms use a participant's reputation or historical behaviour to influence its role in consensus.</p>
+<p>A system may give greater authority or selection priority to participants that satisfy its reputation rules.</p>
+<p>Limitation: reputation can be difficult to measure fairly, and the system must handle manipulation, identity changes and collusion.</p>
+<h2>6.6 Proof of Activity (PoA)</h2>
+<p>In your PPT's list, PoA means Proof of Activity, not Proof of Authority.</p>
+<p>Proof of Activity combines aspects of PoW and PoS: PoW can be used to initiate block creation, while stake-based participants help complete or validate the block under the protocol's design.</p>
+<p>Advantage: combines mechanisms from two consensus approaches.</p>
+<p>Limitation: inherits design complexity and security considerations from the mechanisms it combines.</p>
+<h2>6.7 Proof of Capacity (PoC)</h2>
+<p>Proof of Capacity uses available storage space to participate in the consensus process. Participants prepare storage data, and the protocol uses that data in its block-selection mechanism.</p>
+<p>Advantage: can reduce dependence on continuous computational hashing.</p>
+<p>Limitation: can favour participants with large storage capacity.</p>
+<h2>6.8 Proof of Storage</h2>
+<p>Proof of Storage focuses on proving that a participant is storing specified data.</p>
+<p>It is especially relevant to decentralised storage systems. It is not automatically a complete blockchain consensus algorithm: a system may combine storage proofs with another mechanism to decide which blocks are accepted.</p>
+<h2>6.9 Proof of Authority (also abbreviated PoA)</h2>
+<p>Your PPT separately lists Proof of Authority, which uses an authorised set of validators whose identities or eligibility have been approved according to the network's rules.</p>
+<p>Advantage: often supports efficient block production in permissioned or controlled networks.</p>
+<p>Limitation: trust is concentrated in the authorised validators, so the model is less open than permissionless consensus.</p>
+<h2>6.10 Quick comparison of additional algorithms</h2>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Main selection or security idea</th>
+<th>Main consideration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PoET</td>
+<td>Random waiting time with trusted execution support</td>
+<td>Depends on the TEE</td>
+</tr>
+<tr>
+<td>PoD</td>
+<td>Security deposit</td>
+<td>Depends on deposit and penalty rules</td>
+</tr>
+<tr>
+<td>PoI</td>
+<td>Importance score, including activity-related factors</td>
+<td>Score calculation and concentration</td>
+</tr>
+<tr>
+<td>Federated Byzantine consensus</td>
+<td>Overlapping trusted groups</td>
+<td>Trust and quorum configuration</td>
+</tr>
+<tr>
+<td>Reputation-based</td>
+<td>Reputation or past behaviour</td>
+<td>Reputation manipulation</td>
+</tr>
+<tr>
+<td>Proof of Activity</td>
+<td>Combines PoW and stake-related participation</td>
+<td>More complex design</td>
+</tr>
+<tr>
+<td>Proof of Capacity</td>
+<td>Storage capacity</td>
+<td>Storage advantage</td>
+</tr>
+<tr>
+<td>Proof of Storage</td>
+<td>Evidence that data is stored</td>
+<td>Does not necessarily provide complete consensus</td>
+</tr>
+<tr>
+<td>Proof of Authority</td>
+<td>Approved validators</td>
+<td>Dependence on authorised participants</td>
+</tr>
+</tbody>
+</table>
+<p>Exam tip: If the question asks for "different blockchain consensus algorithms," define each in two or three sentences, mention one advantage or limitation, and include the detailed working of PoW and PoS if marks permit.</p>
+<h1>Topic 7: Important Attacks — Sybil Attack and 51% Attack</h1>
+<p>These concepts help explain why blockchain consensus mechanisms are designed the way they are.</p>
+<h2>7.1 Sybil attack</h2>
+<p>A Sybil attack happens when an adversary creates or controls many identities to gain disproportionate influence in a network.</p>
+<p>Example: one person creates hundreds of fake nodes to appear to be hundreds of independent participants.</p>
+<p>How consensus helps: PoW ties block-production influence to computational work rather than identity count. Other protocols use different protections, such as stake requirements, permissioned identities or validator selection rules.</p>
+<h2>7.2 51% attack</h2>
+<p>A 51% attack is commonly used to describe an attacker controlling a majority of the relevant resource in a consensus system.</p>
+<p>In a PoW blockchain, this generally refers to controlling more than half of the network's total mining hash power.</p>
+<p>Such an attacker may be able to reorganise recent blocks or reverse the attacker's own recent payments by producing a competing chain with greater cumulative work.</p>
+<p>However, controlling a majority of hash power does not automatically allow the attacker to:</p>
+<ul>
+<li>Forge another user's digital signature</li>
+<li>Spend coins belonging to someone else without the required authorisation</li>
+<li>Make honest nodes accept blocks that violate the protocol's validity rules</li>
+</ul>
+<h3>Sybil attack vs 51% attack</h3>
+<table>
+<thead>
+<tr>
+<th>Sybil attack</th>
+<th>51% attack</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Creates or controls many identities.</td>
+<td>Controls a majority of the relevant consensus resource.</td>
+</tr>
+<tr>
+<td>Exploits weak identity-based assumptions.</td>
+<td>Exploits concentration of mining power or an analogous resource.</td>
+</tr>
+<tr>
+<td>Creating identities alone does not necessarily grant more PoW influence.</td>
+<td>A majority of PoW hash power can provide significant chain-reorganisation capability.</td>
+</tr>
+</tbody>
+</table>
+<p>For PoS systems, majority-stake attacks have different mechanics and consequences. Do not automatically apply every PoW attack description to PoS.</p>
+<h1>Topic 8: How to Choose a Consensus Algorithm</h1>
+<p>Your syllabus explicitly includes choosing an algorithm, so this topic deserves a full theory answer.</p>
+<p>There is no single consensus algorithm that is best for every blockchain. Selection depends on the application's requirements and threat model.</p>
+<h2>8.1 Main selection factors</h2>
+<h3>1. Network type</h3>
+<p>Ask whether the network is public and permissionless or permissioned.</p>
+<ul>
+<li>A public blockchain must account for unknown participants.</li>
+<li>A permissioned network may have a known validator set.</li>
+</ul>
+<p>PoW is one established approach for permissionless networks. PBFT-style protocols are often appropriate for permissioned systems with known validators and Byzantine fault-tolerance requirements.</p>
+<h3>2. Security and fault tolerance</h3>
+<p>Ask what kinds of failures must be tolerated.</p>
+<ul>
+<li>If nodes may simply crash, a CFT algorithm such as Raft may be suitable.</li>
+<li>If validators may behave maliciously, a BFT algorithm such as PBFT may be needed.</li>
+<li>If participants are unknown and open participation is required, a Nakamoto-style mechanism may be considered.</li>
+</ul>
+<h3>3. Transaction throughput</h3>
+<p>Throughput means how many transactions a system processes per unit of time.</p>
+<p>Applications with heavy transaction loads need to consider how the algorithm's communication, validation and block-production processes affect throughput.</p>
+<h3>4. Latency and finality</h3>
+<p>Latency means how long a decision takes.</p>
+<p>Some applications require a decision to become final quickly. Others can tolerate waiting for more confirmations.</p>
+<h3>5. Energy and resource requirements</h3>
+<p>PoW may consume substantial electricity and computational resources.</p>
+<p>PoS and many voting-based protocols can avoid the same kind of continuous mining competition, but have their own resource and security requirements.</p>
+<h3>6. Decentralisation and participation</h3>
+<p>Consider how many participants can take part and how influence is distributed.</p>
+<p>A system with a small authorised validator set may be efficient, but it relies on that set. A permissionless system offers broader participation but faces different coordination and security challenges.</p>
+<h3>7. Communication overhead and scalability</h3>
+<p>Some algorithms require many messages between validators. As the validator count grows, this can affect performance and cost.</p>
+<h3>8. Governance and operational complexity</h3>
+<p>Consider:</p>
+<ul>
+<li>How validators join and leave</li>
+<li>How failed leaders are replaced</li>
+<li>How software upgrades are handled</li>
+<li>Whether identities must be verified</li>
+<li>How the system responds to attacks and network partitions</li>
+</ul>
+<h2>8.2 Example: selecting an algorithm</h2>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Possible choice</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Replicated database with trusted servers and crash failures</td>
+<td>Raft</td>
+<td>Leader-based replication and CFT</td>
+</tr>
+<tr>
+<td>Permissioned network that must tolerate malicious validators</td>
+<td>PBFT-style BFT</td>
+<td>Designed for Byzantine faults</td>
+</tr>
+<tr>
+<td>Public cryptocurrency with permissionless participation</td>
+<td>PoW / Nakamoto consensus</td>
+<td>Does not require a fixed trusted validator set</td>
+</tr>
+<tr>
+<td>Blockchain seeking lower energy use with stake-based validation</td>
+<td>PoS</td>
+<td>Uses stake-based selection rather than continuous PoW competition</td>
+</tr>
+</tbody>
+</table>
+<p>These are illustrative choices, not universal rules. A real design must also consider the exact protocol, scale, security assumptions, finality requirements and operational constraints.</p>
+<h1>Module 3 — Exam Revision Notes</h1>
+<div class="exam-header-banner">🎯 Important definitions</div>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>One-line definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PoW</td>
+<td>Uses computational work to find a valid block hash.</td>
+</tr>
+<tr>
+<td>Nonce</td>
+<td>A variable changed during the search for a valid PoW hash.</td>
+</tr>
+<tr>
+<td>Target</td>
+<td>The threshold a candidate hash must satisfy.</td>
+</tr>
+<tr>
+<td>Mining difficulty</td>
+<td>A measure of how difficult it is to find a valid PoW hash.</td>
+</tr>
+<tr>
+<td>PoS</td>
+<td>Uses stake-based mechanisms to select or authorise validators.</td>
+</tr>
+<tr>
+<td>DPoS</td>
+<td>Uses stakeholder voting or delegation to select block producers.</td>
+</tr>
+<tr>
+<td>PoET</td>
+<td>Uses random waiting times, with trusted execution support in the presented design.</td>
+</tr>
+<tr>
+<td>PoI</td>
+<td>Uses an importance score to influence block selection.</td>
+</tr>
+<tr>
+<td>PoC</td>
+<td>Uses storage capacity in the consensus mechanism.</td>
+</tr>
+<tr>
+<td>Proof of Authority</td>
+<td>Uses approved validators.</td>
+</tr>
+<tr>
+<td>Common prefix</td>
+<td>Honest blockchain histories share a sufficiently long common history.</td>
+</tr>
+<tr>
+<td>Chain quality</td>
+<td>Measures the contribution of honest block producers under the protocol's assumptions.</td>
+</tr>
+<tr>
+<td>Chain growth</td>
+<td>The blockchain continues to grow through new blocks.</td>
+</tr>
+<tr>
+<td>Sybil attack</td>
+<td>One adversary creates or controls many identities to gain influence.</td>
+</tr>
+<tr>
+<td>51% attack</td>
+<td>In PoW, an attacker controls a majority of total hash power.</td>
+</tr>
+</tbody>
+</table>
+<div class="exam-header-banner">🎯 Likely 5-mark questions</div>
+<ol>
+<li>Define Proof of Work and explain its working.</li>
+<li>What are nonce and mining difficulty?</li>
+<li>Explain the role of PoW in mitigating Sybil attacks.</li>
+<li>Differentiate PoW and PoS.</li>
+<li>Explain Delegated Proof of Stake.</li>
+<li>Write short notes on PoET, PoD and PoI.</li>
+<li>Explain common prefix, chain quality and chain growth.</li>
+<li>Differentiate Sybil attack and 51% attack.</li>
+<li>List the factors used to choose a consensus algorithm.</li>
+</ol>
+<div class="exam-header-banner">🎯 Likely 10-mark questions</div>
+<ol>
+<li>Explain Proof of Work with a diagram, its working, advantages and limitations.</li>
+<li>Explain Nakamoto consensus and the three blockchain properties: common prefix, chain quality and chain growth.</li>
+<li>Explain Proof of Stake and Delegated Proof of Stake, comparing them with PoW.</li>
+<li>Discuss different blockchain consensus algorithms and their applications.</li>
+<li>Explain the criteria for selecting an appropriate consensus algorithm.</li>
+<li>Explain Sybil attacks and 51% attacks in blockchain networks.</li>
+</ol>
+<h3>A good structure for the 10-mark PoW answer</h3>
+<ol>
+<li>Definition of PoW</li>
+<li>Need for PoW in permissionless networks</li>
+<li>Hash function, nonce and target</li>
+<li>PoW equation</li>
+<li>Mining process diagram</li>
+<li>Difficulty adjustment</li>
+<li>Role in network security</li>
+<li>Advantages and limitations</li>
+<li>Conclusion</li>
+</ol>
+<h2>Quick self-test</h2>
+<p>1. What does a miner change repeatedly while searching for a valid PoW hash?</p>
+<p>Private key</p>
+<p>Nonce</p>
+<p>Block reward</p>
+<p>Validator identity</p>
+<p>2. What is the main idea behind Proof of Stake?</p>
+<p>Use more electricity</p>
+<p>Select or authorise validators based on stake-related rules</p>
+<p>Require every node to mine continuously</p>
+<p>Use only trusted hardware</p>
+<p>3. Which property means honest blockchain histories share a common history?</p>
+<p>Chain growth</p>
+<p>Chain quality</p>
+<p>Common prefix</p>
+<p>Checkpointing</p>
+<p>4. What does a 51% attack refer to in a PoW system?</p>
+<p>Owning 51 coins</p>
+<p>Controlling more than half of total mining hash power</p>
+<p>Creating 51 fake accounts only</p>
+<p>Changing 51 transactions</p>
+<p>5. Which factor is important when choosing a consensus algorithm?</p>
+<p>Only the programming language</p>
+<p>Only the number of transactions</p>
+<p>Security, fault model, latency, throughput and network type</p>
+<p>Only the block colour</p>
+<p>0/5 answered</p>
+<p>Reset quiz</p>
+<p>Module 3 is complete.</p>
+<p>Next is Module 4: Introduction to Bitcoin — Overview, Cryptographic Keys and Transactions, covering how Bitcoin works, public and private keys, addresses, digital signatures, transaction inputs and outputs, UTXOs and Bitcoin Script.</p>
+<p>Say NEXT MODULE when you're ready.</p>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-10.html">&larr; Module 10</a>
+        <a class="pn-reader" href="blockchain.html">📋 All 13 Modules Syllabus</a>
+        <a class="pn-btn" href="blockchain-module-12.html">Module 12 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

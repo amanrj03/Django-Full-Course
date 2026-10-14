@@ -1,0 +1,1989 @@
+# Module 38 — Django Login & Logout
+
+This is one of the **most important modules** in the entire Django syllabus.
+
+By now you know:
+
+```text
+Cookies
+Sessions
+Users
+Authentication
+Authorization
+```
+
+Now we're going to connect them together and build an actual **login/logout system**.
+
+The three most important Django functions are:
+
+```python
+authenticate()
+login()
+logout()
+```
+
+---
+
+# 1. What Happens During Login?
+
+Suppose a user enters:
+
+```text
+Username: aman
+Password: StrongPassword123
+```
+
+The flow is:
+
+```text
+Login Form
+    ↓
+POST Request
+    ↓
+authenticate()
+    ↓
+Are credentials valid?
+    ↓
+YES
+    ↓
+login()
+    ↓
+Session established
+    ↓
+User is logged in
+    ↓
+request.user
+```
+
+If credentials are incorrect:
+
+```text
+authenticate()
+    ↓
+None
+```
+
+---
+
+# 2. Authentication vs Login
+
+These two are related but **not the same thing**.
+
+### `authenticate()`
+
+Checks credentials.
+
+```python
+user = authenticate(
+    username=username,
+    password=password
+)
+```
+
+It essentially asks:
+
+> "Are these credentials valid?"
+
+---
+
+### `login()`
+
+Logs the authenticated user into the current session.
+
+```python
+login(request, user)
+```
+
+It essentially says:
+
+> "Associate this authenticated user with this request/session."
+
+---
+
+# 3. `logout()`
+
+Logs the user out.
+
+```python
+logout(request)
+```
+
+It ends the user's authenticated session state.
+
+---
+
+# 4. Required Imports
+
+A typical login view uses:
+
+```python
+from django.contrib.auth import authenticate, login, logout
+```
+
+So:
+
+```python
+from django.contrib.auth import authenticate, login, logout
+```
+
+Memorize this.
+
+---
+
+# 5. Basic `authenticate()`
+
+Example:
+
+```python
+user = authenticate(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+If credentials are valid:
+
+```text
+user → User object
+```
+
+If credentials are invalid:
+
+```text
+user → None
+```
+
+---
+
+# 6. Why Does `authenticate()` Return `None`?
+
+Suppose:
+
+```python
+user = authenticate(
+    username="aman",
+    password="wrongpassword"
+)
+```
+
+Then:
+
+```python
+user is None
+```
+
+because Django couldn't authenticate the credentials.
+
+So the common pattern is:
+
+```python
+if user is not None:
+    # authentication successful
+else:
+    # authentication failed
+```
+
+---
+
+# 7. Basic Login
+
+Once you have a valid user:
+
+```python
+login(request, user)
+```
+
+Example:
+
+```python
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponse
+
+
+def login_view(request):
+
+    user = authenticate(
+        username="aman",
+        password="StrongPassword123"
+    )
+
+    if user is not None:
+
+        login(request, user)
+
+        return HttpResponse(
+            "Login successful"
+        )
+
+    return HttpResponse(
+        "Invalid credentials"
+    )
+```
+
+This is the basic concept.
+
+---
+
+# 8. But We Don't Hardcode Credentials
+
+Obviously, in a real application we don't write:
+
+```python
+username="aman"
+password="StrongPassword123"
+```
+
+Instead, the user submits a form.
+
+The form sends:
+
+```text
+username
+password
+```
+
+to the server.
+
+---
+
+# 9. Login Form
+
+HTML:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Username:</label>
+    <input
+        type="text"
+        name="username"
+    >
+
+    <label>Password:</label>
+    <input
+        type="password"
+        name="password"
+    >
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+```
+
+The important part is:
+
+```html
+name="username"
+```
+
+and:
+
+```html
+name="password"
+```
+
+because Django reads these from:
+
+```python
+request.POST
+```
+
+---
+
+# 10. Reading Login Data
+
+Inside the view:
+
+```python
+username = request.POST.get(
+    "username"
+)
+
+password = request.POST.get(
+    "password"
+)
+```
+
+Now we have:
+
+```text
+username
+password
+```
+
+---
+
+# 11. Complete Login View
+
+```python
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error": "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+```
+
+This is a **very important piece of Django code**.
+
+Let's understand every part.
+
+---
+
+# 12. Step-by-Step Login
+
+## Step 1 — Check HTTP method
+
+```python
+if request.method == "POST":
+```
+
+If user submitted the form, it is POST.
+
+Otherwise, it's probably the initial GET request.
+
+---
+
+# 13. Step 2 — Get Username
+
+```python
+username = request.POST.get(
+    "username"
+)
+```
+
+The HTML:
+
+```html
+<input name="username">
+```
+
+matches:
+
+```python
+request.POST.get("username")
+```
+
+---
+
+# 14. Step 3 — Get Password
+
+```python
+password = request.POST.get(
+    "password"
+)
+```
+
+This comes from:
+
+```html
+<input
+    type="password"
+    name="password"
+>
+```
+
+---
+
+# 15. Step 4 — Authenticate
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+Django checks the credentials against its authentication system.
+
+Result:
+
+```text
+Correct → User object
+Wrong   → None
+```
+
+---
+
+# 16. Step 5 — Check Result
+
+```python
+if user is not None:
+```
+
+This means authentication succeeded.
+
+---
+
+# 17. Step 6 — Login
+
+```python
+login(request, user)
+```
+
+This associates the user with the current session.
+
+Now future requests can identify the user through:
+
+```python
+request.user
+```
+
+---
+
+# 18. Step 7 — Redirect
+
+After successful login:
+
+```python
+return redirect("dashboard")
+```
+
+This follows the **POST → Redirect → GET** pattern from Module 24.
+
+So:
+
+```text
+POST /login/
+     ↓
+authenticate()
+     ↓
+login()
+     ↓
+redirect()
+     ↓
+GET /dashboard/
+```
+
+This is excellent Django practice.
+
+---
+
+# 19. Failed Login
+
+If:
+
+```python
+user is None
+```
+
+then:
+
+```python
+return render(
+    request,
+    "login.html",
+    {
+        "error": "Invalid username or password"
+    }
+)
+```
+
+The user stays on the login page and sees an error.
+
+---
+
+# 20. Login Template
+
+`login.html`:
+
+```html
+<h1>Login</h1>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Username:</label>
+
+    <input
+        type="text"
+        name="username"
+        required
+    >
+
+    <br>
+
+    <label>Password:</label>
+
+    <input
+        type="password"
+        name="password"
+        required
+    >
+
+    <br>
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+```
+
+---
+
+# 21. Dashboard View
+
+After login:
+
+```python
+from django.http import HttpResponse
+
+
+def dashboard(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"Welcome {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please login first"
+    )
+```
+
+So the complete flow becomes:
+
+```text
+Login page
+    ↓
+Submit username/password
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+Dashboard
+    ↓
+request.user
+```
+
+---
+
+# 22. Why Does `request.user` Now Work?
+
+Before login:
+
+```python
+request.user
+```
+
+is generally:
+
+```text
+AnonymousUser
+```
+
+After successful:
+
+```python
+login(request, user)
+```
+
+the authenticated user becomes available as:
+
+```python
+request.user
+```
+
+---
+
+# 23. Login + Session
+
+Remember Module 36.
+
+When:
+
+```python
+login(request, user)
+```
+
+runs, Django uses the session framework to maintain the user's authenticated state across subsequent requests.
+
+Conceptually:
+
+```text
+authenticate()
+      ↓
+User verified
+      ↓
+login()
+      ↓
+Session
+      ↓
+session cookie
+      ↓
+future requests
+      ↓
+request.user
+```
+
+---
+
+# 24. `authenticate()` Does NOT Log You In
+
+This is a common viva question.
+
+Wrong understanding:
+
+```python
+user = authenticate(...)
+```
+
+means the user is now logged in.
+
+No.
+
+`authenticate()` verifies credentials and returns a user object if successful.
+
+You still need:
+
+```python
+login(request, user)
+```
+
+to establish the login session.
+
+---
+
+# 25. `login()` Requires a User
+
+Correct:
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+    login(request, user)
+```
+
+Don't do:
+
+```python
+login(request, None)
+```
+
+for a normal login flow.
+
+---
+
+# 26. Logout
+
+Import:
+
+```python
+from django.contrib.auth import logout
+```
+
+Then:
+
+```python
+logout(request)
+```
+
+Example:
+
+```python
+def logout_view(request):
+
+    logout(request)
+
+    return redirect("login")
+```
+
+This is the standard basic pattern.
+
+---
+
+# 27. Logout Flow
+
+```text
+User clicks Logout
+       ↓
+GET/POST logout request
+       ↓
+logout(request)
+       ↓
+Authentication state removed
+       ↓
+Redirect to login/home
+```
+
+---
+
+# 28. Complete Login + Logout
+
+```python
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error":
+                "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+
+
+def logout_view(request):
+
+    logout(request)
+
+    return redirect("login")
+```
+
+This is a very important code pattern to remember.
+
+---
+
+# 29. URLs
+
+In `urls.py`:
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
+
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
+
+    path(
+        "dashboard/",
+        views.dashboard,
+        name="dashboard"
+    ),
+]
+```
+
+Now:
+
+```text
+/login/
+/logout/
+/dashboard/
+```
+
+---
+
+# 30. Login Link
+
+In a template:
+
+```html
+<a href="{% url 'login' %}">
+    Login
+</a>
+```
+
+---
+
+# 31. Logout Link
+
+You may see:
+
+```html
+<a href="{% url 'logout' %}">
+    Logout
+</a>
+```
+
+But for a real application, **state-changing logout is often better implemented as a POST action**, with CSRF protection, rather than exposing logout as a simple GET link.
+
+For example:
+
+```html
+<form method="POST"
+      action="{% url 'logout' %}">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Logout
+    </button>
+
+</form>
+```
+
+Then the view can perform logout on POST.
+
+---
+
+# 32. Secure Logout View
+
+```python
+def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect("login")
+
+    return redirect("dashboard")
+```
+
+This follows the principle that state-changing operations should not casually be triggered by GET requests.
+
+---
+
+# 33. Login Form With Django Forms
+
+You can also create a Django form.
+
+For example:
+
+```python
+from django import forms
+
+
+class LoginForm(forms.Form):
+
+    username = forms.CharField(
+        max_length=150
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+```
+
+Then:
+
+```python
+def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+
+            username = form.cleaned_data[
+                "username"
+            ]
+
+            password = form.cleaned_data[
+                "password"
+            ]
+
+            user = authenticate(
+                request,
+                username=username,
+                password=password
+            )
+
+            if user is not None:
+
+                login(request, user)
+
+                return redirect(
+                    "dashboard"
+                )
+
+            form.add_error(
+                None,
+                "Invalid username or password"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "login.html",
+        {"form": form}
+    )
+```
+
+---
+
+# 34. Template for Django Login Form
+
+```html
+<h1>Login</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+```
+
+This is cleaner than manually processing every field.
+
+---
+
+# 35. `authenticate()` With Request
+
+You may see:
+
+```python
+authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+The request is useful because Django's authentication system can use request information when needed, especially with custom authentication backends.
+
+You may also encounter:
+
+```python
+authenticate(
+    username=username,
+    password=password
+)
+```
+
+Both forms exist.
+
+---
+
+# 36. Authentication Backends
+
+Django authentication can use **authentication backends**.
+
+Configured through:
+
+```python
+AUTHENTICATION_BACKENDS
+```
+
+Conceptually:
+
+```text
+authenticate()
+       ↓
+Authentication backend(s)
+       ↓
+Check credentials
+       ↓
+User / None
+```
+
+The default backend supports normal username/password authentication for the standard User model.
+
+This becomes especially useful if you want custom authentication behavior.
+
+---
+
+# 37. Failed Login Should Not Reveal Too Much
+
+A good login error is:
+
+```text
+Invalid username or password.
+```
+
+Rather than:
+
+```text
+Username exists but password is wrong.
+```
+
+Why?
+
+Because revealing whether an account exists can help attackers enumerate valid usernames.
+
+So a generic error message is generally preferable.
+
+---
+
+# 38. Login Security
+
+A login system should use:
+
+```text
+HTTPS
++
+CSRF protection
++
+secure password handling
++
+Django authentication
++
+session security
++
+authorization
+```
+
+Do not build authentication by simply doing:
+
+```python
+if username == "aman" and password == "1234":
+```
+
+That's not a real authentication system.
+
+---
+
+# 39. Why HTTPS Matters
+
+Suppose the login form submits:
+
+```text
+username
+password
+```
+
+Without HTTPS, credentials could potentially be exposed while traveling between browser and server.
+
+Therefore:
+
+```text
+HTTP ❌
+HTTPS ✅
+```
+
+for production authentication.
+
+---
+
+# 40. CSRF and Login
+
+Your POST login form should normally contain:
+
+```django
+{% csrf_token %}
+```
+
+Example:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    ...
+    
+</form>
+```
+
+This protects the POST request against CSRF attacks.
+
+---
+
+# 41. Login + CSRF + Session
+
+You should now understand how several previous modules connect:
+
+```text
+HTML Form
+    ↓
+POST
+    ↓
+CSRF validation
+    ↓
+request.POST
+    ↓
+authenticate()
+    ↓
+login()
+    ↓
+Session
+    ↓
+session cookie
+    ↓
+request.user
+```
+
+This is a major Django concept.
+
+---
+
+# 42. Login vs Registration
+
+Don't confuse:
+
+### Registration
+
+Creates a new user:
+
+```python
+User.objects.create_user(...)
+```
+
+### Login
+
+Verifies an existing user:
+
+```python
+authenticate(...)
+login(...)
+```
+
+### Logout
+
+Ends authentication state:
+
+```python
+logout(request)
+```
+
+So:
+
+```text
+Registration → Create account
+Login        → Authenticate account
+Logout       → End login state
+```
+
+---
+
+# 43. Login vs Permission
+
+Suppose Aman logs in.
+
+```python
+request.user.is_authenticated
+```
+
+is:
+
+```text
+True
+```
+
+But can Aman delete students?
+
+Not necessarily.
+
+You still need authorization:
+
+```python
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+Thus:
+
+```text
+Logged in
+   ≠
+Allowed to do everything
+```
+
+This distinction is extremely important.
+
+---
+
+# 44. Protecting Dashboard Manually
+
+You could write:
+
+```python
+def dashboard(request):
+
+    if not request.user.is_authenticated:
+
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+This works.
+
+But Django provides a cleaner mechanism, which we'll study in Module 39.
+
+---
+
+# 45. Complete Mini Authentication System
+
+### `views.py`
+
+```python
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect(
+                "dashboard"
+            )
+
+        return render(
+            request,
+            "login.html",
+            {
+                "error":
+                "Invalid username or password"
+            }
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+
+
+def dashboard(request):
+
+    if not request.user.is_authenticated:
+
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+
+
+def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect("login")
+
+    return redirect("dashboard")
+```
+
+---
+
+# 46. `login.html`
+
+```html
+<h1>Login</h1>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Username</label>
+
+    <input
+        type="text"
+        name="username"
+        required
+    >
+
+    <br>
+
+    <label>Password</label>
+
+    <input
+        type="password"
+        name="password"
+        required
+    >
+
+    <br>
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+```
+
+---
+
+# 47. `dashboard.html`
+
+```html
+<h1>
+    Welcome {{ request.user.username }}
+</h1>
+
+<form method="POST"
+      action="{% url 'logout' %}">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Logout
+    </button>
+
+</form>
+```
+
+---
+
+# 48. URL Configuration
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
+
+    path(
+        "dashboard/",
+        views.dashboard,
+        name="dashboard"
+    ),
+
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
+]
+```
+
+---
+
+# 49. Full Flow
+
+Now visualize the entire application:
+
+```text
+                 LOGIN
+                   │
+                   ↓
+          login.html form
+                   │
+                   ↓
+              POST /login/
+                   │
+                   ↓
+             CSRF check
+                   │
+                   ↓
+             request.POST
+                   │
+                   ↓
+             authenticate()
+                   │
+             ┌─────┴─────┐
+             ↓           ↓
+          Valid        Invalid
+             ↓           ↓
+          User          Error
+             ↓
+          login()
+             ↓
+          Session
+             ↓
+       session cookie
+             ↓
+       redirect dashboard
+             ↓
+      request.user = User
+             ↓
+          Dashboard
+             │
+             ↓
+          logout()
+             ↓
+       Login page
+```
+
+---
+
+# 50. Very Important Viva Questions
+
+### Q1. What is `authenticate()`?
+
+> `authenticate()` verifies the supplied credentials using Django's authentication system and returns a user object if authentication succeeds, otherwise `None`.
+
+---
+
+### Q2. Does `authenticate()` log the user in?
+
+> No. It verifies credentials. `login(request, user)` establishes the authenticated session.
+
+---
+
+### Q3. What does `login()` do?
+
+> It associates the authenticated user with the current request/session so that subsequent requests can identify the user.
+
+---
+
+### Q4. How do you log out?
+
+```python
+logout(request)
+```
+
+---
+
+### Q5. What is `request.user`?
+
+> It represents the user associated with the current request.
+
+---
+
+### Q6. What is `request.user` before login?
+
+> It is generally an `AnonymousUser`.
+
+---
+
+### Q7. What is `request.user` after successful login?
+
+> It represents the authenticated User object.
+
+---
+
+### Q8. How do you check whether the user is logged in?
+
+```python
+request.user.is_authenticated
+```
+
+---
+
+### Q9. Why use `redirect()` after successful login?
+
+> It follows the POST-Redirect-GET pattern, preventing accidental form resubmission when the user refreshes the resulting page.
+
+---
+
+### Q10. Why use `{% csrf_token %}` on login POST forms?
+
+> To provide Django's CSRF protection for the state-changing POST request.
+
+---
+
+### Q11. Where is login state maintained?
+
+> Django commonly maintains authenticated login state using the session framework, with a session identifier stored in a cookie.
+
+---
+
+### Q12. Difference between `authenticate()` and `login()`?
+
+```text
+authenticate()
+       ↓
+Verify credentials
+
+login()
+       ↓
+Establish authenticated session
+```
+
+---
+
+# 51. Interview Question
+
+### "What happens internally when a user logs in?"
+
+A strong answer:
+
+> "The submitted credentials are passed to Django's `authenticate()` function. If authentication succeeds, it returns the user object. I then call `login(request, user)`, which establishes the user's authenticated session. The browser subsequently sends the session identifier with future requests, allowing Django to populate `request.user`."
+
+That's a very good interview-level answer.
+
+---
+
+# 52. Another Interview Question
+
+### "Can I use `authenticate()` without `login()`?"
+
+Yes.
+
+For example:
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+You could use the result to determine whether credentials are valid.
+
+But the user won't be logged into the normal Django session unless you subsequently call:
+
+```python
+login(request, user)
+```
+
+---
+
+# 53. Another Interview Question
+
+### "Can I call `login()` without authentication?"
+
+Technically the function takes a user object, but your application should only establish authenticated state for a properly authenticated/trusted user.
+
+Normal flow:
+
+```python
+user = authenticate(...)
+
+if user is not None:
+    login(request, user)
+```
+
+---
+
+# 54. Coding Questions
+
+### Q1. Authenticate a user.
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+---
+
+### Q2. Check authentication result.
+
+```python
+if user is not None:
+    print("Valid credentials")
+else:
+    print("Invalid credentials")
+```
+
+---
+
+### Q3. Log in.
+
+```python
+login(request, user)
+```
+
+---
+
+### Q4. Log out.
+
+```python
+logout(request)
+```
+
+---
+
+### Q5. Check logged-in user.
+
+```python
+if request.user.is_authenticated:
+    print(request.user.username)
+```
+
+---
+
+### Q6. Redirect after login.
+
+```python
+login(request, user)
+
+return redirect("dashboard")
+```
+
+---
+
+### Q7. Create a complete basic login.
+
+```python
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect(
+                "dashboard"
+            )
+
+    return render(
+        request,
+        "login.html"
+    )
+```
+
+---
+
+# 55. Common Mistakes
+
+### Mistake 1
+
+Using:
+
+```python
+authenticate(username, password)
+```
+
+instead of keyword arguments.
+
+Prefer:
+
+```python
+authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+---
+
+### Mistake 2
+
+Forgetting:
+
+```python
+login(request, user)
+```
+
+Authentication alone doesn't establish the normal login session.
+
+---
+
+### Mistake 3
+
+Forgetting CSRF:
+
+```html
+{% csrf_token %}
+```
+
+on a normal POST form.
+
+---
+
+### Mistake 4
+
+Writing:
+
+```python
+request.user.is_authenticated()
+```
+
+Wrong.
+
+Use:
+
+```python
+request.user.is_authenticated
+```
+
+---
+
+### Mistake 5
+
+Using plaintext password comparisons.
+
+Wrong:
+
+```python
+if password == user.password:
+```
+
+Use Django's authentication system.
+
+---
+
+### Mistake 6
+
+Assuming login means unlimited access.
+
+```text
+Authenticated ≠ Authorized
+```
+
+---
+
+# 56. Module 38 Cheat Sheet
+
+### Import
+
+```python
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+```
+
+### Authenticate
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+### Check
+
+```python
+if user is not None:
+```
+
+### Login
+
+```python
+login(request, user)
+```
+
+### Logout
+
+```python
+logout(request)
+```
+
+### Current user
+
+```python
+request.user
+```
+
+### Logged-in check
+
+```python
+request.user.is_authenticated
+```
+
+### Redirect
+
+```python
+return redirect("dashboard")
+```
+
+---
+
+# 57. The Three Functions You MUST Memorize
+
+```text
+authenticate()
+      ↓
+"Are these credentials valid?"
+
+login()
+      ↓
+"Establish the user's authenticated session."
+
+logout()
+      ↓
+"End the user's authenticated session."
+```
+
+And the complete sequence:
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+    login(request, user)
+```
+
+Then:
+
+```python
+logout(request)
+```
+
+---
+
+## Module 38 Complete ✅
+
+You have now connected:
+
+```text
+User
+ ↓
+Password
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+Session
+ ↓
+Cookie
+ ↓
+request.user
+```
+
+The next module is **Module 39 — Protecting Views**.
+
+There we'll learn the proper Django way to prevent unauthenticated users from accessing pages using:
+
+```python
+@login_required
+```
+
+plus:
+
+```python
+@permission_required(...)
+```
+
+`LoginRequiredMixin`, `LOGIN_URL`, `LOGIN_REDIRECT_URL`, `LOGOUT_REDIRECT_URL`, 403 vs 302, and how to protect CRUD operations.

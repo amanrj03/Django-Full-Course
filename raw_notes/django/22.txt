@@ -1,0 +1,1846 @@
+# Module 22 — Form Validation in Django
+
+This module is **very important for coding questions and viva**, because teachers often ask:
+
+* How does Django validate form data?
+* What is `cleaned_data`?
+* Difference between `clean_<field>()` and `clean()`.
+* How do you create custom validation?
+* How do you validate two fields together?
+* How do you display validation errors?
+* How do `min_length`, `max_length`, `min_value`, etc. work?
+
+---
+
+# 1. What is Form Validation?
+
+**Form validation** means checking whether the data entered by the user is:
+
+1. Present when required
+2. Of the correct type
+3. Within allowed limits
+4. In the correct format
+5. Logically valid according to our application's rules
+
+For example, suppose we have:
+
+```python
+class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()
+    email = forms.EmailField()
+```
+
+A user might enter:
+
+```text
+Name: Aman
+Age: abc
+Email: hello
+```
+
+The form should reject this data.
+
+Django automatically performs many basic validations for us.
+
+---
+
+# 2. The Most Important Line: `is_valid()`
+
+When a form receives submitted data:
+
+```python
+form = StudentForm(request.POST)
+```
+
+we check:
+
+```python
+if form.is_valid():
+```
+
+Example:
+
+```python
+def student_form(request):
+
+    if request.method == "POST":
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+            print("Valid data")
+        else:
+            print("Invalid data")
+
+    else:
+        form = StudentForm()
+
+    return render(request, "student_form.html", {"form": form})
+```
+
+### Important
+
+`is_valid()` does much more than simply return `True` or `False`.
+
+It triggers Django's validation process.
+
+Conceptually:
+
+```text
+request.POST
+     ↓
+Bound Form
+     ↓
+form.is_valid()
+     ↓
+Validation
+     ↓
+Valid? ─────── No ──→ form.errors
+   │
+  Yes
+   ↓
+form.cleaned_data
+```
+
+---
+
+# 3. What is `cleaned_data`?
+
+After successful validation:
+
+```python
+form.cleaned_data
+```
+
+contains the **cleaned and converted data**.
+
+Example:
+
+```python
+class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()
+```
+
+User submits:
+
+```text
+name = "Aman"
+age = "21"
+```
+
+Notice that HTTP form data arrives essentially as strings.
+
+Django converts the age into an integer.
+
+After:
+
+```python
+form.is_valid()
+```
+
+we can do:
+
+```python
+form.cleaned_data["name"]
+```
+
+Result:
+
+```text
+Aman
+```
+
+and:
+
+```python
+form.cleaned_data["age"]
+```
+
+Result:
+
+```python
+21
+```
+
+which is an integer.
+
+### Very important rule
+
+Do **not** use:
+
+```python
+form.cleaned_data
+```
+
+before:
+
+```python
+form.is_valid()
+```
+
+Correct:
+
+```python
+if form.is_valid():
+    age = form.cleaned_data["age"]
+```
+
+---
+
+# 4. Built-in Validation
+
+Django fields already provide many validators.
+
+For example:
+
+```python
+class StudentForm(forms.Form):
+    name = forms.CharField(
+        min_length=3,
+        max_length=30
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()
+```
+
+Django automatically checks:
+
+### Name
+
+```text
+Minimum 3 characters
+Maximum 30 characters
+```
+
+### Age
+
+```text
+Minimum 18
+Maximum 60
+```
+
+### Email
+
+Checks whether the value has a valid email format.
+
+---
+
+# 5. `required`
+
+By default, Django form fields are required.
+
+For example:
+
+```python
+name = forms.CharField()
+```
+
+means the user cannot leave it empty.
+
+You can explicitly write:
+
+```python
+name = forms.CharField(required=True)
+```
+
+Both mean essentially the same thing.
+
+---
+
+## Making a field optional
+
+```python
+phone = forms.CharField(required=False)
+```
+
+Now the user may leave the phone field empty.
+
+Example:
+
+```python
+class StudentForm(forms.Form):
+    name = forms.CharField()
+    phone = forms.CharField(required=False)
+```
+
+Here:
+
+```text
+name → required
+phone → optional
+```
+
+### Viva question
+
+**Q: What is the default value of `required`?**
+
+**Answer:**
+
+```text
+True
+```
+
+---
+
+# 6. `min_length`
+
+Used with fields such as `CharField`.
+
+```python
+username = forms.CharField(min_length=5)
+```
+
+This means:
+
+```text
+username must contain at least 5 characters
+```
+
+For example:
+
+```text
+abc       ❌
+aman      ❌
+aman123   ✅
+```
+
+---
+
+# 7. `max_length`
+
+```python
+username = forms.CharField(max_length=20)
+```
+
+Maximum 20 characters are allowed.
+
+You can combine them:
+
+```python
+username = forms.CharField(
+    min_length=5,
+    max_length=20
+)
+```
+
+---
+
+# 8. `min_value`
+
+Used for numeric fields.
+
+```python
+age = forms.IntegerField(min_value=18)
+```
+
+Allowed:
+
+```text
+18
+19
+20
+...
+```
+
+Rejected:
+
+```text
+17
+16
+10
+```
+
+---
+
+# 9. `max_value`
+
+```python
+age = forms.IntegerField(max_value=60)
+```
+
+So:
+
+```text
+18 → valid
+40 → valid
+60 → valid
+61 → invalid
+```
+
+Combine both:
+
+```python
+age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)
+```
+
+---
+
+# 10. Email Validation
+
+Django provides:
+
+```python
+forms.EmailField()
+```
+
+Example:
+
+```python
+email = forms.EmailField()
+```
+
+This provides built-in email validation.
+
+For example:
+
+```text
+aman@gmail.com       ✅
+student@example.com  ✅
+hello               ❌
+abc@                ❌
+```
+
+---
+
+# 11. ChoiceField Validation
+
+Suppose we only allow:
+
+```python
+COURSES = [
+    ("cse", "Computer Science"),
+    ("ece", "Electronics"),
+    ("me", "Mechanical"),
+]
+```
+
+Form:
+
+```python
+class StudentForm(forms.Form):
+
+    course = forms.ChoiceField(
+        choices=COURSES
+    )
+```
+
+The first value is what is submitted:
+
+```text
+cse
+```
+
+The second value is displayed:
+
+```text
+Computer Science
+```
+
+Django also validates that the submitted choice belongs to the allowed choices.
+
+---
+
+# 12. `BooleanField`
+
+Example:
+
+```python
+agree = forms.BooleanField()
+```
+
+The user must check the checkbox.
+
+You can make it optional:
+
+```python
+agree = forms.BooleanField(required=False)
+```
+
+---
+
+# 13. Validation Errors
+
+Suppose:
+
+```python
+class StudentForm(forms.Form):
+    age = forms.IntegerField(min_value=18)
+```
+
+User enters:
+
+```text
+15
+```
+
+Then:
+
+```python
+form.is_valid()
+```
+
+returns:
+
+```python
+False
+```
+
+The errors are available through:
+
+```python
+form.errors
+```
+
+You can inspect:
+
+```python
+print(form.errors)
+```
+
+---
+
+# 14. Displaying Errors in Template
+
+Suppose we have:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Submit</button>
+</form>
+```
+
+Django automatically displays field errors when the bound form is invalid.
+
+You can also explicitly display them:
+
+```html
+{{ form.name.errors }}
+```
+
+For age:
+
+```html
+{{ form.age.errors }}
+```
+
+Or all errors:
+
+```html
+{{ form.errors }}
+```
+
+---
+
+# 15. Field-Level Custom Validation
+
+Now we reach one of the **most important topics**.
+
+Suppose Django's built-in validators are not enough.
+
+For example:
+
+> Student name should not contain numbers.
+
+We can create custom validation.
+
+---
+
+# 16. `clean_<field>()`
+
+For validating a specific field, use:
+
+```python
+clean_<fieldname>()
+```
+
+For example:
+
+```python
+clean_name()
+```
+
+Complete example:
+
+```python
+from django import forms
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+    age = forms.IntegerField()
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+
+        if any(char.isdigit() for char in name):
+            raise forms.ValidationError(
+                "Name should not contain numbers."
+            )
+
+        return name
+```
+
+Let's understand this carefully.
+
+---
+
+# 17. How `clean_name()` Works
+
+Suppose user enters:
+
+```text
+Aman123
+```
+
+Django first performs the normal validation for the field.
+
+Then Django calls:
+
+```python
+clean_name()
+```
+
+Inside:
+
+```python
+name = self.cleaned_data["name"]
+```
+
+we get the already cleaned name.
+
+Then:
+
+```python
+if any(char.isdigit() for char in name):
+```
+
+checks whether any character is a digit.
+
+If yes:
+
+```python
+raise forms.ValidationError(
+    "Name should not contain numbers."
+)
+```
+
+The form becomes invalid.
+
+If everything is fine:
+
+```python
+return name
+```
+
+The returned value becomes the cleaned value for that field.
+
+---
+
+# 18. Why Must We Return the Value?
+
+This is a common viva/coding question.
+
+Correct:
+
+```python
+def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) < 3:
+        raise forms.ValidationError("Too short")
+
+    return name
+```
+
+The `return` is important because Django uses the returned value as the cleaned value.
+
+You can even modify it:
+
+```python
+def clean_name(self):
+    name = self.cleaned_data["name"]
+    return name.strip().title()
+```
+
+So:
+
+```text
+"  aman ranjan  "
+```
+
+can become:
+
+```text
+"Aman Ranjan"
+```
+
+---
+
+# 19. Another `clean_<field>()` Example
+
+Suppose username cannot contain spaces.
+
+```python
+class RegisterForm(forms.Form):
+
+    username = forms.CharField()
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+
+        if " " in username:
+            raise forms.ValidationError(
+                "Username cannot contain spaces."
+            )
+
+        return username
+```
+
+---
+
+# 20. Password Validation Example
+
+Suppose password must contain at least one digit.
+
+```python
+class RegisterForm(forms.Form):
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+
+        if not any(char.isdigit() for char in password):
+            raise forms.ValidationError(
+                "Password must contain at least one digit."
+            )
+
+        return password
+```
+
+---
+
+# 21. `clean()` — Cross-Field Validation
+
+This is another **very important viva question**.
+
+Use:
+
+```python
+clean()
+```
+
+when validation depends on **multiple fields together**.
+
+For example:
+
+```text
+Password
+Confirm Password
+```
+
+We need to compare both.
+
+---
+
+# 22. Password Confirmation Example
+
+```python
+from django import forms
+
+class RegisterForm(forms.Form):
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password:
+            if password != confirm_password:
+                raise forms.ValidationError(
+                    "Passwords do not match."
+                )
+
+        return cleaned_data
+```
+
+---
+
+# 23. Why `super().clean()`?
+
+This line:
+
+```python
+cleaned_data = super().clean()
+```
+
+calls Django's parent implementation of `clean()`.
+
+It gives us the cleaned field data that has already passed field-level validation.
+
+Then:
+
+```python
+password = cleaned_data.get("password")
+```
+
+gets the password.
+
+And:
+
+```python
+confirm_password = cleaned_data.get("confirm_password")
+```
+
+gets the confirmation.
+
+Then:
+
+```python
+if password != confirm_password:
+```
+
+compares them.
+
+---
+
+# 24. `clean_<field>()` vs `clean()`
+
+This is **extremely important for viva**.
+
+| Method          | Purpose                           |
+| --------------- | --------------------------------- |
+| `clean_name()`  | Validate one specific field       |
+| `clean_email()` | Validate one specific field       |
+| `clean_age()`   | Validate one specific field       |
+| `clean()`       | Validate multiple fields together |
+
+### Easy rule
+
+> **One field → `clean_<field>()`**
+
+> **Multiple fields → `clean()`**
+
+---
+
+# 25. Example: Age Validation
+
+Built-in validation:
+
+```python
+age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)
+```
+
+This is preferable when the rule is simple.
+
+But suppose:
+
+> Students under 18 cannot register for a particular course.
+
+Now validation depends on both:
+
+```text
+age
+course
+```
+
+So we use:
+
+```python
+def clean(self):
+```
+
+Example:
+
+```python
+class StudentForm(forms.Form):
+
+    age = forms.IntegerField()
+    course = forms.ChoiceField(
+        choices=[
+            ("cse", "CSE"),
+            ("mba", "MBA")
+        ]
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        age = cleaned_data.get("age")
+        course = cleaned_data.get("course")
+
+        if age is not None and course == "mba" and age < 18:
+            raise forms.ValidationError(
+                "Student must be at least 18 for MBA."
+            )
+
+        return cleaned_data
+```
+
+---
+
+# 26. `add_error()`
+
+Sometimes you want to add an error to a **specific field**.
+
+Django provides:
+
+```python
+self.add_error()
+```
+
+Example:
+
+```python
+class StudentForm(forms.Form):
+
+    age = forms.IntegerField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        age = cleaned_data.get("age")
+
+        if age is not None and age < 18:
+            self.add_error(
+                "age",
+                "Student must be at least 18."
+            )
+
+        return cleaned_data
+```
+
+Now the error belongs specifically to:
+
+```text
+age
+```
+
+rather than being a non-field/form-wide error.
+
+---
+
+# 27. `ValidationError`
+
+Import:
+
+```python
+from django import forms
+```
+
+Then:
+
+```python
+raise forms.ValidationError("Invalid data")
+```
+
+You can also import it directly:
+
+```python
+from django.core.exceptions import ValidationError
+```
+
+Then:
+
+```python
+raise ValidationError("Invalid data")
+```
+
+Both approaches are commonly seen.
+
+---
+
+# 28. Field Error vs Non-Field Error
+
+Suppose we have:
+
+```python
+password
+confirm_password
+```
+
+and they don't match.
+
+This error doesn't belong naturally to only one field.
+
+Using:
+
+```python
+raise forms.ValidationError(
+    "Passwords do not match."
+)
+```
+
+creates a **non-field/form-level error**.
+
+In the template, you can display:
+
+```html
+{{ form.non_field_errors }}
+```
+
+---
+
+# 29. Using `add_error()` Instead
+
+If you want the error associated with a specific field:
+
+```python
+self.add_error(
+    "confirm_password",
+    "Passwords do not match."
+)
+```
+
+Now the error appears against:
+
+```text
+confirm_password
+```
+
+This can make the UI clearer.
+
+---
+
+# 30. Complete Validation Example
+
+Let's build a realistic registration form.
+
+```python
+from django import forms
+
+
+class RegisterForm(forms.Form):
+
+    username = forms.CharField(
+        min_length=5,
+        max_length=20
+    )
+
+    email = forms.EmailField()
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    password = forms.CharField(
+        min_length=8,
+        widget=forms.PasswordInput
+    )
+
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+
+        if " " in username:
+            raise forms.ValidationError(
+                "Username cannot contain spaces."
+            )
+
+        return username
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+
+        if not any(char.isdigit() for char in password):
+            raise forms.ValidationError(
+                "Password must contain at least one digit."
+            )
+
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if password and confirm_password:
+            if password != confirm_password:
+                self.add_error(
+                    "confirm_password",
+                    "Passwords do not match."
+                )
+
+        return cleaned_data
+```
+
+This one form demonstrates:
+
+* `min_length`
+* `max_length`
+* `EmailField`
+* `min_value`
+* `max_value`
+* `PasswordInput`
+* `clean_<field>()`
+* `clean()`
+* custom validation
+* `ValidationError`
+* `add_error()`
+
+---
+
+# 31. Validation Pipeline — Very Important
+
+You should understand what happens internally.
+
+Suppose:
+
+```python
+form = RegisterForm(request.POST)
+```
+
+Then:
+
+```python
+form.is_valid()
+```
+
+starts the validation process.
+
+Conceptually:
+
+```text
+             request.POST
+                  ↓
+             Bound Form
+                  ↓
+             is_valid()
+                  ↓
+        Field-level processing
+                  ↓
+      Field type/required checks
+                  ↓
+          Built-in validators
+                  ↓
+        clean_<field>() methods
+                  ↓
+             clean()
+                  ↓
+          Validation complete
+             ↙          ↘
+          valid         invalid
+            ↓              ↓
+    cleaned_data       form.errors
+```
+
+This flow is worth remembering for viva.
+
+---
+
+# 32. What Happens When Validation Fails?
+
+Suppose:
+
+```python
+age = forms.IntegerField(min_value=18)
+```
+
+User enters:
+
+```text
+15
+```
+
+Then:
+
+```python
+form.is_valid()
+```
+
+returns:
+
+```python
+False
+```
+
+and:
+
+```python
+form.errors
+```
+
+contains the error.
+
+Therefore:
+
+```python
+if form.is_valid():
+    # process data
+else:
+    # display form again with errors
+```
+
+---
+
+# 33. Important: Don't Process Invalid Data
+
+Bad:
+
+```python
+form = StudentForm(request.POST)
+
+name = form.cleaned_data["name"]
+```
+
+Why bad?
+
+Because validation has not happened.
+
+Correct:
+
+```python
+form = StudentForm(request.POST)
+
+if form.is_valid():
+    name = form.cleaned_data["name"]
+```
+
+---
+
+# 34. Complete View + Form + Template
+
+### `forms.py`
+
+```python
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3,
+        max_length=30
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+
+        if any(char.isdigit() for char in name):
+            raise forms.ValidationError(
+                "Name cannot contain numbers."
+            )
+
+        return name
+```
+
+### `views.py`
+
+```python
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+
+            return render(
+                request,
+                "success.html",
+                {
+                    "name": name,
+                    "age": age,
+                    "email": email
+                }
+            )
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+### `student_form.html`
+
+```html
+<h1>Student Registration</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Register
+    </button>
+
+</form>
+```
+
+If validation fails, Django renders the same form again with errors.
+
+---
+
+# 35. Built-in vs Custom Validation
+
+### Built-in validation
+
+Use:
+
+```python
+age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)
+```
+
+when Django already provides the rule.
+
+### Custom validation
+
+Use:
+
+```python
+def clean_age(self):
+```
+
+when your application's specific rule isn't covered by built-in field options.
+
+Example:
+
+```python
+def clean_age(self):
+    age = self.cleaned_data["age"]
+
+    if age % 2 != 0:
+        raise forms.ValidationError(
+            "Age must be an even number."
+        )
+
+    return age
+```
+
+---
+
+# 36. Common Mistakes
+
+### Mistake 1
+
+Using:
+
+```python
+clean_data
+```
+
+instead of:
+
+```python
+cleaned_data
+```
+
+Correct:
+
+```python
+self.cleaned_data
+```
+
+---
+
+### Mistake 2
+
+Using cleaned data before validation:
+
+```python
+form.cleaned_data
+```
+
+Correct:
+
+```python
+if form.is_valid():
+    form.cleaned_data
+```
+
+---
+
+### Mistake 3
+
+Forgetting `return`:
+
+```python
+def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) < 3:
+        raise forms.ValidationError("Too short")
+```
+
+Better:
+
+```python
+def clean_name(self):
+    name = self.cleaned_data["name"]
+
+    if len(name) < 3:
+        raise forms.ValidationError("Too short")
+
+    return name
+```
+
+---
+
+### Mistake 4
+
+Using `clean()` for a single-field rule unnecessarily.
+
+For:
+
+> Username cannot contain spaces.
+
+Prefer:
+
+```python
+def clean_username(self):
+```
+
+not:
+
+```python
+def clean(self):
+```
+
+---
+
+### Mistake 5
+
+Forgetting:
+
+```python
+super().clean()
+```
+
+when writing a custom `clean()`.
+
+Use:
+
+```python
+cleaned_data = super().clean()
+```
+
+---
+
+### Mistake 6
+
+Using:
+
+```python
+request.POST
+```
+
+incorrectly.
+
+Correct:
+
+```python
+form = StudentForm(request.POST)
+```
+
+---
+
+### Mistake 7
+
+Forgetting CSRF protection in a POST template:
+
+```html
+{% csrf_token %}
+```
+
+---
+
+# 37. `clean_<field>()` vs Validator Functions
+
+Django also supports validators.
+
+Example:
+
+```python
+from django.core.validators import MinValueValidator
+```
+
+You can define:
+
+```python
+age = forms.IntegerField(
+    validators=[MinValueValidator(18)]
+)
+```
+
+This is useful when you want a reusable validation rule.
+
+For simple field-specific logic, `clean_<field>()` is often easier to understand.
+
+---
+
+# 38. Very Important Viva Questions
+
+### Q1. What is form validation?
+
+**Answer:**
+
+> Form validation is the process of checking whether submitted form data is present, correctly formatted, type-correct, within allowed limits, and satisfies application-specific rules.
+
+---
+
+### Q2. What does `is_valid()` do?
+
+**Answer:**
+
+> `is_valid()` runs the form's validation process and returns `True` if the submitted data is valid, otherwise `False`.
+
+---
+
+### Q3. What is `cleaned_data`?
+
+**Answer:**
+
+> `cleaned_data` is a dictionary containing validated and cleaned form data after successful form validation.
+
+---
+
+### Q4. When is `cleaned_data` available?
+
+**Answer:**
+
+> It should be accessed after `form.is_valid()` has been called.
+
+---
+
+### Q5. What is `clean_<field>()`?
+
+**Answer:**
+
+> It is a custom validation method used to validate or transform a specific form field.
+
+Example:
+
+```python
+def clean_email(self):
+    ...
+```
+
+---
+
+### Q6. What is `clean()`?
+
+**Answer:**
+
+> `clean()` is used for form-wide or cross-field validation when the validation rule depends on multiple fields.
+
+---
+
+### Q7. Difference between `clean_name()` and `clean()`?
+
+**Answer:**
+
+```text
+clean_name() → validates name only
+clean()      → validates multiple fields/form-wide rules
+```
+
+---
+
+### Q8. What is `ValidationError`?
+
+**Answer:**
+
+> `ValidationError` is raised when submitted data does not satisfy a validation rule.
+
+Example:
+
+```python
+raise forms.ValidationError("Invalid name")
+```
+
+---
+
+### Q9. What is `add_error()`?
+
+**Answer:**
+
+> `add_error()` manually adds a validation error to a particular form field.
+
+Example:
+
+```python
+self.add_error("age", "Age is invalid.")
+```
+
+---
+
+### Q10. Why do we use `super().clean()`?
+
+**Answer:**
+
+> It calls Django's parent `clean()` implementation and provides the cleaned data needed for further form-wide validation.
+
+---
+
+### Q11. What does `required=False` mean?
+
+**Answer:**
+
+> It makes a form field optional.
+
+---
+
+### Q12. What is `min_length`?
+
+**Answer:**
+
+> It specifies the minimum number of characters allowed for a field.
+
+---
+
+### Q13. What is `min_value`?
+
+**Answer:**
+
+> It specifies the minimum numeric value accepted by a field.
+
+---
+
+### Q14. Does `is_valid()` return cleaned data?
+
+No.
+
+It returns:
+
+```python
+True
+```
+
+or:
+
+```python
+False
+```
+
+The cleaned data is accessed through:
+
+```python
+form.cleaned_data
+```
+
+---
+
+# 39. Coding Questions You Should Be Able to Write
+
+### Question 1
+
+Create a form with:
+
+* Name: minimum 3 characters
+* Age: 18–60
+* Email: valid email
+
+Answer:
+
+```python
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+
+    email = forms.EmailField()
+```
+
+---
+
+### Question 2
+
+Create custom validation so that a username cannot contain spaces.
+
+```python
+def clean_username(self):
+    username = self.cleaned_data["username"]
+
+    if " " in username:
+        raise forms.ValidationError(
+            "Username cannot contain spaces."
+        )
+
+    return username
+```
+
+---
+
+### Question 3
+
+Validate password confirmation.
+
+```python
+def clean(self):
+    cleaned_data = super().clean()
+
+    password = cleaned_data.get("password")
+    confirm = cleaned_data.get("confirm_password")
+
+    if password != confirm:
+        raise forms.ValidationError(
+            "Passwords do not match."
+        )
+
+    return cleaned_data
+```
+
+---
+
+# 40. The Most Important Things to Memorize
+
+If you have limited time before an exam, remember these:
+
+### Built-in validation
+
+```python
+required=True
+required=False
+min_length=3
+max_length=20
+min_value=18
+max_value=60
+```
+
+### Validation
+
+```python
+if form.is_valid():
+```
+
+### Cleaned data
+
+```python
+form.cleaned_data
+```
+
+### Field-specific validation
+
+```python
+def clean_name(self):
+    value = self.cleaned_data["name"]
+
+    # validation
+
+    return value
+```
+
+### Form-wide validation
+
+```python
+def clean(self):
+    cleaned_data = super().clean()
+
+    # cross-field validation
+
+    return cleaned_data
+```
+
+### Error
+
+```python
+raise forms.ValidationError("Invalid data")
+```
+
+### Field-specific error
+
+```python
+self.add_error(
+    "field_name",
+    "Error message"
+)
+```
+
+---
+
+# Module 22 Summary
+
+The complete concept is:
+
+```text
+User submits form
+       ↓
+request.POST
+       ↓
+Form(request.POST)
+       ↓
+form.is_valid()
+       ↓
+Built-in validation
+       ↓
+clean_<field>()
+       ↓
+clean()
+       ↓
+ ┌───────────────┐
+ │               │
+Valid          Invalid
+ │               │
+ ↓               ↓
+cleaned_data   form.errors
+```
+
+And the golden rule is:
+
+> **Use built-in field options for simple validation, `clean_<field>()` for one-field custom validation, and `clean()` for validation involving multiple fields.**
+
+**Next → Module 23: CSRF & CSRF Protection**
+We'll cover exactly why `{% csrf_token %}` is required, how CSRF attacks work, Django's CSRF middleware/token mechanism, common CSRF errors, AJAX/POST considerations, and the viva questions around CSRF.

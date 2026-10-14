@@ -1,0 +1,1112 @@
+# Module 3 — Creating Your First Django Project
+
+Now we start **actual Django development**.
+
+By the end of this module, you will be able to:
+
+* Create a Django project
+* Understand `django-admin`
+* Understand `manage.py`
+* Start the Django development server
+* Open your project in a browser
+* Understand what happens when Django starts
+* Answer common viva questions
+* Create a project in an exam from scratch
+
+---
+
+# 1. What is a Django Project?
+
+A **Django project** is the overall configuration and collection of settings for a Django website/web application.
+
+For example, imagine you're making a college management system:
+
+```text
+College Management System
+```
+
+That can be your **Django project**.
+
+Inside it, you might later create apps such as:
+
+```text
+students
+teachers
+courses
+attendance
+accounts
+```
+
+So remember:
+
+> **Project = overall Django website/application configuration**
+
+> **App = a specific functionality/component inside the project**
+
+We'll explore this distinction much more in Module 5.
+
+---
+
+# 2. Before Creating a Project
+
+Make sure your virtual environment is active.
+
+You should see something like:
+
+```text
+(venv)
+```
+
+For example:
+
+```text
+(venv) C:\DjangoCourse>
+```
+
+If it isn't active:
+
+```cmd
+venv\Scripts\activate
+```
+
+Then verify Django:
+
+```bash
+python -m django --version
+```
+
+---
+
+# 3. Creating a Django Project
+
+There are two common approaches.
+
+### Using `django-admin`
+
+```bash
+django-admin startproject myproject
+```
+
+### Using Python
+
+```bash
+python -m django startproject myproject
+```
+
+Both create a Django project.
+
+For learning, understand the second form too because it explicitly uses the current Python environment.
+
+We'll use:
+
+```bash
+python -m django startproject myproject
+```
+
+---
+
+# 4. Understanding the Command
+
+Look carefully:
+
+```bash
+python -m django startproject myproject
+```
+
+Break it down:
+
+### `python`
+
+Use Python.
+
+### `-m django`
+
+Run Django as a Python module.
+
+### `startproject`
+
+Django command that creates a new project.
+
+### `myproject`
+
+The name of your project.
+
+So:
+
+> `python -m django startproject myproject` creates a new Django project named `myproject`.
+
+---
+
+# 5. What Happens After Running It?
+
+Suppose your folder initially contains:
+
+```text
+DjangoCourse/
+│
+└── venv/
+```
+
+After:
+
+```bash
+python -m django startproject myproject
+```
+
+you'll get:
+
+```text
+DjangoCourse/
+│
+├── venv/
+│
+└── myproject/
+    │
+    ├── manage.py
+    │
+    └── myproject/
+        ├── __init__.py
+        ├── settings.py
+        ├── urls.py
+        ├── asgi.py
+        └── wsgi.py
+```
+
+**Don't worry about each file yet.**
+
+Module 4 is dedicated to understanding this structure.
+
+For now, focus on what was created.
+
+---
+
+# 6. Why Are There Two `myproject` Names?
+
+This confuses almost every beginner.
+
+We have:
+
+```text
+myproject/
+│
+├── manage.py
+│
+└── myproject/
+    ├── settings.py
+    ├── urls.py
+    └── ...
+```
+
+The **outer `myproject`** is basically the project directory.
+
+The **inner `myproject`** is the Python package containing the project's configuration.
+
+So:
+
+```text
+outer folder
+     ↓
+myproject/
+
+inner package
+     ↓
+myproject/
+```
+
+This will become much clearer when we study the project structure.
+
+---
+
+# 7. What is `manage.py`?
+
+This is one of the most important files in Django.
+
+`manage.py` is a command-line utility provided for interacting with your Django project.
+
+It allows you to execute commands related to your project.
+
+For example:
+
+```bash
+python manage.py runserver
+```
+
+```bash
+python manage.py startapp students
+```
+
+Later:
+
+```bash
+python manage.py makemigrations
+```
+
+```bash
+python manage.py migrate
+```
+
+```bash
+python manage.py createsuperuser
+```
+
+So remember:
+
+> **`manage.py` is a command-line utility used to perform administrative tasks for a specific Django project.**
+
+---
+
+# 8. `django-admin` vs `manage.py`
+
+Very important viva question.
+
+### `django-admin`
+
+A general Django command-line utility.
+
+Example:
+
+```bash
+django-admin startproject myproject
+```
+
+### `manage.py`
+
+A project-specific command-line utility.
+
+Example:
+
+```bash
+python manage.py runserver
+```
+
+A useful way to remember:
+
+```text
+django-admin
+      ↓
+Django-level commands
+
+manage.py
+      ↓
+Specific project's commands
+```
+
+Technically, `manage.py` sets up the project environment/settings before delegating to Django's command machinery.
+
+---
+
+# 9. Starting the Development Server
+
+Move into the project directory:
+
+```bash
+cd myproject
+```
+
+Then run:
+
+```bash
+python manage.py runserver
+```
+
+You may see output similar to:
+
+```text
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues.
+
+Starting development server at
+http://127.0.0.1:8000/
+```
+
+Congratulations.
+
+Your first Django development server is running.
+
+---
+
+# 10. Open the Browser
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+You should see Django's default welcome page.
+
+Something conceptually like:
+
+```text
+🎉 Congratulations!
+
+It worked!
+```
+
+The exact page can vary with Django versions.
+
+---
+
+# 11. What is the Development Server?
+
+When you execute:
+
+```bash
+python manage.py runserver
+```
+
+Django starts a **development server** on your computer.
+
+It allows you to test your application locally.
+
+The default address is generally:
+
+```text
+127.0.0.1:8000
+```
+
+---
+
+# 12. Understanding `127.0.0.1`
+
+`127.0.0.1` refers to your own computer through the loopback interface.
+
+It's commonly called:
+
+> **localhost**
+
+So these generally refer to the same local machine:
+
+```text
+127.0.0.1
+localhost
+```
+
+You can typically open:
+
+```text
+http://localhost:8000/
+```
+
+as well.
+
+---
+
+# 13. Understanding Port 8000
+
+A computer can run multiple network services.
+
+A **port** helps identify which service/network endpoint you're communicating with.
+
+Django's development server commonly uses:
+
+```text
+8000
+```
+
+So:
+
+```text
+127.0.0.1:8000
+```
+
+means:
+
+```text
+Computer: 127.0.0.1
+Port:     8000
+```
+
+---
+
+# 14. Can We Change the Port?
+
+Yes.
+
+For example:
+
+```bash
+python manage.py runserver 8080
+```
+
+Now Django will typically run at:
+
+```text
+http://127.0.0.1:8080/
+```
+
+You can also specify an address and port:
+
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
+
+We'll discuss what this means later when networking becomes relevant.
+
+---
+
+# 15. Stopping the Server
+
+When the server is running in your terminal, press:
+
+```text
+CTRL + C
+```
+
+This stops the development server.
+
+---
+
+# 16. Why Does Django Have a Development Server?
+
+Because during development you need to repeatedly test your application.
+
+Instead of configuring a production web server every time, Django provides a lightweight development server.
+
+You can:
+
+```text
+Write code
+   ↓
+Run server
+   ↓
+Open browser
+   ↓
+Test
+   ↓
+Modify code
+   ↓
+Refresh
+```
+
+This makes development convenient.
+
+### Important:
+
+> Django's development server is intended for development/testing, **not production deployment**.
+
+This is a good viva point.
+
+---
+
+# 17. Automatic Reloading
+
+When the development server is running, Django can detect many code changes and reload the development server automatically.
+
+For example:
+
+```text
+You modify views.py
+        ↓
+Save
+        ↓
+Django detects change
+        ↓
+Reloads
+```
+
+This is one reason development is convenient.
+
+---
+
+# 18. The `runserver` Command
+
+The basic command:
+
+```bash
+python manage.py runserver
+```
+
+means:
+
+> Start Django's development server.
+
+A teacher may ask:
+
+### "How do you run a Django project?"
+
+Answer:
+
+```bash
+python manage.py runserver
+```
+
+Then access the local server in your browser.
+
+---
+
+# 19. Creating a Project in a Specific Directory
+
+You can also specify where Django creates the project.
+
+For example:
+
+```bash
+django-admin startproject myproject .
+```
+
+Notice the:
+
+```text
+.
+```
+
+The dot means:
+
+> Create the project in the **current directory**.
+
+This is extremely useful because it changes the resulting structure.
+
+---
+
+# 20. Normal vs Dot Method
+
+### Method 1
+
+```bash
+django-admin startproject myproject
+```
+
+Structure:
+
+```text
+current/
+└── myproject/
+    ├── manage.py
+    └── myproject/
+```
+
+### Method 2
+
+```bash
+django-admin startproject myproject .
+```
+
+Structure:
+
+```text
+current/
+├── manage.py
+└── myproject/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+The second method is often convenient when you've already created a folder for the project.
+
+---
+
+# 21. Which One Should You Use in College?
+
+Both are valid.
+
+For a beginner, I recommend:
+
+```bash
+python -m django startproject myproject
+```
+
+Then:
+
+```bash
+cd myproject
+```
+
+Then:
+
+```bash
+python manage.py runserver
+```
+
+This makes the project structure easy to understand.
+
+Later, you'll become comfortable with:
+
+```bash
+django-admin startproject myproject .
+```
+
+---
+
+# 22. What Happens When You Visit `/`?
+
+Suppose your browser requests:
+
+```text
+http://127.0.0.1:8000/
+```
+
+The browser sends a request to Django.
+
+Django checks the project's URL configuration.
+
+Initially, Django has a default URL configuration that leads to the default welcome page.
+
+Conceptually:
+
+```text
+Browser
+   |
+   | GET /
+   ↓
+Django
+   |
+   ↓
+URL configuration
+   |
+   ↓
+Response
+   |
+   ↓
+Browser
+```
+
+We'll learn exactly how URL mapping works in **Unit II**.
+
+---
+
+# 23. What Does `startproject` Actually Create?
+
+The command:
+
+```bash
+python -m django startproject myproject
+```
+
+creates the basic files needed for a Django project.
+
+The important ones are:
+
+```text
+manage.py
+settings.py
+urls.py
+asgi.py
+wsgi.py
+```
+
+For now, just know their broad purposes:
+
+| File          | Purpose                      |
+| ------------- | ---------------------------- |
+| `manage.py`   | Project command-line utility |
+| `settings.py` | Project configuration        |
+| `urls.py`     | URL routing configuration    |
+| `asgi.py`     | ASGI deployment interface    |
+| `wsgi.py`     | WSGI deployment interface    |
+
+We'll study them properly in **Module 4**.
+
+---
+
+# 24. Important: Project ≠ App
+
+At this point, you have created a:
+
+```text
+PROJECT
+```
+
+You have **not yet created an app**.
+
+Later you'll run:
+
+```bash
+python manage.py startapp students
+```
+
+and get:
+
+```text
+students/
+```
+
+So:
+
+```text
+startproject
+     ↓
+Creates project
+
+startapp
+     ↓
+Creates app
+```
+
+This distinction is extremely important.
+
+---
+
+# 25. Complete Practical — Create Your First Project
+
+If your teacher gives you a blank computer and says:
+
+> "Create and run a Django project named College."
+
+You should be able to do:
+
+### Step 1 — Create folder
+
+```text
+DjangoCourse
+```
+
+### Step 2 — Open terminal
+
+### Step 3 — Create virtual environment
+
+```bash
+python -m venv venv
+```
+
+### Step 4 — Activate
+
+```cmd
+venv\Scripts\activate
+```
+
+### Step 5 — Install Django
+
+```bash
+python -m pip install django
+```
+
+### Step 6 — Create project
+
+```bash
+python -m django startproject College
+```
+
+### Step 7 — Enter project
+
+```bash
+cd College
+```
+
+### Step 8 — Run server
+
+```bash
+python manage.py runserver
+```
+
+### Step 9 — Open browser
+
+```text
+http://127.0.0.1:8000/
+```
+
+That's a complete basic Django project setup.
+
+---
+
+# 26. Common Errors
+
+## Error 1 — Wrong directory
+
+Suppose you run:
+
+```bash
+python manage.py runserver
+```
+
+and get:
+
+```text
+can't open file 'manage.py'
+```
+
+Likely you're not inside the directory containing `manage.py`.
+
+Check:
+
+```bash
+dir
+```
+
+on Windows.
+
+You should see:
+
+```text
+manage.py
+```
+
+Then run:
+
+```bash
+python manage.py runserver
+```
+
+---
+
+# 27. Error 2 — Django Not Installed
+
+You might get:
+
+```text
+No module named django
+```
+
+Check:
+
+```bash
+python -m django --version
+```
+
+If it doesn't work, activate your virtual environment and install Django:
+
+```bash
+python -m pip install django
+```
+
+---
+
+# 28. Error 3 — Port Already in Use
+
+You might see an error indicating that port `8000` is already in use.
+
+Use another port:
+
+```bash
+python manage.py runserver 8001
+```
+
+Then visit:
+
+```text
+http://127.0.0.1:8001/
+```
+
+---
+
+# 29. Viva Questions
+
+Now the important part.
+
+### Q1. What command is used to create a Django project?
+
+Answer:
+
+```bash
+django-admin startproject project_name
+```
+
+or:
+
+```bash
+python -m django startproject project_name
+```
+
+---
+
+### Q2. What is `manage.py`?
+
+Answer:
+
+> `manage.py` is a project-specific command-line utility used to perform administrative tasks for a Django project.
+
+---
+
+### Q3. What command starts the Django development server?
+
+```bash
+python manage.py runserver
+```
+
+---
+
+### Q4. What is the default port of Django's development server?
+
+> **8000**
+
+---
+
+### Q5. What is `127.0.0.1`?
+
+> It is the loopback address that refers to the local machine.
+
+---
+
+### Q6. What is localhost?
+
+> Localhost refers to the current/local computer. `127.0.0.1` is a commonly used IPv4 loopback address for it.
+
+---
+
+### Q7. How do you stop the Django development server?
+
+> Press `Ctrl + C` in the terminal running the server.
+
+---
+
+### Q8. Is Django's development server suitable for production?
+
+> No. It is intended for development and testing, not production deployment.
+
+---
+
+### Q9. What is the difference between `startproject` and `startapp`?
+
+> `startproject` creates the structure of a Django project, while `startapp` creates an application within a Django project.
+
+---
+
+### Q10. What is the purpose of `settings.py`?
+
+> `settings.py` contains configuration settings for the Django project.
+
+---
+
+### Q11. What is the purpose of `urls.py`?
+
+> `urls.py` contains URL configuration used to map URL patterns to views or other URL configurations.
+
+---
+
+# 30. Viva Trap Question ⚠️
+
+### Teacher:
+
+> "Does `python manage.py runserver` create a Django project?"
+
+**Answer:**
+
+> No. `runserver` starts the development server for an existing Django project. A project is created using `startproject`.
+
+---
+
+# 31. Another Trap Question
+
+### Teacher:
+
+> "Is `manage.py` the Django framework?"
+
+**Answer:**
+
+> No. `manage.py` is a command-line utility generated for a specific Django project. Django itself is the Python web framework.
+
+---
+
+# 32. Coding Questions You Should Now Be Able to Solve
+
+### Question 1
+
+**Create a Django project called `school`.**
+
+```bash
+python -m django startproject school
+```
+
+---
+
+### Question 2
+
+**Start the development server.**
+
+```bash
+python manage.py runserver
+```
+
+---
+
+### Question 3
+
+**Start the server on port 9000.**
+
+```bash
+python manage.py runserver 9000
+```
+
+---
+
+### Question 4
+
+**Create a project in the current directory.**
+
+```bash
+python -m django startproject school .
+```
+
+---
+
+### Question 5
+
+**Check your Django version.**
+
+```bash
+python -m django --version
+```
+
+---
+
+# 🧠 Module 3 Summary
+
+You should now understand:
+
+```text
+django-admin / python -m django
+             ↓
+       startproject
+             ↓
+        Django Project
+             ↓
+        manage.py
+             ↓
+         runserver
+             ↓
+     127.0.0.1:8000
+             ↓
+          Browser
+```
+
+### Most important commands:
+
+```bash
+python -m django startproject myproject
+```
+
+```bash
+cd myproject
+```
+
+```bash
+python manage.py runserver
+```
+
+```bash
+python manage.py runserver 8080
+```
+
+```bash
+python manage.py startapp myapp
+```
+
+*(We'll use `startapp` properly in Module 5.)*
+
+---
+
+# 🎯 Module 3 Practical Challenge
+
+Without looking above, imagine your teacher asks:
+
+> **"Create a Django project named `College`, start the development server, and run it on port 9000."**
+
+Write the commands in order.
+
+Then answer:
+
+1. What is `manage.py`?
+2. What is `django-admin`?
+3. What is the difference between `startproject` and `startapp`?
+4. What is the default Django development-server port?
+5. Is Django's development server used in production?
+6. What does the `.` mean in `startproject project_name .`?
+
+Once you're comfortable, say **“next”**.
+
+**Module 4 will be very important:** we'll take the project you just created and dissect **every file and folder**—`manage.py`, `settings.py`, `urls.py`, `asgi.py`, `wsgi.py`, `__init__.py`—so you know exactly what each one does and can answer structure-based viva questions.

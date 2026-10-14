@@ -1,0 +1,1446 @@
+# Module 26 — Django Model Fields & Field Options
+
+Now that you understand what a **Django model** is, we need to learn how to define its fields correctly.
+
+This module is especially important because model-field questions are very common in **coding rounds, exams, and viva**.
+
+---
+
+# 1. What Is a Model Field?
+
+A model field defines:
+
+1. What type of data can be stored
+2. How that data is represented in the database
+3. Some validation and behavior rules
+
+Example:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+```
+
+Here:
+
+```text
+name  → CharField
+age   → IntegerField
+email → EmailField
+```
+
+---
+
+# 2. Most Important Model Fields
+
+You should know these:
+
+| Field           | Used for                 |
+| --------------- | ------------------------ |
+| `CharField`     | Short text               |
+| `TextField`     | Long text                |
+| `IntegerField`  | Integers                 |
+| `FloatField`    | Floating-point numbers   |
+| `DecimalField`  | Precise decimal numbers  |
+| `BooleanField`  | True/False               |
+| `DateField`     | Date                     |
+| `DateTimeField` | Date + time              |
+| `TimeField`     | Time                     |
+| `EmailField`    | Email                    |
+| `URLField`      | URLs                     |
+| `FileField`     | Files                    |
+| `ImageField`    | Images                   |
+| `ForeignKey`    | Many-to-one relationship |
+
+We'll study `ForeignKey` separately in Module 31.
+
+---
+
+# 3. `CharField`
+
+Used for relatively short strings.
+
+```python
+name = models.CharField(max_length=100)
+```
+
+Example:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Possible values:
+
+```text
+Aman
+Rahul
+Priya
+Computer Science
+```
+
+You should normally specify:
+
+```python
+max_length
+```
+
+for `CharField`.
+
+---
+
+# 4. `TextField`
+
+Used for larger amounts of text.
+
+```python
+description = models.TextField()
+```
+
+Examples:
+
+```text
+Blog article
+Product description
+Student feedback
+Comment
+Biography
+```
+
+Example:
+
+```python
+class Product(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+```
+
+---
+
+# 5. `CharField` vs `TextField`
+
+Common viva question.
+
+| CharField                          | TextField                                 |
+| ---------------------------------- | ----------------------------------------- |
+| Generally used for shorter strings | Generally used for longer text            |
+| Usually specify `max_length`       | `max_length` is not required              |
+| Good for names, titles, usernames  | Good for descriptions, articles, comments |
+
+Simple rule:
+
+```text
+Name → CharField
+Description → TextField
+```
+
+---
+
+# 6. `IntegerField`
+
+Stores integers.
+
+```python
+age = models.IntegerField()
+```
+
+Example:
+
+```python
+class Student(models.Model):
+    age = models.IntegerField()
+```
+
+Values:
+
+```text
+18
+21
+50
+100
+```
+
+You can also add validation-related options:
+
+```python
+age = models.IntegerField(
+    validators=[MinValueValidator(18)]
+)
+```
+
+But we'll keep validators for later concepts.
+
+---
+
+# 7. `FloatField`
+
+Stores floating-point numbers.
+
+```python
+rating = models.FloatField()
+```
+
+Example:
+
+```python
+rating = models.FloatField()
+```
+
+Possible values:
+
+```text
+4.5
+3.14
+9.8
+```
+
+---
+
+# 8. `DecimalField`
+
+This is very important when precision matters.
+
+Example:
+
+```python
+price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)
+```
+
+### `max_digits`
+
+Total number of digits.
+
+### `decimal_places`
+
+Number of digits after the decimal point.
+
+For example:
+
+```text
+12345.67
+```
+
+has:
+
+```text
+7 total digits
+2 decimal places
+```
+
+So:
+
+```python
+models.DecimalField(
+    max_digits=7,
+    decimal_places=2
+)
+```
+
+can represent that value.
+
+---
+
+# 9. FloatField vs DecimalField
+
+Very common viva question.
+
+### Float
+
+```python
+price = models.FloatField()
+```
+
+Uses floating-point representation.
+
+### Decimal
+
+```python
+price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)
+```
+
+Provides decimal precision suitable for things such as monetary values.
+
+### Rule
+
+> For values where exact decimal precision matters, such as prices, `DecimalField` is generally preferred.
+
+---
+
+# 10. `BooleanField`
+
+Stores Boolean values:
+
+```text
+True
+False
+```
+
+Example:
+
+```python
+is_active = models.BooleanField()
+```
+
+More commonly:
+
+```python
+is_active = models.BooleanField(default=True)
+```
+
+Now new objects default to:
+
+```text
+is_active = True
+```
+
+---
+
+# 11. `DateField`
+
+Stores a date.
+
+```python
+birth_date = models.DateField()
+```
+
+Example:
+
+```text
+2004-08-15
+```
+
+---
+
+# 12. `DateTimeField`
+
+Stores both date and time.
+
+```python
+created_at = models.DateTimeField()
+```
+
+Example:
+
+```text
+2026-09-12 20:30:00
+```
+
+Very common:
+
+```python
+created_at = models.DateTimeField(
+    auto_now_add=True
+)
+```
+
+This records the creation time when the object is first created.
+
+---
+
+# 13. `auto_now_add`
+
+Example:
+
+```python
+created_at = models.DateTimeField(
+    auto_now_add=True
+)
+```
+
+When an object is created:
+
+```text
+Student created
+      ↓
+Django sets created_at
+```
+
+You generally don't manually provide the creation timestamp.
+
+---
+
+# 14. `auto_now`
+
+Example:
+
+```python
+updated_at = models.DateTimeField(
+    auto_now=True
+)
+```
+
+This updates the timestamp whenever the model is saved.
+
+Typical usage:
+
+```python
+created_at = models.DateTimeField(auto_now_add=True)
+updated_at = models.DateTimeField(auto_now=True)
+```
+
+Then:
+
+```text
+created_at → when created
+updated_at → when last saved
+```
+
+---
+
+# 15. `auto_now_add` vs `auto_now`
+
+Memorize this table:
+
+| Option              | Meaning                     |
+| ------------------- | --------------------------- |
+| `auto_now_add=True` | Set when object is created  |
+| `auto_now=True`     | Update when object is saved |
+
+Typical:
+
+```python
+created_at = models.DateTimeField(auto_now_add=True)
+updated_at = models.DateTimeField(auto_now=True)
+```
+
+---
+
+# 16. `TimeField`
+
+Stores only time.
+
+```python
+start_time = models.TimeField()
+```
+
+Example:
+
+```text
+10:30:00
+```
+
+---
+
+# 17. `EmailField`
+
+```python
+email = models.EmailField()
+```
+
+Useful for email addresses.
+
+It provides Django's email-oriented field behavior and validation.
+
+Example:
+
+```python
+class Student(models.Model):
+    email = models.EmailField()
+```
+
+---
+
+# 18. `URLField`
+
+Used for URLs.
+
+```python
+website = models.URLField()
+```
+
+Example:
+
+```text
+https://example.com
+```
+
+---
+
+# 19. `FileField`
+
+Used for file uploads.
+
+```python
+resume = models.FileField(
+    upload_to="resumes/"
+)
+```
+
+The uploaded file is stored according to Django's file-storage configuration, while the database stores information about the file.
+
+---
+
+# 20. `ImageField`
+
+Used for image uploads.
+
+```python
+profile_picture = models.ImageField(
+    upload_to="profiles/"
+)
+```
+
+It provides image-specific validation behavior.
+
+Typically, Pillow is required for `ImageField`.
+
+---
+
+# 21. Now the Most Important Part: Field Options
+
+Field type alone isn't enough.
+
+For example:
+
+```python
+name = models.CharField(max_length=100)
+```
+
+You can customize behavior:
+
+```python
+name = models.CharField(
+    max_length=100,
+    blank=True,
+    null=True
+)
+```
+
+Important options include:
+
+```text
+null
+blank
+default
+unique
+primary_key
+choices
+db_column
+```
+
+Let's understand them one by one.
+
+---
+
+# 22. `null`
+
+`null` controls whether the database can store SQL `NULL` for that field.
+
+Example:
+
+```python
+age = models.IntegerField(
+    null=True
+)
+```
+
+means the database can contain:
+
+```text
+NULL
+```
+
+for `age`.
+
+---
+
+# 23. `blank`
+
+`blank` controls whether the field is allowed to be empty during Django's validation process.
+
+Example:
+
+```python
+age = models.IntegerField(
+    blank=True
+)
+```
+
+means the field can be blank from Django's validation perspective.
+
+---
+
+# 24. `null` vs `blank`
+
+This is a **very common viva question**.
+
+### `null`
+
+Database-level concept.
+
+```python
+null=True
+```
+
+means the database can store `NULL`.
+
+### `blank`
+
+Validation-level concept.
+
+```python
+blank=True
+```
+
+means Django's validation can allow an empty value.
+
+So:
+
+```text
+null → database
+blank → validation
+```
+
+---
+
+# 25. Example of Both
+
+```python
+phone = models.CharField(
+    max_length=15,
+    null=True,
+    blank=True
+)
+```
+
+This means:
+
+```text
+Database → can store NULL
+Validation → can accept blank
+```
+
+However, for string fields such as `CharField` and `TextField`, Django convention generally prefers using an empty string rather than `NULL` for "no data", so `null=True` is often unnecessary.
+
+For exam purposes, remember the conceptual distinction first.
+
+---
+
+# 26. `default`
+
+Used to provide a default value.
+
+Example:
+
+```python
+is_active = models.BooleanField(
+    default=True
+)
+```
+
+If you create:
+
+```python
+student = Student()
+```
+
+without specifying `is_active`, Django uses:
+
+```text
+True
+```
+
+---
+
+# 27. Default With Integer
+
+```python
+marks = models.IntegerField(
+    default=0
+)
+```
+
+New records get:
+
+```text
+marks = 0
+```
+
+unless another value is provided.
+
+---
+
+# 28. Default With String
+
+```python
+status = models.CharField(
+    max_length=20,
+    default="pending"
+)
+```
+
+New objects default to:
+
+```text
+pending
+```
+
+---
+
+# 29. `unique`
+
+Used when a value must be unique across records.
+
+Example:
+
+```python
+email = models.EmailField(
+    unique=True
+)
+```
+
+Suppose the database contains:
+
+| id | email                                   |
+| -: | --------------------------------------- |
+|  1 | [aman@gmail.com](mailto:aman@gmail.com) |
+
+Trying to create another record with:
+
+```text
+aman@gmail.com
+```
+
+will violate the uniqueness constraint.
+
+---
+
+# 30. `unique=True` vs Primary Key
+
+Don't confuse them.
+
+### Primary key
+
+Uniquely identifies a record and serves as the table's primary identifier.
+
+### `unique=True`
+
+Requires values to be unique, but the field isn't necessarily the primary key.
+
+Example:
+
+```python
+email = models.EmailField(
+    unique=True
+)
+```
+
+Email values must be unique, but the model can still have its own primary key.
+
+---
+
+# 31. `primary_key=True`
+
+You can explicitly define a primary key:
+
+```python
+student_id = models.IntegerField(
+    primary_key=True
+)
+```
+
+Then Django uses:
+
+```text
+student_id
+```
+
+as the primary key.
+
+You generally don't need to do this because Django automatically provides a primary key if you don't define one.
+
+---
+
+# 32. Primary Key Rules
+
+A model can have:
+
+```text
+one primary key
+```
+
+For example:
+
+```python
+student_id = models.IntegerField(
+    primary_key=True
+)
+```
+
+You shouldn't define multiple independent `primary_key=True` fields in one model.
+
+---
+
+# 33. `choices`
+
+This is extremely useful.
+
+Suppose a student can have only:
+
+```text
+CSE
+ECE
+ME
+```
+
+You can define:
+
+```python
+COURSES = [
+    ("CSE", "Computer Science"),
+    ("ECE", "Electronics"),
+    ("ME", "Mechanical"),
+]
+```
+
+Then:
+
+```python
+course = models.CharField(
+    max_length=3,
+    choices=COURSES
+)
+```
+
+The first value is stored:
+
+```text
+CSE
+```
+
+The second is the human-readable label:
+
+```text
+Computer Science
+```
+
+---
+
+# 34. Choices Example
+
+```python
+class Student(models.Model):
+
+    COURSES = [
+        ("CSE", "Computer Science"),
+        ("ECE", "Electronics"),
+        ("ME", "Mechanical"),
+    ]
+
+    name = models.CharField(max_length=100)
+
+    course = models.CharField(
+        max_length=3,
+        choices=COURSES
+    )
+```
+
+This can also be used by Django forms/admin to present a selection.
+
+---
+
+# 35. `get_<field>_display()`
+
+When a field uses `choices`, Django provides a way to get the human-readable label.
+
+Suppose:
+
+```python
+student.course = "CSE"
+```
+
+Then:
+
+```python
+student.get_course_display()
+```
+
+returns:
+
+```text
+Computer Science
+```
+
+This is a useful practical/viva point.
+
+---
+
+# 36. `db_column`
+
+Normally Django derives the database column name from the model field name.
+
+You can customize it:
+
+```python
+student_name = models.CharField(
+    max_length=100,
+    db_column="student_name"
+)
+```
+
+This is an advanced option and is less commonly needed.
+
+---
+
+# 37. `verbose_name`
+
+You can give a human-readable name:
+
+```python
+name = models.CharField(
+    "Student Name",
+    max_length=100
+)
+```
+
+This is useful in Django admin and forms.
+
+You may also see:
+
+```python
+name = models.CharField(
+    max_length=100,
+    verbose_name="Student Name"
+)
+```
+
+---
+
+# 38. `help_text`
+
+Provides explanatory text for forms/admin.
+
+```python
+email = models.EmailField(
+    help_text="Enter your college email address."
+)
+```
+
+This can appear when Django generates forms/admin interfaces.
+
+---
+
+# 39. Complete Student Model
+
+Let's combine everything:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    COURSES = [
+        ("CSE", "Computer Science"),
+        ("ECE", "Electronics"),
+        ("ME", "Mechanical"),
+    ]
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    email = models.EmailField(
+        unique=True
+    )
+
+    age = models.IntegerField()
+
+    course = models.CharField(
+        max_length=3,
+        choices=COURSES
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    birth_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+```
+
+This model demonstrates:
+
+```text
+CharField
+EmailField
+IntegerField
+BooleanField
+DateField
+DateTimeField
+choices
+unique
+default
+null
+blank
+auto_now_add
+auto_now
+```
+
+---
+
+# 40. Model Field vs Form Field
+
+Don't confuse these.
+
+### Model field
+
+Defined in:
+
+```text
+models.py
+```
+
+Example:
+
+```python
+age = models.IntegerField()
+```
+
+### Form field
+
+Defined in:
+
+```text
+forms.py
+```
+
+Example:
+
+```python
+age = forms.IntegerField()
+```
+
+They are related concepts but serve different purposes.
+
+```text
+Model field → database/data model
+Form field  → user input/validation
+```
+
+---
+
+# 41. Does `max_length` Mean the Same Thing Everywhere?
+
+For a model `CharField`:
+
+```python
+name = models.CharField(max_length=100)
+```
+
+it defines the maximum length expected for that field and is also used by Django's validation/form generation.
+
+Database enforcement can vary by database/backend/version, so don't oversimplify this as "the database always physically rejects every longer value."
+
+For your exam:
+
+> `max_length` specifies the maximum length for a `CharField`.
+
+---
+
+# 42. Field Options Are Not All Validation
+
+This is important.
+
+For example:
+
+```python
+unique=True
+```
+
+is fundamentally a database uniqueness constraint, although Django can also perform validation around it in appropriate contexts.
+
+Similarly:
+
+```python
+null=True
+```
+
+is primarily about database storage.
+
+So don't say:
+
+> "Every model field option is a validator."
+
+They control different aspects of model/database behavior.
+
+---
+
+# 43. What Happens After Changing a Model?
+
+Suppose you initially have:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Then add:
+
+```python
+age = models.IntegerField()
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Flow:
+
+```text
+Change models.py
+      ↓
+makemigrations
+      ↓
+Migration file
+      ↓
+migrate
+      ↓
+Database schema updated
+```
+
+---
+
+# 44. Important Coding Question
+
+### Create a Product model containing:
+
+* Name
+* Description
+* Price
+* Stock
+* Available status
+* Created time
+
+Answer:
+
+```python
+from django.db import models
+
+
+class Product(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    description = models.TextField()
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    stock = models.IntegerField(
+        default=0
+    )
+
+    is_available = models.BooleanField(
+        default=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+```
+
+---
+
+# 45. Coding Question
+
+### Create a UserProfile model where:
+
+* username must be unique
+* age is optional
+* active status defaults to True
+
+```python
+class UserProfile(models.Model):
+
+    username = models.CharField(
+        max_length=50,
+        unique=True
+    )
+
+    age = models.IntegerField(
+        null=True,
+        blank=True
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+```
+
+---
+
+# 46. Coding Question
+
+### Create an Employee model with department choices.
+
+```python
+class Employee(models.Model):
+
+    DEPARTMENTS = [
+        ("IT", "Information Technology"),
+        ("HR", "Human Resources"),
+        ("FIN", "Finance"),
+    ]
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    department = models.CharField(
+        max_length=3,
+        choices=DEPARTMENTS
+    )
+```
+
+To get the displayed department:
+
+```python
+employee.get_department_display()
+```
+
+---
+
+# 47. Viva Masterclass
+
+### Q1. What is a model field?
+
+> A model field defines the type and behavior of a piece of data stored by a Django model.
+
+---
+
+### Q2. Difference between `CharField` and `TextField`?
+
+> `CharField` is generally used for shorter strings and requires `max_length`, while `TextField` is intended for larger amounts of text.
+
+---
+
+### Q3. Difference between `FloatField` and `DecimalField`?
+
+> `FloatField` uses floating-point representation, while `DecimalField` provides controlled decimal precision and is generally preferred for values such as monetary amounts.
+
+---
+
+### Q4. What is `null=True`?
+
+> It allows the database to store SQL `NULL` for the field.
+
+---
+
+### Q5. What is `blank=True`?
+
+> It allows the field to be blank during Django's validation process.
+
+---
+
+### Q6. Difference between `null` and `blank`?
+
+> `null` concerns database storage, while `blank` concerns Django validation.
+
+---
+
+### Q7. What does `default` do?
+
+> It specifies the value Django should use when a value isn't provided.
+
+---
+
+### Q8. What does `unique=True` do?
+
+> It ensures that values for that field are unique across records.
+
+---
+
+### Q9. What does `primary_key=True` do?
+
+> It makes the field the primary key of the model.
+
+---
+
+### Q10. What is `choices`?
+
+> `choices` restricts a field to a predefined set of values and can provide human-readable labels.
+
+---
+
+### Q11. What does `auto_now_add=True` do?
+
+> It automatically sets the field when the object is first created.
+
+---
+
+### Q12. What does `auto_now=True` do?
+
+> It automatically updates the field whenever the object is saved.
+
+---
+
+### Q13. What does `DecimalField` require?
+
+Usually:
+
+```python
+max_digits
+decimal_places
+```
+
+Example:
+
+```python
+models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)
+```
+
+---
+
+### Q14. How do you get the display value of a choices field?
+
+```python
+student.get_course_display()
+```
+
+---
+
+# 48. Quick Revision Table
+
+| Concept             | Code                                            |
+| ------------------- | ----------------------------------------------- |
+| Short text          | `CharField(max_length=100)`                     |
+| Long text           | `TextField()`                                   |
+| Integer             | `IntegerField()`                                |
+| Decimal             | `DecimalField(max_digits=10, decimal_places=2)` |
+| Boolean             | `BooleanField()`                                |
+| Date                | `DateField()`                                   |
+| Date + time         | `DateTimeField()`                               |
+| Email               | `EmailField()`                                  |
+| URL                 | `URLField()`                                    |
+| Optional validation | `blank=True`                                    |
+| Database NULL       | `null=True`                                     |
+| Default             | `default=...`                                   |
+| Unique              | `unique=True`                                   |
+| Primary key         | `primary_key=True`                              |
+| Choices             | `choices=...`                                   |
+| Created timestamp   | `auto_now_add=True`                             |
+| Updated timestamp   | `auto_now=True`                                 |
+
+---
+
+# 49. The 5 Things Most Likely to Be Asked
+
+If your teacher gives you a model coding question, pay particular attention to:
+
+### 1. Field type
+
+```python
+models.CharField(...)
+```
+
+### 2. `max_length`
+
+```python
+max_length=100
+```
+
+### 3. Optional field
+
+```python
+blank=True
+```
+
+and understand when `null=True` is appropriate.
+
+### 4. Default
+
+```python
+default=True
+```
+
+### 5. Unique
+
+```python
+unique=True
+```
+
+These appear constantly in Django model questions.
+
+---
+
+# Module 26 Summary
+
+The most important concepts:
+
+```text
+CharField       → short text
+TextField       → long text
+IntegerField    → integer
+FloatField      → floating-point
+DecimalField    → precise decimal
+BooleanField    → True/False
+DateField       → date
+DateTimeField   → date + time
+EmailField      → email
+URLField        → URL
+```
+
+And:
+
+```text
+null     → database NULL
+blank    → Django validation
+default  → default value
+unique   → unique values
+primary_key → primary key
+choices  → predefined options
+```
+
+Plus:
+
+```text
+auto_now_add → creation time
+auto_now     → update time
+```
+
+And the key distinction:
+
+> **Model field → database/data structure**
+
+> **Form field → user input/validation**
+
+---
+
+## Next → Module 27: Django Migrations in Depth
+
+We'll learn exactly what migrations do, how `0001_initial.py` works, why migration files are needed, `makemigrations` vs `migrate`, `showmigrations`, `sqlmigrate`, migration dependencies, what happens when models change, and the common migration errors you'll encounter while coding.

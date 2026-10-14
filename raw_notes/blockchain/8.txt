@@ -1,0 +1,1195 @@
+# MODULE 8 — SHA & CRYPTOGRAPHIC HASH FUNCTIONS 🔐
+
+## This one is IMPORTANT for your exam
+
+Yes — **now we will properly study SHA**, especially **SHA-256**, because your PPT explicitly says:
+
+> **SHA-256 is used in Bitcoin mining to construct the Bitcoin blockchain.** 
+
+Your book also has an entire chapter on **Cryptographic Hash Functions**, including applications, security requirements, SHA, and SHA-3. 
+
+---
+
+# 1. First: What is a Hash Function?
+
+A hash function takes an input of arbitrary size and produces a **fixed-size output**, called a:
+
+* Hash value
+* Hash code
+* Message digest
+
+Think:
+
+```text
+        INPUT
+   "Hello Aman"
+        ↓
+   HASH FUNCTION
+        ↓
+  256-bit output
+```
+
+If the input is:
+
+```text
+Hello
+```
+
+you get one hash.
+
+If the input is:
+
+```text
+Hello!
+```
+
+you get a completely different hash.
+
+---
+
+# 2. Hash ≠ Encryption ⭐⭐⭐⭐⭐
+
+This is one of the most important concepts.
+
+### Encryption
+
+```text
+Plaintext
+   ↓
+Encryption + Key
+   ↓
+Ciphertext
+   ↓
+Decryption + Key
+   ↓
+Plaintext
+```
+
+You can recover the original message.
+
+### Hashing
+
+```text
+Message
+   ↓
+Hash
+   ↓
+Digest
+```
+
+Normally, you **do not decrypt a hash to get the original message**.
+
+Therefore:
+
+> **Encryption is reversible with the appropriate key; cryptographic hashing is designed as a one-way operation.**
+
+---
+
+# 3. Example
+
+Suppose:
+
+```text
+Input = "HELLO"
+```
+
+SHA-256 generates:
+
+```text
+256-bit digest
+```
+
+Now:
+
+```text
+Input = "hello"
+```
+
+Even the tiny change:
+
+```text
+H → h
+```
+
+produces a completely different digest.
+
+This property is related to the **avalanche effect**.
+
+---
+
+# 4. What is SHA?
+
+SHA stands for:
+
+> **Secure Hash Algorithm**
+
+Your PPT lists several generations:
+
+```text
+SHA
+│
+├── SHA-0
+│
+├── SHA-1
+│
+├── SHA-2
+│    ├── SHA-224
+│    ├── SHA-256
+│    ├── SHA-384
+│    └── SHA-512
+│
+└── SHA-3
+     ├── SHA3-224
+     ├── SHA3-256
+     ├── SHA3-384
+     └── SHA3-512
+```
+
+
+
+---
+
+# 5. SHA-1 vs SHA-2 vs SHA-3 ⭐⭐⭐⭐⭐
+
+### SHA-1
+
+Produces:
+
+$$
+160\text{-bit hash}
+$$
+
+It is now considered insecure and has been phased out in favor of SHA-2. 
+
+### SHA-2
+
+Includes:
+
+* SHA-224
+* **SHA-256**
+* SHA-384
+* SHA-512
+
+
+
+### SHA-3
+
+Includes:
+
+* SHA3-224
+* SHA3-256
+* SHA3-384
+* SHA3-512
+
+SHA-3 is based on **Keccak** and uses a **sponge construction**, unlike the Merkle-Damgård construction used by SHA-2. 
+
+---
+
+# 6. SHA-256 ⭐⭐⭐⭐⭐⭐⭐
+
+This is the one I want you to know **very well**.
+
+### SHA-256 means:
+
+> SHA family → SHA-2 → 256-bit output.
+
+Your book's SHA parameter table gives:
+
+| Algorithm   |   Block Size |   Word Size |       Digest |
+| ----------- | -----------: | ----------: | -----------: |
+| SHA-1       |     512 bits |     32 bits |     160 bits |
+| **SHA-256** | **512 bits** | **32 bits** | **256 bits** |
+| SHA-384     |    1024 bits |     64 bits |     384 bits |
+| SHA-512     |    1024 bits |     64 bits |     512 bits |
+
+
+
+### Memorize:
+
+> **SHA-256 → 512-bit blocks → 256-bit output → 32-bit words**
+
+---
+
+# 7. SHA-256 Overall Working ⭐⭐⭐⭐⭐⭐⭐
+
+This is the most important diagram:
+
+```text
+                 INPUT MESSAGE
+                      │
+                      ↓
+                 PRE-PROCESSING
+                      │
+                ┌─────┴─────┐
+                ↓           ↓
+             Padding      Length
+                │
+                └─────┬─────┘
+                      ↓
+              512-BIT BLOCKS
+                      │
+                      ↓
+             INITIAL HASH VALUES
+                      │
+                      ↓
+              MESSAGE SCHEDULE
+                      │
+                      ↓
+             64 COMPRESSION ROUNDS
+                      │
+                      ↓
+            INTERMEDIATE HASH VALUE
+                      │
+                 Next block
+                      ↓
+                   Repeat
+                      │
+                      ↓
+             FINAL 256-BIT HASH
+```
+
+Your PPT explicitly describes SHA-256 as a **Merkle-Damgård construction**, dividing the input into 512-bit blocks and processing them through the compression function. 
+
+---
+
+# 8. Step 1 — Padding ⭐⭐⭐⭐⭐
+
+Suppose the message isn't exactly a multiple of 512 bits.
+
+We need to make it fit.
+
+The PPT says padding adjusts the message so that it can be processed in **512-bit blocks**. 
+
+The basic idea is:
+
+```text
+Original message
+       ↓
+Append 1 bit
+       ↓
+Append 0 bits
+       ↓
+Append message length
+       ↓
+Multiple of 512 bits
+```
+
+### Important:
+
+The final length information is included so that the original message length is preserved as part of the padded representation.
+
+---
+
+# 9. Simple Example of Padding
+
+Suppose:
+
+```text
+Message = "abc"
+```
+
+That's:
+
+$$
+3\times8=24\text{ bits}
+$$
+
+We don't simply add random zeros.
+
+We append:
+
+```text
+abc
++
+1
++
+zeros
++
+original length
+```
+
+so the complete block becomes:
+
+```text
+512 bits
+```
+
+The book uses similar SHA examples to demonstrate message padding and length encoding. 
+
+---
+
+# 10. Step 2 — Divide Into 512-Bit Blocks
+
+After padding:
+
+```text
+Message
+   ↓
+512-bit block 1
+512-bit block 2
+512-bit block 3
+...
+512-bit block N
+```
+
+The PPT explicitly says the padded message is parsed into equal **512-bit blocks**. 
+
+---
+
+# 11. Step 3 — Initial Hash Values ⭐⭐⭐⭐
+
+SHA-256 starts with **eight 32-bit words**.
+
+Therefore:
+
+$$
+8\times32=256\text{ bits}
+$$
+
+The PPT says the initial hash values consist of eight 32-bit words derived from the fractional parts of the square roots of the first eight prime numbers. 
+
+Conceptually:
+
+```text
+H0 H1 H2 H3 H4 H5 H6 H7
+│  │  │  │  │  │  │  │
+└──┴──┴──┴──┴──┴──┴──┴──→ 256 bits
+```
+
+---
+
+# 12. Why Eight Working Variables?
+
+SHA-256 has:
+
+```text
+a
+b
+c
+d
+e
+f
+g
+h
+```
+
+These are the **eight working variables**.
+
+The PPT explicitly identifies these as the registers for the eight working variables. 
+
+So remember:
+
+> **SHA-256 = 8 working variables × 32 bits = 256 bits**
+
+---
+
+# 13. Step 4 — Message Schedule ⭐⭐⭐⭐⭐
+
+For every 512-bit message block:
+
+```text
+512 bits
+   ↓
+16 × 32-bit words
+```
+
+These initially give:
+
+$$
+W_0,W_1,\ldots,W_{15}
+$$
+
+Then additional words are generated until we have:
+
+$$
+W_0,W_1,\ldots,W_{63}
+$$
+
+So:
+
+> **64 words are used during the 64 rounds.**
+
+Your PPT explicitly mentions preparing the message schedule before the compression process. 
+
+---
+
+# 14. Step 5 — 64 Rounds ⭐⭐⭐⭐⭐⭐⭐
+
+This is extremely important.
+
+For each 512-bit block:
+
+> **SHA-256 performs 64 rounds.**
+
+Your PPT explicitly states that the compression function runs **64 times**. 
+
+Conceptually:
+
+```text
+Round 0
+   ↓
+Round 1
+   ↓
+Round 2
+   ↓
+...
+   ↓
+Round 63
+```
+
+Therefore:
+
+$$
+64\text{ rounds}
+$$
+
+---
+
+# 15. What Happens in Each Round?
+
+The SHA-256 round uses:
+
+* Working variables \(a,b,c,d,e,f,g,h\)
+* Message word \(W_t\)
+* Round constant \(K_t\)
+* **Ch**
+* **Maj**
+* **Σ0**
+* **Σ1**
+
+Your PPT specifically mentions these components. 
+
+---
+
+# 16. Ch — Choose Function
+
+The **Ch** function is called the **Choose** function.
+
+Conceptually:
+
+> For each bit position, choose a bit from one of two inputs depending on a third input.
+
+Formula:
+
+$$
+Ch(e,f,g)=(e\land f)\oplus(\neg e\land g)
+$$
+
+Don't panic about the formula.
+
+Think:
+
+```text
+e decides:
+
+if e = 1 → choose f
+if e = 0 → choose g
+```
+
+---
+
+# 17. Maj — Majority Function
+
+**Maj = Majority**
+
+Formula:
+
+$$
+Maj(a,b,c)
+=
+(a\land b)\oplus(a\land c)\oplus(b\land c)
+$$
+
+The output bit is essentially determined by the majority among:
+
+```text
+a
+b
+c
+```
+
+Example:
+
+```text
+a = 1
+b = 1
+c = 0
+
+Majority = 1
+```
+
+Your PPT states that **Maj and Ch are applied bitwise**. 
+
+---
+
+# 18. Σ0 and Σ1
+
+The uppercase Sigma functions perform combinations of:
+
+* Bitwise rotations
+* XOR operations
+
+Your PPT describes \(\Sigma_0\) and \(\Sigma_1\) as performing bitwise rotations. 
+
+For exam-level understanding:
+
+> **Σ functions create additional mixing of the bits.**
+
+You don't necessarily need to memorize the exact rotation constants unless your professor specifically requires the SHA-256 mathematical round formula.
+
+---
+
+# 19. Round Constants — K
+
+Every round has a constant:
+
+$$
+K_t
+$$
+
+So:
+
+```text
+Round 0 → K0
+Round 1 → K1
+...
+Round 63 → K63
+```
+
+The PPT explicitly mentions round constants being added in the main compression loop. 
+
+---
+
+# 20. The Main SHA-256 Round Formula ⭐⭐⭐⭐⭐
+
+If your professor wants mathematical detail, know this.
+
+For each round:
+
+$$
+T_1=h+\Sigma_1(e)+Ch(e,f,g)+K_t+W_t
+$$
+
+and:
+
+$$
+T_2=\Sigma_0(a)+Maj(a,b,c)
+$$
+
+Then the variables are updated:
+
+$$
+h=g
+$$
+
+$$
+g=f
+$$
+
+$$
+f=e
+$$
+
+$$
+e=d+T_1
+$$
+
+$$
+d=c
+$$
+
+$$
+c=b
+$$
+
+$$
+b=a
+$$
+
+$$
+a=T_1+T_2
+$$
+
+All additions are modulo:
+
+$$
+2^{32}
+$$
+
+### This is the **deep 10-mark level**.
+
+Don't worry if it looks complicated at first. The important thing is to understand what each part does.
+
+---
+
+# 21. Why So Much Mixing?
+
+Because SHA needs strong cryptographic properties.
+
+A tiny change in the input should cause a huge change in the final output.
+
+This is the:
+
+# **Avalanche Effect** ⭐⭐⭐⭐⭐
+
+Example:
+
+```text
+Input 1:
+HELLO
+       ↓ SHA-256
+Hash A
+
+Input 2:
+HELLo
+       ↓ SHA-256
+Hash B
+```
+
+Changing one character can cause many output bits to change.
+
+The book demonstrates this type of behavior for SHA-512, where changing the input from `"abc"` to `"cbc"` produced hashes differing in about half of their bit positions. 
+
+---
+
+# 22. Security Requirements of a Cryptographic Hash ⭐⭐⭐⭐⭐
+
+This is a **very likely 5-mark question**.
+
+Three important resistance properties are:
+
+### 1. Preimage resistance
+
+Given:
+
+$$
+h
+$$
+
+it should be computationally difficult to find:
+
+$$
+M
+$$
+
+such that:
+
+$$
+H(M)=h
+$$
+
+In simple words:
+
+> Given a hash, it should be difficult to find the original input.
+
+---
+
+# 23. Second-Preimage Resistance
+
+Given:
+
+```text
+Message M1
+Hash H(M1)
+```
+
+it should be difficult to find a **different** message \(M_2\) such that:
+
+$$
+H(M_1)=H(M_2)
+$$
+
+So:
+
+> Given one specific message, it should be difficult to find another message having the same hash.
+
+---
+
+# 24. Collision Resistance ⭐⭐⭐⭐⭐
+
+A collision occurs when:
+
+$$
+M_1\neq M_2
+$$
+
+but:
+
+$$
+H(M_1)=H(M_2)
+$$
+
+Example:
+
+```text
+Message A ──→ HASH ──→ ABC123
+
+Message B ──→ HASH ──→ ABC123
+```
+
+That's a collision.
+
+A secure hash function should make finding such a pair computationally difficult.
+
+Your book explicitly lists **collision resistance, preimage resistance and second-preimage resistance** among the key hash-function security properties. 
+
+---
+
+# 25. Preimage vs Second Preimage vs Collision
+
+🔥 **Memorize this table.**
+
+| Property            | Given                    | Need to find                              |
+| ------------------- | ------------------------ | ----------------------------------------- |
+| **Preimage**        | Hash \(h\)               | Any message producing \(h\)               |
+| **Second preimage** | Specific message \(M_1\) | Different \(M_2\) with same hash          |
+| **Collision**       | Nothing specific         | Any two different messages with same hash |
+
+---
+
+# 26. SHA-256 in Bitcoin ⭐⭐⭐⭐⭐⭐⭐
+
+This is extremely important for **Blockchain**.
+
+Your PPT explicitly states:
+
+> **SHA-256 is used in Bitcoin mining to construct the Bitcoin blockchain.** 
+
+Conceptually:
+
+```text
+Transactions
+     ↓
+Candidate Block
+     ↓
+Hash calculations
+     ↓
+SHA-256
+     ↓
+Proof of Work
+     ↓
+Valid Block
+```
+
+Bitcoin's PoW involves repeatedly computing hashes while searching for a value that satisfies the network's difficulty target.
+
+---
+
+# 27. SHA and Blockchain Block Linking
+
+A blockchain uses hashes to create a tamper-evident chain.
+
+Conceptually:
+
+```text
+BLOCK 1
+ ├── Transactions
+ └── Hash ─────────────┐
+                       ↓
+BLOCK 2                │
+ ├── Previous Hash ◄───┘
+ ├── Transactions
+ └── Hash ─────────────┐
+                       ↓
+BLOCK 3                │
+ ├── Previous Hash ◄───┘
+ └── Hash
+```
+
+If Block 1 changes:
+
+```text
+Block 1 data changes
+       ↓
+Block 1 hash changes
+       ↓
+Block 2's previous-hash reference no longer matches
+       ↓
+Chain inconsistency becomes detectable
+```
+
+Your blockchain PPT states that cryptographic protocols, including hash functions, play a vital role in blockchain integrity. 
+
+---
+
+# 28. SHA + Digital Signature
+
+SHA isn't only used in mining.
+
+It is also used with digital signatures.
+
+For example:
+
+```text
+Message
+   ↓
+SHA-256
+   ↓
+256-bit digest
+   ↓
+RSA/signature algorithm
+   ↓
+Digital Signature
+```
+
+The book describes the common RSA/SHA-256 digital-signature flow: SHA-256 generates a 256-bit message digest, which is then signed using the sender's private key; the receiver verifies it using the sender's public key and compares the digest. 
+
+---
+
+# 29. SHA-256 vs SHA-3 ⭐⭐⭐⭐⭐
+
+This is another possible 5-marker.
+
+| SHA-256                     | SHA-3                                |
+| --------------------------- | ------------------------------------ |
+| Member of SHA-2             | Separate SHA family                  |
+| Merkle-Damgård construction | Sponge construction                  |
+| 256-bit output              | SHA3-256 gives 256-bit output        |
+| 512-bit blocks              | Sponge-based design                  |
+| Widely used in Bitcoin      | Designed as a complementary standard |
+
+Your PPT explicitly describes SHA-256 as a Merkle-Damgård construction and SHA-3 as using Keccak's sponge construction.  
+
+---
+
+# 30. SHA-3 — Understand the Basic Idea
+
+You don't need to go as deep into SHA-3 as SHA-256 for your blockchain syllabus, but know:
+
+```text
+Input
+  ↓
+Padding
+  ↓
+Sponge
+  ↓
+Absorbing phase
+  ↓
+Squeezing phase
+  ↓
+Output
+```
+
+The book describes the sponge construction as processing fixed-size input blocks and then producing output through its squeezing process. 
+
+---
+
+# 31. SHA-256 vs AES
+
+Another important distinction:
+
+| SHA-256                                      | AES                  |
+| -------------------------------------------- | -------------------- |
+| Hash function                                | Symmetric encryption |
+| One-way                                      | Reversible with key  |
+| 256-bit output                               | 128-bit block        |
+| No encryption key required for basic hashing | Uses secret key      |
+| Integrity/fingerprinting                     | Confidentiality      |
+| Used in Bitcoin PoW                          | Used to encrypt data |
+
+### Remember:
+
+> **AES hides data.**
+
+> **SHA fingerprints data.**
+
+---
+
+# 32. SHA-256 vs Digital Signature
+
+Another common confusion:
+
+```text
+SHA-256:
+Message → Hash
+
+Digital Signature:
+Message → Hash → Sign digest with private key
+```
+
+Therefore:
+
+> **SHA-256 alone is NOT a digital signature.**
+
+It can be a component of a digital-signature scheme.
+
+---
+
+# 🔥 33. 10-MARK ANSWER — "Explain SHA-256"
+
+If this appears, follow this structure.
+
+### Introduction
+
+> SHA-256 is a member of the SHA-2 family of cryptographic hash functions that produces a 256-bit message digest. It processes messages in 512-bit blocks using a Merkle-Damgård construction. 
+
+### Step 1 — Padding
+
+Adjust the message so it can be processed in 512-bit blocks.
+
+### Step 2 — Parsing
+
+Divide the padded message into 512-bit blocks.
+
+### Step 3 — Initialization
+
+Initialize eight 32-bit hash values.
+
+### Step 4 — Message schedule
+
+Prepare the message schedule.
+
+### Step 5 — Compression
+
+Process each block through **64 rounds** using:
+
+* \(a,b,c,d,e,f,g,h\)
+* \(W_t\)
+* \(K_t\)
+* Ch
+* Maj
+* Σ0
+* Σ1
+
+### Step 6 — Update hash
+
+The output of each block is combined with the current intermediate hash value.
+
+### Step 7 — Final output
+
+After all blocks are processed:
+
+$$
+256\text{-bit message digest}
+$$
+
+The PPT lays out this preprocessing, initialization, 64-round compression and intermediate-hash process. 
+
+---
+
+# 🧠 34. SHA-256 MASTER DIAGRAM
+
+Memorize this diagram for the exam:
+
+```text
+                    MESSAGE
+                       │
+                       ↓
+                  PADDING
+                       │
+                       ↓
+               512-BIT BLOCKS
+                       │
+                       ↓
+             INITIAL HASH VALUES
+             H0 H1 H2 H3 H4 H5 H6 H7
+                       │
+                       ↓
+              MESSAGE SCHEDULE
+              W0 → W63
+                       │
+                       ↓
+              WORKING VARIABLES
+              a b c d e f g h
+                       │
+                       ↓
+             ┌──────────────────┐
+             │    64 ROUNDS     │
+             │                  │
+             │   Ch             │
+             │   Maj            │
+             │   Σ0             │
+             │   Σ1             │
+             │   Wt             │
+             │   Kt             │
+             └────────┬─────────┘
+                      ↓
+             INTERMEDIATE HASH
+                      │
+                 Next block
+                      ↓
+                    REPEAT
+                      │
+                      ↓
+               256-BIT DIGEST
+```
+
+---
+
+# 🚨 35. NUMBERS YOU MUST MEMORIZE
+
+This is the **SHA-256 number sheet**:
+
+| Parameter          |        SHA-256 |
+| ------------------ | -------------: |
+| Output/digest      |   **256 bits** |
+| Block size         |   **512 bits** |
+| Word size          |    **32 bits** |
+| Working variables  |          **8** |
+| Rounds             |         **64** |
+| Initial hash words | **8 × 32-bit** |
+| Message schedule   |   **64 words** |
+
+The PPT directly supports the 512-bit blocks, eight 32-bit initial values, eight working variables and 64 rounds.  
+
+---
+
+# 🎯 36. HIGH-PRIORITY EXAM QUESTIONS
+
+## 5 Marks
+
+### ⭐⭐⭐⭐⭐
+
+**What is a cryptographic hash function? Explain its properties.**
+
+### ⭐⭐⭐⭐⭐
+
+**Explain SHA-256.**
+
+### ⭐⭐⭐⭐⭐
+
+**What are preimage, second-preimage and collision resistance?**
+
+### ⭐⭐⭐⭐⭐
+
+**Explain SHA-256 applications in blockchain.**
+
+### ⭐⭐⭐⭐
+
+**Differentiate SHA-1, SHA-2 and SHA-3.**
+
+### ⭐⭐⭐⭐
+
+**Differentiate hashing and encryption.**
+
+### ⭐⭐⭐⭐
+
+**What is avalanche effect?**
+
+---
+
+# 🔥 37. 10-MARK QUESTIONS
+
+### Question 1
+
+> **Explain the SHA-256 algorithm in detail with a neat diagram.**
+
+This is the **#1 question to prepare**.
+
+---
+
+### Question 2
+
+> **Explain cryptographic hash functions and their security requirements.**
+
+Structure:
+
+```text
+Definition
+ ↓
+Fixed-size digest
+ ↓
+Preimage resistance
+ ↓
+Second-preimage resistance
+ ↓
+Collision resistance
+ ↓
+Avalanche effect
+ ↓
+Applications
+```
+
+---
+
+### Question 3
+
+> **Explain the role of SHA-256 in blockchain and Bitcoin.**
+
+Structure:
+
+```text
+SHA-256
+  ↓
+Block hashing
+  ↓
+Previous-block hash
+  ↓
+Blockchain integrity
+  ↓
+Mining / PoW
+  ↓
+Difficulty condition
+  ↓
+Valid block
+```
+
+---
+
+# 🧠 38. FINAL MEMORY TRICK
+
+If you see **SHA-256** in the exam, immediately think:
+
+> **512 → 256 → 64 → 8 → 32**
+
+Meaning:
+
+```text
+512-bit block
+      ↓
+256-bit output
+      ↓
+64 rounds
+      ↓
+8 working variables
+      ↓
+32-bit words
+```
+
+And:
+
+> **SHA-256 = SHA-2 + Merkle-Damgård + Bitcoin**
+
+---
+
+## One correction to keep your notes clean
+
+Earlier I said we had essentially covered the Unit II material before SHA. **SHA is important enough that it should have been its own module**, and your provided PPT/book confirm that it has substantial dedicated material. Your book has a full Chapter 11 covering cryptographic hash functions, SHA, and SHA-3. 
+
+So now your Unit II preparation has properly included:
+
+```text
+UNIT II
+│
+├── Symmetric Cryptography
+│   ├── Cryptographic primitives
+│   ├── Stream/Block ciphers
+│   ├── AES
+│   └── OpenSSL
+│
+├── Public Key Cryptography
+│   ├── RSA
+│   ├── ECC
+│   └── Digital signatures
+│
+├── SHA / Hash Functions
+│   ├── SHA-1
+│   ├── SHA-2
+│   ├── SHA-256 ⭐
+│   ├── SHA-3
+│   ├── Security properties
+│   └── Blockchain applications
+│
+└── Cryptographic Constructs
+    ├── Homomorphic encryption
+    ├── Signcryption
+    ├── Secret sharing
+    ├── Commitment
+    ├── ZKP
+    ├── Blind signatures
+    ├── Multisignature
+    ├── Threshold signatures
+    └── Aggregate signatures
+```
+
+**This SHA module is exam-ready at both 5-mark and 10-mark level.**

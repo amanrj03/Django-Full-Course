@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 8: SHA & Cryptographic Hash Functions — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 8 of 13: SHA & Cryptographic Hash Functions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['$$', '$$']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain_guide.html" class="nav-action-pill" title="Read all modules in single document">📖 Full Guide</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 8 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">SHA & Cryptographic Hash Functions</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<span class="nav-item current">8. SHA & Cryptographic Hash Functions</span>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<h1 id="h-584-module-8-sha-cryptographic-hash-functions">MODULE 8 — SHA &amp; CRYPTOGRAPHIC HASH FUNCTIONS 🔐</h1>
+<h2 id="h-585-this-one-is-important-for-your-exam">This one is IMPORTANT for your exam</h2>
+<p>Yes — <strong>now we will properly study SHA</strong>, especially <strong>SHA-256</strong>, because your PPT explicitly says:</p>
+<blockquote><strong>SHA-256 is used in Bitcoin mining to construct the Bitcoin blockchain.</strong></blockquote>
+<p>Your book also has an entire chapter on <strong>Cryptographic Hash Functions</strong>, including applications, security requirements, SHA, and SHA-3.</p>
+<hr>
+<h1 id="h-586-1-first-what-is-a-hash-function">1. First: What is a Hash Function?</h1>
+<p>A hash function takes an input of arbitrary size and produces a <strong>fixed-size output</strong>, called a:</p>
+<ul>
+<li>Hash value</li>
+<li>Hash code</li>
+<li>Message digest</li>
+</ul>
+<p>Think:</p>
+<pre>        INPUT
+   "Hello Aman"
+        ↓
+   HASH FUNCTION
+        ↓
+  256-bit output</pre>
+<p>If the input is:</p>
+<pre>Hello</pre>
+<p>you get one hash.</p>
+<p>If the input is:</p>
+<pre>Hello!</pre>
+<p>you get a completely different hash.</p>
+<hr>
+<h1 id="h-587-2-hash-encryption">2. Hash ≠ Encryption ⭐⭐⭐⭐⭐</h1>
+<p>This is one of the most important concepts.</p>
+<h3 id="h-588-encryption">Encryption</h3>
+<pre>Plaintext
+   ↓
+Encryption + Key
+   ↓
+Ciphertext
+   ↓
+Decryption + Key
+   ↓
+Plaintext</pre>
+<p>You can recover the original message.</p>
+<h3 id="h-589-hashing">Hashing</h3>
+<pre>Message
+   ↓
+Hash
+   ↓
+Digest</pre>
+<p>Normally, you <strong>do not decrypt a hash to get the original message</strong>.</p>
+<p>Therefore:</p>
+<blockquote><strong>Encryption is reversible with the appropriate key; cryptographic hashing is designed as a one-way operation.</strong></blockquote>
+<hr>
+<h1 id="h-590-3-example">3. Example</h1>
+<p>Suppose:</p>
+<pre>Input = "HELLO"</pre>
+<p>SHA-256 generates:</p>
+<pre>256-bit digest</pre>
+<p>Now:</p>
+<pre>Input = "hello"</pre>
+<p>Even the tiny change:</p>
+<pre>H → h</pre>
+<p>produces a completely different digest.</p>
+<p>This property is related to the <strong>avalanche effect</strong>.</p>
+<hr>
+<h1 id="h-591-4-what-is-sha">4. What is SHA?</h1>
+<p>SHA stands for:</p>
+<blockquote><strong>Secure Hash Algorithm</strong></blockquote>
+<p>Your PPT lists several generations:</p>
+<pre>SHA
+│
+├── SHA-0
+│
+├── SHA-1
+│
+├── SHA-2
+│    ├── SHA-224
+│    ├── SHA-256
+│    ├── SHA-384
+│    └── SHA-512
+│
+└── SHA-3
+     ├── SHA3-224
+     ├── SHA3-256
+     ├── SHA3-384
+     └── SHA3-512</pre>
+<hr>
+<h1 id="h-592-5-sha-1-vs-sha-2-vs-sha-3">5. SHA-1 vs SHA-2 vs SHA-3 ⭐⭐⭐⭐⭐</h1>
+<h3 id="h-593-sha-1">SHA-1</h3>
+<p>Produces:</p>
+<div class="math-block">$$160\text{-bit hash}$$</div>
+<p>It is now considered insecure and has been phased out in favor of SHA-2.</p>
+<h3 id="h-594-sha-2">SHA-2</h3>
+<p>Includes:</p>
+<ul>
+<li>SHA-224</li>
+<li><strong>SHA-256</strong></li>
+<li>SHA-384</li>
+<li>SHA-512</li>
+</ul>
+<h3 id="h-595-sha-3">SHA-3</h3>
+<p>Includes:</p>
+<ul>
+<li>SHA3-224</li>
+<li>SHA3-256</li>
+<li>SHA3-384</li>
+<li>SHA3-512</li>
+</ul>
+<p>SHA-3 is based on <strong>Keccak</strong> and uses a <strong>sponge construction</strong>, unlike the Merkle-Damgård construction used by SHA-2.</p>
+<hr>
+<h1 id="h-596-6-sha-256">6. SHA-256 ⭐⭐⭐⭐⭐⭐⭐</h1>
+<p>This is the one I want you to know <strong>very well</strong>.</p>
+<h3 id="h-597-sha-256-means">SHA-256 means:</h3>
+<blockquote>SHA family → SHA-2 → 256-bit output.</blockquote>
+<p>Your book's SHA parameter table gives:</p>
+<table>
+<tr>
+<th>Algorithm</th>
+<th>Block Size</th>
+<th>Word Size</th>
+<th>Digest</th>
+</tr>
+<tr>
+<td>SHA-1</td>
+<td>512 bits</td>
+<td>32 bits</td>
+<td>160 bits</td>
+</tr>
+<tr>
+<td><strong>SHA-256</strong></td>
+<td><strong>512 bits</strong></td>
+<td><strong>32 bits</strong></td>
+<td><strong>256 bits</strong></td>
+</tr>
+<tr>
+<td>SHA-384</td>
+<td>1024 bits</td>
+<td>64 bits</td>
+<td>384 bits</td>
+</tr>
+<tr>
+<td>SHA-512</td>
+<td>1024 bits</td>
+<td>64 bits</td>
+<td>512 bits</td>
+</tr>
+</table>
+<h3 id="h-598-memorize">Memorize:</h3>
+<blockquote><strong>SHA-256 → 512-bit blocks → 256-bit output → 32-bit words</strong></blockquote>
+<hr>
+<h1 id="h-599-7-sha-256-overall-working">7. SHA-256 Overall Working ⭐⭐⭐⭐⭐⭐⭐</h1>
+<p>This is the most important diagram:</p>
+<pre>                 INPUT MESSAGE
+                      │
+                      ↓
+                 PRE-PROCESSING
+                      │
+                ┌─────┴─────┐
+                ↓           ↓
+             Padding      Length
+                │
+                └─────┬─────┘
+                      ↓
+              512-BIT BLOCKS
+                      │
+                      ↓
+             INITIAL HASH VALUES
+                      │
+                      ↓
+              MESSAGE SCHEDULE
+                      │
+                      ↓
+             64 COMPRESSION ROUNDS
+                      │
+                      ↓
+            INTERMEDIATE HASH VALUE
+                      │
+                 Next block
+                      ↓
+                   Repeat
+                      │
+                      ↓
+             FINAL 256-BIT HASH</pre>
+<p>Your PPT explicitly describes SHA-256 as a <strong>Merkle-Damgård construction</strong>, dividing the input into 512-bit blocks and processing them through the compression function.</p>
+<hr>
+<h1 id="h-600-8-step-1-padding">8. Step 1 — Padding ⭐⭐⭐⭐⭐</h1>
+<p>Suppose the message isn't exactly a multiple of 512 bits.</p>
+<p>We need to make it fit.</p>
+<p>The PPT says padding adjusts the message so that it can be processed in <strong>512-bit blocks</strong>.</p>
+<p>The basic idea is:</p>
+<pre>Original message
+       ↓
+Append 1 bit
+       ↓
+Append 0 bits
+       ↓
+Append message length
+       ↓
+Multiple of 512 bits</pre>
+<h3 id="h-601-important">Important:</h3>
+<p>The final length information is included so that the original message length is preserved as part of the padded representation.</p>
+<hr>
+<h1 id="h-602-9-simple-example-of-padding">9. Simple Example of Padding</h1>
+<p>Suppose:</p>
+<pre>Message = "abc"</pre>
+<p>That's:</p>
+<div class="math-block">$$3\times8=24\text{ bits}$$</div>
+<p>We don't simply add random zeros.</p>
+<p>We append:</p>
+<pre>abc
++
+1
++
+zeros
++
+original length</pre>
+<p>so the complete block becomes:</p>
+<pre>512 bits</pre>
+<p>The book uses similar SHA examples to demonstrate message padding and length encoding.</p>
+<hr>
+<h1 id="h-603-10-step-2-divide-into-512-bit-blocks">10. Step 2 — Divide Into 512-Bit Blocks</h1>
+<p>After padding:</p>
+<pre>Message
+   ↓
+512-bit block 1
+512-bit block 2
+512-bit block 3
+...
+512-bit block N</pre>
+<p>The PPT explicitly says the padded message is parsed into equal <strong>512-bit blocks</strong>.</p>
+<hr>
+<h1 id="h-604-11-step-3-initial-hash-values">11. Step 3 — Initial Hash Values ⭐⭐⭐⭐</h1>
+<p>SHA-256 starts with <strong>eight 32-bit words</strong>.</p>
+<p>Therefore:</p>
+<div class="math-block">$$8\times32=256\text{ bits}$$</div>
+<p>The PPT says the initial hash values consist of eight 32-bit words derived from the fractional parts of the square roots of the first eight prime numbers.</p>
+<p>Conceptually:</p>
+<pre>H0 H1 H2 H3 H4 H5 H6 H7
+│  │  │  │  │  │  │  │
+└──┴──┴──┴──┴──┴──┴──┴──→ 256 bits</pre>
+<hr>
+<h1 id="h-605-12-why-eight-working-variables">12. Why Eight Working Variables?</h1>
+<p>SHA-256 has:</p>
+<pre>a
+b
+c
+d
+e
+f
+g
+h</pre>
+<p>These are the <strong>eight working variables</strong>.</p>
+<p>The PPT explicitly identifies these as the registers for the eight working variables.</p>
+<p>So remember:</p>
+<blockquote><strong>SHA-256 = 8 working variables × 32 bits = 256 bits</strong></blockquote>
+<hr>
+<h1 id="h-606-13-step-4-message-schedule">13. Step 4 — Message Schedule ⭐⭐⭐⭐⭐</h1>
+<p>For every 512-bit message block:</p>
+<pre>512 bits
+   ↓
+16 × 32-bit words</pre>
+<p>These initially give:</p>
+<div class="math-block">$$W_0,W_1,\ldots,W_{15}$$</div>
+<p>Then additional words are generated until we have:</p>
+<div class="math-block">$$W_0,W_1,\ldots,W_{63}$$</div>
+<p>So:</p>
+<blockquote><strong>64 words are used during the 64 rounds.</strong></blockquote>
+<p>Your PPT explicitly mentions preparing the message schedule before the compression process.</p>
+<hr>
+<h1 id="h-607-14-step-5-64-rounds">14. Step 5 — 64 Rounds ⭐⭐⭐⭐⭐⭐⭐</h1>
+<p>This is extremely important.</p>
+<p>For each 512-bit block:</p>
+<blockquote><strong>SHA-256 performs 64 rounds.</strong></blockquote>
+<p>Your PPT explicitly states that the compression function runs <strong>64 times</strong>.</p>
+<p>Conceptually:</p>
+<pre>Round 0
+   ↓
+Round 1
+   ↓
+Round 2
+   ↓
+...
+   ↓
+Round 63</pre>
+<p>Therefore:</p>
+<div class="math-block">$$64\text{ rounds}$$</div>
+<hr>
+<h1 id="h-608-15-what-happens-in-each-round">15. What Happens in Each Round?</h1>
+<p>The SHA-256 round uses:</p>
+<ul>
+<li>Working variables \(a,b,c,d,e,f,g,h\)</li>
+<li>Message word \(W_t\)</li>
+<li>Round constant \(K_t\)</li>
+<li><strong>Ch</strong></li>
+<li><strong>Maj</strong></li>
+<li><strong>Σ0</strong></li>
+<li><strong>Σ1</strong></li>
+</ul>
+<p>Your PPT specifically mentions these components.</p>
+<hr>
+<h1 id="h-609-16-ch-choose-function">16. Ch — Choose Function</h1>
+<p>The <strong>Ch</strong> function is called the <strong>Choose</strong> function.</p>
+<p>Conceptually:</p>
+<blockquote>For each bit position, choose a bit from one of two inputs depending on a third input.</blockquote>
+<p>Formula:</p>
+<div class="math-block">$$Ch(e,f,g)=(e\land f)\oplus(\neg e\land g)$$</div>
+<p>Don't panic about the formula.</p>
+<p>Think:</p>
+<pre>e decides:
+
+if e = 1 → choose f
+if e = 0 → choose g</pre>
+<hr>
+<h1 id="h-610-17-maj-majority-function">17. Maj — Majority Function</h1>
+<p><strong>Maj = Majority</strong></p>
+<p>Formula:</p>
+<div class="math-block">$$Maj(a,b,c)
+=
+(a\land b)\oplus(a\land c)\oplus(b\land c)$$</div>
+<p>The output bit is essentially determined by the majority among:</p>
+<pre>a
+b
+c</pre>
+<p>Example:</p>
+<pre>a = 1
+b = 1
+c = 0
+
+Majority = 1</pre>
+<p>Your PPT states that <strong>Maj and Ch are applied bitwise</strong>.</p>
+<hr>
+<h1 id="h-611-18-0-and-1">18. Σ0 and Σ1</h1>
+<p>The uppercase Sigma functions perform combinations of:</p>
+<ul>
+<li>Bitwise rotations</li>
+<li>XOR operations</li>
+</ul>
+<p>Your PPT describes \(\Sigma_0\) and \(\Sigma_1\) as performing bitwise rotations.</p>
+<p>For exam-level understanding:</p>
+<blockquote><strong>Σ functions create additional mixing of the bits.</strong></blockquote>
+<p>You don't necessarily need to memorize the exact rotation constants unless your professor specifically requires the SHA-256 mathematical round formula.</p>
+<hr>
+<h1 id="h-612-19-round-constants-k">19. Round Constants — K</h1>
+<p>Every round has a constant:</p>
+<div class="math-block">$$K_t$$</div>
+<p>So:</p>
+<pre>Round 0 → K0
+Round 1 → K1
+...
+Round 63 → K63</pre>
+<p>The PPT explicitly mentions round constants being added in the main compression loop.</p>
+<hr>
+<h1 id="h-613-20-the-main-sha-256-round-formula">20. The Main SHA-256 Round Formula ⭐⭐⭐⭐⭐</h1>
+<p>If your professor wants mathematical detail, know this.</p>
+<p>For each round:</p>
+<div class="math-block">$$T_1=h+\Sigma_1(e)+Ch(e,f,g)+K_t+W_t$$</div>
+<p>and:</p>
+<div class="math-block">$$T_2=\Sigma_0(a)+Maj(a,b,c)$$</div>
+<p>Then the variables are updated:</p>
+<div class="math-block">$$h=g$$</div>
+<div class="math-block">$$g=f$$</div>
+<div class="math-block">$$f=e$$</div>
+<div class="math-block">$$e=d+T_1$$</div>
+<div class="math-block">$$d=c$$</div>
+<div class="math-block">$$c=b$$</div>
+<div class="math-block">$$b=a$$</div>
+<div class="math-block">$$a=T_1+T_2$$</div>
+<p>All additions are modulo:</p>
+<div class="math-block">$$2^{32}$$</div>
+<h3 id="h-614-this-is-the-deep-10-mark-level">This is the <strong>deep 10-mark level</strong>.</h3>
+<p>Don't worry if it looks complicated at first. The important thing is to understand what each part does.</p>
+<hr>
+<h1 id="h-615-21-why-so-much-mixing">21. Why So Much Mixing?</h1>
+<p>Because SHA needs strong cryptographic properties.</p>
+<p>A tiny change in the input should cause a huge change in the final output.</p>
+<p>This is the:</p>
+<h1 id="h-616-avalanche-effect"><strong>Avalanche Effect</strong> ⭐⭐⭐⭐⭐</h1>
+<p>Example:</p>
+<pre>Input 1:
+HELLO
+       ↓ SHA-256
+Hash A
+
+Input 2:
+HELLo
+       ↓ SHA-256
+Hash B</pre>
+<p>Changing one character can cause many output bits to change.</p>
+<p>The book demonstrates this type of behavior for SHA-512, where changing the input from <code>"abc"</code> to <code>"cbc"</code> produced hashes differing in about half of their bit positions.</p>
+<hr>
+<h1 id="h-617-22-security-requirements-of-a-cryptographic-hash">22. Security Requirements of a Cryptographic Hash ⭐⭐⭐⭐⭐</h1>
+<p>This is a <strong>very likely 5-mark question</strong>.</p>
+<p>Three important resistance properties are:</p>
+<h3 id="h-618-1-preimage-resistance">1. Preimage resistance</h3>
+<p>Given:</p>
+<div class="math-block">$$h$$</div>
+<p>it should be computationally difficult to find:</p>
+<div class="math-block">$$M$$</div>
+<p>such that:</p>
+<div class="math-block">$$H(M)=h$$</div>
+<p>In simple words:</p>
+<blockquote>Given a hash, it should be difficult to find the original input.</blockquote>
+<hr>
+<h1 id="h-619-23-second-preimage-resistance">23. Second-Preimage Resistance</h1>
+<p>Given:</p>
+<pre>Message M1
+Hash H(M1)</pre>
+<p>it should be difficult to find a <strong>different</strong> message \(M_2\) such that:</p>
+<div class="math-block">$$H(M_1)=H(M_2)$$</div>
+<p>So:</p>
+<blockquote>Given one specific message, it should be difficult to find another message having the same hash.</blockquote>
+<hr>
+<h1 id="h-620-24-collision-resistance">24. Collision Resistance ⭐⭐⭐⭐⭐</h1>
+<p>A collision occurs when:</p>
+<div class="math-block">$$M_1\neq M_2$$</div>
+<p>but:</p>
+<div class="math-block">$$H(M_1)=H(M_2)$$</div>
+<p>Example:</p>
+<pre>Message A ──→ HASH ──→ ABC123
+
+Message B ──→ HASH ──→ ABC123</pre>
+<p>That's a collision.</p>
+<p>A secure hash function should make finding such a pair computationally difficult.</p>
+<p>Your book explicitly lists <strong>collision resistance, preimage resistance and second-preimage resistance</strong> among the key hash-function security properties.</p>
+<hr>
+<h1 id="h-621-25-preimage-vs-second-preimage-vs-collision">25. Preimage vs Second Preimage vs Collision</h1>
+<p>🔥 <strong>Memorize this table.</strong></p>
+<table>
+<tr>
+<th>Property</th>
+<th>Given</th>
+<th>Need to find</th>
+</tr>
+<tr>
+<td><strong>Preimage</strong></td>
+<td>Hash \(h\)</td>
+<td>Any message producing \(h\)</td>
+</tr>
+<tr>
+<td><strong>Second preimage</strong></td>
+<td>Specific message \(M_1\)</td>
+<td>Different \(M_2\) with same hash</td>
+</tr>
+<tr>
+<td><strong>Collision</strong></td>
+<td>Nothing specific</td>
+<td>Any two different messages with same hash</td>
+</tr>
+</table>
+<hr>
+<h1 id="h-622-26-sha-256-in-bitcoin">26. SHA-256 in Bitcoin ⭐⭐⭐⭐⭐⭐⭐</h1>
+<p>This is extremely important for <strong>Blockchain</strong>.</p>
+<p>Your PPT explicitly states:</p>
+<blockquote><strong>SHA-256 is used in Bitcoin mining to construct the Bitcoin blockchain.</strong></blockquote>
+<p>Conceptually:</p>
+<pre>Transactions
+     ↓
+Candidate Block
+     ↓
+Hash calculations
+     ↓
+SHA-256
+     ↓
+Proof of Work
+     ↓
+Valid Block</pre>
+<p>Bitcoin's PoW involves repeatedly computing hashes while searching for a value that satisfies the network's difficulty target.</p>
+<hr>
+<h1 id="h-623-27-sha-and-blockchain-block-linking">27. SHA and Blockchain Block Linking</h1>
+<p>A blockchain uses hashes to create a tamper-evident chain.</p>
+<p>Conceptually:</p>
+<pre>BLOCK 1
+ ├── Transactions
+ └── Hash ─────────────┐
+                       ↓
+BLOCK 2                │
+ ├── Previous Hash ◄───┘
+ ├── Transactions
+ └── Hash ─────────────┐
+                       ↓
+BLOCK 3                │
+ ├── Previous Hash ◄───┘
+ └── Hash</pre>
+<p>If Block 1 changes:</p>
+<pre>Block 1 data changes
+       ↓
+Block 1 hash changes
+       ↓
+Block 2's previous-hash reference no longer matches
+       ↓
+Chain inconsistency becomes detectable</pre>
+<p>Your blockchain PPT states that cryptographic protocols, including hash functions, play a vital role in blockchain integrity.</p>
+<hr>
+<h1 id="h-624-28-sha-digital-signature">28. SHA + Digital Signature</h1>
+<p>SHA isn't only used in mining.</p>
+<p>It is also used with digital signatures.</p>
+<p>For example:</p>
+<pre>Message
+   ↓
+SHA-256
+   ↓
+256-bit digest
+   ↓
+RSA/signature algorithm
+   ↓
+Digital Signature</pre>
+<p>The book describes the common RSA/SHA-256 digital-signature flow: SHA-256 generates a 256-bit message digest, which is then signed using the sender's private key; the receiver verifies it using the sender's public key and compares the digest.</p>
+<hr>
+<h1 id="h-625-29-sha-256-vs-sha-3">29. SHA-256 vs SHA-3 ⭐⭐⭐⭐⭐</h1>
+<p>This is another possible 5-marker.</p>
+<table>
+<tr>
+<th>SHA-256</th>
+<th>SHA-3</th>
+</tr>
+<tr>
+<td>Member of SHA-2</td>
+<td>Separate SHA family</td>
+</tr>
+<tr>
+<td>Merkle-Damgård construction</td>
+<td>Sponge construction</td>
+</tr>
+<tr>
+<td>256-bit output</td>
+<td>SHA3-256 gives 256-bit output</td>
+</tr>
+<tr>
+<td>512-bit blocks</td>
+<td>Sponge-based design</td>
+</tr>
+<tr>
+<td>Widely used in Bitcoin</td>
+<td>Designed as a complementary standard</td>
+</tr>
+</table>
+<p>Your PPT explicitly describes SHA-256 as a Merkle-Damgård construction and SHA-3 as using Keccak's sponge construction.</p>
+<hr>
+<h1 id="h-626-30-sha-3-understand-the-basic-idea">30. SHA-3 — Understand the Basic Idea</h1>
+<p>You don't need to go as deep into SHA-3 as SHA-256 for your blockchain syllabus, but know:</p>
+<pre>Input
+  ↓
+Padding
+  ↓
+Sponge
+  ↓
+Absorbing phase
+  ↓
+Squeezing phase
+  ↓
+Output</pre>
+<p>The book describes the sponge construction as processing fixed-size input blocks and then producing output through its squeezing process.</p>
+<hr>
+<h1 id="h-627-31-sha-256-vs-aes">31. SHA-256 vs AES</h1>
+<p>Another important distinction:</p>
+<table>
+<tr>
+<th>SHA-256</th>
+<th>AES</th>
+</tr>
+<tr>
+<td>Hash function</td>
+<td>Symmetric encryption</td>
+</tr>
+<tr>
+<td>One-way</td>
+<td>Reversible with key</td>
+</tr>
+<tr>
+<td>256-bit output</td>
+<td>128-bit block</td>
+</tr>
+<tr>
+<td>No encryption key required for basic hashing</td>
+<td>Uses secret key</td>
+</tr>
+<tr>
+<td>Integrity/fingerprinting</td>
+<td>Confidentiality</td>
+</tr>
+<tr>
+<td>Used in Bitcoin PoW</td>
+<td>Used to encrypt data</td>
+</tr>
+</table>
+<h3 id="h-628-remember">Remember:</h3>
+<blockquote><strong>AES hides data.</strong></blockquote>
+<blockquote><strong>SHA fingerprints data.</strong></blockquote>
+<hr>
+<h1 id="h-629-32-sha-256-vs-digital-signature">32. SHA-256 vs Digital Signature</h1>
+<p>Another common confusion:</p>
+<pre>SHA-256:
+Message → Hash
+
+Digital Signature:
+Message → Hash → Sign digest with private key</pre>
+<p>Therefore:</p>
+<blockquote><strong>SHA-256 alone is NOT a digital signature.</strong></blockquote>
+<p>It can be a component of a digital-signature scheme.</p>
+<hr>
+<h1 id="h-630-33-10-mark-answer-explain-sha-256">🔥 33. 10-MARK ANSWER — "Explain SHA-256"</h1>
+<p>If this appears, follow this structure.</p>
+<h3 id="h-631-introduction">Introduction</h3>
+<blockquote>SHA-256 is a member of the SHA-2 family of cryptographic hash functions that produces a 256-bit message digest. It processes messages in 512-bit blocks using a Merkle-Damgård construction.</blockquote>
+<h3 id="h-632-step-1-padding">Step 1 — Padding</h3>
+<p>Adjust the message so it can be processed in 512-bit blocks.</p>
+<h3 id="h-633-step-2-parsing">Step 2 — Parsing</h3>
+<p>Divide the padded message into 512-bit blocks.</p>
+<h3 id="h-634-step-3-initialization">Step 3 — Initialization</h3>
+<p>Initialize eight 32-bit hash values.</p>
+<h3 id="h-635-step-4-message-schedule">Step 4 — Message schedule</h3>
+<p>Prepare the message schedule.</p>
+<h3 id="h-636-step-5-compression">Step 5 — Compression</h3>
+<p>Process each block through <strong>64 rounds</strong> using:</p>
+<ul>
+<li>\(a,b,c,d,e,f,g,h\)</li>
+<li>\(W_t\)</li>
+<li>\(K_t\)</li>
+<li>Ch</li>
+<li>Maj</li>
+<li>Σ0</li>
+<li>Σ1</li>
+</ul>
+<h3 id="h-637-step-6-update-hash">Step 6 — Update hash</h3>
+<p>The output of each block is combined with the current intermediate hash value.</p>
+<h3 id="h-638-step-7-final-output">Step 7 — Final output</h3>
+<p>After all blocks are processed:</p>
+<div class="math-block">$$256\text{-bit message digest}$$</div>
+<p>The PPT lays out this preprocessing, initialization, 64-round compression and intermediate-hash process.</p>
+<hr>
+<h1 id="h-639-34-sha-256-master-diagram">🧠 34. SHA-256 MASTER DIAGRAM</h1>
+<p>Memorize this diagram for the exam:</p>
+<pre>                    MESSAGE
+                       │
+                       ↓
+                  PADDING
+                       │
+                       ↓
+               512-BIT BLOCKS
+                       │
+                       ↓
+             INITIAL HASH VALUES
+             H0 H1 H2 H3 H4 H5 H6 H7
+                       │
+                       ↓
+              MESSAGE SCHEDULE
+              W0 → W63
+                       │
+                       ↓
+              WORKING VARIABLES
+              a b c d e f g h
+                       │
+                       ↓
+             ┌──────────────────┐
+             │    64 ROUNDS     │
+             │                  │
+             │   Ch             │
+             │   Maj            │
+             │   Σ0             │
+             │   Σ1             │
+             │   Wt             │
+             │   Kt             │
+             └────────┬─────────┘
+                      ↓
+             INTERMEDIATE HASH
+                      │
+                 Next block
+                      ↓
+                    REPEAT
+                      │
+                      ↓
+               256-BIT DIGEST</pre>
+<hr>
+<h1 id="h-640-35-numbers-you-must-memorize">🚨 35. NUMBERS YOU MUST MEMORIZE</h1>
+<p>This is the <strong>SHA-256 number sheet</strong>:</p>
+<table>
+<tr>
+<th>Parameter</th>
+<th>SHA-256</th>
+</tr>
+<tr>
+<td>Output/digest</td>
+<td><strong>256 bits</strong></td>
+</tr>
+<tr>
+<td>Block size</td>
+<td><strong>512 bits</strong></td>
+</tr>
+<tr>
+<td>Word size</td>
+<td><strong>32 bits</strong></td>
+</tr>
+<tr>
+<td>Working variables</td>
+<td><strong>8</strong></td>
+</tr>
+<tr>
+<td>Rounds</td>
+<td><strong>64</strong></td>
+</tr>
+<tr>
+<td>Initial hash words</td>
+<td><strong>8 × 32-bit</strong></td>
+</tr>
+<tr>
+<td>Message schedule</td>
+<td><strong>64 words</strong></td>
+</tr>
+</table>
+<p>The PPT directly supports the 512-bit blocks, eight 32-bit initial values, eight working variables and 64 rounds.</p>
+<hr>
+<h1 id="h-641-36-high-priority-exam-questions">🎯 36. HIGH-PRIORITY EXAM QUESTIONS</h1>
+<h2 id="h-642-5-marks">5 Marks</h2>
+<h3 id="h-643-">⭐⭐⭐⭐⭐</h3>
+<p><strong>What is a cryptographic hash function? Explain its properties.</strong></p>
+<h3 id="h-644-">⭐⭐⭐⭐⭐</h3>
+<p><strong>Explain SHA-256.</strong></p>
+<h3 id="h-645-">⭐⭐⭐⭐⭐</h3>
+<p><strong>What are preimage, second-preimage and collision resistance?</strong></p>
+<h3 id="h-646-">⭐⭐⭐⭐⭐</h3>
+<p><strong>Explain SHA-256 applications in blockchain.</strong></p>
+<h3 id="h-647-">⭐⭐⭐⭐</h3>
+<p><strong>Differentiate SHA-1, SHA-2 and SHA-3.</strong></p>
+<h3 id="h-648-">⭐⭐⭐⭐</h3>
+<p><strong>Differentiate hashing and encryption.</strong></p>
+<h3 id="h-649-">⭐⭐⭐⭐</h3>
+<p><strong>What is avalanche effect?</strong></p>
+<hr>
+<h1 id="h-650-37-10-mark-questions">🔥 37. 10-MARK QUESTIONS</h1>
+<h3 id="h-651-question-1">Question 1</h3>
+<blockquote><strong>Explain the SHA-256 algorithm in detail with a neat diagram.</strong></blockquote>
+<p>This is the <strong>#1 question to prepare</strong>.</p>
+<hr>
+<h3 id="h-652-question-2">Question 2</h3>
+<blockquote><strong>Explain cryptographic hash functions and their security requirements.</strong></blockquote>
+<p>Structure:</p>
+<pre>Definition
+ ↓
+Fixed-size digest
+ ↓
+Preimage resistance
+ ↓
+Second-preimage resistance
+ ↓
+Collision resistance
+ ↓
+Avalanche effect
+ ↓
+Applications</pre>
+<hr>
+<h3 id="h-653-question-3">Question 3</h3>
+<blockquote><strong>Explain the role of SHA-256 in blockchain and Bitcoin.</strong></blockquote>
+<p>Structure:</p>
+<pre>SHA-256
+  ↓
+Block hashing
+  ↓
+Previous-block hash
+  ↓
+Blockchain integrity
+  ↓
+Mining / PoW
+  ↓
+Difficulty condition
+  ↓
+Valid block</pre>
+<hr>
+<h1 id="h-654-38-final-memory-trick">🧠 38. FINAL MEMORY TRICK</h1>
+<p>If you see <strong>SHA-256</strong> in the exam, immediately think:</p>
+<blockquote><strong>512 → 256 → 64 → 8 → 32</strong></blockquote>
+<p>Meaning:</p>
+<pre>512-bit block
+      ↓
+256-bit output
+      ↓
+64 rounds
+      ↓
+8 working variables
+      ↓
+32-bit words</pre>
+<p>And:</p>
+<blockquote><strong>SHA-256 = SHA-2 + Merkle-Damgård + Bitcoin</strong></blockquote>
+<hr>
+<h2 id="h-655-one-correction-to-keep-your-notes-clean">One correction to keep your notes clean</h2>
+<p>Earlier I said we had essentially covered the Unit II material before SHA. <strong>SHA is important enough that it should have been its own module</strong>, and your provided PPT/book confirm that it has substantial dedicated material. Your book has a full Chapter 11 covering cryptographic hash functions, SHA, and SHA-3.</p>
+<p>So now your Unit II preparation has properly included:</p>
+<pre>UNIT II
+│
+├── Symmetric Cryptography
+│   ├── Cryptographic primitives
+│   ├── Stream/Block ciphers
+│   ├── AES
+│   └── OpenSSL
+│
+├── Public Key Cryptography
+│   ├── RSA
+│   ├── ECC
+│   └── Digital signatures
+│
+├── SHA / Hash Functions
+│   ├── SHA-1
+│   ├── SHA-2
+│   ├── SHA-256 ⭐
+│   ├── SHA-3
+│   ├── Security properties
+│   └── Blockchain applications
+│
+└── Cryptographic Constructs
+    ├── Homomorphic encryption
+    ├── Signcryption
+    ├── Secret sharing
+    ├── Commitment
+    ├── ZKP
+    ├── Blind signatures
+    ├── Multisignature
+    ├── Threshold signatures
+    └── Aggregate signatures</pre>
+<p><strong>This SHA module is exam-ready at both 5-mark and 10-mark level.</strong></p>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-7.html">&larr; Module 7</a>
+        <a class="pn-reader" href="blockchain_guide.html">📖 Single-Page Reader View</a>
+        <a class="pn-btn" href="blockchain-module-9.html">Module 9 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

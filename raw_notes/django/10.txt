@@ -1,0 +1,1523 @@
+# Module 10 — Regular Expressions in Django URLs
+
+This is the **Regular Expressions in URLs** topic from your syllabus.
+
+Don't worry if you've never studied regex before. We'll start from zero and then connect it directly to Django.
+
+---
+
+# 1. What Is a Regular Expression?
+
+A **regular expression (regex)** is a pattern used to describe and match text.
+
+For example, suppose we want a URL that accepts **only numbers**:
+
+```text
+/student/25/
+```
+
+but rejects:
+
+```text
+/student/abc/
+```
+
+We can describe the required pattern using regex.
+
+Think of regex as:
+
+> **A set of rules that defines what text is allowed.**
+
+---
+
+# 2. Why Does Django Need Regex?
+
+Django's `path()` already gives us converters:
+
+```python
+<int:id>
+<str:name>
+<slug:slug>
+```
+
+But sometimes your requirements are more specific.
+
+For example:
+
+> Allow exactly 4 digits.
+
+You might want:
+
+```text
+/product/1234/
+```
+
+but reject:
+
+```text
+/product/12/
+```
+
+and:
+
+```text
+/product/12345/
+```
+
+Regex can express this precisely.
+
+---
+
+# 3. `path()` vs `re_path()`
+
+Django provides:
+
+```python
+path()
+```
+
+and:
+
+```python
+re_path()
+```
+
+`path()` uses Django's path converters.
+
+Example:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+`re_path()` uses regular expressions.
+
+Example:
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+---
+
+# 4. Importing `re_path`
+
+In `urls.py`:
+
+```python
+from django.urls import path, re_path
+```
+
+Then:
+
+```python
+urlpatterns = [
+    re_path(
+        r'^student/(?P<id>\d+)/$',
+        views.student
+    ),
+]
+```
+
+---
+
+# 5. Understanding Our First Regex
+
+Look at:
+
+```python
+r'^student/(?P<id>\d+)/$'
+```
+
+This looks complicated, but we'll break it apart.
+
+```text
+^
+student/
+(?P<id>
+\d+
+)
+/
+$
+```
+
+Each part has a meaning.
+
+---
+
+# 6. `^`
+
+The symbol:
+
+```text
+^
+```
+
+means:
+
+> Start of the string.
+
+So:
+
+```regex
+^student/
+```
+
+means the pattern should start with:
+
+```text
+student/
+```
+
+---
+
+# 7. `$`
+
+The symbol:
+
+```text
+$
+```
+
+means:
+
+> End of the string.
+
+Therefore:
+
+```regex
+^student/$
+```
+
+means the entire string should be:
+
+```text
+student/
+```
+
+---
+
+# 8. `\d`
+
+This is one of the most important regex symbols.
+
+```text
+\d
+```
+
+means:
+
+> A digit.
+
+Generally:
+
+```text
+0 1 2 3 4 5 6 7 8 9
+```
+
+So:
+
+```regex
+\d
+```
+
+matches:
+
+```text
+5
+```
+
+but doesn't match:
+
+```text
+A
+```
+
+---
+
+# 9. `+`
+
+The:
+
+```text
++
+```
+
+symbol means:
+
+> One or more occurrences.
+
+Therefore:
+
+```regex
+\d+
+```
+
+means:
+
+> One or more digits.
+
+It can match:
+
+```text
+5
+25
+100
+12345
+```
+
+---
+
+# 10. `\d+`
+
+This is extremely common.
+
+```regex
+\d+
+```
+
+means:
+
+```text
+one or more digits
+```
+
+So:
+
+```text
+25
+```
+
+matches.
+
+```text
+123456
+```
+
+matches.
+
+But:
+
+```text
+abc
+```
+
+doesn't.
+
+---
+
+# 11. Named Capturing Group
+
+Now look at:
+
+```regex
+(?P<id>\d+)
+```
+
+This means:
+
+> Capture the matched value and give it the name `id`.
+
+Suppose URL is:
+
+```text
+student/25/
+```
+
+Then:
+
+```text
+(?P<id>\d+)
+```
+
+captures:
+
+```text
+25
+```
+
+and gives it the name:
+
+```text
+id
+```
+
+Django can then pass it to the view.
+
+---
+
+# 12. Complete Example
+
+### `urls.py`
+
+```python
+from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(
+        r'^student/(?P<id>\d+)/$',
+        views.student
+    ),
+]
+```
+
+### `views.py`
+
+```python
+from django.http import HttpResponse
+
+def student(request, id):
+    return HttpResponse(
+        f"Student ID: {id}"
+    )
+```
+
+Request:
+
+```text
+/student/25/
+```
+
+Output:
+
+```text
+Student ID: 25
+```
+
+---
+
+# 13. Breaking the Pattern Completely
+
+Let's analyze:
+
+```python
+r'^student/(?P<id>\d+)/$'
+```
+
+| Part          | Meaning                   |
+| ------------- | ------------------------- |
+| `^`           | Start                     |
+| `student/`    | Exact text                |
+| `(?P<id>...)` | Named capture called `id` |
+| `\d`          | Digit                     |
+| `+`           | One or more               |
+| `/`           | Slash                     |
+| `$`           | End                       |
+
+So the pattern means:
+
+> Start with `student/`, followed by one or more digits, followed by `/`, and then end.
+
+---
+
+# 14. Why the `r` Before the String?
+
+We wrote:
+
+```python
+r'^student/(?P<id>\d+)/$'
+```
+
+The `r` means **raw string** in Python.
+
+Regular expressions frequently use backslashes:
+
+```text
+\d
+\s
+\w
+```
+
+Using a raw string makes it easier to write regex patterns without Python interpreting backslashes as escape sequences.
+
+For Django regex URLs, this is the standard style:
+
+```python
+r'...'
+```
+
+---
+
+# 15. What Does `\w` Mean?
+
+Another useful regex symbol:
+
+```text
+\w
+```
+
+matches a word character.
+
+It generally includes:
+
+```text
+letters
+digits
+underscore
+```
+
+For example:
+
+```regex
+\w+
+```
+
+can match:
+
+```text
+Aman
+Aman123
+student_25
+```
+
+---
+
+# 16. What Does `\s` Mean?
+
+```text
+\s
+```
+
+matches whitespace characters such as spaces.
+
+For example:
+
+```regex
+hello\sworld
+```
+
+can match:
+
+```text
+hello world
+```
+
+This is less common for URL routing because URLs generally aren't designed around spaces.
+
+---
+
+# 17. Character Classes `[ ]`
+
+Square brackets let you specify allowed characters.
+
+Example:
+
+```regex
+[0-9]
+```
+
+means:
+
+> One character between 0 and 9.
+
+So:
+
+```text
+5
+```
+
+matches.
+
+---
+
+# 18. `[a-z]`
+
+```regex
+[a-z]
+```
+
+means:
+
+> One lowercase letter from a through z.
+
+Examples:
+
+```text
+a
+m
+z
+```
+
+match.
+
+```text
+A
+7
+```
+
+don't match.
+
+---
+
+# 19. `[A-Z]`
+
+```regex
+[A-Z]
+```
+
+means one uppercase letter.
+
+---
+
+# 20. `[0-9]+`
+
+This:
+
+```regex
+[0-9]+
+```
+
+means:
+
+> One or more digits.
+
+It is similar to:
+
+```regex
+\d+
+```
+
+For basic digit matching, either can often be used.
+
+---
+
+# 21. Exact Number of Characters — `{}`
+
+Suppose we want **exactly 4 digits**.
+
+Use:
+
+```regex
+\d{4}
+```
+
+This means:
+
+> Exactly four digits.
+
+Examples:
+
+```text
+1234   ✓
+2026   ✓
+25     ✗
+12345  ✗
+```
+
+---
+
+# 22. Example: Four-Digit Student Year
+
+```python
+re_path(
+    r'^year/(?P<year>\d{4})/$',
+    views.year
+)
+```
+
+View:
+
+```python
+def year(request, year):
+    return HttpResponse(
+        f"Year: {year}"
+    )
+```
+
+Matches:
+
+```text
+/year/2026/
+```
+
+but not:
+
+```text
+/year/26/
+```
+
+---
+
+# 23. `{m,n}`
+
+You can specify a range.
+
+```regex
+\d{2,4}
+```
+
+means:
+
+> Between 2 and 4 digits.
+
+So:
+
+```text
+12      ✓
+123     ✓
+1234    ✓
+1       ✗
+12345   ✗
+```
+
+---
+
+# 24. `*`
+
+The:
+
+```text
+*
+```
+
+symbol means:
+
+> Zero or more occurrences.
+
+Example:
+
+```regex
+\d*
+```
+
+can match:
+
+```text
+nothing
+1
+25
+12345
+```
+
+Be careful with `*` because it allows **zero** occurrences.
+
+---
+
+# 25. `?`
+
+The:
+
+```text
+?
+```
+
+symbol generally means:
+
+> Zero or one occurrence.
+
+Example:
+
+```regex
+\d?
+```
+
+can match:
+
+```text
+nothing
+5
+```
+
+but not:
+
+```text
+25
+```
+
+For Django URL design, don't confuse regex `?` with the `?` that starts a URL query string.
+
+---
+
+# 26. `+` vs `*`
+
+Very important:
+
+```text
++ → one or more
+* → zero or more
+```
+
+Example:
+
+```regex
+\d+
+```
+
+requires at least one digit.
+
+```regex
+\d*
+```
+
+allows no digits.
+
+---
+
+# 27. Parentheses `( )`
+
+Parentheses create a group.
+
+Example:
+
+```regex
+(\d+)
+```
+
+This captures/group-matches one or more digits.
+
+But Django needs to know the parameter name to pass it to your view.
+
+That's why named groups are especially useful.
+
+---
+
+# 28. Named Group Syntax
+
+Django regex URLs commonly use:
+
+```regex
+(?P<name>pattern)
+```
+
+For example:
+
+```regex
+(?P<id>\d+)
+```
+
+Here:
+
+```text
+name = id
+pattern = \d+
+```
+
+So:
+
+```text
+/student/25/
+```
+
+gives:
+
+```python
+id = 25
+```
+
+---
+
+# 29. Named Group Must Match View Argument
+
+URL:
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+View:
+
+```python
+def student(request, id):
+```
+
+Correct.
+
+But if you write:
+
+```python
+def student(request, student_id):
+```
+
+the parameter name doesn't correspond to the named group.
+
+Instead, make the regex:
+
+```python
+re_path(
+    r'^student/(?P<student_id>\d+)/$',
+    views.student
+)
+```
+
+and:
+
+```python
+def student(request, student_id):
+```
+
+---
+
+# 30. Multiple Regex Parameters
+
+You can capture multiple values.
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/(?P<name>[A-Za-z]+)/$',
+    views.student
+)
+```
+
+View:
+
+```python
+def student(request, id, name):
+    return HttpResponse(
+        f"ID: {id}, Name: {name}"
+    )
+```
+
+URL:
+
+```text
+/student/25/Aman/
+```
+
+Output:
+
+```text
+ID: 25, Name: Aman
+```
+
+---
+
+# 31. Restricting a Name
+
+Our pattern:
+
+```regex
+[A-Za-z]+
+```
+
+means:
+
+> One or more uppercase/lowercase English letters.
+
+So:
+
+```text
+Aman
+Rahul
+John
+```
+
+match.
+
+But:
+
+```text
+Aman123
+```
+
+doesn't match that particular pattern.
+
+---
+
+# 32. Regex for a Two-Digit Number
+
+```regex
+\d{2}
+```
+
+Matches:
+
+```text
+10
+25
+99
+```
+
+Doesn't match:
+
+```text
+5
+100
+```
+
+Example:
+
+```python
+re_path(
+    r'^room/(?P<number>\d{2})/$',
+    views.room
+)
+```
+
+---
+
+# 33. Regex for Exactly 6 Digits
+
+```regex
+\d{6}
+```
+
+Example:
+
+```python
+re_path(
+    r'^code/(?P<code>\d{6})/$',
+    views.code
+)
+```
+
+Matches:
+
+```text
+/code/123456/
+```
+
+Doesn't match:
+
+```text
+/code/12345/
+/code/1234567/
+```
+
+---
+
+# 34. Regex for Lowercase Slug-Like Text
+
+You could write:
+
+```regex
+[a-z0-9-]+
+```
+
+This allows:
+
+```text
+django
+django-2026
+python3
+```
+
+Example:
+
+```python
+re_path(
+    r'^blog/(?P<slug>[a-z0-9-]+)/$',
+    views.blog
+)
+```
+
+---
+
+# 35. `path()` Is Usually Preferred
+
+Modern Django provides path converters:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+For ordinary cases, this is cleaner than:
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+So:
+
+> Use `path()` when its converters are sufficient. Use `re_path()` when you need regex-level control.
+
+This is an excellent viva answer.
+
+---
+
+# 36. `path()` vs `re_path()`
+
+| `path()`                             | `re_path()`                 |
+| ------------------------------------ | --------------------------- |
+| Uses path converters                 | Uses regular expressions    |
+| Easier to read                       | More powerful/flexible      |
+| Usually preferred for normal routing | Useful for complex patterns |
+| `<int:id>`                           | `(?P<id>\d+)`               |
+
+---
+
+# 37. Same URL — Two Ways
+
+### Using `path()`
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+### Using `re_path()`
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+Both can represent the same basic requirement:
+
+```text
+/student/25/
+```
+
+For this simple case, `path()` is much easier.
+
+---
+
+# 38. Regex and Query Strings
+
+Be careful here.
+
+A Django URL pattern generally matches the URL path, not the query string.
+
+For:
+
+```text
+/student/25/?course=django
+```
+
+the path is:
+
+```text
+/student/25/
+```
+
+and:
+
+```text
+course=django
+```
+
+is the query string.
+
+You access it using:
+
+```python
+request.GET.get('course')
+```
+
+So don't try to use `re_path()` to process ordinary query parameters.
+
+---
+
+# 39. Common Regex Symbols to Memorize
+
+For your exam, learn these:
+
+| Regex         | Meaning          |
+| ------------- | ---------------- |
+| `^`           | Start            |
+| `$`           | End              |
+| `\d`          | Digit            |
+| `\w`          | Word character   |
+| `\s`          | Whitespace       |
+| `+`           | One or more      |
+| `*`           | Zero or more     |
+| `?`           | Zero or one      |
+| `{4}`         | Exactly 4        |
+| `{2,4}`       | 2 to 4           |
+| `[0-9]`       | One digit        |
+| `[a-z]`       | Lowercase letter |
+| `[A-Z]`       | Uppercase letter |
+| `( )`         | Group            |
+| `(?P<id>...)` | Named capture    |
+
+---
+
+# 40. Important Coding Question
+
+### Requirement:
+
+Create a URL that accepts exactly **5 digits** as an employee ID.
+
+### Answer:
+
+```python
+from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(
+        r'^employee/(?P<id>\d{5})/$',
+        views.employee
+    ),
+]
+```
+
+View:
+
+```python
+from django.http import HttpResponse
+
+def employee(request, id):
+    return HttpResponse(
+        f"Employee ID: {id}"
+    )
+```
+
+Valid:
+
+```text
+/employee/12345/
+```
+
+Invalid:
+
+```text
+/employee/1234/
+/employee/123456/
+```
+
+---
+
+# 41. Coding Question — Two Parameters
+
+Requirement:
+
+```text
+/course/2026/python/
+```
+
+where:
+
+* year = exactly 4 digits
+* course = lowercase letters
+
+Answer:
+
+```python
+re_path(
+    r'^course/(?P<year>\d{4})/(?P<course>[a-z]+)/$',
+    views.course
+)
+```
+
+View:
+
+```python
+def course(request, year, course):
+    return HttpResponse(
+        f"Year: {year}<br>"
+        f"Course: {course}"
+    )
+```
+
+---
+
+# 42. Coding Question — ID + Username
+
+Requirement:
+
+```text
+/user/25/Aman/
+```
+
+ID must be numeric and username can contain letters and numbers.
+
+```python
+re_path(
+    r'^user/(?P<id>\d+)/(?P<username>\w+)/$',
+    views.user
+)
+```
+
+View:
+
+```python
+def user(request, id, username):
+    return HttpResponse(
+        f"ID: {id}<br>"
+        f"Username: {username}"
+    )
+```
+
+---
+
+# 43. Common Mistake — Forgetting `r`
+
+Instead of:
+
+```python
+r'^student/(?P<id>\d+)/$'
+```
+
+you may see:
+
+```python
+'^student/(?P<id>\d+)/$'
+```
+
+Python's string escaping can make regex backslashes confusing.
+
+For regex patterns, use raw strings:
+
+```python
+r'...'
+```
+
+It's the standard and clearer approach.
+
+---
+
+# 44. Common Mistake — Wrong Parameter Name
+
+URL:
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+View:
+
+```python
+def student(request, student_id):
+```
+
+Problem:
+
+```text
+URL gives id
+View expects student_id
+```
+
+Make them consistent.
+
+---
+
+# 45. Common Mistake — Forgetting `+`
+
+Suppose you write:
+
+```regex
+\d
+```
+
+This matches only **one digit**.
+
+So:
+
+```text
+/student/5/
+```
+
+matches.
+
+But:
+
+```text
+/student/25/
+```
+
+doesn't match that particular pattern.
+
+Use:
+
+```regex
+\d+
+```
+
+for one or more digits.
+
+---
+
+# 46. Common Mistake — `{4}` vs `+`
+
+These are different:
+
+```regex
+\d+
+```
+
+means:
+
+> Any positive number of digits.
+
+While:
+
+```regex
+\d{4}
+```
+
+means:
+
+> Exactly four digits.
+
+For example:
+
+```text
+123      matches \d+
+123      does NOT match \d{4}
+```
+
+---
+
+# 47. Viva Questions
+
+### Q1. What is regex?
+
+> A regular expression is a pattern used to match and validate text.
+
+### Q2. What is `re_path()`?
+
+> `re_path()` is a Django URL routing function that allows URL patterns to be defined using regular expressions.
+
+### Q3. Difference between `path()` and `re_path()`?
+
+> `path()` uses Django's path converters, while `re_path()` uses regular expressions.
+
+### Q4. What does `\d` mean?
+
+> A digit.
+
+### Q5. What does `+` mean?
+
+> One or more occurrences.
+
+### Q6. What does `*` mean?
+
+> Zero or more occurrences.
+
+### Q7. What does `\d{4}` mean?
+
+> Exactly four digits.
+
+### Q8. What does `^` mean?
+
+> Start of the pattern.
+
+### Q9. What does `$` mean?
+
+> End of the pattern.
+
+### Q10. What is `(?P<id>\d+)`?
+
+> A named capturing group called `id` that captures one or more digits.
+
+---
+
+# 48. ⭐ Most Important Viva Question
+
+### Teacher:
+
+> Why would you use `re_path()` when Django already provides `path()`?
+
+Best answer:
+
+> `path()` is preferred for normal URL patterns because its converters are simpler and more readable. `re_path()` is useful when the URL requires more complex matching rules that cannot be conveniently expressed using the built-in path converters.
+
+That's a strong interview/viva answer.
+
+---
+
+# 49. Exam-Level Question
+
+**Write a Django URL pattern that accepts a 4-digit year and a lowercase course name.**
+
+Answer:
+
+```python
+re_path(
+    r'^course/(?P<year>\d{4})/(?P<course>[a-z]+)/$',
+    views.course
+)
+```
+
+View:
+
+```python
+def course(request, year, course):
+    return HttpResponse(
+        f"Year: {year}, Course: {course}"
+    )
+```
+
+Example:
+
+```text
+/course/2026/python/
+```
+
+---
+
+# 🧠 Module 10 Cheat Sheet
+
+If you remember only this, remember:
+
+```python
+from django.urls import re_path
+```
+
+Basic regex URL:
+
+```python
+re_path(
+    r'^student/(?P<id>\d+)/$',
+    views.student
+)
+```
+
+View:
+
+```python
+def student(request, id):
+    ...
+```
+
+Regex:
+
+```text
+^        start
+$        end
+\d       digit
+\w       word character
++        one or more
+*        zero or more
+?        zero or one
+{4}      exactly 4
+{2,4}    2 to 4
+[]       allowed character set
+(?P<id>) named group
+```
+
+And the key principle:
+
+> **Use `path()` for normal URL patterns; use `re_path()` when you need complex regex matching.**
+
+---
+
+### Next → Module 11: Error Handling in Django
+
+We'll cover:
+
+* What happens when a URL doesn't exist
+* 404 errors
+* 400 errors
+* 500 errors
+* `Http404`
+* `get_object_or_404()`
+* `try/except` in views
+* Custom error pages
+* `DEBUG=True` vs `DEBUG=False`
+* `404.html`, `500.html`
+* Common Django errors and how to debug them
+* Viva + coding questions

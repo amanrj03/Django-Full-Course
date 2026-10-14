@@ -1,0 +1,657 @@
+# Chapter 3 — Module 2: Classification and Traditional Consensus Algorithms
+
+Based primarily on your teacher's CONSENSUS UNIT-3.pptx and PBFT Algorithm.pptx.
+
+In Module 1, we learned what consensus is, why it is necessary, and how faulty nodes affect distributed systems. Now we'll study how consensus algorithms are classified and how traditional algorithms actually work.
+
+This module focuses on:
+
+1. Classification of consensus algorithms
+2. Traditional voting-based vs lottery-based consensus
+3. Paxos algorithm
+4. Raft algorithm
+5. Byzantine Agreement
+6. Practical Byzantine Fault Tolerance (PBFT)
+7. PBFT phases, view change and checkpointing
+8. Comparison of Paxos, Raft and PBFT
+
+We'll start with classification before learning each algorithm.
+
+# Topic 1: Classification of Consensus Algorithms
+
+## 1.1 Why are there different consensus algorithms?
+
+Different distributed systems have different requirements.
+
+For example:
+
+- A replicated database may need fast agreement among known servers.
+- A group of banks may need agreement even if some validators behave maliciously.
+- A public cryptocurrency must reach agreement among participants who may not know or trust one another.
+
+One consensus algorithm cannot be assumed to be the best for every situation. Algorithms differ in their trust assumptions, communication costs, fault tolerance and decision-making mechanisms.
+
+Your teacher's CONSENSUS UNIT-3.pptx divides consensus algorithms into two broad categories:
+
+1. Traditional — voting-based consensus
+2. Lottery-based — Nakamoto and post-Nakamoto consensus&#x20;
+
+   CONSENSUS UNIT-3.pptx
+
+
+
+Let's understand each category.
+
+## 1.2 Traditional voting-based consensus
+
+Traditional consensus algorithms were developed in distributed-systems research before Bitcoin.
+
+They commonly use messages, proposals, votes or quorums to decide which value should be accepted.
+
+A quorum is a required group or number of participants whose responses are sufficient for a protocol to proceed.
+
+Examples from your teacher's PPT:
+
+- Paxos — a crash-fault-tolerant consensus algorithm.
+- PBFT — a Byzantine-fault-tolerant consensus algorithm.
+
+### Simple example
+
+Suppose five servers maintain copies of a database.
+
+A client submits a request to update a record. The protocol exchanges messages among the servers and requires an appropriate quorum of responses before treating the operation as decided.
+
+The purpose is to ensure that failures do not cause different honest replicas to decide conflicting values.
+
+Important: quorum rules depend on the particular algorithm. Consensus is not always equivalent to taking a simple majority vote.
+
+## 1.3 Lottery-based consensus
+
+Your teacher's PPT calls the second category lottery-based or Nakamoto-type consensus. It identifies Bitcoin as the first example of this category.&#x20;
+
+CONSENSUS UNIT-3.pptx
+
+
+
+Rather than requiring a fixed, known group of validators to vote on every decision, Nakamoto-style systems use a mechanism that determines who gets to propose the next block.
+
+In Bitcoin, this mechanism is Proof of Work (PoW).
+
+Miners compete to find a block satisfying the network's difficulty requirement. Nodes follow the protocol's chain-selection rules to determine the accepted blockchain history.
+
+We'll study the complete mechanism in Module 3.
+
+## 1.4 Comparison
+
+| Feature              | Traditional voting-based                     | Lottery-based / Nakamoto-type                                                           |
+| -------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Examples in your PPT | Paxos, PBFT                                  | Bitcoin's Nakamoto consensus                                                            |
+| Decision mechanism   | Proposals, messages and quorum rules         | Block-production competition and chain selection                                        |
+| Typical setting      | Replicated systems; often known participants | Public, permissionless blockchain                                                       |
+| Main focus           | Agreement despite defined failures           | Agreement on a chain among participants without requiring a fixed trusted validator set |
+| Fault model          | Depends on the algorithm: CFT or BFT         | Designed for an adversarial public network under its assumptions                        |
+
+### Remember this distinction
+
+Paxos and PBFT: agreement through protocol messages and quorum rules.
+
+Bitcoin: agreement through Proof of Work and chain selection.
+
+The distinction is about how the protocols achieve agreement, not simply whether the system is public or private.
+
+# Topic 2: Paxos Algorithm
+
+Paxos is a foundational consensus algorithm used to help distributed systems agree on a value despite crash-type failures.
+
+Your teacher's PPT identifies Paxos as a Crash Fault Tolerance (CFT) algorithm and describes it as a two-phase protocol:
+
+1. Prepare phase
+2. Accept phase&#x20;
+
+   CONSENSUS UNIT-3.pptx
+
+
+
+## 2.1 Why do we need Paxos?
+
+Imagine three servers maintaining a replicated database.
+
+A client requests that the database store the value `100`.
+
+- Server A proposes `100`.
+- Server B has not received the request yet.
+- Server C temporarily stops responding.
+
+How can the system decide on a value without requiring every server to be operational?
+
+Paxos uses proposal numbers and responses from a majority of acceptors to achieve agreement while tolerating certain failures.
+
+## 2.2 The three roles in Paxos
+
+Your teacher's PPT identifies three roles: proposer, acceptor and learner. A single process may perform more than one role.&#x20;
+
+CONSENSUS UNIT-3.pptx
+
+
+
+1\. Proposer
+
+Suggests a value for the system to decide. It sends proposal messages to acceptors.
+
+2\. Acceptor
+
+Responds to proposals and participates in deciding which value is chosen. A majority of acceptors is important to the protocol.
+
+3\. Learner
+
+Learns the value that has been chosen. It does not need to initiate proposals.
+
+### Easy example
+
+Suppose five nodes participate:
+
+- Node A acts as the proposer.
+- Nodes B, C, D, E and possibly A act as acceptors.
+- Other processes can learn the chosen value.
+
+For the simplified majority calculation, a majority of five is three.
+
+The important idea is that Paxos does not require every node to respond.
+
+## 2.3 Proposal numbers
+
+Paxos uses proposal numbers to order competing proposals.
+
+A proposal number must be unique and ordered according to the protocol's rules.
+
+For example:
+
+- Proposal 10
+- Proposal 11
+- Proposal 12
+
+A higher proposal number can supersede a lower one in the protocol's preparation process.
+
+This helps prevent competing proposers from independently establishing conflicting decisions.
+
+## 2.4 Phase 1 — Prepare
+
+The proposer chooses a proposal number \\(n\\) and sends a `Prepare(n)` message to acceptors.
+
+The acceptors check the proposal number against the promises they have already made.
+
+If \\(n\\) is sufficiently high, an acceptor promises not to accept proposals numbered lower than \\(n\\). It also reports information about the highest-numbered proposal it has already accepted, if any.
+
+```
+              Proposer
+                  |
+          Prepare(n) message
+           /      |      \
+          v       v       v
+      Acceptor Acceptor Acceptor
+          |       |       |
+          └───────┴───────┘
+            Promise / reply
+                  |
+                  v
+        Proposer collects replies
+```
+
+The proposer needs replies from a majority of acceptors to proceed.
+
+Remember: the prepare phase establishes promises and gathers information about earlier accepted proposals.
+
+## 2.5 Phase 2 — Accept
+
+After receiving responses from a majority, the proposer determines which value to propose in the accept phase.
+
+An important Paxos rule is that if an acceptor reported an earlier accepted proposal, the proposer must respect the protocol's rule for selecting the value—normally choosing the value associated with the highest-numbered previously accepted proposal among the responses.
+
+The proposer then sends an accept request containing the proposal number and value.
+
+```
+              Proposer
+                  |
+           Accept(n, value)
+           /      |      \
+          v       v       v
+      Acceptor Acceptor Acceptor
+          |       |       |
+          └───────┴───────┘
+          Accept responses
+                  |
+                  v
+       Value chosen by majority
+                  |
+                  v
+              Learners
+```
+
+When a majority of acceptors accepts the same proposal, the value is chosen. Learners can then learn the decision.
+
+### What if one acceptor fails?
+
+Suppose there are five acceptors and one fails. Four remain operational.
+
+Paxos can still obtain the required majority of three responses, assuming the remaining nodes and network allow progress.
+
+This is why a majority-based protocol does not require every participant to be available.
+
+## 2.6 How Paxos maintains safety and liveness
+
+- Agreement: majority intersection and the proposal rules prevent two conflicting values from both being chosen.
+- Validity: only values proposed according to the protocol can be chosen.
+- Liveness: the system can eventually make progress when the necessary communication and proposer conditions hold.
+
+A key qualification: basic Paxos does not guarantee termination in every possible asynchronous execution. This connects directly to the FLP result from Module 1.
+
+## 2.7 Advantages and limitations
+
+Advantages
+
+1. Tolerates crash failures within its assumptions.
+2. Does not require every node to respond.
+3. Majority-based decisions help preserve safety.
+4. Provides a foundation for replicated state machines and related protocols.
+
+Limitations
+
+1. The protocol can be difficult to understand and implement correctly.
+2. Competing proposers can delay progress.
+3. Basic Paxos does not guarantee termination under all asynchronous executions.
+4. It is not designed to tolerate arbitrary Byzantine behaviour.
+
+### Exam-ready 10-mark structure: Paxos
+
+If asked "Explain the Paxos consensus algorithm", write:
+
+1. Definition and purpose
+2. CFT classification
+3. Roles: proposer, acceptor, learner
+4. Proposal numbers
+5. Prepare phase
+6. Accept phase
+7. Majority and chosen value
+8. Safety and liveness
+9. Advantages and limitations
+10. Diagram and conclusion
+
+# Topic 3: Raft Algorithm
+
+Raft is another Crash Fault Tolerance (CFT) consensus algorithm. Your teacher's PPT describes it as a replicated-log algorithm in which a leader is elected and log entries are replicated to followers.&#x20;
+
+CONSENSUS UNIT-3.pptx
+
+
+
+## 3.1 Basic idea
+
+Imagine five servers maintaining the same database.
+
+Instead of allowing every server to independently coordinate every update, Raft elects a leader. Clients send requests to the leader, which replicates the changes to followers.
+
+Raft divides its operation into three main areas:
+
+1. Leader election
+2. Log replication
+3. Safety
+
+## 3.2 The three server states
+
+Every Raft server can be in one of three states.
+
+Leader
+
+Receives client requests and coordinates log replication.
+
+Follower
+
+Receives instructions and log entries from the leader.
+
+Candidate
+
+Requests votes during a leader election.
+
+## 3.3 Step 1 — Leader election
+
+When the system starts, servers generally begin as followers.
+
+If a follower does not receive the expected communication from a leader within its election timeout, it may become a candidate and request votes.
+
+A candidate that obtains the required majority becomes the leader for that election term.
+
+If no candidate wins, another election can occur.
+
+## 3.4 Step 2 — Log replication
+
+Suppose a client requests:
+
+`Set account balance = 500`
+
+The process is:
+
+Client request
+
+Set balance to 500
+
+Leader appends entry to its log
+
+Leader replicates entry to followers
+
+Required majority confirms replication
+
+Entry is committed and applied
+
+The leader does not treat an entry as committed merely because it was written to its own log. Commitment depends on Raft's replication and safety rules.
+
+Once an entry is committed, the leader informs followers so they can apply the entry to their replicated state machines.
+
+## 3.5 Step 3 — Safety
+
+Raft aims to ensure that committed log entries are not replaced by conflicting entries.
+
+If a leader fails, the election and log rules help ensure that a new leader can continue without losing already committed decisions.
+
+## 3.6 What if the leader fails?
+
+1. Followers stop receiving regular communication from the leader.
+2. An election timeout occurs.
+3. A follower becomes a candidate.
+4. Servers exchange votes.
+5. A candidate that wins the required majority becomes the new leader.
+6. The new leader resumes log replication.
+
+## 3.7 Paxos vs Raft
+
+| Feature              | Paxos                              | Raft                               |
+| -------------------- | ---------------------------------- | ---------------------------------- |
+| Fault model          | CFT                                | CFT                                |
+| Main approach        | Proposals, promises and acceptance | Leader election and replicated log |
+| Roles/states         | Proposer, acceptor, learner        | Leader, follower, candidate        |
+| Main phases/concepts | Prepare and accept                 | Election, replication and safety   |
+| Common purpose       | Agreement on values                | Consistent replicated log          |
+
+Exam tip: For Raft, focus on the three states, leader election, log replication, majority commitment and handling leader failure.
+
+# Topic 4: Byzantine Agreement
+
+Paxos and Raft handle crash faults. But what if nodes deliberately lie or send contradictory messages?
+
+This requires a Byzantine fault-tolerant approach.
+
+## 4.1 The problem
+
+Consider four validators:
+
+- Validator A proposes a block.
+- Validator B agrees.
+- Validator C agrees.
+- Validator D is malicious and sends conflicting messages.
+
+A simple crash-tolerant protocol does not necessarily protect against this behaviour because it assumes a more limited failure model.
+
+A Byzantine agreement protocol is designed to achieve agreement among honest participants despite a bounded number of malicious participants.
+
+## 4.2 Classical Byzantine agreement
+
+Your teacher's PBFT Algorithm.pptx introduces the Lamport–Shostak–Pease Byzantine Generals algorithm and lists assumptions such as:
+
+- A synchronous environment
+- Reliable communication channels
+- A fully connected network
+- Receivers knowing the identities of senders&#x20;
+
+  PBFT Algorithm.pptx
+
+
+
+These assumptions make the classical problem easier to analyse, but they may be too restrictive for real-world networks.
+
+This motivates practical Byzantine Fault Tolerance.
+
+## 4.3 Why do we need PBFT?
+
+PBFT was designed to make Byzantine fault tolerance practical for replicated services.
+
+The PPT highlights the use of cryptographic techniques and identifies PBFT as a practical approach that accommodates an asynchronous environment, with safety taking priority when progress cannot be guaranteed.&#x20;
+
+PBFT Algorithm.pptx
+
+
+
+We'll now study the algorithm's operation.
+
+# Topic 5: Practical Byzantine Fault Tolerance (PBFT)
+
+PBFT stands for Practical Byzantine Fault Tolerance. It is a consensus algorithm designed to keep replicated services consistent even when some replicas behave maliciously.
+
+Your teacher's PBFT PPT covers the replica requirement, primary and backups, views, normal operation, view change, checkpointing, and the three main phases.&#x20;
+
+PBFT Algorithm.pptx
+
+
+
+## 5.1 Number of replicas required
+
+PBFT uses the following relationship:
+
+\\[ \boxed{N=3F+1} \\]
+
+Where:
+
+- \\(N\\) = total replicas
+- \\(F\\) = maximum Byzantine faulty replicas to tolerate
+
+For example, if \\(F=1\\):
+
+\\[ N=3(1)+1=4 \\]
+
+So four replicas are required to tolerate one Byzantine faulty replica under the standard PBFT model.
+
+For four replicas:
+
+- Maximum faulty replicas: 1
+- Minimum non-faulty replicas: 3
+
+This is why PBFT needs more replicas than a typical crash-fault-tolerant setup with the same \\(F\\).
+
+## 5.2 Primary and backup replicas
+
+PBFT uses a primary/backup model.
+
+- Primary: coordinates the normal operation and proposes the order of requests.
+- Backup replicas: independently check messages and participate in agreement.
+
+A configuration of the system is called a view. Each view has a unique view number, and one replica serves as the primary in that view.
+
+If the primary is suspected of being faulty, the replicas can initiate a view change to move to a new primary.
+
+## 5.3 Overall PBFT working
+
+Client sends request
+
+1\. PRE-PREPARE
+
+Primary assigns a sequence number and proposes request ordering.
+
+2\. PREPARE
+
+Replicas exchange messages to check agreement on the proposed request and its ordering.
+
+3\. COMMIT
+
+Replicas exchange commit messages and determine when the request can be executed.
+
+Execute request and reply to client
+
+Let's understand each phase.
+
+## 5.4 Phase 1 — Pre-prepare
+
+The primary receives a request from the client.
+
+It then:
+
+1. Assigns the request a sequence number.
+2. Associates the request with the current view.
+3. Sends a `PRE-PREPARE` message to the backup replicas.
+
+The sequence number establishes the request's position in the agreed execution order.
+
+The backups check whether the message is acceptable under the protocol's rules.
+
+Purpose: establish the primary's proposed ordering of the request.
+
+## 5.5 Phase 2 — Prepare
+
+After receiving a valid pre-prepare message, a backup broadcasts a `PREPARE` message to the replicas.
+
+The replicas collect prepare messages and check that they refer to the same view, sequence number and request.
+
+This allows replicas to determine whether there is sufficient agreement on the proposed ordering.
+
+In the formulation shown in your teacher's PPT, a replica waits for the required prepare messages before proceeding to the commit phase. The usual threshold is expressed in terms of \\(2F\\) matching prepare messages from other replicas, in addition to the replica's own accepted pre-prepare and prepare state.
+
+Purpose: ensure that replicas have evidence of agreement on the proposed request and its ordering.
+
+## 5.6 Phase 3 — Commit
+
+Once the prepare condition is satisfied, a replica sends a `COMMIT` message to all replicas.
+
+The replicas collect valid commit messages for the same request, view and sequence number.
+
+In the PPT's description, the replica waits for \\(2F+1\\) valid commit messages before executing the request and sending its result to the client.&#x20;
+
+PBFT Algorithm.pptx
+
+
+
+For \\(F=1\\):
+
+\\[ 2F+1=2(1)+1=3 \\]
+
+Therefore, three valid commit messages satisfy the stated commit threshold.
+
+Purpose: ensure that the request is ready to be executed consistently by the replicas.
+
+### Prepare vs commit — don't confuse them
+
+| Prepare phase                                          | Commit phase                                                            |
+| ------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Checks agreement on the proposed request and ordering. | Establishes that the request is ready for execution under the protocol. |
+| Uses `PREPARE` messages.                               | Uses `COMMIT` messages.                                                 |
+| Helps establish the prepared state.                    | Helps establish the committed state.                                    |
+
+## 5.7 View change
+
+What if the primary is faulty or stops responding?
+
+PBFT includes a view-change subprotocol.
+
+In simplified terms:
+
+1. Replicas suspect that the current primary is not making progress.
+2. They send view-change messages.
+3. The protocol establishes a new view with a new primary.
+4. Normal operation resumes under the new view.
+
+The protocol must preserve the safety of previously established decisions while changing the primary.
+
+## 5.8 Checkpointing
+
+As a replicated service processes more and more requests, its log can grow.
+
+Checkpointing records a sufficiently agreed-upon state at a particular sequence number. Once the relevant conditions are met, older log information can potentially be discarded.
+
+Benefits include:
+
+- Reducing the amount of old log data retained
+- Supporting recovery
+- Helping replicas verify and synchronise their state
+
+Checkpointing is a separate part of PBFT from the three normal-operation phases.
+
+## 5.9 Advantages and limitations of PBFT
+
+### Advantages
+
+1. Tolerates a bounded number of Byzantine faults.
+2. Uses cryptographic techniques to authenticate and protect messages.
+3. Can provide deterministic agreement and finality under its assumptions.
+4. Does not depend on energy-intensive mining.
+5. Supports replicated services with known participants.
+
+### Limitations
+
+1. Communication overhead can be high.
+2. The number of messages grows significantly as the number of replicas increases.
+3. Membership and identity management are important.
+4. Progress can be delayed during network problems or view changes.
+5. It is not a direct replacement for every public permissionless blockchain consensus mechanism.
+
+## 5.10 Paxos vs PBFT
+
+| Feature                     | Paxos                            | PBFT                                          |
+| --------------------------- | -------------------------------- | --------------------------------------------- |
+| Fault model                 | Crash faults                     | Byzantine faults                              |
+| Main roles                  | Proposer, acceptor, learner      | Primary and backup replicas                   |
+| Main phases                 | Prepare and accept               | Pre-prepare, prepare, commit                  |
+| Node requirement in the PPT | \\(2F+1\\)                       | \\(3F+1\\)                                    |
+| Main strength               | Agreement despite crash failures | Agreement despite bounded malicious behaviour |
+| Example use                 | Replicated services              | Byzantine fault-tolerant replicated services  |
+
+# Module 2 — Revision Sheet
+
+## Definitions to memorise
+
+- Traditional consensus: voting/message-based consensus, with Paxos and PBFT as examples in your PPT.
+- Lottery-based consensus: Nakamoto-style consensus, exemplified by Bitcoin.
+- Paxos: CFT algorithm using prepare and accept phases.
+- Raft: CFT algorithm using leader election and log replication.
+- Byzantine agreement: agreement despite potentially malicious participants.
+- PBFT: practical Byzantine fault-tolerant consensus using pre-prepare, prepare and commit phases.
+- View change: transition to a new primary/view when the current primary is suspected of failure.
+- Checkpointing: recording a sufficiently agreed state to support recovery and manage old logs.
+
+## Important formulas
+
+\\[ \text{Paxos/CFT bound: }N\geq 2F+1 \\]
+
+\\[ \text{PBFT/BFT bound: }N=3F+1 \\]
+
+\\[ \text{PBFT commit threshold: }2F+1 \\]
+
+Remember that these formulas are tied to the fault model and algorithm assumptions, rather than being universal formulas for every consensus protocol.
+
+## Likely 5-mark questions
+
+1. Classify consensus algorithms with examples.
+2. Explain the roles of proposer, acceptor and learner in Paxos.
+3. Explain the prepare and accept phases of Paxos.
+4. Explain leader election and log replication in Raft.
+5. Differentiate CFT and BFT.
+6. Explain the three phases of PBFT.
+7. What are view change and checkpointing in PBFT?
+8. Compare Paxos and PBFT.
+
+## Likely 10-mark questions
+
+1. Explain the Paxos consensus algorithm with a diagram.
+2. Explain Raft, including leader election, log replication and safety.
+3. Explain PBFT with its architecture, phases and fault-tolerance requirements.
+4. Compare Paxos, Raft and PBFT.
+5. Explain the classification of consensus algorithms and distinguish traditional voting-based consensus from Nakamoto-style consensus.
+
+Exam tip: For PBFT, the most important sequence to remember is:
+
+Pre-prepare → Prepare → Commit → Execute → Reply
+
+For Paxos:
+
+Prepare → Accept → Chosen value
+
+For Raft:
+
+Leader election → Log replication → Commit
+
+Module 2 is complete. When you're ready, say NEXT MODULE to begin Module 3: Blockchain Consensus Algorithms and Choosing an Algorithm, covering Proof of Work, Proof of Stake, Nakamoto consensus, attacks and the criteria for selecting a consensus mechanism.

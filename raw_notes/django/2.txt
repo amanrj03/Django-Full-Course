@@ -1,0 +1,1011 @@
+# Module 2 — Python Environment, Virtual Environment & Django Installation
+
+In this module, we'll go from **"I have Python installed" → "I have a proper Django development environment ready."**
+
+This module is mostly practical, so I'll explain the **commands, what they do, why we use them, and viva questions**.
+
+---
+
+# 1. What do we need before Django?
+
+Django is a Python framework, so we need:
+
+```text
+Python
+   ↓
+pip
+   ↓
+Virtual Environment
+   ↓
+Django
+   ↓
+Code Editor
+```
+
+Usually you'll use something like:
+
+* Python
+* VS Code
+* Terminal/Command Prompt
+* Django
+
+---
+
+# 2. What is Python?
+
+Python is a **high-level, interpreted programming language**.
+
+Django is built using Python, so your Django code will primarily be written in Python.
+
+For example:
+
+```python
+def hello():
+    print("Hello")
+```
+
+Django adds web-development functionality on top of Python.
+
+---
+
+# 3. Check Whether Python Is Installed
+
+Open **Command Prompt / PowerShell / VS Code Terminal**.
+
+Run:
+
+```bash
+python --version
+```
+
+You may see:
+
+```text
+Python 3.x.x
+```
+
+On some systems, especially Windows, this may also work:
+
+```bash
+py --version
+```
+
+### Viva question
+
+**Q: How do you check the Python version?**
+
+Answer:
+
+> We can use `python --version` or, on Windows, `py --version`.
+
+---
+
+# 4. What is pip?
+
+You will frequently see:
+
+```bash
+pip install django
+```
+
+So what is `pip`?
+
+**pip is Python's package installer.**
+
+It allows us to install Python packages.
+
+For example:
+
+```bash
+pip install django
+```
+
+means:
+
+> Install the Django Python package.
+
+You can check pip using:
+
+```bash
+pip --version
+```
+
+---
+
+# 5. What is a Python Package?
+
+A package is reusable code that can be installed and used in your Python programs.
+
+For example:
+
+```text
+Django
+NumPy
+Pandas
+Requests
+Matplotlib
+```
+
+Instead of writing everything yourself, you can install packages containing functionality written by other developers.
+
+---
+
+# 6. Why Do We Need a Virtual Environment?
+
+This is **very important**.
+
+Suppose you have two Django projects.
+
+### Project A
+
+Requires:
+
+```text
+Django 4.x
+```
+
+### Project B
+
+Requires:
+
+```text
+Django 5.x
+```
+
+If both projects use the same global Python environment, you can run into dependency/version conflicts.
+
+A **virtual environment** creates an isolated Python environment for a project.
+
+Conceptually:
+
+```text
+Computer
+│
+├── Project A
+│    └── Virtual Environment
+│         └── Django version A
+│
+└── Project B
+     └── Virtual Environment
+          └── Django version B
+```
+
+This keeps project dependencies separate.
+
+---
+
+# 7. What Exactly Does a Virtual Environment Do?
+
+It creates an isolated environment where you can install Python packages specifically for your project.
+
+Without virtual environment:
+
+```text
+System Python
+    |
+    +-- Django
+    +-- Package A
+    +-- Package B
+    +-- Package C
+```
+
+With virtual environments:
+
+```text
+System Python
+     |
+     +----------------+
+     |                |
+   Project A        Project B
+     |                |
+     ↓                ↓
+   venv A           venv B
+     |                |
+  Django A          Django B
+```
+
+This is one of the most important reasons virtual environments are used.
+
+---
+
+# 8. Creating a Virtual Environment
+
+Suppose you create a folder for your Django work:
+
+```text
+DjangoCourse
+```
+
+Open the terminal inside that folder.
+
+Run:
+
+```bash
+python -m venv venv
+```
+
+Let's understand this command.
+
+```text
+python
+```
+
+Runs Python.
+
+```text
+-m
+```
+
+Tells Python to run a module.
+
+```text
+venv
+```
+
+Python's built-in module for creating virtual environments.
+
+```text
+venv
+```
+
+The name we're giving our virtual environment.
+
+So:
+
+```bash
+python -m venv venv
+```
+
+means:
+
+> Use Python's `venv` module to create a virtual environment named `venv`.
+
+---
+
+# 9. Can We Give the Environment Another Name?
+
+Yes.
+
+For example:
+
+```bash
+python -m venv myenv
+```
+
+or:
+
+```bash
+python -m venv django_env
+```
+
+But you'll commonly see:
+
+```bash
+python -m venv venv
+```
+
+---
+
+# 10. Activating the Virtual Environment
+
+Creating it isn't enough.
+
+You need to **activate** it.
+
+## Windows — Command Prompt
+
+```cmd
+venv\Scripts\activate
+```
+
+## Windows — PowerShell
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+After activation, you may see something like:
+
+```text
+(venv) C:\Users\...\DjangoCourse>
+```
+
+The:
+
+```text
+(venv)
+```
+
+indicates that the virtual environment is active.
+
+---
+
+# 11. Why Do We Activate It?
+
+Because we want commands such as:
+
+```bash
+pip install django
+```
+
+to install Django into the project's virtual environment rather than relying on the global environment.
+
+So:
+
+```text
+Activate venv
+       ↓
+pip install django
+       ↓
+Django installed in venv
+```
+
+---
+
+# 12. Installing Django
+
+Once your virtual environment is activated:
+
+```bash
+pip install django
+```
+
+pip downloads and installs Django and its required dependencies.
+
+After installation, check:
+
+```bash
+django-admin --version
+```
+
+You should get a Django version number.
+
+You can also use:
+
+```bash
+python -m django --version
+```
+
+---
+
+# 13. `django-admin` vs `python -m django`
+
+You'll encounter both.
+
+### `django-admin`
+
+Django's command-line utility.
+
+For example:
+
+```bash
+django-admin startproject myproject
+```
+
+### `python -m django`
+
+Runs Django through the currently selected Python interpreter.
+
+For example:
+
+```bash
+python -m django --version
+```
+
+Using `python -m django` can be useful when you want to make sure you're using Django associated with the Python environment you're currently working in.
+
+---
+
+# 14. Why Is `python -m` Useful?
+
+Suppose your computer has multiple Python installations or environments.
+
+Running:
+
+```bash
+python -m pip
+```
+
+or:
+
+```bash
+python -m django
+```
+
+ties the command to the Python interpreter represented by `python`.
+
+For example:
+
+```bash
+python -m pip install django
+```
+
+is often a reliable alternative to:
+
+```bash
+pip install django
+```
+
+because it makes the Python environment relationship explicit.
+
+---
+
+# 15. Verify Django Installation
+
+Run:
+
+```bash
+django-admin --version
+```
+
+or:
+
+```bash
+python -m django --version
+```
+
+If it returns a version, Django is installed.
+
+Example:
+
+```text
+5.x.x
+```
+
+The exact version you see may differ from examples in your college material.
+
+---
+
+# 16. Installing VS Code
+
+You can use any suitable editor, but we'll use **VS Code** throughout this course.
+
+You'll generally want the:
+
+**Python extension**
+
+installed in VS Code.
+
+Later, VS Code will help with:
+
+* Syntax highlighting
+* Autocomplete
+* Error detection
+* Running code
+* Terminal
+* Django project editing
+
+---
+
+# 17. Selecting the Correct Python Interpreter
+
+This is a **very common beginner problem**.
+
+Suppose your project has:
+
+```text
+DjangoCourse/
+│
+└── venv/
+```
+
+Your VS Code should ideally use the Python interpreter from that virtual environment.
+
+In VS Code:
+
+```text
+Ctrl + Shift + P
+       ↓
+Python: Select Interpreter
+       ↓
+Select your venv Python
+```
+
+On Windows it will typically be something similar to:
+
+```text
+venv\Scripts\python.exe
+```
+
+The exact path depends on where your project is located.
+
+---
+
+# 18. Why Does the Interpreter Matter?
+
+Imagine:
+
+```text
+Python A
+   ↓
+No Django installed
+
+Python B
+   ↓
+Django installed
+```
+
+If VS Code uses Python A, you might get an error such as:
+
+```text
+ModuleNotFoundError: No module named 'django'
+```
+
+even though you installed Django.
+
+Why?
+
+Because you installed Django in one Python environment, while VS Code is using another.
+
+That's why:
+
+```text
+Virtual Environment
+        +
+Correct Interpreter
+```
+
+is important.
+
+---
+
+# 19. Typical Project Setup
+
+A clean setup can look like:
+
+```text
+DjangoCourse/
+│
+├── venv/
+│
+└── project/
+```
+
+Eventually, after creating the Django project, you'll have more files and folders.
+
+Don't worry about the exact project structure yet—we'll cover it in **Module 4**.
+
+---
+
+# 20. The Complete Setup Process
+
+For your practical exam, remember this sequence:
+
+### Step 1
+
+Create a folder:
+
+```text
+DjangoCourse
+```
+
+### Step 2
+
+Open terminal in it.
+
+### Step 3
+
+Create virtual environment:
+
+```bash
+python -m venv venv
+```
+
+### Step 4
+
+Activate it:
+
+```bash
+venv\Scripts\activate
+```
+
+### Step 5
+
+Install Django:
+
+```bash
+pip install django
+```
+
+### Step 6
+
+Check Django:
+
+```bash
+django-admin --version
+```
+
+### Step 7
+
+Open the folder in VS Code.
+
+### Step 8
+
+Select the virtual environment's Python interpreter.
+
+Now your Django environment is ready.
+
+---
+
+# 21. Important Commands to Memorize
+
+These are worth memorizing:
+
+| Purpose                     | Command                      |
+| --------------------------- | ---------------------------- |
+| Check Python                | `python --version`           |
+| Check pip                   | `pip --version`              |
+| Create venv                 | `python -m venv venv`        |
+| Activate venv — Windows CMD | `venv\Scripts\activate`      |
+| Install Django              | `pip install django`         |
+| Check Django                | `django-admin --version`     |
+| Check Django through Python | `python -m django --version` |
+| Deactivate venv             | `deactivate`                 |
+
+---
+
+# 22. Deactivating the Virtual Environment
+
+When you're finished working:
+
+```bash
+deactivate
+```
+
+The:
+
+```text
+(venv)
+```
+
+prefix disappears.
+
+Important:
+
+> Deactivating the environment does **not delete it**.
+
+It simply stops using that virtual environment in the current terminal session.
+
+You can activate it again later.
+
+---
+
+# 23. Common Mistake #1 — `python` Not Recognized
+
+You might get something like:
+
+```text
+'python' is not recognized...
+```
+
+Possible causes include:
+
+* Python isn't installed
+* Python isn't on PATH
+* Terminal needs to be restarted
+* Windows Python launcher may be available as `py`
+
+Try:
+
+```bash
+py --version
+```
+
+---
+
+# 24. Common Mistake #2 — Django Not Found
+
+You run:
+
+```bash
+django-admin --version
+```
+
+and get an error.
+
+Check:
+
+```bash
+python -m django --version
+```
+
+Also check whether your virtual environment is active:
+
+```text
+(venv)
+```
+
+Then:
+
+```bash
+python -m pip show django
+```
+
+This can help determine whether Django is installed in the Python environment you're currently using.
+
+---
+
+# 25. Common Mistake #3 — VS Code Uses Wrong Python
+
+You installed Django successfully but your Python file says:
+
+```text
+ModuleNotFoundError: No module named 'django'
+```
+
+Check the selected interpreter.
+
+You may have:
+
+```text
+VS Code → Global Python
+```
+
+while Django is installed in:
+
+```text
+VS Code → venv Python
+```
+
+Select:
+
+```text
+venv\Scripts\python.exe
+```
+
+---
+
+# 26. Common Mistake #4 — PowerShell Execution Policy
+
+Sometimes Windows PowerShell can block activation scripts.
+
+You may see an execution-policy error.
+
+Don't panic. This is a Windows shell configuration issue, not a Django issue.
+
+For your college practical, you can also use **Command Prompt** and activate with:
+
+```cmd
+venv\Scripts\activate
+```
+
+We'll troubleshoot such errors if you encounter them while actually setting up your environment.
+
+---
+
+# 27. Viva Questions
+
+Now let's make this viva-ready.
+
+### Q1. What is pip?
+
+**Answer:**
+
+> pip is Python's package installer used to install and manage Python packages.
+
+---
+
+### Q2. Why do we use a virtual environment?
+
+**Answer:**
+
+> A virtual environment creates an isolated Python environment for a project, allowing project-specific packages and versions without interfering with other projects.
+
+---
+
+### Q3. How do you create a virtual environment?
+
+**Answer:**
+
+```bash
+python -m venv venv
+```
+
+---
+
+### Q4. How do you activate a virtual environment in Windows?
+
+**Answer:**
+
+For Command Prompt:
+
+```cmd
+venv\Scripts\activate
+```
+
+For PowerShell:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+---
+
+### Q5. How do you deactivate it?
+
+```bash
+deactivate
+```
+
+---
+
+### Q6. How do you install Django?
+
+```bash
+pip install django
+```
+
+---
+
+### Q7. How do you check the Django version?
+
+```bash
+django-admin --version
+```
+
+or:
+
+```bash
+python -m django --version
+```
+
+---
+
+### Q8. Why should we use a virtual environment for Django?
+
+A strong answer:
+
+> We use a virtual environment to isolate the dependencies of a Django project. This prevents package and version conflicts between different projects.
+
+---
+
+### Q9. What is `django-admin`?
+
+> `django-admin` is Django's command-line utility used to perform administrative tasks such as creating projects and other Django-related operations.
+
+---
+
+### Q10. What does `python -m venv venv` mean?
+
+> It runs Python's built-in `venv` module and creates a virtual environment named `venv`.
+
+---
+
+# 28. Viva Trap Question ⚠️
+
+### Teacher:
+
+> "If I deactivate my virtual environment, is Django deleted?"
+
+**Wrong:**
+
+> Yes.
+
+**Correct:**
+
+> No. Deactivation only stops using the virtual environment in the current terminal session. The environment and its installed packages remain on the system until they are explicitly deleted.
+
+---
+
+# 29. Another Viva Trap
+
+### Teacher:
+
+> "Can I install Django globally without a virtual environment?"
+
+**Answer:**
+
+> Yes, technically Django can be installed globally, but using a virtual environment is recommended because it isolates project dependencies and avoids version conflicts.
+
+That's a much better answer than simply saying "No."
+
+---
+
+# 30. Practical Question
+
+Your teacher may say:
+
+> **"Set up Django and verify that it is installed."**
+
+Your answer/action sequence should be:
+
+```bash
+python --version
+```
+
+```bash
+python -m venv venv
+```
+
+```bash
+venv\Scripts\activate
+```
+
+```bash
+python -m pip install django
+```
+
+```bash
+python -m django --version
+```
+
+If the version appears, Django is installed.
+
+---
+
+# 🧠 Module 2 — What You Should Remember
+
+The complete chain:
+
+```text
+Python
+  ↓
+Virtual Environment
+  ↓
+Activate
+  ↓
+Install Django
+  ↓
+Verify Django
+  ↓
+Select correct VS Code interpreter
+```
+
+Most important commands:
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+python -m pip install django
+python -m django --version
+deactivate
+```
+
+And understand this distinction:
+
+```text
+Python
+   ↓
+Programming language
+
+pip
+   ↓
+Package installer
+
+venv
+   ↓
+Isolated environment
+
+Django
+   ↓
+Python web framework
+```
+
+---
+
+# 🎯 Mini Practical Test
+
+Before we move to Module 3, try these **without looking above**:
+
+### Part A — Viva
+
+1. What is pip?
+2. What is a virtual environment?
+3. Why do we need a virtual environment?
+4. What does `python -m venv venv` do?
+5. How do you activate a venv in Windows?
+6. How do you install Django?
+7. How do you check the Django version?
+8. What is `django-admin`?
+9. What happens when you run `deactivate`?
+10. Why might VS Code show `No module named django` even after installing Django?
+
+### Part B — Practical
+
+Imagine your teacher gives you a completely empty folder and says:
+
+> **"Create a Python virtual environment, install Django, and verify the installation."**
+
+Write the **exact commands in the correct order**.
+
+Send me your answers if you want me to check them. Otherwise, say **“next”** and we'll start **Module 3 — Creating Your First Django Project**, where we'll actually create and run a Django application.

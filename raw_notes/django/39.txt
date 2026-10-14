@@ -1,0 +1,1966 @@
+# Module 39 — Protecting Views in Django
+
+This module completes the **authentication + authorization** part of the syllabus.
+
+You already know how to:
+
+```text
+User
+ ↓
+authenticate()
+ ↓
+login()
+ ↓
+Session
+ ↓
+request.user
+ ↓
+logout()
+```
+
+But there's a problem:
+
+> What prevents an unauthenticated user from directly visiting `/dashboard/`?
+
+For example, someone could simply type:
+
+```text
+http://127.0.0.1:8000/dashboard/
+```
+
+into the browser.
+
+We need to **protect the view**.
+
+---
+
+# 1. What Does "Protect a View" Mean?
+
+Protecting a view means controlling **who can access it**.
+
+For example:
+
+```text
+/dashboard/
+```
+
+should only be accessible to logged-in users.
+
+Or:
+
+```text
+/admin-panel/
+```
+
+might only be accessible to users with a particular permission.
+
+So:
+
+```text
+Request
+   ↓
+Check user
+   ↓
+Allowed? ── No ──→ Deny / Redirect
+   │
+  Yes
+   ↓
+View executes
+```
+
+---
+
+# 2. Authentication vs Authorization
+
+Again, this distinction is extremely important.
+
+### Authentication
+
+```text
+WHO are you?
+```
+
+Example:
+
+```python
+request.user.is_authenticated
+```
+
+### Authorization
+
+```text
+WHAT are you allowed to do?
+```
+
+Example:
+
+```python
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+Therefore:
+
+```text
+Authentication → Identity
+Authorization  → Access
+```
+
+---
+
+# 3. The Simplest Way to Protect a View
+
+You can manually check:
+
+```python
+def dashboard(request):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+This works.
+
+But Django provides a much cleaner solution:
+
+```python
+@login_required
+```
+
+---
+
+# 4. `login_required`
+
+Import:
+
+```python
+from django.contrib.auth.decorators import login_required
+```
+
+Then:
+
+```python
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+That's it.
+
+---
+
+# 5. How `@login_required` Works
+
+Suppose an unauthenticated user requests:
+
+```text
+/dashboard/
+```
+
+Django checks:
+
+```python
+request.user.is_authenticated
+```
+
+If:
+
+```text
+True
+```
+
+the view executes.
+
+If:
+
+```text
+False
+```
+
+Django redirects the user to the configured login page.
+
+Conceptually:
+
+```text
+/dashboard/
+     ↓
+@login_required
+     ↓
+Authenticated?
+  ┌──┴──┐
+ YES    NO
+  ↓      ↓
+View    Login
+```
+
+---
+
+# 6. Complete Example
+
+```python
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+Now the dashboard requires authentication.
+
+---
+
+# 7. What Happens to an Unauthenticated User?
+
+Suppose:
+
+```text
+/dashboard/
+```
+
+requires login.
+
+A user who isn't logged in may be redirected to something like:
+
+```text
+/login/?next=/dashboard/
+```
+
+The important part is:
+
+```text
+next=/dashboard/
+```
+
+---
+
+# 8. What Is `next`?
+
+`next` tells Django:
+
+> "After successful login, return the user to the page they originally requested."
+
+Example:
+
+```text
+User requests:
+/dashboard/
+```
+
+Not logged in.
+
+Django redirects:
+
+```text
+/login/?next=/dashboard/
+```
+
+After login:
+
+```text
+/dashboard/
+```
+
+This gives a much better user experience.
+
+---
+
+# 9. `LOGIN_URL`
+
+Django needs to know where your login page is.
+
+In `settings.py`:
+
+```python
+LOGIN_URL = "/login/"
+```
+
+Then:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+will redirect unauthenticated users toward:
+
+```text
+/login/
+```
+
+---
+
+# 10. Using a Named URL
+
+You can also configure:
+
+```python
+LOGIN_URL = "login"
+```
+
+if `login` is the name of your URL pattern and the URL is resolvable in your project's URL configuration.
+
+Example:
+
+```python
+path(
+    "login/",
+    views.login_view,
+    name="login"
+)
+```
+
+Then:
+
+```python
+LOGIN_URL = "login"
+```
+
+---
+
+# 11. `LOGIN_REDIRECT_URL`
+
+After successful login, Django's authentication views can redirect users to a configured default destination.
+
+In `settings.py`:
+
+```python
+LOGIN_REDIRECT_URL = "/dashboard/"
+```
+
+Or using a named URL:
+
+```python
+LOGIN_REDIRECT_URL = "dashboard"
+```
+
+---
+
+# 12. `LOGOUT_REDIRECT_URL`
+
+Similarly:
+
+```python
+LOGOUT_REDIRECT_URL = "/login/"
+```
+
+can specify where users should be redirected after logout when using Django's authentication logout mechanisms.
+
+---
+
+# 13. Important Settings
+
+Remember these:
+
+```python
+LOGIN_URL = "/login/"
+
+LOGIN_REDIRECT_URL = "/dashboard/"
+
+LOGOUT_REDIRECT_URL = "/login/"
+```
+
+Mental model:
+
+```text
+LOGIN_URL
+     ↓
+Where to go to login
+
+LOGIN_REDIRECT_URL
+     ↓
+Where to go after login
+
+LOGOUT_REDIRECT_URL
+     ↓
+Where to go after logout
+```
+
+---
+
+# 14. Protecting Multiple Views
+
+You can use the decorator on multiple views:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+
+
+@login_required
+def profile(request):
+    ...
+
+
+@login_required
+def orders(request):
+    ...
+```
+
+Every decorated view requires authentication.
+
+---
+
+# 15. `@login_required` Does Not Check Permissions
+
+This is VERY important.
+
+Suppose:
+
+```python
+@login_required
+def delete_student(request, id):
+    ...
+```
+
+This only means:
+
+> The user must be logged in.
+
+It does **not** mean:
+
+> The user has permission to delete students.
+
+An authenticated normal user could potentially access it if there are no further checks.
+
+---
+
+# 16. Authentication vs Permission
+
+Think:
+
+```text
+@login_required
+       ↓
+"Are you logged in?"
+```
+
+Whereas:
+
+```python
+@permission_required(
+    "students.delete_student"
+)
+```
+
+means:
+
+```text
+"Do you have this specific permission?"
+```
+
+---
+
+# 17. `permission_required`
+
+Import:
+
+```python
+from django.contrib.auth.decorators import permission_required
+```
+
+Example:
+
+```python
+@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+
+    ...
+```
+
+Now Django checks whether the current user has:
+
+```text
+students.delete_student
+```
+
+---
+
+# 18. Combining Authentication and Permission
+
+A very common pattern is:
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+
+    ...
+```
+
+This gives two layers:
+
+```text
+User
+ ↓
+Logged in?
+ ↓
+Has delete permission?
+ ↓
+Execute
+```
+
+---
+
+# 19. `permission_required` and Unauthenticated Users
+
+Django's permission decorator can handle access based on permissions.
+
+For unauthenticated users, you commonly want them directed to login.
+
+For authenticated users without the permission, you may want a **403 Forbidden** response.
+
+This distinction is important:
+
+```text
+Not authenticated
+       ↓
+Login required
+
+Authenticated but not authorized
+       ↓
+403 Forbidden
+```
+
+---
+
+# 20. `raise_exception=True`
+
+You can explicitly tell `permission_required` to raise `PermissionDenied`:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+Then a logged-in user without the permission gets a **403 Forbidden** rather than being redirected to login.
+
+---
+
+# 21. 302 vs 403
+
+This is a common interview/viva question.
+
+### Unauthenticated user
+
+Often redirected to login:
+
+```text
+302 Redirect
+```
+
+### Authenticated but unauthorized user
+
+Typically:
+
+```text
+403 Forbidden
+```
+
+So:
+
+```text
+Not logged in
+    ↓
+Login
+
+Logged in but no permission
+    ↓
+403
+```
+
+---
+
+# 22. `has_perm()`
+
+You can manually check permissions:
+
+```python
+if request.user.has_perm(
+    "students.delete_student"
+):
+    ...
+```
+
+Example:
+
+```python
+def delete_student(request, id):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    if not request.user.has_perm(
+        "students.delete_student"
+    ):
+        return HttpResponse(
+            "Permission denied",
+            status=403
+        )
+
+    ...
+```
+
+This works, but decorators often make simple view-level checks cleaner.
+
+---
+
+# 23. `has_perm()` Returns Boolean
+
+```python
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+returns:
+
+```text
+True
+```
+
+or:
+
+```text
+False
+```
+
+Example:
+
+```python
+if request.user.has_perm(
+    "students.change_student"
+):
+    print("Allowed")
+```
+
+---
+
+# 24. Permission Comes From User or Group
+
+A user can get a permission directly:
+
+```text
+User
+ ↓
+Permission
+```
+
+or through a group:
+
+```text
+User
+ ↓
+Group
+ ↓
+Permission
+```
+
+For example:
+
+```text
+Aman
+ ↓
+Teachers
+ ↓
+students.change_student
+```
+
+Then:
+
+```python
+request.user.has_perm(
+    "students.change_student"
+)
+```
+
+can return:
+
+```text
+True
+```
+
+---
+
+# 25. Protecting a Delete View
+
+Suppose we have:
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    student.delete()
+
+    return redirect(
+        "student_list"
+    )
+```
+
+This is a good example combining multiple concepts we've learned.
+
+---
+
+# 26. Let's Break It Down
+
+### First:
+
+```python
+@login_required
+```
+
+User must be authenticated.
+
+### Second:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+```
+
+User must have delete permission.
+
+### Third:
+
+```python
+get_object_or_404(...)
+```
+
+Retrieve the student or return 404.
+
+### Fourth:
+
+```python
+student.delete()
+```
+
+Delete the object.
+
+### Fifth:
+
+```python
+redirect("student_list")
+```
+
+Follow POST-Redirect-GET if this operation is performed through POST.
+
+---
+
+# 27. Decorator Order
+
+Suppose:
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+The decorators are applied from the bottom upward.
+
+Conceptually:
+
+```text
+permission_required
+       ↓
+login_required
+       ↓
+view
+```
+
+For simple Django usage, the common combination above is understandable and useful.
+
+---
+
+# 28. Protecting CRUD Operations
+
+Suppose your application has:
+
+```text
+Student CRUD
+```
+
+You may want:
+
+```text
+Create → authenticated + add permission
+Read   → authenticated + view permission
+Update → authenticated + change permission
+Delete → authenticated + delete permission
+```
+
+For example:
+
+```python
+@permission_required(
+    "students.add_student",
+    raise_exception=True
+)
+def create_student(request):
+    ...
+```
+
+---
+
+# 29. Default Model Permissions
+
+As covered earlier, Django normally creates permissions such as:
+
+```text
+add_student
+change_student
+delete_student
+view_student
+```
+
+with the appropriate app label.
+
+So:
+
+```python
+"students.add_student"
+```
+
+```python
+"students.change_student"
+```
+
+```python
+"students.delete_student"
+```
+
+```python
+"students.view_student"
+```
+
+---
+
+# 30. Permission Naming
+
+The standard format:
+
+```text
+app_label.codename
+```
+
+Example:
+
+```text
+students.delete_student
+```
+
+Break it down:
+
+```text
+students
+   ↓
+app label
+
+delete_student
+   ↓
+permission codename
+```
+
+---
+
+# 31. Class-Based Views
+
+So far we've used function-based views.
+
+For class-based views, Django provides:
+
+```python
+LoginRequiredMixin
+```
+
+Example:
+
+```python
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+
+
+class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+
+    template_name = "dashboard.html"
+```
+
+Now authentication is required.
+
+---
+
+# 32. `LoginRequiredMixin`
+
+Think of:
+
+```python
+LoginRequiredMixin
+```
+
+as the class-based-view equivalent of:
+
+```python
+@login_required
+```
+
+Conceptually:
+
+```text
+Function-based view
+        ↓
+@login_required
+```
+
+and:
+
+```text
+Class-based view
+        ↓
+LoginRequiredMixin
+```
+
+---
+
+# 33. Example CBV With Permission
+
+Django also provides:
+
+```python
+PermissionRequiredMixin
+```
+
+Example:
+
+```python
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+)
+
+
+class DeleteStudentView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.delete_student"
+    )
+```
+
+This gives:
+
+```text
+Login required
++
+Permission required
+```
+
+---
+
+# 34. `PermissionRequiredMixin`
+
+Example:
+
+```python
+class StudentDeleteView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.delete_student"
+    )
+```
+
+This is the class-based-view equivalent of using permission checks/decorators.
+
+---
+
+# 35. `UserPassesTestMixin`
+
+Django also provides:
+
+```python
+UserPassesTestMixin
+```
+
+It lets you define custom access rules.
+
+Example:
+
+```python
+from django.contrib.auth.mixins import (
+    UserPassesTestMixin
+)
+
+
+class TeacherView(UserPassesTestMixin):
+
+    def test_func(self):
+
+        return self.request.user.is_staff
+```
+
+The view is accessible only when:
+
+```python
+request.user.is_staff
+```
+
+is true.
+
+---
+
+# 36. Decorator vs Mixin
+
+| Function-Based View    | Class-Based View          |
+| ---------------------- | ------------------------- |
+| `@login_required`      | `LoginRequiredMixin`      |
+| `@permission_required` | `PermissionRequiredMixin` |
+| custom decorator/test  | `UserPassesTestMixin`     |
+
+You should definitely know this for interviews.
+
+---
+
+# 37. Protecting a View With `user_passes_test`
+
+Django also provides:
+
+```python
+user_passes_test
+```
+
+Example:
+
+```python
+from django.contrib.auth.decorators import (
+    user_passes_test
+)
+
+
+def is_staff(user):
+    return user.is_staff
+
+
+@user_passes_test(is_staff)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )
+```
+
+Now only users satisfying:
+
+```python
+user.is_staff
+```
+
+can access the view.
+
+---
+
+# 38. Combining `login_required` and `user_passes_test`
+
+You can write custom conditions.
+
+For example:
+
+```python
+@login_required
+@user_passes_test(
+    lambda user: user.is_staff
+)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )
+```
+
+This means:
+
+```text
+Must be logged in
++
+Must be staff
+```
+
+---
+
+# 39. Important Security Principle
+
+Never rely only on hiding buttons.
+
+For example:
+
+```django
+{% if user.is_staff %}
+    <button>Delete</button>
+{% endif %}
+```
+
+This is useful for UI.
+
+But it is **not sufficient security**.
+
+A user can manually send a request to your delete URL.
+
+Therefore the server-side view must enforce authorization.
+
+```text
+UI restriction
+     +
+Server-side authorization
+```
+
+Both are useful, but the second is the actual security boundary.
+
+---
+
+# 40. Example of the Wrong Approach
+
+Suppose:
+
+```django
+{% if user.is_staff %}
+    <a href="/delete/10/">Delete</a>
+{% endif %}
+```
+
+You think:
+
+> "Only staff can delete."
+
+Not necessarily.
+
+A malicious user could manually request:
+
+```text
+/delete/10/
+```
+
+Therefore your view should check permissions too.
+
+---
+
+# 41. Correct Approach
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+Now the server itself enforces the rule.
+
+---
+
+# 42. `login_required` and HTTP Methods
+
+Remember from Module 20:
+
+```text
+GET
+POST
+```
+
+`@login_required` doesn't itself decide whether GET or POST is appropriate.
+
+You still need to design state-changing operations correctly.
+
+For example, deletion should normally be performed through POST:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit">
+        Delete
+    </button>
+</form>
+```
+
+Then:
+
+```python
+if request.method == "POST":
+    ...
+```
+
+---
+
+# 43. Secure Delete Example
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    if request.method == "POST":
+
+        student = get_object_or_404(
+            Student,
+            id=id
+        )
+
+        student.delete()
+
+        return redirect(
+            "student_list"
+        )
+
+    return HttpResponse(
+        "POST required",
+        status=405
+    )
+```
+
+This combines:
+
+```text
+Authentication
++
+Authorization
++
+CSRF
++
+POST
++
+404 handling
++
+Delete
++
+Redirect
+```
+
+That's a very strong Django example.
+
+---
+
+# 44. `LOGIN_URL` Example
+
+In `settings.py`:
+
+```python
+LOGIN_URL = "login"
+```
+
+URLs:
+
+```python
+path(
+    "login/",
+    views.login_view,
+    name="login"
+)
+```
+
+Then:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+Unauthenticated users are directed toward the login URL.
+
+---
+
+# 45. `next` Parameter
+
+Suppose:
+
+```text
+/dashboard/
+```
+
+requires login.
+
+The user isn't logged in.
+
+Django may produce:
+
+```text
+/login/?next=/dashboard/
+```
+
+After successful login, the authentication system can use that information to return the user to the originally requested location, depending on the login flow.
+
+This is one reason `next` is useful.
+
+---
+
+# 46. Security Concern With `next`
+
+You should not blindly redirect users to arbitrary URLs supplied by request parameters.
+
+Django's built-in authentication mechanisms include protections around redirect destinations.
+
+When implementing custom login logic, be careful with user-controlled redirect URLs to avoid **open redirect vulnerabilities**.
+
+For a basic project, using Django's built-in authentication views/mechanisms is preferable.
+
+---
+
+# 47. `redirect_authenticated_user`
+
+You may encounter this option with Django's built-in `LoginView`:
+
+```python
+redirect_authenticated_user = True
+```
+
+It means an already-authenticated user can be redirected away from the login page.
+
+Example:
+
+```python
+from django.contrib.auth.views import LoginView
+
+
+class MyLoginView(LoginView):
+
+    template_name = "login.html"
+
+    redirect_authenticated_user = True
+```
+
+This is more advanced, but useful to recognize.
+
+---
+
+# 48. Built-in `LoginView`
+
+Django actually provides authentication views, so you don't always have to write the complete login logic yourself.
+
+For example:
+
+```python
+from django.contrib.auth.views import LoginView
+```
+
+You can configure:
+
+```python
+path(
+    "login/",
+    LoginView.as_view(
+        template_name="login.html"
+    ),
+    name="login"
+)
+```
+
+Then Django handles the standard login process.
+
+---
+
+# 49. Built-in `LogoutView`
+
+Similarly:
+
+```python
+from django.contrib.auth.views import LogoutView
+```
+
+can provide logout functionality.
+
+Example:
+
+```python
+path(
+    "logout/",
+    LogoutView.as_view(),
+    name="logout"
+)
+```
+
+This is an important Django feature to know.
+
+---
+
+# 50. Custom Login vs Built-In Login
+
+### Custom login
+
+You write:
+
+```python
+authenticate()
+login()
+```
+
+yourself.
+
+Useful for learning and custom behavior.
+
+### Built-in `LoginView`
+
+Django handles standard login flow.
+
+Useful when you want conventional authentication with less custom code.
+
+Both approaches are valid.
+
+---
+
+# 51. Complete Architecture
+
+At this point, your understanding should look like:
+
+```text
+                     USER
+                       │
+                       ↓
+                Login Form
+                       │
+                       ↓
+                 authenticate()
+                       │
+                       ↓
+                    login()
+                       │
+                       ↓
+                   SESSION
+                       │
+                       ↓
+                 request.user
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+       is_authenticated      has_perm()
+              ↓                 ↓
+       Authentication       Authorization
+              │                 │
+              └────────┬────────┘
+                       ↓
+                  Protected View
+```
+
+---
+
+# 52. Authentication + Authorization Example
+
+Suppose we have:
+
+```text
+Student Management System
+```
+
+Rules:
+
+```text
+Everyone → Can see login page
+
+Authenticated users → Dashboard
+
+Teachers → Edit students
+
+Admins → Delete students
+```
+
+Implementation concept:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+Teacher:
+
+```python
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+def edit_student(request, id):
+    ...
+```
+
+Admin:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+---
+
+# 53. Common Viva Questions
+
+### Q1. What is `@login_required`?
+
+> It is a Django decorator that restricts a view to authenticated users.
+
+---
+
+### Q2. What happens when an unauthenticated user accesses a `login_required` view?
+
+> Django redirects the user to the configured login URL, commonly including a `next` parameter containing the originally requested URL.
+
+---
+
+### Q3. What is `LOGIN_URL`?
+
+> It specifies the URL or named URL where unauthenticated users should be sent to log in.
+
+---
+
+### Q4. What is `LOGIN_REDIRECT_URL`?
+
+> It specifies the default destination after successful login for the relevant authentication flow.
+
+---
+
+### Q5. What is `LOGOUT_REDIRECT_URL`?
+
+> It specifies the default destination after logout for Django's authentication logout mechanisms.
+
+---
+
+### Q6. Does `@login_required` check permissions?
+
+> No. It checks authentication, not specific permissions.
+
+---
+
+### Q7. How do you check a permission?
+
+```python
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+---
+
+### Q8. What is `@permission_required`?
+
+> It is a Django decorator that restricts a view based on a user's permission.
+
+---
+
+### Q9. What does `raise_exception=True` do?
+
+> It causes a permission failure to raise `PermissionDenied`, resulting in a 403 response rather than redirecting to the login page.
+
+---
+
+### Q10. What is the difference between 401 and 403?
+
+For Django web applications, be precise:
+
+* **403 Forbidden** means the server understood the request but refuses to authorize access.
+* **401 Unauthorized** in HTTP terminology generally means authentication is required or invalid and carries an authentication challenge; it is not simply a synonym for "user isn't logged in."
+
+For Django's typical `login_required` browser flow, unauthenticated users are commonly **redirected to login**, rather than receiving a 401 response.
+
+---
+
+# 54. Interview Question
+
+### "How would you protect a Django view?"
+
+Strong answer:
+
+> "For authentication-only protection, I would use Django's `login_required` decorator for function-based views or `LoginRequiredMixin` for class-based views. If the view requires a specific permission, I would use `permission_required` or `PermissionRequiredMixin`. I would enforce authorization on the server side rather than relying only on hiding UI elements."
+
+Excellent answer.
+
+---
+
+# 55. Interview Question
+
+### "What's the difference between authentication and authorization?"
+
+Strong answer:
+
+> "Authentication verifies the identity of a user, while authorization determines whether that authenticated user has permission to perform a particular action or access a resource."
+
+---
+
+# 56. Interview Question
+
+### "Why isn't hiding a Delete button enough?"
+
+Strong answer:
+
+> "Because UI restrictions are not security boundaries. A user can manually send the HTTP request to the delete endpoint. The server-side view must independently verify authentication and authorization before performing the operation."
+
+Very important.
+
+---
+
+# 57. Coding Question
+
+### Protect a dashboard.
+
+```python
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "dashboard.html"
+    )
+```
+
+---
+
+# 58. Coding Question
+
+### Require a specific permission.
+
+```python
+from django.contrib.auth.decorators import (
+    permission_required
+)
+
+
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+def edit_student(request, id):
+
+    ...
+```
+
+---
+
+# 59. Coding Question
+
+### Manually check permission.
+
+```python
+def edit_student(request, id):
+
+    if not request.user.is_authenticated:
+        return redirect("login")
+
+    if not request.user.has_perm(
+        "students.change_student"
+    ):
+        return HttpResponse(
+            "Permission denied",
+            status=403
+        )
+
+    ...
+```
+
+---
+
+# 60. Coding Question
+
+### Protect a CBV.
+
+```python
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin
+)
+from django.views.generic import TemplateView
+
+
+class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+
+    template_name = "dashboard.html"
+```
+
+---
+
+# 61. Coding Question
+
+### Protect a CBV with a permission.
+
+```python
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+)
+
+
+class StudentEditView(
+    LoginRequiredMixin,
+    PermissionRequiredMixin
+):
+
+    permission_required = (
+        "students.change_student"
+    )
+```
+
+---
+
+# 62. Coding Question
+
+### Allow only staff users.
+
+```python
+from django.contrib.auth.decorators import (
+    user_passes_test
+)
+
+
+@user_passes_test(
+    lambda user: user.is_staff
+)
+def staff_dashboard(request):
+
+    return render(
+        request,
+        "staff_dashboard.html"
+    )
+```
+
+For an application with more complex rules, you may want a named test function rather than a lambda.
+
+---
+
+# 63. Most Important Code to Memorize
+
+### Authentication:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+### Permission:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+### Manual permission:
+
+```python
+if request.user.has_perm(
+    "students.delete_student"
+):
+    ...
+```
+
+### CBV:
+
+```python
+class DashboardView(
+    LoginRequiredMixin,
+    TemplateView
+):
+    ...
+```
+
+---
+
+# 64. Complete Django Security Flow
+
+You have now covered almost the entire authentication foundation:
+
+```text
+                 USER
+                  │
+                  ↓
+             Registration
+                  │
+                  ↓
+              User Model
+                  │
+                  ↓
+               Login
+                  │
+                  ↓
+           authenticate()
+                  │
+                  ↓
+               login()
+                  │
+                  ↓
+              Session
+                  │
+                  ↓
+            session cookie
+                  │
+                  ↓
+             request.user
+                  │
+          ┌───────┴────────┐
+          ↓                ↓
+   is_authenticated      has_perm()
+          ↓                ↓
+ Authentication        Authorization
+          │                │
+          └───────┬────────┘
+                  ↓
+            Protected View
+                  │
+                  ↓
+                CRUD
+```
+
+---
+
+# 65. Final Cheat Sheet
+
+```python
+# Authentication protection
+@login_required
+def dashboard(request):
+    ...
+```
+
+```python
+# Permission protection
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+```python
+# Manual permission check
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+```python
+# CBV authentication
+LoginRequiredMixin
+```
+
+```python
+# CBV permission
+PermissionRequiredMixin
+```
+
+```python
+# Custom condition
+UserPassesTestMixin
+```
+
+Settings:
+
+```python
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/dashboard/"
+LOGOUT_REDIRECT_URL = "/login/"
+```
+
+Remember:
+
+```text
+@login_required
+       ↓
+Authentication
+
+@permission_required
+       ↓
+Authorization
+```
+
+---
+
+# Module 39 Complete ✅
+
+You have now finished the entire **Cookies → Sessions → Users → Login → Logout → Protected Views** chain.
+
+The next module is:
+
+## **Module 40 — Complete Django CRUD Project**
+
+This will be a major practical module where we'll combine almost everything you've learned:
+
+```text
+Models
+Migrations
+ORM
+URLs
+Views
+Templates
+Template inheritance
+Forms
+Validation
+CSRF
+POST-Redirect-GET
+CRUD
+Foreign Keys
+Admin
+Authentication
+Permissions
+```
+
+We'll build a complete **Student Management System** step-by-step, so you can handle a practical/coding question where the teacher asks you to build a Django application from scratch.

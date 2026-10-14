@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Full Course — 45 Modules Complete Syllabus</title>
+    <meta name="description" content="Complete 45-module Django web framework curriculum from web basics to full CRUD and authentication projects.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-body);
+    margin: 0; padding: 0;
+}
+
+.hub-hero {
+    background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+    color: white;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.hub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+.hub-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 16px;
+}
+
+.hub-hero-desc {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 760px;
+    opacity: 0.95;
+    margin-bottom: 28px;
+}
+
+.hub-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #064e3b;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: background 0.2s;
+}
+.btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Filter & Controls Section */
+.controls-bar {
+    max-width: 1200px;
+    margin: -24px auto 30px;
+    padding: 18px 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.filter-pill.active,
+.filter-pill:hover {
+    background: #059669;
+    border-color: #059669;
+    color: white;
+}
+
+.search-box {
+    position: relative;
+    min-width: 260px;
+}
+.search-box input {
+    width: 100%;
+    padding: 8px 14px 8px 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-subtle);
+    color: var(--text-body);
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+.search-box input:focus {
+    border-color: #059669;
+    background: var(--bg-surface);
+}
+.search-box .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* Modules Grid */
+.modules-container {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.module-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+.module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: #059669;
+}
+.module-card.completed {
+    border-left: 4px solid #10b981;
+    background: rgba(16, 185, 129, 0.03);
+}
+
+.mod-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.mod-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #059669;
+    background: rgba(5, 150, 105, 0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+.mod-cat {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.badge-cat-fund { background: #e0f2fe; color: #0284c7; }
+.badge-cat-routing { background: #fef3c7; color: #d97706; }
+.badge-cat-tmpl { background: #ede9fe; color: #7c3aed; }
+.badge-cat-test { background: #fee2e2; color: #dc2626; }
+.badge-cat-forms { background: #ffedd5; color: #ea580c; }
+.badge-cat-orm { background: #dcfce7; color: #16a34a; }
+.badge-cat-auth { background: #fce7f3; color: #db2777; }
+.badge-cat-proj { background: #fae8ff; color: #a21caf; }
+
+.mod-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.35;
+}
+.mod-title a {
+    color: var(--text-heading);
+    text-decoration: none;
+}
+.mod-title a:hover {
+    color: #059669;
+}
+
+.mod-desc {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 20px;
+    flex-grow: 1;
+}
+
+.mod-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-read {
+    color: #059669;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.btn-read:hover {
+    color: #047857;
+    text-decoration: underline;
+}
+
+.completion-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.completion-checkbox input {
+    cursor: pointer;
+    accent-color: #059669;
+    width: 17px;
+    height: 17px;
+}
+
+@media (max-width: 768px) {
+    .hub-hero-title { font-size: 30px; }
+    .controls-bar { margin-top: 15px; flex-direction: column; align-items: stretch; }
+    .search-box { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+                        <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="django_guide.html" class="nav-action-pill" style="background: linear-gradient(135deg, #059669, #047857);" title="Read full guide">📖 Full Guide</a>
+        </div>
+    </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hub-hero">
+    <div class="hub-hero-container">
+        <div class="hub-badge">🐍 Python &amp; Django Engineering Series</div>
+        <h1 class="hub-hero-title">Python &amp; Django Full Course</h1>
+        <p class="hub-hero-desc">45 carefully architected modules taking you from HTTP &amp; web fundamentals, MVT architecture, and the ORM engine to full-stack CRUD applications, authentication, testing, and interview masterclasses.</p>
+        <div class="hub-hero-actions">
+            <a href="module-1.html" class="btn-hero-primary">Start Learning (Module 1) &rarr;</a>
+            <a href="django_guide.html" class="btn-hero-secondary">📖 Open 44-Module Full Guide</a>
+            <a href="module-42.html" class="btn-hero-secondary">🧠 Quick Revision Sheet (Mod 42)</a>
+            <a href="module-43.html" class="btn-hero-secondary">🎯 Viva Masterclass (Mod 43)</a>
+        </div>
+    </div>
+</section>
+
+<!-- CONTROLS & FILTER BAR -->
+<div class="controls-bar">
+    <div class="filter-pills" id="categoryFilters">
+        <button class="filter-pill active" onclick="filterModules('all', this)">All (45)</button>
+        <button class="filter-pill" onclick="filterModules('Fundamentals', this)">Fundamentals</button>
+        <button class="filter-pill" onclick="filterModules('Routing & Views', this)">Routing</button>
+        <button class="filter-pill" onclick="filterModules('Templates & DTL', this)">Templates</button>
+        <button class="filter-pill" onclick="filterModules('Forms & CSRF', this)">Forms</button>
+        <button class="filter-pill" onclick="filterModules('Models & ORM', this)">ORM & Models</button>
+        <button class="filter-pill" onclick="filterModules('Auth & Sessions', this)">Auth</button>
+        <button class="filter-pill" onclick="filterModules('Projects & Viva', this)">Projects & Viva</button>
+    </div>
+    <div class="search-box">
+        <span class="icon">🔍</span>
+        <input type="text" id="moduleSearch" placeholder="Search Django modules..." oninput="searchModules(this.value)">
+    </div>
+</div>
+
+<!-- MODULES GRID -->
+<div class="modules-container">
+    <div class="modules-grid" id="modulesGrid">
+
+    <div class="module-card" data-category="Fundamentals" data-mod="1">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 01</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-1.html">Web & Django Fundamentals</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-1.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 1, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Fundamentals" data-mod="2">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 02</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-2.html">Python Environment & Installation</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-2.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 2, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Fundamentals" data-mod="3">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 03</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-3.html">Creating Your First Django Project</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-3.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 3, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Fundamentals" data-mod="4">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 04</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-4.html">Django Project Structure</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-4.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 4, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Fundamentals" data-mod="5">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 05</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-5.html">Creating a Django App</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-5.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 5, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Fundamentals" data-mod="6">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 06</span>
+            <span class="mod-cat badge-cat-fund">Fundamentals</span>
+        </div>
+        <h3 class="mod-title"><a href="module-6.html">Your First Django View</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-6.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 6, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Routing & Views" data-mod="7">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 07</span>
+            <span class="mod-cat badge-cat-routing">Routing & Views</span>
+        </div>
+        <h3 class="mod-title"><a href="module-7.html">URL Routing in Depth</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-7.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 7, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Routing & Views" data-mod="8">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 08</span>
+            <span class="mod-cat badge-cat-routing">Routing & Views</span>
+        </div>
+        <h3 class="mod-title"><a href="module-8.html">HTTP Requests & Responses</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-8.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 8, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Routing & Views" data-mod="9">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 09</span>
+            <span class="mod-cat badge-cat-routing">Routing & Views</span>
+        </div>
+        <h3 class="mod-title"><a href="module-9.html">URL Parameters in Depth</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-9.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 9, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Routing & Views" data-mod="10">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 10</span>
+            <span class="mod-cat badge-cat-routing">Routing & Views</span>
+        </div>
+        <h3 class="mod-title"><a href="module-10.html">Regular Expressions in URLs</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-10.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 10, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Routing & Views" data-mod="11">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 11</span>
+            <span class="mod-cat badge-cat-routing">Routing & Views</span>
+        </div>
+        <h3 class="mod-title"><a href="module-11.html">Error Handling in Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-11.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 11, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="12">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 12</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-12.html">Introduction to Templates</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-12.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 12, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="13">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 13</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-13.html">Django Template Language (DTL)</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-13.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 13, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="14">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 14</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-14.html">Template Tags: if, else, for</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-14.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 14, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="15">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 15</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-15.html">Template Filters in Depth</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-15.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 15, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="16">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 16</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-16.html">Dynamic Templates</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-16.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 16, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Templates & DTL" data-mod="17">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 17</span>
+            <span class="mod-cat badge-cat-tmpl">Templates & DTL</span>
+        </div>
+        <h3 class="mod-title"><a href="module-17.html">Template Inheritance</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-17.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 17, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Testing & Debug" data-mod="18">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 18</span>
+            <span class="mod-cat badge-cat-test">Testing & Debug</span>
+        </div>
+        <h3 class="mod-title"><a href="module-18.html">Debugging Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-18.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 18, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Testing & Debug" data-mod="19">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 19</span>
+            <span class="mod-cat badge-cat-test">Testing & Debug</span>
+        </div>
+        <h3 class="mod-title"><a href="module-19.html">Testing in Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-19.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 19, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Forms & CSRF" data-mod="20">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 20</span>
+            <span class="mod-cat badge-cat-forms">Forms & CSRF</span>
+        </div>
+        <h3 class="mod-title"><a href="module-20.html">HTML Forms & HTTP in Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-20.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 20, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Forms & CSRF" data-mod="21">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 21</span>
+            <span class="mod-cat badge-cat-forms">Forms & CSRF</span>
+        </div>
+        <h3 class="mod-title"><a href="module-21.html">Django Forms</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-21.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 21, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Forms & CSRF" data-mod="22">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 22</span>
+            <span class="mod-cat badge-cat-forms">Forms & CSRF</span>
+        </div>
+        <h3 class="mod-title"><a href="module-22.html">Form Validation</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-22.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 22, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Forms & CSRF" data-mod="23">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 23</span>
+            <span class="mod-cat badge-cat-forms">Forms & CSRF</span>
+        </div>
+        <h3 class="mod-title"><a href="module-23.html">CSRF & CSRF Protection</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-23.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 23, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Forms & CSRF" data-mod="24">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 24</span>
+            <span class="mod-cat badge-cat-forms">Forms & CSRF</span>
+        </div>
+        <h3 class="mod-title"><a href="module-24.html">POST Redirect Pattern (PRG)</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-24.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 24, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="25">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 25</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-25.html">Databases & Django Models</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-25.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 25, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="26">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 26</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-26.html">Model Fields & Field Options</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-26.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 26, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="27">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 27</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-27.html">Django Migrations in Depth</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-27.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 27, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="28">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 28</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-28.html">Django ORM in Depth</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-28.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 28, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="29">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 29</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-29.html">Django Shell & CRUD</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-29.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 29, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="30">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 30</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-30.html">Advanced Django ORM</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-30.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 30, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="31">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 31</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-31.html">Relationships & Foreign Keys</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-31.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 31, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="32">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 32</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-32.html">Django Admin</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-32.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 32, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="33">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 33</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-33.html">Users, Groups & Permissions</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-33.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 33, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Models & ORM" data-mod="34">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 34</span>
+            <span class="mod-cat badge-cat-orm">Models & ORM</span>
+        </div>
+        <h3 class="mod-title"><a href="module-34.html">Database Configuration</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-34.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 34, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Auth & Sessions" data-mod="35">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 35</span>
+            <span class="mod-cat badge-cat-auth">Auth & Sessions</span>
+        </div>
+        <h3 class="mod-title"><a href="module-35.html">Cookies in Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-35.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 35, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Auth & Sessions" data-mod="36">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 36</span>
+            <span class="mod-cat badge-cat-auth">Auth & Sessions</span>
+        </div>
+        <h3 class="mod-title"><a href="module-36.html">Sessions in Django</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-36.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 36, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Auth & Sessions" data-mod="37">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 37</span>
+            <span class="mod-cat badge-cat-auth">Auth & Sessions</span>
+        </div>
+        <h3 class="mod-title"><a href="module-37.html">Django Users</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-37.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 37, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Auth & Sessions" data-mod="38">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 38</span>
+            <span class="mod-cat badge-cat-auth">Auth & Sessions</span>
+        </div>
+        <h3 class="mod-title"><a href="module-38.html">Django Login & Logout</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-38.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 38, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Auth & Sessions" data-mod="39">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 39</span>
+            <span class="mod-cat badge-cat-auth">Auth & Sessions</span>
+        </div>
+        <h3 class="mod-title"><a href="module-39.html">Protecting Views</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-39.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 39, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="40">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 40</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-40.html">Complete CRUD Project</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-40.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 40, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="41">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 41</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-41.html">Complete Auth Project</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-41.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 41, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="42">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 42</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-42.html">Complete Django Revision</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-42.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 42, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="43">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 43</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-43.html">Django Viva Masterclass</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-43.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 43, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="44">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 44</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-44.html">Django Coding Masterclass</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-44.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 44, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="module-card" data-category="Projects & Viva" data-mod="45">
+        <div class="mod-card-top">
+            <span class="mod-num">Module 45</span>
+            <span class="mod-cat badge-cat-proj">Projects & Viva</span>
+        </div>
+        <h3 class="mod-title"><a href="module-45.html">Django Imports Cheat Sheet</a></h3>
+        <p class="mod-desc">Interactive lesson covering key principles, code examples, edge cases and revision notes.</p>
+        <div class="mod-card-actions">
+            <a href="module-45.html" class="btn-read">Read Lesson &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('django', 45, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="portal-footer">
+    <div class="portal-footer-container">
+        <div class="footer-col">
+            <h4>OmniCourse Hub</h4>
+            <p>A unified, interactive study and revision platform built for Computer Science &amp; Engineering students.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Courses</h4>
+            <ul>
+                <li><a href="django.html">Django Full Course (45 Modules)</a></li>
+                <li><a href="blockchain.html">Blockchain &amp; Cryptography (8 Modules)</a></li>
+                <li><a href="maths.html">Engineering Mathematics (Upcoming)</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Special Guides</h4>
+            <ul>
+                <li><a href="django_guide.html">Django Full Reader</a></li>
+                <li><a href="blockchain_guide.html">Blockchain Full Reader</a></li>
+                <li><a href="module-45.html">Django Cheat Sheet</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Repository</h4>
+            <ul>
+                <li><a href="https://github.com/amanrj03/Django-Full-Course.git" target="_blank" rel="noopener">GitHub Project</a></li>
+                <li><a href="index.html">Master Portal Home</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div>&copy; 2026 OmniCourse Hub. Open Source &amp; Free for All Learners.</div>
+        <div>Connected via Git Repository</div>
+    </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+function filterModules(category, btn) {
+    document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+
+    var cards = document.querySelectorAll('.module-card');
+    cards.forEach(function(card) {
+        if (category === 'all' || card.dataset.category.toLowerCase().indexOf(category.toLowerCase()) !== -1) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function searchModules(query) {
+    var q = query.toLowerCase().trim();
+    var cards = document.querySelectorAll('.module-card');
+    cards.forEach(function(card) {
+        var text = card.innerText.toLowerCase();
+        if (text.indexOf(q) !== -1) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function toggleCardComplete(subject, modNum, checkbox) {
+    var card = checkbox.closest('.module-card');
+    var isDone = window.toggleModuleCompletion(subject, modNum);
+    if (isDone) {
+        card.classList.add('completed');
+    } else {
+        card.classList.remove('completed');
+    }
+}
+
+// Restore checkboxes state from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    var doneList = window.getSubjectProgress('django');
+    doneList.forEach(function(modNum) {
+        var card = document.querySelector('.module-card[data-mod="' + modNum + '"]');
+        if (card) {
+            card.classList.add('completed');
+            var chk = card.querySelector('input[type="checkbox"]');
+            if (chk) chk.checked = true;
+        }
+    });
+});
+</script>
+</body>
+</html>

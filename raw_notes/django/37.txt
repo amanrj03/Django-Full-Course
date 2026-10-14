@@ -1,0 +1,1703 @@
+# Module 37 — Django Users
+
+Now we move from **Sessions → Users → Login**.
+
+This module is extremely important because Django provides a built-in authentication system, so you usually **don't need to create your own user table or password system from scratch**.
+
+The main things you need to understand are:
+
+```text
+User
+Authentication
+Authorization
+request.user
+AnonymousUser
+is_authenticated
+is_staff
+is_superuser
+password handling
+```
+
+---
+
+# 1. What Is a User in Django?
+
+Django provides a built-in **User model** for representing people who interact with your application.
+
+It comes from:
+
+```python
+django.contrib.auth.models
+```
+
+You can import it using:
+
+```python
+from django.contrib.auth.models import User
+```
+
+For example:
+
+```python
+from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+---
+
+# 2. Why Does Django Provide a User Model?
+
+Without Django's authentication framework, you would need to build:
+
+```text
+User table
+      ↓
+Registration
+      ↓
+Password hashing
+      ↓
+Login
+      ↓
+Logout
+      ↓
+Sessions
+      ↓
+Authentication checks
+      ↓
+Permissions
+```
+
+Django provides most of this infrastructure already.
+
+This is one reason Django is called a **batteries-included framework**.
+
+---
+
+# 3. Django Authentication Framework
+
+The main application is:
+
+```python
+django.contrib.auth
+```
+
+It provides functionality for:
+
+* users
+* passwords
+* authentication
+* login
+* logout
+* sessions integration
+* permissions
+* groups
+
+---
+
+# 4. User Model Fields
+
+The built-in Django `User` model contains commonly used fields such as:
+
+```text
+username
+first_name
+last_name
+email
+password
+is_active
+is_staff
+is_superuser
+last_login
+date_joined
+```
+
+For example:
+
+```python
+user.username
+user.email
+user.first_name
+user.last_name
+```
+
+---
+
+# 5. Username
+
+Example:
+
+```python
+user.username
+```
+
+Suppose the username is:
+
+```text
+aman
+```
+
+Then:
+
+```python
+print(user.username)
+```
+
+outputs:
+
+```text
+aman
+```
+
+---
+
+# 6. Email
+
+You can access:
+
+```python
+user.email
+```
+
+Example:
+
+```python
+user.email = "aman@example.com"
+```
+
+Important:
+
+> In the default Django `User` model, email is not automatically the login identifier just because the field exists.
+
+The default authentication setup commonly uses the username.
+
+---
+
+# 7. First Name and Last Name
+
+You can use:
+
+```python
+user.first_name
+user.last_name
+```
+
+Example:
+
+```python
+user.first_name = "Aman"
+user.last_name = "Ranjan"
+```
+
+Then:
+
+```python
+print(user.first_name)
+```
+
+gives:
+
+```text
+Aman
+```
+
+---
+
+# 8. Password — VERY IMPORTANT
+
+A common beginner mistake is thinking:
+
+```python
+user.password
+```
+
+contains the original password.
+
+It does **not** contain the user's original plaintext password.
+
+Django stores a **password hash** rather than the plaintext password.
+
+---
+
+# 9. Never Store Plaintext Passwords
+
+Never do this:
+
+```python
+user.password = "123456"
+user.save()
+```
+
+This is incorrect for normal password handling.
+
+Instead use:
+
+```python
+user.set_password("123456")
+user.save()
+```
+
+Django hashes the password appropriately.
+
+---
+
+# 10. Creating a User
+
+The easiest standard method is:
+
+```python
+from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+This handles password setup correctly.
+
+---
+
+# 11. `create_user()`
+
+Example:
+
+```python
+user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    password="StrongPassword123"
+)
+```
+
+You can also provide:
+
+```python
+first_name="Aman"
+last_name="Ranjan"
+```
+
+Example:
+
+```python
+user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    first_name="Aman",
+    last_name="Ranjan",
+    password="StrongPassword123"
+)
+```
+
+---
+
+# 12. `set_password()`
+
+Suppose you already have a user:
+
+```python
+user = User.objects.get(
+    username="aman"
+)
+```
+
+To change the password:
+
+```python
+user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()
+```
+
+Remember:
+
+```text
+set_password()
+      ↓
+hash password
+      ↓
+save()
+```
+
+---
+
+# 13. Checking a Password
+
+Django provides:
+
+```python
+user.check_password(
+    "password"
+)
+```
+
+Example:
+
+```python
+if user.check_password(
+    "StrongPassword123"
+):
+    print("Correct password")
+```
+
+It returns:
+
+```text
+True
+```
+
+or:
+
+```text
+False
+```
+
+This is much safer than comparing plaintext passwords manually.
+
+---
+
+# 14. `create_user()` vs `set_password()`
+
+### Create new user
+
+```python
+User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+### Existing user
+
+```python
+user.set_password(
+    "NewPassword123"
+)
+user.save()
+```
+
+Both correctly handle password hashing.
+
+---
+
+# 15. `is_active`
+
+The field:
+
+```python
+user.is_active
+```
+
+indicates whether the account is active.
+
+Typically:
+
+```python
+is_active = True
+```
+
+means the account is active.
+
+If:
+
+```python
+user.is_active = False
+```
+
+the account is inactive and Django's normal authentication mechanisms generally won't authenticate that user.
+
+---
+
+# 16. `is_staff`
+
+```python
+user.is_staff
+```
+
+determines whether the user is allowed to access the Django admin site, subject to permissions.
+
+For example:
+
+```python
+user.is_staff = True
+```
+
+allows admin-site access if the necessary permissions are available.
+
+Important:
+
+> `is_staff` does **not** mean the user automatically has every permission.
+
+---
+
+# 17. `is_superuser`
+
+```python
+user.is_superuser
+```
+
+indicates a superuser.
+
+A superuser has all permissions by default.
+
+Typical creation:
+
+```bash
+python manage.py createsuperuser
+```
+
+Then Django asks for credentials interactively.
+
+---
+
+# 18. `is_staff` vs `is_superuser`
+
+This is a very common viva question.
+
+| Property       | Meaning                                       |
+| -------------- | --------------------------------------------- |
+| `is_active`    | Account is active                             |
+| `is_staff`     | Can access admin site, subject to permissions |
+| `is_superuser` | Has all permissions by default                |
+
+A useful mental model:
+
+```text
+is_staff
+   ↓
+Admin access
+
+is_superuser
+   ↓
+All permissions
+```
+
+But don't assume:
+
+```text
+is_staff = superuser
+```
+
+They are different.
+
+---
+
+# 19. `createsuperuser`
+
+Command:
+
+```bash
+python manage.py createsuperuser
+```
+
+Django asks you for information such as:
+
+```text
+Username:
+Email address:
+Password:
+Password (again):
+```
+
+The resulting account is a superuser.
+
+---
+
+# 20. `request.user`
+
+This is one of the most important things in Django authentication.
+
+Inside a view:
+
+```python
+request.user
+```
+
+represents the user associated with the current request.
+
+Example:
+
+```python
+def dashboard(request):
+
+    user = request.user
+
+    return HttpResponse(
+        f"Hello {user.username}"
+    )
+```
+
+---
+
+# 21. Authenticated User
+
+If the user is logged in:
+
+```python
+request.user
+```
+
+represents that authenticated user.
+
+Conceptually:
+
+```text
+Browser
+   ↓
+Session
+   ↓
+Django authentication
+   ↓
+request.user
+```
+
+---
+
+# 22. Anonymous User
+
+What if someone is **not logged in**?
+
+Django doesn't simply give:
+
+```python
+request.user = None
+```
+
+Instead, it generally gives an:
+
+```python
+AnonymousUser
+```
+
+So:
+
+```python
+request.user
+```
+
+is still available.
+
+---
+
+# 23. `is_authenticated`
+
+To check whether the current user is authenticated:
+
+```python
+request.user.is_authenticated
+```
+
+Example:
+
+```python
+if request.user.is_authenticated:
+    return HttpResponse("Logged in")
+
+return HttpResponse("Not logged in")
+```
+
+---
+
+# 24. Important Trap: No Parentheses
+
+This is correct:
+
+```python
+request.user.is_authenticated
+```
+
+This is incorrect:
+
+```python
+request.user.is_authenticated()
+```
+
+`is_authenticated` is an attribute/property-like boolean check, not a method you call.
+
+---
+
+# 25. `is_anonymous`
+
+You may also encounter:
+
+```python
+request.user.is_anonymous
+```
+
+For a logged-out user, this is generally `True`.
+
+For an authenticated user:
+
+```python
+request.user.is_anonymous
+```
+
+is generally `False`.
+
+Usually, prefer:
+
+```python
+request.user.is_authenticated
+```
+
+when your question is:
+
+> "Is the user logged in?"
+
+---
+
+# 26. Authentication vs Authorization
+
+This distinction is extremely important.
+
+### Authentication
+
+> Who are you?
+
+Example:
+
+```text
+Username + Password
+        ↓
+Identity verification
+```
+
+### Authorization
+
+> What are you allowed to do?
+
+Example:
+
+```text
+Can this user delete students?
+Can this user access admin?
+Can this user edit products?
+```
+
+Remember:
+
+```text
+Authentication = WHO
+Authorization = WHAT
+```
+
+---
+
+# 27. Example
+
+Suppose:
+
+```text
+Aman logs in
+```
+
+Authentication asks:
+
+```text
+Is this really Aman?
+```
+
+After authentication:
+
+```text
+request.user = Aman
+```
+
+Authorization asks:
+
+```text
+Can Aman delete Student #10?
+```
+
+These are two different questions.
+
+---
+
+# 28. Accessing User Information
+
+Example:
+
+```python
+def profile(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"""
+            Username: {request.user.username}
+            Email: {request.user.email}
+            """
+        )
+
+    return HttpResponse(
+        "Please login"
+    )
+```
+
+---
+
+# 29. Checking Staff Status
+
+```python
+if request.user.is_staff:
+    return HttpResponse(
+        "You are staff"
+    )
+```
+
+---
+
+# 30. Checking Superuser Status
+
+```python
+if request.user.is_superuser:
+    return HttpResponse(
+        "You are a superuser"
+    )
+```
+
+---
+
+# 31. User Permissions
+
+Every user can have permissions.
+
+For example:
+
+```python
+request.user.has_perm(
+    "students.view_student"
+)
+```
+
+This returns:
+
+```text
+True
+```
+
+or:
+
+```text
+False
+```
+
+We already studied permissions in Module 33, but now you should understand their connection with the user model.
+
+---
+
+# 32. Permission Format
+
+The usual format is:
+
+```text
+app_label.permission_codename
+```
+
+Example:
+
+```python
+"students.view_student"
+```
+
+Break it down:
+
+```text
+students
+   ↓
+app label
+
+view_student
+   ↓
+permission codename
+```
+
+---
+
+# 33. User Groups
+
+A user can belong to one or more groups.
+
+Example:
+
+```python
+user.groups.all()
+```
+
+Suppose:
+
+```text
+Aman
+ ↓
+Teachers
+```
+
+The Teachers group may have:
+
+```text
+view_student
+change_student
+```
+
+Then Aman can inherit those permissions through the group.
+
+---
+
+# 34. User Creation in Django Shell
+
+Run:
+
+```bash
+python manage.py shell
+```
+
+Then:
+
+```python
+from django.contrib.auth.models import User
+```
+
+Create:
+
+```python
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+Check:
+
+```python
+user.username
+```
+
+Output:
+
+```text
+'aman'
+```
+
+Check:
+
+```python
+user.is_active
+```
+
+Typically:
+
+```text
+True
+```
+
+---
+
+# 35. Find a User
+
+```python
+user = User.objects.get(
+    username="aman"
+)
+```
+
+Or:
+
+```python
+User.objects.filter(
+    is_active=True
+)
+```
+
+---
+
+# 36. Update User
+
+```python
+user.first_name = "Aman"
+user.last_name = "Ranjan"
+
+user.save()
+```
+
+---
+
+# 37. Change Password
+
+```python
+user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()
+```
+
+---
+
+# 38. Check Password
+
+```python
+user.check_password(
+    "NewStrongPassword123"
+)
+```
+
+Result:
+
+```text
+True
+```
+
+Wrong password:
+
+```python
+user.check_password(
+    "wrongpassword"
+)
+```
+
+Result:
+
+```text
+False
+```
+
+---
+
+# 39. Deactivate a User
+
+You can deactivate:
+
+```python
+user.is_active = False
+user.save()
+```
+
+This is often preferable to immediately deleting an account when you simply want to prevent normal login.
+
+---
+
+# 40. Reactivate User
+
+```python
+user.is_active = True
+user.save()
+```
+
+---
+
+# 41. User Deletion
+
+You can technically do:
+
+```python
+user.delete()
+```
+
+But be careful.
+
+Deleting a user can have consequences for related data depending on your application's relationships and configuration.
+
+For many applications, deactivation is more appropriate than permanent deletion.
+
+---
+
+# 42. Complete User Example
+
+```python
+from django.contrib.auth.models import User
+
+
+user = User.objects.create_user(
+    username="aman",
+    email="aman@example.com",
+    first_name="Aman",
+    last_name="Ranjan",
+    password="StrongPassword123"
+)
+```
+
+Then:
+
+```python
+print(user.username)
+print(user.email)
+print(user.first_name)
+print(user.last_name)
+print(user.is_active)
+```
+
+---
+
+# 43. User + Request Example
+
+```python
+from django.http import HttpResponse
+
+
+def profile(request):
+
+    if not request.user.is_authenticated:
+        return HttpResponse(
+            "Please login first"
+        )
+
+    return HttpResponse(
+        f"Welcome {request.user.username}"
+    )
+```
+
+This is a very important pattern.
+
+---
+
+# 44. Why Does `request.user` Work?
+
+Django authentication middleware works together with the session system.
+
+A simplified flow is:
+
+```text
+Request
+   ↓
+SessionMiddleware
+   ↓
+AuthenticationMiddleware
+   ↓
+request.user
+   ↓
+View
+```
+
+So when your view runs, Django has already associated the request with an authenticated or anonymous user.
+
+---
+
+# 45. Middleware Connection
+
+You normally see:
+
+```python
+MIDDLEWARE = [
+    ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    ...
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    ...
+]
+```
+
+### SessionMiddleware
+
+Provides access to:
+
+```python
+request.session
+```
+
+### AuthenticationMiddleware
+
+Provides:
+
+```python
+request.user
+```
+
+This relationship is worth remembering.
+
+---
+
+# 46. `request.session` vs `request.user`
+
+### Session
+
+```python
+request.session
+```
+
+Contains session state.
+
+### User
+
+```python
+request.user
+```
+
+Represents the current user.
+
+Conceptually:
+
+```text
+request
+ ├── session
+ │
+ └── user
+```
+
+---
+
+# 47. Authentication Flow
+
+At a high level:
+
+```text
+User enters username/password
+             ↓
+Django verifies credentials
+             ↓
+User authenticated
+             ↓
+Session established
+             ↓
+Future request
+             ↓
+AuthenticationMiddleware
+             ↓
+request.user
+```
+
+We'll implement the actual login flow in Module 38.
+
+---
+
+# 48. Important Security Rule
+
+Never write your own password hashing system when Django's authentication system can handle it.
+
+Don't do:
+
+```python
+password == stored_password
+```
+
+for raw plaintext passwords.
+
+Use Django's authentication APIs.
+
+For password creation/change:
+
+```python
+user.set_password(...)
+```
+
+For password checking:
+
+```python
+user.check_password(...)
+```
+
+For authentication:
+
+```python
+authenticate(...)
+```
+
+We'll learn `authenticate()` in the next module.
+
+---
+
+# 49. Custom User Model — Advanced Viva Point
+
+Django allows you to create a **custom user model**.
+
+Instead of:
+
+```python
+django.contrib.auth.models.User
+```
+
+a project can define its own user model.
+
+This is useful when you need things like:
+
+```text
+email as login identifier
+additional user fields
+different authentication requirements
+```
+
+A common approach is extending/customizing Django's authentication model using `AbstractUser` or `AbstractBaseUser`.
+
+This is an advanced topic, but remember:
+
+> If you know from the beginning that your application needs a custom user model, it's generally best to configure it at the start of the project rather than switching later.
+
+For this syllabus, the built-in `User` model is sufficient unless your project specifically requires customization.
+
+---
+
+# 50. `AUTH_USER_MODEL`
+
+Django uses:
+
+```python
+AUTH_USER_MODEL
+```
+
+to specify the project's user model.
+
+For the default user model, Django uses its built-in authentication model.
+
+In a custom-user project, you might see:
+
+```python
+AUTH_USER_MODEL = "accounts.User"
+```
+
+Meaning:
+
+```text
+accounts app
+      ↓
+User model
+      ↓
+Project's user model
+```
+
+---
+
+# 51. Why Custom User Models Matter
+
+Suppose your application wants:
+
+```text
+email = login identifier
+```
+
+instead of:
+
+```text
+username = login identifier
+```
+
+A custom user model may be appropriate.
+
+But don't create a custom user model just because you can.
+
+Use the built-in model when it satisfies the requirements.
+
+---
+
+# 52. Common Mistakes
+
+### Mistake 1 — Storing plaintext passwords
+
+Wrong:
+
+```python
+user.password = "123456"
+```
+
+Correct:
+
+```python
+user.set_password("123456")
+user.save()
+```
+
+---
+
+### Mistake 2 — Calling `is_authenticated()`
+
+Wrong:
+
+```python
+request.user.is_authenticated()
+```
+
+Correct:
+
+```python
+request.user.is_authenticated
+```
+
+---
+
+### Mistake 3 — Assuming email is automatically username
+
+Wrong assumption:
+
+> "Django's default User model always logs in using email."
+
+The default setup commonly uses username-based authentication.
+
+---
+
+### Mistake 4 — Confusing `is_staff` and `is_superuser`
+
+```text
+is_staff ≠ is_superuser
+```
+
+A staff user doesn't automatically have every permission.
+
+---
+
+### Mistake 5 — Trusting `is_staff` as the only authorization mechanism
+
+For application functionality, use appropriate permissions/authorization checks rather than simply assuming staff users should have every capability.
+
+---
+
+# 53. Viva Masterclass
+
+### Q1. What is Django User model?
+
+> It is Django's built-in model for representing users and supporting authentication-related functionality.
+
+---
+
+### Q2. Where is the default User model?
+
+```python
+django.contrib.auth.models.User
+```
+
+---
+
+### Q3. How do you create a user?
+
+```python
+User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+---
+
+### Q4. How does Django store passwords?
+
+> Django stores passwords as secure password hashes rather than plaintext passwords.
+
+---
+
+### Q5. How do you set a password?
+
+```python
+user.set_password("NewPassword123")
+user.save()
+```
+
+---
+
+### Q6. How do you check a password?
+
+```python
+user.check_password("NewPassword123")
+```
+
+---
+
+### Q7. What is `request.user`?
+
+> It represents the user associated with the current request, either an authenticated user or an anonymous user.
+
+---
+
+### Q8. How do you check whether a user is logged in?
+
+```python
+request.user.is_authenticated
+```
+
+---
+
+### Q9. What is `AnonymousUser`?
+
+> It represents a user who has not been authenticated.
+
+---
+
+### Q10. What is `is_staff`?
+
+> It indicates whether the user is allowed to access the Django admin site, subject to permissions.
+
+---
+
+### Q11. What is `is_superuser`?
+
+> It indicates a user who has all permissions by default.
+
+---
+
+### Q12. Difference between authentication and authorization?
+
+> Authentication determines who the user is, while authorization determines what the user is allowed to do.
+
+---
+
+### Q13. What does `is_active` mean?
+
+> It indicates whether the user account is active.
+
+---
+
+### Q14. What middleware provides `request.user`?
+
+> `AuthenticationMiddleware`.
+
+---
+
+### Q15. What middleware provides `request.session`?
+
+> `SessionMiddleware`.
+
+---
+
+# 54. Coding Questions
+
+### Q1. Create a user.
+
+```python
+from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+---
+
+### Q2. Change a user's password.
+
+```python
+user.set_password(
+    "NewStrongPassword123"
+)
+
+user.save()
+```
+
+---
+
+### Q3. Check the password.
+
+```python
+if user.check_password(
+    "NewStrongPassword123"
+):
+    print("Correct")
+```
+
+---
+
+### Q4. Check whether the current user is authenticated.
+
+```python
+if request.user.is_authenticated:
+    print("Logged in")
+```
+
+---
+
+### Q5. Check whether the user is a superuser.
+
+```python
+if request.user.is_superuser:
+    print("Superuser")
+```
+
+---
+
+### Q6. Check whether the user is staff.
+
+```python
+if request.user.is_staff:
+    print("Staff")
+```
+
+---
+
+### Q7. Get the current username.
+
+```python
+username = request.user.username
+```
+
+---
+
+# 55. One Very Important Coding Question
+
+### Write a view that only displays a user's username if they are authenticated.
+
+```python
+from django.http import HttpResponse
+
+
+def profile(request):
+
+    if request.user.is_authenticated:
+
+        return HttpResponse(
+            f"Welcome {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please login"
+    )
+```
+
+Understand this completely.
+
+```text
+request
+   ↓
+request.user
+   ↓
+is_authenticated
+   ↓
+YES → username
+NO  → login message
+```
+
+In the next module we'll replace this manual check with Django's proper authentication/login tools.
+
+---
+
+# 56. Final Mental Model
+
+You should now visualize Django authentication like this:
+
+```text
+                  USER
+                   │
+                   ↓
+             Authentication
+                   │
+                   ↓
+                Session
+                   │
+                   ↓
+            Session Cookie
+                   │
+                   ↓
+              Future Request
+                   │
+                   ↓
+          AuthenticationMiddleware
+                   │
+                   ↓
+              request.user
+                   │
+          ┌────────┴────────┐
+          ↓                 ↓
+   Authenticated        Anonymous
+       User               User
+          │
+          ↓
+    Permissions
+          │
+          ↓
+    Authorization
+```
+
+---
+
+# Module 37 — Must Remember
+
+### User
+
+```python
+from django.contrib.auth.models import User
+```
+
+### Create
+
+```python
+User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+### Password
+
+```python
+user.set_password("password")
+user.save()
+```
+
+### Check password
+
+```python
+user.check_password("password")
+```
+
+### Current user
+
+```python
+request.user
+```
+
+### Authentication check
+
+```python
+request.user.is_authenticated
+```
+
+### Staff
+
+```python
+request.user.is_staff
+```
+
+### Superuser
+
+```python
+request.user.is_superuser
+```
+
+### Active
+
+```python
+request.user.is_active
+```
+
+### Most important distinction
+
+```text
+Authentication → Who are you?
+Authorization  → What can you do?
+```
+
+---
+
+## Module 37 Complete ✅
+
+The next module is one of the **most important modules in the entire Django syllabus**:
+
+### **Module 38 — Login & Logout**
+
+We'll build the actual login system using:
+
+```python
+authenticate()
+login()
+logout()
+```
+
+and learn:
+
+```text
+Login form
+     ↓
+POST
+     ↓
+authenticate()
+     ↓
+login()
+     ↓
+session
+     ↓
+request.user
+     ↓
+logout()
+```
+
+You'll also learn how to connect **URLs + views + forms + sessions + users** into a working Django authentication system.

@@ -1,0 +1,1644 @@
+# Module 25 — Databases & Django Models
+
+This is a **major Django module** because from here we move from forms and HTTP into **database-backed applications**.
+
+You will learn:
+
+* What a database is
+* Tables, rows, columns
+* SQL vs ORM
+* What a Django model is
+* `models.py`
+* Model fields
+* Primary keys
+* Creating your first model
+* How Django converts models into database tables
+* `makemigrations` and `migrate` introduction
+* How Django models fit into MVT
+* Viva + coding questions
+
+---
+
+# 1. Why Do We Need a Database?
+
+So far, we've worked with data like:
+
+```python
+students = [
+    {"name": "Aman", "age": 21},
+    {"name": "Rahul", "age": 22},
+]
+```
+
+But where is this data stored?
+
+It's only in Python memory.
+
+If the Django server stops:
+
+```text
+Server stops
+    ↓
+Python memory cleared
+    ↓
+Data lost
+```
+
+We need **persistent storage**.
+
+That's where a database comes in.
+
+```text
+Django application
+       ↓
+   Database
+       ↓
+Persistent data
+```
+
+---
+
+# 2. What Is a Database?
+
+A **database** is an organized collection of data that can be stored, retrieved, updated, and deleted efficiently.
+
+For example, a college application might store:
+
+```text
+Students
+Courses
+Teachers
+Departments
+Marks
+Attendance
+```
+
+---
+
+# 3. What Is a Database Table?
+
+A relational database stores data in **tables**.
+
+Imagine a `Student` table:
+
+| id | name  | age | email                                     |
+| -: | ----- | --: | ----------------------------------------- |
+|  1 | Aman  |  21 | [aman@gmail.com](mailto:aman@gmail.com)   |
+|  2 | Rahul |  22 | [rahul@gmail.com](mailto:rahul@gmail.com) |
+|  3 | Priya |  20 | [priya@gmail.com](mailto:priya@gmail.com) |
+
+The table consists of:
+
+* **Columns** → properties/fields
+* **Rows** → individual records
+
+---
+
+# 4. Column
+
+A column represents a particular type of information.
+
+For example:
+
+```text
+id
+name
+age
+email
+```
+
+In Django, these correspond to **model fields**.
+
+---
+
+# 5. Row
+
+A row represents one record.
+
+For example:
+
+```text
+1 | Aman | 21 | aman@gmail.com
+```
+
+is one student record.
+
+In Django, this eventually corresponds to a **model instance**.
+
+---
+
+# 6. Primary Key
+
+A **primary key** uniquely identifies each row in a table.
+
+Example:
+
+| id | name  | age |
+| -: | ----- | --: |
+|  1 | Aman  |  21 |
+|  2 | Rahul |  22 |
+|  3 | Priya |  20 |
+
+Here:
+
+```text
+id
+```
+
+is the primary key.
+
+It should uniquely identify a record.
+
+---
+
+# 7. Why Is `id` Important?
+
+Suppose we want to retrieve Aman.
+
+We can identify him using:
+
+```text
+id = 1
+```
+
+For example:
+
+```text
+/student/1/
+```
+
+This connects to the URL parameter concepts we learned earlier.
+
+---
+
+# 8. What Database Does Django Use by Default?
+
+A new Django project normally uses:
+
+# SQLite
+
+In `settings.py`, you'll see something similar to:
+
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+```
+
+SQLite is lightweight and stores the database in a file.
+
+The file is usually:
+
+```text
+db.sqlite3
+```
+
+---
+
+# 9. Other Databases Django Supports
+
+Django can work with databases such as:
+
+```text
+SQLite
+PostgreSQL
+MySQL
+MariaDB
+Oracle
+```
+
+For learning and small development projects, SQLite is very convenient.
+
+For larger production systems, PostgreSQL is a common choice.
+
+---
+
+# 10. What Is a Django Model?
+
+Now the most important definition:
+
+> **A Django model is a Python class that represents data and describes the structure of a database table.**
+
+For example:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+```
+
+This Python class describes a `Student` table.
+
+Conceptually:
+
+```text
+Python Model
+      ↓
+Database Table
+```
+
+---
+
+# 11. Where Do We Define Models?
+
+Inside:
+
+```text
+students/models.py
+```
+
+A newly created Django app already contains:
+
+```python
+from django.db import models
+```
+
+We define our model there.
+
+---
+
+# 12. Creating Your First Model
+
+Suppose we want to store students.
+
+Open:
+
+```text
+students/models.py
+```
+
+Write:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+```
+
+That's our first Django model.
+
+---
+
+# 13. Understanding the Code
+
+Let's break it down.
+
+### Import
+
+```python
+from django.db import models
+```
+
+This imports Django's model/database functionality.
+
+---
+
+### Class
+
+```python
+class Student(models.Model):
+```
+
+We're creating a Python class called:
+
+```text
+Student
+```
+
+It inherits from:
+
+```text
+models.Model
+```
+
+This tells Django:
+
+> This class is a Django database model.
+
+---
+
+### Name field
+
+```python
+name = models.CharField(max_length=100)
+```
+
+This creates a text field.
+
+`max_length=100` means the maximum length is 100 characters.
+
+---
+
+### Age
+
+```python
+age = models.IntegerField()
+```
+
+Stores integer values.
+
+---
+
+### Email
+
+```python
+email = models.EmailField()
+```
+
+Stores email-like text and provides Django-level field validation behavior.
+
+---
+
+# 14. Model → Table
+
+Our model:
+
+```python
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+```
+
+conceptually becomes a table similar to:
+
+| id | name  | age | email                                     |
+| -: | ----- | --: | ----------------------------------------- |
+|  1 | Aman  |  21 | [aman@gmail.com](mailto:aman@gmail.com)   |
+|  2 | Rahul |  22 | [rahul@gmail.com](mailto:rahul@gmail.com) |
+
+Notice something:
+
+We didn't define:
+
+```python
+id
+```
+
+yet Django normally creates an automatic primary-key field if you don't explicitly define one.
+
+---
+
+# 15. Automatic Primary Key
+
+When you define:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Django automatically adds a primary key unless you've configured a different primary key.
+
+In modern Django versions, the exact automatically generated field type can depend on your configuration/default settings, but conceptually you should remember:
+
+> **Django automatically provides a primary key when you don't define one.**
+
+You can access it using:
+
+```python
+student.pk
+```
+
+or commonly:
+
+```python
+student.id
+```
+
+when the automatically created field is named `id`.
+
+---
+
+# 16. `pk` vs `id`
+
+Suppose:
+
+```python
+student = Student.objects.get(...)
+```
+
+You can access:
+
+```python
+student.id
+```
+
+And Django also provides:
+
+```python
+student.pk
+```
+
+`pk` means:
+
+> **Primary Key**
+
+The advantage of `pk` is that it works regardless of what the actual primary-key field is called.
+
+---
+
+# 17. Model Fields
+
+Django provides many field types.
+
+Some important ones:
+
+| Django field    | Typical purpose               |
+| --------------- | ----------------------------- |
+| `CharField`     | Short text                    |
+| `TextField`     | Long text                     |
+| `IntegerField`  | Integer                       |
+| `FloatField`    | Floating-point number         |
+| `DecimalField`  | Precise decimal values        |
+| `BooleanField`  | True/False                    |
+| `EmailField`    | Email address                 |
+| `DateField`     | Date                          |
+| `DateTimeField` | Date + time                   |
+| `TimeField`     | Time                          |
+| `URLField`      | URL                           |
+| `FileField`     | File upload                   |
+| `ImageField`    | Image upload                  |
+| `ForeignKey`    | Relationship to another model |
+
+We'll study relationships in depth later.
+
+---
+
+# 18. `CharField`
+
+Used for relatively short strings.
+
+```python
+name = models.CharField(max_length=100)
+```
+
+You **must normally specify** `max_length` for `CharField`.
+
+Example:
+
+```python
+username = models.CharField(max_length=50)
+```
+
+---
+
+# 19. `TextField`
+
+Used for larger amounts of text.
+
+Example:
+
+```python
+description = models.TextField()
+```
+
+Good for:
+
+```text
+Blog posts
+Descriptions
+Comments
+Long messages
+```
+
+---
+
+# 20. `IntegerField`
+
+```python
+age = models.IntegerField()
+```
+
+Stores integers:
+
+```text
+18
+21
+100
+-5
+```
+
+---
+
+# 21. `FloatField`
+
+```python
+rating = models.FloatField()
+```
+
+Can store floating-point numbers.
+
+Example:
+
+```text
+4.5
+3.14
+9.8
+```
+
+For financial values, `DecimalField` is generally preferable because decimal precision matters.
+
+---
+
+# 22. `DecimalField`
+
+Example:
+
+```python
+price = models.DecimalField(
+    max_digits=10,
+    decimal_places=2
+)
+```
+
+Meaning:
+
+```text
+max_digits = total digits
+decimal_places = digits after decimal
+```
+
+For:
+
+```text
+99999.99
+```
+
+there are:
+
+```text
+7 total digits
+2 decimal places
+```
+
+So this would fit:
+
+```python
+models.DecimalField(
+    max_digits=7,
+    decimal_places=2
+)
+```
+
+---
+
+# 23. `BooleanField`
+
+Used for true/false values.
+
+```python
+is_active = models.BooleanField(default=True)
+```
+
+Possible values:
+
+```text
+True
+False
+```
+
+---
+
+# 24. `DateField`
+
+```python
+birth_date = models.DateField()
+```
+
+Stores a date.
+
+Example:
+
+```text
+2004-08-15
+```
+
+---
+
+# 25. `DateTimeField`
+
+```python
+created_at = models.DateTimeField()
+```
+
+Stores:
+
+```text
+date + time
+```
+
+You may often see:
+
+```python
+created_at = models.DateTimeField(auto_now_add=True)
+```
+
+This automatically sets the value when the object is first created.
+
+We'll study field options in much more detail in the next module.
+
+---
+
+# 26. Field Options
+
+Fields can have additional options.
+
+Example:
+
+```python
+name = models.CharField(
+    max_length=100,
+    null=True,
+    blank=True
+)
+```
+
+Some important options:
+
+```text
+null
+blank
+default
+unique
+primary_key
+```
+
+Don't try to memorize all of them yet; we'll cover them properly in **Module 26 — Model Fields**.
+
+For now, understand that field definitions contain:
+
+```text
+Field type
++
+Field options
+```
+
+---
+
+# 27. Model vs Database Table
+
+This distinction is very important.
+
+### Model
+
+Python class:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+### Table
+
+Database representation:
+
+```text
+Student table
+--------------------
+id
+name
+age
+email
+```
+
+So:
+
+```text
+Django Model
+     ↓
+Database Table
+```
+
+---
+
+# 28. Model Object vs Database Row
+
+Similarly:
+
+### Model instance
+
+```python
+student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com"
+)
+```
+
+### Database row
+
+Eventually:
+
+| id | name | age | email                                   |
+| -: | ---- | --: | --------------------------------------- |
+|  1 | Aman |  21 | [aman@gmail.com](mailto:aman@gmail.com) |
+
+Therefore:
+
+```text
+Model class     → Table
+Model instance  → Row
+Model field     → Column
+```
+
+This is an **excellent viva answer**.
+
+---
+
+# 29. What Is ORM?
+
+ORM stands for:
+
+# Object-Relational Mapping
+
+Django provides an ORM that allows us to interact with the database using Python objects and methods instead of writing SQL for every operation.
+
+For example, instead of SQL:
+
+```sql
+SELECT * FROM students;
+```
+
+you can use Django ORM:
+
+```python
+Student.objects.all()
+```
+
+---
+
+# 30. Why Is ORM Useful?
+
+Without ORM, you might write SQL:
+
+```sql
+SELECT * FROM students
+WHERE age > 18;
+```
+
+With Django ORM:
+
+```python
+Student.objects.filter(age__gt=18)
+```
+
+The ORM translates the Python-style operation into database-specific SQL.
+
+Conceptually:
+
+```text
+Python code
+    ↓
+Django ORM
+    ↓
+SQL
+    ↓
+Database
+```
+
+We'll study ORM deeply in **Module 28 onward**.
+
+---
+
+# 31. Do We Need to Write SQL?
+
+Not necessarily.
+
+For many common operations, Django ORM allows you to work with:
+
+```python
+Student.objects.all()
+Student.objects.get(...)
+Student.objects.filter(...)
+Student.objects.create(...)
+```
+
+rather than manually writing SQL.
+
+However, understanding basic SQL is still useful.
+
+---
+
+# 32. Creating a Model Does NOT Immediately Create the Table
+
+This is extremely important.
+
+Suppose you write:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+The database table isn't simply created just because you saved `models.py`.
+
+You need Django's **migration system**.
+
+---
+
+# 33. First: Register the App
+
+Before using migrations, make sure the app is in:
+
+```python
+INSTALLED_APPS
+```
+
+For example:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+Without registering the app, Django won't properly include its models in the project.
+
+---
+
+# 34. `makemigrations`
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Django detects model changes and creates migration files describing those changes.
+
+Conceptually:
+
+```text
+models.py
+   ↓
+makemigrations
+   ↓
+migration file
+```
+
+For example:
+
+```text
+students/
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py
+```
+
+---
+
+# 35. `migrate`
+
+Then run:
+
+```bash
+python manage.py migrate
+```
+
+This applies migrations to the database.
+
+Conceptually:
+
+```text
+Migration files
+      ↓
+python manage.py migrate
+      ↓
+Database tables
+```
+
+---
+
+# 36. `makemigrations` vs `migrate`
+
+This is a **must-know viva question**.
+
+| Command          | Purpose                                    |
+| ---------------- | ------------------------------------------ |
+| `makemigrations` | Creates migration files from model changes |
+| `migrate`        | Applies migrations to the database         |
+
+Easy way to remember:
+
+```text
+makemigrations
+→ Make instructions
+
+migrate
+→ Apply instructions
+```
+
+---
+
+# 37. Complete Process
+
+Suppose we create:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+```
+
+Then:
+
+### Step 1
+
+Save `models.py`.
+
+### Step 2
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+### Step 3
+
+Run:
+
+```bash
+python manage.py migrate
+```
+
+Now Django creates/updates the database schema.
+
+---
+
+# 38. What Is a Migration?
+
+A migration is a **versioned set of database schema changes** generated from changes to Django models.
+
+Suppose initially:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Later you add:
+
+```python
+age = models.IntegerField()
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Django creates another migration describing:
+
+```text
+Add age field to Student
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+applies it.
+
+We'll study migrations deeply in Module 27.
+
+---
+
+# 39. Django's Database Flow
+
+You should understand this complete flow:
+
+```text
+models.py
+    ↓
+Python Model
+    ↓
+makemigrations
+    ↓
+Migration File
+    ↓
+migrate
+    ↓
+Database Schema
+    ↓
+Database Table
+```
+
+Then when the application runs:
+
+```text
+View
+ ↓
+Django ORM
+ ↓
+Database
+ ↓
+Model objects
+ ↓
+Template
+```
+
+---
+
+# 40. MVT With Database
+
+Earlier we learned:
+
+```text
+Model
+View
+Template
+```
+
+Now we can understand the database connection.
+
+```text
+             Django
+               |
+       ┌───────┴────────┐
+       ↓                ↓
+     View             Model
+       |                |
+       |              ORM
+       |                |
+       |             Database
+       |                |
+       └──────→ Template
+```
+
+More accurately:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Model / ORM
+   ↓
+Database
+   ↓
+View
+   ↓
+Template
+   ↓
+Response
+```
+
+---
+
+# 41. Example: Student List
+
+Suppose database contains:
+
+| id | name  | age |
+| -: | ----- | --: |
+|  1 | Aman  |  21 |
+|  2 | Rahul |  22 |
+|  3 | Priya |  20 |
+
+The view can retrieve them:
+
+```python
+def students(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+The template:
+
+```html
+<h1>Students</h1>
+
+{% for student in students %}
+
+    <p>
+        {{ student.name }} - {{ student.age }}
+    </p>
+
+{% endfor %}
+```
+
+The final page might show:
+
+```text
+Students
+
+Aman - 21
+Rahul - 22
+Priya - 20
+```
+
+Notice how our previous knowledge of **dynamic templates** now connects with models.
+
+---
+
+# 42. Model Data Can Be Passed to Templates
+
+The model object retrieved through ORM can be placed into context:
+
+```python
+return render(
+    request,
+    "students.html",
+    {"students": students}
+)
+```
+
+Then:
+
+```django
+{{ student.name }}
+```
+
+works through template dot notation.
+
+So:
+
+```text
+Database
+ ↓
+ORM
+ ↓
+Model objects
+ ↓
+Context
+ ↓
+Template
+```
+
+---
+
+# 43. Creating a Model Object
+
+You can create an object in Python:
+
+```python
+student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com"
+)
+```
+
+At this point, the object has been created in Python memory.
+
+To save it to the database:
+
+```python
+student.save()
+```
+
+Then it is persisted.
+
+---
+
+# 44. `save()`
+
+Example:
+
+```python
+student = Student(
+    name="Aman",
+    age=21
+)
+
+student.save()
+```
+
+Flow:
+
+```text
+Student object
+     ↓
+save()
+     ↓
+Database row
+```
+
+We'll explore CRUD in detail later.
+
+---
+
+# 45. `objects`
+
+You will frequently see:
+
+```python
+Student.objects
+```
+
+This is Django's model manager, commonly used to perform database queries.
+
+For example:
+
+```python
+Student.objects.all()
+```
+
+gets all students.
+
+```python
+Student.objects.filter(age=21)
+```
+
+gets students whose age is 21.
+
+```python
+Student.objects.get(id=1)
+```
+
+gets one specific object if exactly one matching object exists.
+
+We'll cover all of these in the ORM modules.
+
+---
+
+# 46. Important Terminology
+
+Memorize this table:
+
+| Django           | Database                            |
+| ---------------- | ----------------------------------- |
+| Model            | Table                               |
+| Model field      | Column                              |
+| Model instance   | Row/record                          |
+| Primary key      | Unique row identifier               |
+| ORM              | Object/database mapping layer       |
+| Migration        | Database schema change instructions |
+| `makemigrations` | Create migration files              |
+| `migrate`        | Apply migrations                    |
+| `objects`        | Model manager/query interface       |
+
+---
+
+# 47. Common Mistakes
+
+### Mistake 1: Forgetting to register the app
+
+Make sure:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+---
+
+### Mistake 2: Thinking `makemigrations` creates the database table
+
+Not exactly.
+
+```text
+makemigrations
+→ creates migration files
+```
+
+Then:
+
+```text
+migrate
+→ applies them to database
+```
+
+---
+
+### Mistake 3: Forgetting `max_length`
+
+For:
+
+```python
+name = models.CharField()
+```
+
+you should normally specify:
+
+```python
+name = models.CharField(max_length=100)
+```
+
+---
+
+### Mistake 4: Thinking model = row
+
+No.
+
+```text
+Model class → table
+Model instance → row
+```
+
+---
+
+### Mistake 5: Thinking ORM is a database
+
+ORM is not the database.
+
+```text
+Django ORM
+    ↓
+communicates with
+    ↓
+Database
+```
+
+---
+
+# 48. Viva Questions
+
+### Q1. What is a Django model?
+
+> A Django model is a Python class that represents data and defines the structure of a database table.
+
+---
+
+### Q2. Where are models defined?
+
+Usually in:
+
+```text
+app/models.py
+```
+
+---
+
+### Q3. What does `models.Model` mean?
+
+> It is Django's base model class. A model inherits from it to become a Django database model.
+
+---
+
+### Q4. What is ORM?
+
+> ORM stands for Object-Relational Mapping. Django's ORM allows developers to interact with databases using Python objects and query methods instead of writing SQL for every operation.
+
+---
+
+### Q5. What is the default database in Django?
+
+> SQLite.
+
+---
+
+### Q6. What is a primary key?
+
+> A primary key uniquely identifies a record in a database table.
+
+---
+
+### Q7. Does Django automatically create a primary key?
+
+> Yes. If you don't define a primary key yourself, Django automatically provides one.
+
+---
+
+### Q8. What is `pk`?
+
+> `pk` represents the primary key of a model instance.
+
+---
+
+### Q9. What does `makemigrations` do?
+
+> It creates migration files based on changes made to Django models.
+
+---
+
+### Q10. What does `migrate` do?
+
+> It applies migrations to the database and updates the database schema.
+
+---
+
+### Q11. Difference between `makemigrations` and `migrate`?
+
+> `makemigrations` creates migration instructions, while `migrate` applies those instructions to the database.
+
+---
+
+### Q12. What is `db.sqlite3`?
+
+> It is the default SQLite database file created/used by a Django project when SQLite is configured.
+
+---
+
+### Q13. What is `models.CharField()`?
+
+> It defines a character/string field in a Django model.
+
+---
+
+### Q14. What is a model instance?
+
+For:
+
+```python
+class Student(models.Model):
+    ...
+```
+
+this:
+
+```python
+student = Student()
+```
+
+is a model instance.
+
+---
+
+# 49. Coding Question
+
+### Question:
+
+Create a Django model for a student containing:
+
+* Name
+* Age
+* Email
+* Course
+* Active status
+
+### Answer:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+
+    age = models.IntegerField()
+
+    email = models.EmailField()
+
+    course = models.CharField(max_length=100)
+
+    is_active = models.BooleanField(default=True)
+```
+
+Then run:
+
+```bash
+python manage.py makemigrations
+```
+
+and:
+
+```bash
+python manage.py migrate
+```
+
+---
+
+# 50. Coding Question
+
+### Question:
+
+Create a student object and save it.
+
+```python
+student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE"
+)
+
+student.save()
+```
+
+Remember:
+
+```text
+Student(...)
+→ creates Python object
+
+student.save()
+→ saves it to database
+```
+
+---
+
+# 51. The Big Picture
+
+You've now reached an important transition in Django.
+
+Previously:
+
+```text
+Browser
+ ↓
+URL
+ ↓
+View
+ ↓
+Template
+ ↓
+Response
+```
+
+Now:
+
+```text
+Browser
+ ↓
+URL
+ ↓
+View
+ ↓
+ORM
+ ↓
+Model
+ ↓
+Database
+ ↓
+Model objects
+ ↓
+View
+ ↓
+Template
+ ↓
+Response
+```
+
+This is what makes Django applications **data-driven**.
+
+---
+
+# Module 25 Summary
+
+### Most important definitions:
+
+> **Database** → persistent organized data storage.
+
+> **Table** → collection of records organized into rows and columns.
+
+> **Model** → Python representation of database structure.
+
+> **ORM** → lets Django interact with the database using Python.
+
+> **Migration** → describes database schema changes.
+
+### Most important commands:
+
+```bash
+python manage.py makemigrations
+```
+
+```bash
+python manage.py migrate
+```
+
+### Most important model pattern:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+```
+
+And remember:
+
+```text
+Model class     → Table
+Model field     → Column
+Model instance  → Row
+Primary key     → Unique identifier
+```
+
+**Next → Module 26: Django Model Fields & Field Options**
+
+We'll go deeply into `CharField`, `TextField`, `IntegerField`, `FloatField`, `DecimalField`, `BooleanField`, `DateField`, `DateTimeField`, `null`, `blank`, `default`, `unique`, `choices`, primary keys, and the common field-definition coding questions.

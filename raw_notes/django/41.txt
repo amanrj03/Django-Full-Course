@@ -1,0 +1,2303 @@
+# Module 41 — Complete Django Authentication Project
+
+Now we're going to build a **complete authentication system** by combining almost everything you've learned.
+
+We'll build:
+
+```text
+Registration
+    ↓
+Login
+    ↓
+Dashboard
+    ↓
+Profile
+    ↓
+Logout
+```
+
+And we'll use:
+
+```text
+User Model
+Forms
+Validation
+CSRF
+authenticate()
+login()
+logout()
+Sessions
+Protected Views
+Templates
+URLs
+POST → Redirect → GET
+```
+
+---
+
+# 1. What Are We Building?
+
+Our application will have:
+
+```text
+┌──────────────────────────────┐
+│      Student Portal          │
+├──────────────────────────────┤
+│                              │
+│  Register                    │
+│  Login                       │
+│  Dashboard                   │
+│  Profile                     │
+│  Logout                      │
+│                              │
+└──────────────────────────────┘
+```
+
+### Flow
+
+```text
+New User
+   ↓
+Register
+   ↓
+Account Created
+   ↓
+Login
+   ↓
+authenticate()
+   ↓
+login()
+   ↓
+Session
+   ↓
+Dashboard
+   ↓
+request.user
+   ↓
+Logout
+```
+
+---
+
+# 2. Project Structure
+
+We'll use an `accounts` app:
+
+```text
+College/
+│
+├── manage.py
+│
+├── College/
+│   ├── settings.py
+│   ├── urls.py
+│   └── ...
+│
+└── accounts/
+    ├── admin.py
+    ├── apps.py
+    ├── forms.py
+    ├── models.py
+    ├── urls.py
+    ├── views.py
+    │
+    └── templates/
+        └── accounts/
+            ├── base.html
+            ├── register.html
+            ├── login.html
+            ├── dashboard.html
+            └── profile.html
+```
+
+---
+
+# 3. Create the App
+
+If you don't already have it:
+
+```bash
+python manage.py startapp accounts
+```
+
+Then add it:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "accounts",
+]
+```
+
+---
+
+# 4. Do We Need a User Model?
+
+For this project, **no custom model is necessary**.
+
+We'll use Django's built-in:
+
+```python
+from django.contrib.auth.models import User
+```
+
+This gives us:
+
+```text
+username
+email
+password
+first_name
+last_name
+is_active
+is_staff
+is_superuser
+```
+
+---
+
+# 5. Registration Form
+
+Create:
+
+```text
+accounts/forms.py
+```
+
+We'll use Django's `UserCreationForm`.
+
+```python
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+
+class RegisterForm(UserCreationForm):
+
+    email = forms.EmailField(
+        required=True
+    )
+
+    class Meta:
+
+        model = User
+
+        fields = [
+            "username",
+            "email",
+            "password1",
+            "password2",
+        ]
+```
+
+---
+
+# 6. Why `UserCreationForm`?
+
+Django already provides a form specifically designed for creating users.
+
+It handles things such as:
+
+```text
+username
+password
+password confirmation
+password validation
+```
+
+So we don't need to manually implement password hashing.
+
+---
+
+# 7. `password1` and `password2`
+
+The registration form asks for:
+
+```text
+Password
+Confirm password
+```
+
+These correspond to:
+
+```python
+password1
+password2
+```
+
+Django checks that they match.
+
+For example:
+
+```text
+Password:
+StrongPassword123
+
+Confirm:
+StrongPassword123
+```
+
+Valid.
+
+But:
+
+```text
+Password:
+StrongPassword123
+
+Confirm:
+abc123
+```
+
+Invalid.
+
+---
+
+# 8. Password Validation
+
+Django's authentication system can apply password validators configured in:
+
+```python
+AUTH_PASSWORD_VALIDATORS
+```
+
+These can enforce rules such as:
+
+```text
+not too similar to personal information
+minimum length
+not commonly used
+not entirely numeric
+```
+
+This is another reason not to build password handling from scratch.
+
+---
+
+# 9. Registration View
+
+Now open:
+
+```text
+accounts/views.py
+```
+
+Write:
+
+```python
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+from .forms import RegisterForm
+
+
+def register(request):
+
+    if request.method == "POST":
+
+        form = RegisterForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "login"
+            )
+
+    else:
+
+        form = RegisterForm()
+
+    return render(
+        request,
+        "accounts/register.html",
+        {
+            "form": form
+        }
+    )
+```
+
+---
+
+# 10. Understand Registration Flow
+
+Initial request:
+
+```text
+GET /register/
+```
+
+creates:
+
+```python
+form = RegisterForm()
+```
+
+The empty form is displayed.
+
+Then user submits:
+
+```text
+POST /register/
+```
+
+We create:
+
+```python
+form = RegisterForm(
+    request.POST
+)
+```
+
+Then:
+
+```python
+form.is_valid()
+```
+
+checks validation.
+
+If valid:
+
+```python
+form.save()
+```
+
+creates the user.
+
+Then:
+
+```python
+redirect("login")
+```
+
+sends the user to login.
+
+---
+
+# 11. Why `form.save()` Is Safe Here
+
+Because we're using:
+
+```python
+UserCreationForm
+```
+
+Django handles password processing appropriately.
+
+You don't have to write:
+
+```python
+user.password = ...
+```
+
+or manually hash passwords.
+
+---
+
+# 12. Registration Template
+
+Create:
+
+```text
+accounts/templates/accounts/register.html
+```
+
+Write:
+
+```html
+{% extends "accounts/base.html" %}
+
+
+{% block content %}
+
+<h2>Register</h2>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Register
+    </button>
+
+</form>
+
+
+<a href="{% url 'login' %}">
+    Already have an account? Login
+</a>
+
+{% endblock %}
+```
+
+---
+
+# 13. Login Form
+
+We'll create our own login form:
+
+```python
+from django import forms
+
+
+class LoginForm(forms.Form):
+
+    username = forms.CharField(
+        max_length=150
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+```
+
+So our complete `forms.py` becomes:
+
+```python
+from django import forms
+
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import (
+    UserCreationForm
+)
+
+
+class RegisterForm(UserCreationForm):
+
+    email = forms.EmailField(
+        required=True
+    )
+
+    class Meta:
+
+        model = User
+
+        fields = [
+            "username",
+            "email",
+            "password1",
+            "password2",
+        ]
+
+
+class LoginForm(forms.Form):
+
+    username = forms.CharField(
+        max_length=150
+    )
+
+    password = forms.CharField(
+        widget=forms.PasswordInput
+    )
+```
+
+---
+
+# 14. Login View
+
+Now:
+
+```python
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from .forms import (
+    RegisterForm,
+    LoginForm
+)
+```
+
+Then:
+
+```python
+def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            username = form.cleaned_data[
+                "username"
+            ]
+
+            password = form.cleaned_data[
+                "password"
+            ]
+
+            user = authenticate(
+                request,
+                username=username,
+                password=password
+            )
+
+            if user is not None:
+
+                login(request, user)
+
+                return redirect(
+                    "dashboard"
+                )
+
+            form.add_error(
+                None,
+                "Invalid username or password"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "form": form
+        }
+    )
+```
+
+---
+
+# 15. Login Flow
+
+Let's break it down:
+
+```text
+POST
+ ↓
+LoginForm(request.POST)
+ ↓
+is_valid()
+ ↓
+cleaned_data
+ ↓
+authenticate()
+ ↓
+User / None
+```
+
+If User:
+
+```text
+login(request, user)
+ ↓
+Session established
+ ↓
+redirect dashboard
+```
+
+If `None`:
+
+```text
+Invalid username or password
+```
+
+---
+
+# 16. Login Template
+
+Create:
+
+```text
+accounts/templates/accounts/login.html
+```
+
+```html
+{% extends "accounts/base.html" %}
+
+
+{% block content %}
+
+<h2>Login</h2>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+
+
+<a href="{% url 'register' %}">
+    Create account
+</a>
+
+{% endblock %}
+```
+
+---
+
+# 17. Dashboard
+
+Now we need a protected dashboard.
+
+```python
+from django.contrib.auth.decorators import (
+    login_required
+)
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "accounts/dashboard.html"
+    )
+```
+
+The important part:
+
+```python
+@login_required
+```
+
+Only authenticated users can access the dashboard.
+
+---
+
+# 18. Dashboard Template
+
+Create:
+
+```text
+accounts/templates/accounts/dashboard.html
+```
+
+```html
+{% extends "accounts/base.html" %}
+
+
+{% block content %}
+
+<h2>
+    Welcome {{ request.user.username }}
+</h2>
+
+<p>
+    You are successfully logged in.
+</p>
+
+<a href="{% url 'profile' %}">
+    Profile
+</a>
+
+
+<form method="POST"
+      action="{% url 'logout' %}">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Logout
+    </button>
+
+</form>
+
+{% endblock %}
+```
+
+---
+
+# 19. Profile View
+
+We can create another protected view:
+
+```python
+@login_required
+def profile(request):
+
+    return render(
+        request,
+        "accounts/profile.html"
+    )
+```
+
+---
+
+# 20. Profile Template
+
+```html
+{% extends "accounts/base.html" %}
+
+
+{% block content %}
+
+<h2>Profile</h2>
+
+<p>
+    Username:
+    {{ request.user.username }}
+</p>
+
+<p>
+    Email:
+    {{ request.user.email }}
+</p>
+
+<p>
+    First Name:
+    {{ request.user.first_name }}
+</p>
+
+<p>
+    Last Name:
+    {{ request.user.last_name }}
+</p>
+
+<a href="{% url 'dashboard' %}">
+    Dashboard
+</a>
+
+{% endblock %}
+```
+
+---
+
+# 21. Logout View
+
+Now:
+
+```python
+def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect(
+            "login"
+        )
+
+    return redirect(
+        "dashboard"
+    )
+```
+
+Remember:
+
+```python
+logout(request)
+```
+
+is Django's authentication logout function.
+
+---
+
+# 22. Why POST for Logout?
+
+Logout changes authentication/session state.
+
+So we prefer:
+
+```text
+POST /logout/
+```
+
+instead of:
+
+```text
+GET /logout/
+```
+
+The form includes:
+
+```django
+{% csrf_token %}
+```
+
+which protects the POST request against CSRF.
+
+---
+
+# 23. Base Template
+
+Create:
+
+```text
+accounts/templates/accounts/base.html
+```
+
+```html
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>
+        Student Portal
+    </title>
+
+</head>
+
+
+<body>
+
+    <h1>
+        Student Portal
+    </h1>
+
+    <hr>
+
+
+    {% block content %}
+    {% endblock %}
+
+
+</body>
+
+</html>
+```
+
+---
+
+# 24. URL Configuration
+
+Create:
+
+```text
+accounts/urls.py
+```
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "register/",
+        views.register,
+        name="register"
+    ),
+
+    path(
+        "login/",
+        views.login_view,
+        name="login"
+    ),
+
+    path(
+        "dashboard/",
+        views.dashboard,
+        name="dashboard"
+    ),
+
+    path(
+        "profile/",
+        views.profile,
+        name="profile"
+    ),
+
+    path(
+        "logout/",
+        views.logout_view,
+        name="logout"
+    ),
+
+]
+```
+
+---
+
+# 25. Project URLs
+
+In:
+
+```text
+College/urls.py
+```
+
+add:
+
+```python
+from django.urls import (
+    path,
+    include
+)
+
+
+urlpatterns = [
+
+    path(
+        "",
+        include("accounts.urls")
+    ),
+
+]
+```
+
+Now:
+
+```text
+/register/
+/login/
+/dashboard/
+/profile/
+/logout/
+```
+
+---
+
+# 26. Settings
+
+In `settings.py`, configure:
+
+```python
+LOGIN_URL = "login"
+
+LOGIN_REDIRECT_URL = "dashboard"
+
+LOGOUT_REDIRECT_URL = "login"
+```
+
+Although our custom views explicitly redirect, these settings are important for Django's authentication views and `login_required` behavior.
+
+---
+
+# 27. Complete `views.py`
+
+Your `accounts/views.py` can now look like:
+
+```python
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+from django.contrib.auth import (
+    authenticate,
+    login,
+    logout
+)
+
+from django.contrib.auth.decorators import (
+    login_required
+)
+
+from .forms import (
+    RegisterForm,
+    LoginForm
+)
+
+
+def register(request):
+
+    if request.method == "POST":
+
+        form = RegisterForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "login"
+            )
+
+    else:
+
+        form = RegisterForm()
+
+    return render(
+        request,
+        "accounts/register.html",
+        {
+            "form": form
+        }
+    )
+
+
+def login_view(request):
+
+    if request.method == "POST":
+
+        form = LoginForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            username = form.cleaned_data[
+                "username"
+            ]
+
+            password = form.cleaned_data[
+                "password"
+            ]
+
+            user = authenticate(
+                request,
+                username=username,
+                password=password
+            )
+
+            if user is not None:
+
+                login(request, user)
+
+                return redirect(
+                    "dashboard"
+                )
+
+            form.add_error(
+                None,
+                "Invalid username or password"
+            )
+
+    else:
+
+        form = LoginForm()
+
+    return render(
+        request,
+        "accounts/login.html",
+        {
+            "form": form
+        }
+    )
+
+
+@login_required
+def dashboard(request):
+
+    return render(
+        request,
+        "accounts/dashboard.html"
+    )
+
+
+@login_required
+def profile(request):
+
+    return render(
+        request,
+        "accounts/profile.html"
+    )
+
+
+def logout_view(request):
+
+    if request.method == "POST":
+
+        logout(request)
+
+        return redirect(
+            "login"
+        )
+
+    return redirect(
+        "dashboard"
+    )
+```
+
+---
+
+# 28. Full Authentication Flow
+
+Now understand the entire application:
+
+```text
+                    REGISTER
+                       │
+                       ↓
+                 RegisterForm
+                       │
+                       ↓
+                  Validation
+                       │
+                       ↓
+                   form.save()
+                       │
+                       ↓
+                   User Model
+                       │
+                       ↓
+                     LOGIN
+                       │
+                       ↓
+                  LoginForm
+                       │
+                       ↓
+                 authenticate()
+                       │
+                 ┌─────┴─────┐
+                 ↓           ↓
+               Valid       Invalid
+                 ↓           ↓
+              login()      Error
+                 ↓
+              Session
+                 ↓
+          session cookie
+                 ↓
+             Dashboard
+                 │
+                 ↓
+            request.user
+                 │
+                 ↓
+              Profile
+                 │
+                 ↓
+              Logout
+                 │
+                 ↓
+          logout(request)
+                 │
+                 ↓
+             Login page
+```
+
+---
+
+# 29. What Happens Behind the Scenes?
+
+Suppose Aman logs in.
+
+### Step 1
+
+Browser sends:
+
+```text
+POST /login/
+```
+
+with:
+
+```text
+username=aman
+password=...
+```
+
+### Step 2
+
+Django validates the form.
+
+### Step 3
+
+```python
+authenticate(...)
+```
+
+checks the credentials.
+
+### Step 4
+
+```python
+login(request, user)
+```
+
+establishes authentication using Django's session framework.
+
+### Step 5
+
+The browser receives the session cookie.
+
+### Step 6
+
+Later:
+
+```text
+GET /dashboard/
+```
+
+includes the session cookie.
+
+### Step 7
+
+Django identifies the authenticated user.
+
+### Step 8
+
+Your view sees:
+
+```python
+request.user
+```
+
+as Aman.
+
+---
+
+# 30. Authentication Architecture
+
+Memorize this:
+
+```text
+                Browser
+                   │
+                   ↓
+                Login Form
+                   │
+                   ↓
+                 POST
+                   │
+                   ↓
+            Authentication
+                   │
+                   ↓
+             authenticate()
+                   │
+                   ↓
+                User
+                   │
+                   ↓
+                login()
+                   │
+                   ↓
+               Session
+                   │
+                   ↓
+           Session Cookie
+                   │
+                   ↓
+             Future Request
+                   │
+                   ↓
+          request.user
+```
+
+---
+
+# 31. Registration vs Login
+
+### Registration
+
+```python
+form.save()
+```
+
+creates a new user.
+
+### Login
+
+```python
+authenticate()
+login()
+```
+
+authenticates an existing user.
+
+### Logout
+
+```python
+logout()
+```
+
+ends authentication state.
+
+---
+
+# 32. Registration Does Not Automatically Log In
+
+Our registration code:
+
+```python
+form.save()
+
+return redirect("login")
+```
+
+creates the account but does **not** automatically authenticate the user.
+
+We could automatically log the user in after registration, but here we're deliberately demonstrating the separate flow:
+
+```text
+Register
+   ↓
+Login
+```
+
+---
+
+# 33. Automatically Logging in After Registration
+
+If desired, you could do:
+
+```python
+user = form.save()
+
+login(
+    request,
+    user
+)
+
+return redirect(
+    "dashboard"
+)
+```
+
+Then:
+
+```text
+Register
+ ↓
+Create user
+ ↓
+Login automatically
+ ↓
+Dashboard
+```
+
+But our current implementation keeps registration and login separate, which is easier to understand.
+
+---
+
+# 34. Protecting Profile
+
+We used:
+
+```python
+@login_required
+def profile(request):
+```
+
+Therefore:
+
+```text
+Logged in → Profile allowed
+Not logged in → Redirect to login
+```
+
+---
+
+# 35. Protecting Dashboard
+
+Same:
+
+```python
+@login_required
+def dashboard(request):
+```
+
+This is much better than manually writing:
+
+```python
+if not request.user.is_authenticated:
+```
+
+on every view.
+
+---
+
+# 36. Adding Permission Protection
+
+Suppose only teachers can modify student data.
+
+We could add:
+
+```python
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+```
+
+Now:
+
+```text
+Authenticated?
+      ↓
+Has permission?
+      ↓
+Execute
+```
+
+You learned this in Module 39.
+
+---
+
+# 37. Authentication + Authorization
+
+Our application can therefore have:
+
+```text
+Registration
+    ↓
+User
+    ↓
+Authentication
+    ↓
+Login
+    ↓
+Session
+    ↓
+request.user
+    ↓
+Authorization
+    ↓
+Permissions
+    ↓
+Allowed action
+```
+
+This is the complete security model.
+
+---
+
+# 38. Showing Different UI to Logged-In Users
+
+In a template, you can use:
+
+```django
+{% if request.user.is_authenticated %}
+
+    <p>
+        Welcome {{ request.user.username }}
+    </p>
+
+{% else %}
+
+    <a href="{% url 'login' %}">
+        Login
+    </a>
+
+{% endif %}
+```
+
+This changes the UI based on authentication state.
+
+But remember:
+
+> Template conditions are not a substitute for server-side authorization.
+
+---
+
+# 39. Showing Logout Button
+
+```django
+{% if request.user.is_authenticated %}
+
+<form method="POST"
+      action="{% url 'logout' %}">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Logout
+    </button>
+
+</form>
+
+{% endif %}
+```
+
+---
+
+# 40. Showing Username
+
+```django
+{{ request.user.username }}
+```
+
+For example:
+
+```text
+Welcome Aman
+```
+
+---
+
+# 41. Showing Email
+
+```django
+{{ request.user.email }}
+```
+
+---
+
+# 42. Showing Login/Logout Navigation
+
+A base template can have:
+
+```html
+<nav>
+
+    {% if request.user.is_authenticated %}
+
+        <a href="{% url 'dashboard' %}">
+            Dashboard
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <form method="POST"
+              action="{% url 'logout' %}"
+              style="display:inline;">
+
+            {% csrf_token %}
+
+            <button type="submit">
+                Logout
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            Login
+        </a>
+
+        <a href="{% url 'register' %}">
+            Register
+        </a>
+
+    {% endif %}
+
+</nav>
+```
+
+This creates a basic authentication-aware navigation bar.
+
+---
+
+# 43. Common Mistake: Forgetting CSRF
+
+Wrong:
+
+```html
+<form method="POST">
+    {{ form.as_p }}
+    <button>Login</button>
+</form>
+```
+
+Correct:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button>
+        Login
+    </button>
+
+</form>
+```
+
+---
+
+# 44. Common Mistake: Forgetting `request.POST`
+
+Wrong:
+
+```python
+form = LoginForm()
+```
+
+inside POST handling.
+
+Correct:
+
+```python
+form = LoginForm(
+    request.POST
+)
+```
+
+---
+
+# 45. Common Mistake: Using `cleaned_data` Before Validation
+
+Wrong:
+
+```python
+form = LoginForm(request.POST)
+
+username = form.cleaned_data["username"]
+```
+
+Correct:
+
+```python
+form = LoginForm(request.POST)
+
+if form.is_valid():
+
+    username = form.cleaned_data[
+        "username"
+    ]
+```
+
+---
+
+# 46. Common Mistake: Forgetting `login()`
+
+Wrong:
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+
+if user is not None:
+    return redirect("dashboard")
+```
+
+This verifies the user but doesn't establish the normal authenticated session.
+
+Correct:
+
+```python
+if user is not None:
+
+    login(request, user)
+
+    return redirect("dashboard")
+```
+
+---
+
+# 47. Common Mistake: Calling `authenticate()` After Login
+
+You don't normally need to call:
+
+```python
+authenticate()
+```
+
+on every dashboard request.
+
+The authentication/session system handles the authenticated user association.
+
+Your view can simply use:
+
+```python
+request.user
+```
+
+---
+
+# 48. Common Mistake: Storing Passwords Yourself
+
+Don't do:
+
+```python
+request.session["password"] = password
+```
+
+Don't do:
+
+```python
+user.password = password
+```
+
+for normal password setting.
+
+Use Django's authentication/password APIs.
+
+---
+
+# 49. Common Mistake: Trusting Username From the URL
+
+Suppose:
+
+```text
+/profile/aman/
+```
+
+and you simply assume:
+
+```text
+aman = current user
+```
+
+That's not a secure authorization mechanism.
+
+For the current authenticated user, use:
+
+```python
+request.user
+```
+
+For object access, enforce authorization server-side.
+
+---
+
+# 50. Very Important Security Concept
+
+Imagine:
+
+```text
+Aman → logged in
+Rahul → logged in
+```
+
+Aman visits:
+
+```text
+/profile/
+```
+
+You should use:
+
+```python
+request.user
+```
+
+to identify Aman.
+
+Don't accept:
+
+```text
+/profile/rahul/
+```
+
+and automatically assume Aman is allowed to view Rahul's private information.
+
+Authentication tells you:
+
+> Who is making the request?
+
+Authorization tells you:
+
+> Is that user allowed to access this resource?
+
+---
+
+# 51. Testing the Project
+
+You can test the authentication flow manually:
+
+### 1. Open
+
+```text
+/register/
+```
+
+### 2. Create account.
+
+### 3. Go to
+
+```text
+/login/
+```
+
+### 4. Enter credentials.
+
+### 5. Submit.
+
+### 6. You should reach:
+
+```text
+/dashboard/
+```
+
+### 7. Open:
+
+```text
+/profile/
+```
+
+### 8. Click logout.
+
+### 9. Try opening:
+
+```text
+/dashboard/
+```
+
+Again.
+
+You should be redirected to login.
+
+---
+
+# 52. Authentication Test Cases
+
+A good developer doesn't test only the successful case.
+
+### Test 1
+
+Correct username + correct password:
+
+```text
+Expected → Login successful
+```
+
+### Test 2
+
+Correct username + wrong password:
+
+```text
+Expected → Error
+```
+
+### Test 3
+
+Non-existent username:
+
+```text
+Expected → Error
+```
+
+### Test 4
+
+Unauthenticated user visits dashboard:
+
+```text
+Expected → Login page
+```
+
+### Test 5
+
+Authenticated user visits dashboard:
+
+```text
+Expected → Dashboard
+```
+
+### Test 6
+
+Logout:
+
+```text
+Expected → User no longer authenticated
+```
+
+### Test 7
+
+Password mismatch during registration:
+
+```text
+Expected → Validation error
+```
+
+---
+
+# 53. Viva Questions
+
+### Q1. What is `authenticate()`?
+
+> It verifies the supplied credentials using Django's authentication system and returns a User object if authentication succeeds, otherwise `None`.
+
+---
+
+### Q2. What does `login()` do?
+
+> It establishes the authenticated user's session so subsequent requests can identify the user.
+
+---
+
+### Q3. What does `logout()` do?
+
+> It logs the user out by ending the authenticated session state.
+
+---
+
+### Q4. Why is `login()` required after `authenticate()`?
+
+> Because `authenticate()` verifies credentials, while `login()` establishes the authenticated session.
+
+---
+
+### Q5. What is `UserCreationForm`?
+
+> It is Django's built-in form for creating users with proper password handling and validation.
+
+---
+
+### Q6. Why use `UserCreationForm`?
+
+> It avoids manually implementing user creation and password hashing/validation logic.
+
+---
+
+### Q7. What is `@login_required`?
+
+> A decorator that restricts a view to authenticated users.
+
+---
+
+### Q8. What happens when an unauthenticated user accesses a protected view?
+
+> Django redirects them to the configured login URL, commonly preserving the original destination using a `next` parameter.
+
+---
+
+### Q9. What is `request.user`?
+
+> It represents the user associated with the current request.
+
+---
+
+### Q10. What is the relationship between login and sessions?
+
+> Django's authentication system uses the session framework to maintain authenticated state across requests.
+
+---
+
+# 54. Interview Question
+
+### "Explain the Django login process."
+
+Strong answer:
+
+> "The user submits a login form using POST. I validate the form and obtain the username and password from `cleaned_data`. I pass them to `authenticate()`. If it returns a User object, I call `login(request, user)`, which establishes the authenticated session. On subsequent requests, Django uses the session information to associate the request with the authenticated user, which is available through `request.user`. If authentication fails, I return the form with an appropriate error."
+
+---
+
+# 55. Interview Question
+
+### "Explain registration."
+
+Strong answer:
+
+> "I use Django's `UserCreationForm` to validate the registration data and handle password creation correctly. If the form is valid, I call `form.save()` to create the User and then redirect to the login page using the POST-Redirect-GET pattern."
+
+---
+
+# 56. Interview Question
+
+### "How would you protect a dashboard?"
+
+Answer:
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+Then explain:
+
+> "`login_required` ensures that only authenticated users can access the view."
+
+---
+
+# 57. Interview Question
+
+### "How would you restrict a page to users with a specific permission?"
+
+```python
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+def edit_student(request, id):
+    ...
+```
+
+Then explain:
+
+> "This performs server-side authorization based on the user's permission."
+
+---
+
+# 58. Coding Question
+
+### Create a registration form.
+
+```python
+class RegisterForm(UserCreationForm):
+
+    email = forms.EmailField(
+        required=True
+    )
+
+    class Meta:
+
+        model = User
+
+        fields = [
+            "username",
+            "email",
+            "password1",
+            "password2",
+        ]
+```
+
+---
+
+# 59. Coding Question
+
+### Authenticate a user.
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+---
+
+# 60. Coding Question
+
+### Login after authentication.
+
+```python
+if user is not None:
+
+    login(
+        request,
+        user
+    )
+```
+
+---
+
+# 61. Coding Question
+
+### Protect a view.
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+---
+
+# 62. Coding Question
+
+### Logout.
+
+```python
+logout(request)
+```
+
+---
+
+# 63. Coding Question
+
+### Complete basic login.
+
+```python
+def login_view(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get(
+            "username"
+        )
+
+        password = request.POST.get(
+            "password"
+        )
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect(
+                "dashboard"
+            )
+
+        return HttpResponse(
+            "Invalid credentials"
+        )
+
+    return render(
+        request,
+        "login.html"
+    )
+```
+
+---
+
+# 64. Complete Authentication Cheat Sheet
+
+### Registration
+
+```python
+form = RegisterForm(request.POST)
+
+if form.is_valid():
+    form.save()
+```
+
+### Authentication
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+### Login
+
+```python
+login(request, user)
+```
+
+### Current user
+
+```python
+request.user
+```
+
+### Authentication check
+
+```python
+request.user.is_authenticated
+```
+
+### Protect view
+
+```python
+@login_required
+```
+
+### Logout
+
+```python
+logout(request)
+```
+
+### Permission
+
+```python
+@permission_required(
+    "students.change_student",
+    raise_exception=True
+)
+```
+
+---
+
+# 65. Complete Architecture to Memorize
+
+```text
+                         DJANGO AUTHENTICATION
+
+                              Registration
+                                  │
+                                  ↓
+                          UserCreationForm
+                                  │
+                                  ↓
+                              User Model
+                                  │
+                                  ↓
+                                Login
+                                  │
+                                  ↓
+                            LoginForm
+                                  │
+                                  ↓
+                           authenticate()
+                                  │
+                                  ↓
+                               User
+                                  │
+                                  ↓
+                              login()
+                                  │
+                                  ↓
+                              Session
+                                  │
+                                  ↓
+                           session cookie
+                                  │
+                                  ↓
+                           Future Request
+                                  │
+                                  ↓
+                            request.user
+                                  │
+                         ┌────────┴────────┐
+                         ↓                 ↓
+                  Authentication      Authorization
+                         ↓                 ↓
+                 @login_required     permissions
+                         │                 │
+                         └────────┬────────┘
+                                  ↓
+                           Protected View
+                                  │
+                                  ↓
+                               logout()
+```
+
+---
+
+# 66. Module 41 Complete ✅
+
+You have now built a complete authentication application and connected almost every major Django concept:
+
+```text
+Forms
+   ↓
+Validation
+   ↓
+CSRF
+   ↓
+User Model
+   ↓
+Registration
+   ↓
+authenticate()
+   ↓
+login()
+   ↓
+Session
+   ↓
+request.user
+   ↓
+@login_required
+   ↓
+Permissions
+   ↓
+logout()
+```
+
+You are now finished with the **core syllabus content**.
+
+The remaining modules are specifically for making you **exam + viva + coding ready**:
+
+### Module 42 — Complete Django Revision
+
+All 6 units revised together, with important definitions, syntax, flows, comparisons, and common traps.
+
+### Module 43 — Django Viva Masterclass
+
+Large collection of likely teacher/interviewer questions, including tricky questions and ideal answers.
+
+### Module 44 — Django Coding Question Masterclass
+
+Practice problems from basic to advanced: views, URLs, templates, forms, validation, models, ORM, CRUD, authentication, permissions, cookies and sessions.

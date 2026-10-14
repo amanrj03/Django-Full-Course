@@ -275,8 +275,62 @@ tr:nth-child(even) td { background-color: #f7fafc; }
 }
 
 </style>
+<link rel="stylesheet" href="shared.css">
 </head>
 <body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+                        <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="django.html" class="nav-action-pill" style="background: linear-gradient(135deg, #059669, #047857);" title="View all 45 modules">📋 Syllabus</a>
+        </div>
+    </div>
+</header>
+
 
 <div class="page-container">
 
@@ -1248,5 +1302,6 @@ auto_now     → update time</code></pre></div>
 
 </div>
 
+<script src="shared.js"></script>
 </body>
 </html>

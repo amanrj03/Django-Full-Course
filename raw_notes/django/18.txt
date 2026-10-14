@@ -1,0 +1,1563 @@
+# Module 18 — Debugging Django
+
+Now we start an extremely practical topic: **Debugging**.
+
+In a Django project, knowing how to write code is only half the skill.
+
+You also need to know:
+
+> **When my code doesn't work, how do I find exactly what is wrong?**
+
+This is what debugging means.
+
+---
+
+# 1. What Is Debugging?
+
+**Debugging** is the process of:
+
+1. Finding an error/problem
+2. Understanding why it happened
+3. Locating the problematic code
+4. Fixing it
+5. Testing again
+
+Example:
+
+You visit:
+
+```text
+/students/
+```
+
+and Django shows:
+
+```text
+TemplateDoesNotExist
+```
+
+Debugging means determining:
+
+> Which template is Django looking for, where is it searching, and why can't it find it?
+
+---
+
+# 2. Error vs Bug
+
+These terms are related but different.
+
+### Error
+
+A problem that prevents code from working correctly.
+
+Example:
+
+```python
+print(name
+```
+
+Missing `)` → syntax error.
+
+### Bug
+
+The program runs but behaves incorrectly.
+
+Example:
+
+```python
+price = 100
+quantity = 5
+
+total = price + quantity
+```
+
+The program runs, but the correct calculation should be:
+
+```python
+total = price * quantity
+```
+
+So:
+
+> **Error = problem in execution/code.**
+> **Bug = incorrect behavior or result.**
+
+---
+
+# 3. Django Debug Mode
+
+Open:
+
+```text
+settings.py
+```
+
+You'll find:
+
+```python
+DEBUG = True
+```
+
+During development, Django gives detailed error information when something goes wrong.
+
+For example:
+
+```text
+TemplateDoesNotExist at /students/
+```
+
+and below it you'll get a traceback showing where the error occurred.
+
+---
+
+# 4. Why Is `DEBUG=True` Useful?
+
+Because Django can show:
+
+* Exception type
+* Error message
+* File name
+* Line number
+* Code around the error
+* Traceback
+* Request information
+* Django/Python information
+
+This makes debugging much easier.
+
+---
+
+# 5. ⚠️ Never Use `DEBUG=True` in Production
+
+Suppose your production website crashes.
+
+If:
+
+```python
+DEBUG = True
+```
+
+Django can expose sensitive internal information through the detailed error page.
+
+Therefore:
+
+```python
+DEBUG = False
+```
+
+should normally be used in production.
+
+This is both an exam question and an important security concept.
+
+---
+
+# 6. Reading a Django Error Page
+
+Suppose Django displays:
+
+```text
+TemplateDoesNotExist at /students/
+
+students/list.html
+```
+
+Don't panic.
+
+Read the error from top to bottom.
+
+The important information is:
+
+```text
+Exception:
+TemplateDoesNotExist
+
+Message:
+students/list.html
+```
+
+This immediately tells you:
+
+> Django couldn't find the requested template.
+
+---
+
+# 7. Traceback
+
+A traceback shows the chain of function calls that led to the error.
+
+For example:
+
+```text
+Traceback
+
+File ".../urls.py", line 10
+    path("students/", views.students)
+
+File ".../views.py", line 15
+    return render(...)
+
+TemplateDoesNotExist
+```
+
+The most useful part is usually the **last exception shown**, along with the file/line information around where it occurred.
+
+---
+
+# 8. Debugging Strategy
+
+When Django gives an error, follow this sequence:
+
+```text
+1. Read exception type
+        ↓
+2. Read error message
+        ↓
+3. Find file and line number
+        ↓
+4. Inspect surrounding code
+        ↓
+5. Check related configuration
+        ↓
+6. Fix
+        ↓
+7. Run again
+```
+
+Don't randomly change multiple files.
+
+---
+
+# 9. Error #1 — SyntaxError
+
+Example:
+
+```python
+def home(request)
+    return HttpResponse("Hello")
+```
+
+There's a missing `:`.
+
+Python reports something similar to:
+
+```text
+SyntaxError: expected ':'
+```
+
+Correct:
+
+```python
+def home(request):
+    return HttpResponse("Hello")
+```
+
+---
+
+# 10. Syntax Errors in Templates
+
+For example:
+
+```html
+{% if user %}
+    Hello
+```
+
+You forgot:
+
+```html
+{% endif %}
+```
+
+Correct:
+
+```html
+{% if user %}
+    Hello
+{% endif %}
+```
+
+Template syntax errors can appear when Django compiles the template.
+
+---
+
+# 11. Error #2 — NameError
+
+Example:
+
+```python
+def home(request):
+    return HttpResponse(message)
+```
+
+But `message` was never defined.
+
+You may get:
+
+```text
+NameError: name 'message' is not defined
+```
+
+Correct:
+
+```python
+def home(request):
+    message = "Hello"
+    return HttpResponse(message)
+```
+
+---
+
+# 12. Error #3 — ImportError
+
+Suppose:
+
+```python
+from django.http import HttpRespons
+```
+
+The actual class is:
+
+```python
+HttpResponse
+```
+
+You may get an import-related error.
+
+Correct:
+
+```python
+from django.http import HttpResponse
+```
+
+Common causes:
+
+* Typo in import
+* Wrong module
+* Missing package
+* Circular imports in more advanced projects
+
+---
+
+# 13. Error #4 — ModuleNotFoundError
+
+Example:
+
+```python
+import some_package
+```
+
+but the package isn't installed.
+
+Python may report:
+
+```text
+ModuleNotFoundError
+```
+
+For third-party packages, check the active virtual environment and installation.
+
+For Django itself:
+
+```bash
+python -m django --version
+```
+
+---
+
+# 14. Error #5 — TemplateDoesNotExist
+
+This is one of the **most common Django beginner errors**.
+
+Suppose your view says:
+
+```python
+return render(request, "home.html")
+```
+
+but Django can't find it.
+
+You may see:
+
+```text
+TemplateDoesNotExist at /
+home.html
+```
+
+---
+
+# 15. Why Does `TemplateDoesNotExist` Happen?
+
+Common reasons:
+
+### Reason 1 — Wrong folder
+
+You might have:
+
+```text
+templates/
+    home.htm
+```
+
+but requested:
+
+```text
+home.html
+```
+
+### Reason 2 — Wrong filename
+
+```python
+render(request, "home.html")
+```
+
+but file is:
+
+```text
+homepage.html
+```
+
+### Reason 3 — App not installed
+
+If using app-level templates:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+must include the app.
+
+### Reason 4 — Wrong path
+
+Suppose:
+
+```text
+students/
+└── templates/
+    └── students/
+        └── home.html
+```
+
+Then:
+
+```python
+render(request, "students/home.html")
+```
+
+not:
+
+```python
+render(request, "home.html")
+```
+
+---
+
+# 16. Correct App Template Structure
+
+Recommended:
+
+```text
+students/
+│
+├── templates/
+│   └── students/
+│       └── home.html
+│
+├── views.py
+└── ...
+```
+
+Then:
+
+```python
+return render(
+    request,
+    "students/home.html"
+)
+```
+
+The extra `students/` directory helps avoid template-name collisions between apps.
+
+---
+
+# 17. Error #6 — NoReverseMatch
+
+This is another very important Django error.
+
+Suppose URL:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+But template says:
+
+```html
+<a href="{% url 'student_detail' %}">
+    Student
+</a>
+```
+
+Django needs the `id` parameter.
+
+You might get:
+
+```text
+NoReverseMatch
+```
+
+---
+
+# 18. Fixing `NoReverseMatch`
+
+Provide the required parameter:
+
+```html
+<a href="{% url 'student_detail' id=101 %}">
+    Student
+</a>
+```
+
+Or dynamically:
+
+```html
+<a href="{% url 'student_detail' id=student.id %}">
+    Student
+</a>
+```
+
+---
+
+# 19. `NoReverseMatch` Common Causes
+
+### Wrong URL name
+
+URL:
+
+```python
+name="student_detail"
+```
+
+Template:
+
+```html
+{% url 'student' %}
+```
+
+Wrong.
+
+---
+
+### Missing parameter
+
+URL:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+Template:
+
+```html
+{% url 'student_detail' %}
+```
+
+Missing `id`.
+
+---
+
+### Wrong parameter name
+
+URL:
+
+```python
+<int:id>
+```
+
+Template:
+
+```html
+{% url 'student_detail' student_id=101 %}
+```
+
+Wrong keyword.
+
+Use:
+
+```html
+{% url 'student_detail' id=101 %}
+```
+
+---
+
+# 20. Error #7 — ViewDoesNotExist
+
+Suppose:
+
+```python
+path(
+    "home/",
+    views.hom
+)
+```
+
+but the actual function is:
+
+```python
+def home(request):
+```
+
+Django can't find the specified view.
+
+Correct:
+
+```python
+path(
+    "home/",
+    views.home
+)
+```
+
+---
+
+# 21. Error #8 — AttributeError
+
+Example:
+
+```python
+student = {
+    "name": "Aman"
+}
+
+print(student.name)
+```
+
+A dictionary doesn't provide that access pattern in normal Python.
+
+You'd use:
+
+```python
+student["name"]
+```
+
+or in a Django template:
+
+```html
+{{ student.name }}
+```
+
+A Python error may look like:
+
+```text
+AttributeError
+```
+
+---
+
+# 22. Error #9 — TypeError
+
+Example:
+
+```python
+age = 20
+
+print(age + " years")
+```
+
+Python cannot add an integer and string directly.
+
+You'll get a `TypeError`.
+
+Correct:
+
+```python
+print(str(age) + " years")
+```
+
+or use an f-string:
+
+```python
+print(f"{age} years")
+```
+
+---
+
+# 23. Error #10 — `DoesNotExist`
+
+This becomes especially important when we start using models.
+
+Suppose:
+
+```python
+student = Student.objects.get(id=100)
+```
+
+If no matching student exists, Django raises something like:
+
+```text
+Student.DoesNotExist
+```
+
+Later, you'll learn the cleaner solution:
+
+```python
+from django.shortcuts import get_object_or_404
+
+student = get_object_or_404(Student, id=100)
+```
+
+which converts the missing object into an HTTP 404 response.
+
+---
+
+# 24. Error #11 — `OperationalError`
+
+You may encounter database errors such as:
+
+```text
+django.db.utils.OperationalError
+```
+
+Common causes can include:
+
+* Database configuration problems
+* Missing database table
+* Migration not applied
+* Database connection failure
+
+For example, if you create a model but haven't applied migrations, you may encounter a missing-table problem.
+
+We'll understand this much better in the Models/Migrations modules.
+
+---
+
+# 25. Error #12 — `404 Page Not Found`
+
+Suppose your URL configuration contains:
+
+```python
+path("students/", views.students)
+```
+
+but you visit:
+
+```text
+/student/
+```
+
+Notice:
+
+```text
+students/
+```
+
+vs:
+
+```text
+student/
+```
+
+Django doesn't find a matching URL and returns:
+
+```text
+404 Not Found
+```
+
+---
+
+# 26. URL 404 vs Object 404
+
+Very important distinction.
+
+### URL doesn't exist:
+
+```text
+/students/abc/
+```
+
+doesn't match your URL pattern.
+
+That's a **URL routing 404**.
+
+### URL exists but object doesn't:
+
+```text
+/student/999/
+```
+
+matches:
+
+```python
+<int:id>
+```
+
+but student 999 doesn't exist.
+
+That's an **object/data 404**.
+
+These are different problems even though both result in HTTP 404.
+
+---
+
+# 27. Error #13 — `CSRF` Error
+
+You'll encounter this in the Forms module.
+
+A POST form may produce:
+
+```text
+403 Forbidden
+CSRF verification failed
+```
+
+Often this means the template doesn't contain the required CSRF token.
+
+Typical Django form:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    ...
+    
+</form>
+```
+
+We'll study CSRF properly in Unit IV.
+
+---
+
+# 28. Error #14 — Port Already in Use
+
+Suppose you start:
+
+```bash
+python manage.py runserver
+```
+
+but another process is already using port 8000.
+
+You can use another port:
+
+```bash
+python manage.py runserver 8001
+```
+
+Then visit:
+
+```text
+http://127.0.0.1:8001/
+```
+
+---
+
+# 29. Error #15 — Wrong Virtual Environment
+
+Suppose Django was installed inside:
+
+```text
+venv
+```
+
+but VS Code is using another Python interpreter.
+
+You might see:
+
+```text
+ModuleNotFoundError: No module named 'django'
+```
+
+even though you installed Django.
+
+Check:
+
+```bash
+python -m django --version
+```
+
+and verify that the correct virtual environment/interpreter is active.
+
+---
+
+# 30. Django Debug Toolbar vs Django Debug Mode
+
+Don't confuse:
+
+```text
+DEBUG = True
+```
+
+with a separate debugging tool such as Django Debug Toolbar.
+
+`DEBUG=True` is a Django setting controlling development behavior and error reporting.
+
+A debug toolbar is an additional development package/tool used for inspecting things such as:
+
+* SQL queries
+* request information
+* templates
+* performance
+
+For your syllabus, the important concept is primarily:
+
+```python
+DEBUG = True
+```
+
+---
+
+# 31. Using `print()` for Debugging
+
+A beginner-friendly technique:
+
+```python
+def home(request):
+
+    name = "Aman"
+
+    print(name)
+
+    return render(
+        request,
+        "home.html",
+        {"name": name}
+    )
+```
+
+The value appears in the terminal running Django.
+
+You can inspect:
+
+```python
+print(request.method)
+print(request.GET)
+print(request.POST)
+```
+
+during development.
+
+---
+
+# 32. Better Debugging With `breakpoint()`
+
+Python provides:
+
+```python
+breakpoint()
+```
+
+Example:
+
+```python
+def student(request):
+
+    students = ["Aman", "Rahul"]
+
+    breakpoint()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+Execution pauses at that point when using a suitable debugger/terminal environment.
+
+You can inspect variables.
+
+This is more advanced than `print()` debugging.
+
+---
+
+# 33. Debugging in VS Code
+
+VS Code provides a debugger where you can:
+
+* Set breakpoints
+* Run code step-by-step
+* Inspect variables
+* Watch expressions
+* See the call stack
+
+A breakpoint is a point where program execution pauses so you can inspect what's happening.
+
+---
+
+# 34. Example Debugging Process
+
+Suppose:
+
+```python
+def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21
+    }
+
+    return render(
+        request,
+        "students/detail.html",
+        {"student": student}
+    )
+```
+
+You get:
+
+```text
+TemplateDoesNotExist
+students/detail.html
+```
+
+### Step 1
+
+Read exception:
+
+```text
+TemplateDoesNotExist
+```
+
+### Step 2
+
+Read requested path:
+
+```text
+students/detail.html
+```
+
+### Step 3
+
+Check filesystem:
+
+```text
+students/
+└── templates/
+    └── students/
+        └── detail.html
+```
+
+If instead you have:
+
+```text
+students/
+└── templates/
+    └── detail.html
+```
+
+the requested path is wrong for that structure.
+
+### Step 4
+
+Fix either the path or template location.
+
+### Step 5
+
+Reload.
+
+That's systematic debugging.
+
+---
+
+# 35. Don't Change Everything at Once
+
+A common beginner mistake is:
+
+> "It doesn't work, so I'll change views.py, urls.py, settings.py, and HTML simultaneously."
+
+Don't.
+
+Instead:
+
+```text
+Error
+ ↓
+Identify exact error
+ ↓
+Identify responsible layer
+ ↓
+Change minimum necessary code
+ ↓
+Test
+```
+
+---
+
+# 36. Identify the Layer
+
+Django applications can be thought of as layers:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Model/Database
+   ↓
+Template
+   ↓
+Response
+```
+
+If the error is:
+
+```text
+NoReverseMatch
+```
+
+look first at:
+
+```text
+URLs + template URL tag
+```
+
+If:
+
+```text
+TemplateDoesNotExist
+```
+
+look at:
+
+```text
+Template path + settings + installed app
+```
+
+If:
+
+```text
+DoesNotExist
+```
+
+look at:
+
+```text
+Database query/object retrieval
+```
+
+This saves enormous time.
+
+---
+
+# 37. Error Diagnosis Table
+
+| Error                  | Usually means                           |
+| ---------------------- | --------------------------------------- |
+| `SyntaxError`          | Invalid Python syntax                   |
+| `NameError`            | Variable/name doesn't exist             |
+| `ImportError`          | Import problem                          |
+| `ModuleNotFoundError`  | Module/package can't be found           |
+| `TemplateDoesNotExist` | Template can't be found                 |
+| `NoReverseMatch`       | URL reversing failed                    |
+| `ViewDoesNotExist`     | Referenced view can't be found          |
+| `AttributeError`       | Object doesn't have requested attribute |
+| `TypeError`            | Wrong/incompatible type operation       |
+| `DoesNotExist`         | Requested model object doesn't exist    |
+| `OperationalError`     | Database/SQL-related operational issue  |
+| `404`                  | URL/resource not found                  |
+| `403`                  | Permission/CSRF/access forbidden        |
+| `500`                  | Server-side application error           |
+
+---
+
+# 38. ⭐ Very Important: Read the Last Exception
+
+Suppose the traceback contains:
+
+```text
+File ...
+File ...
+File ...
+File ...
+
+TemplateDoesNotExist
+```
+
+Don't get overwhelmed by the entire traceback.
+
+Start with:
+
+> **What exception occurred?**
+
+Then:
+
+> **What message accompanies it?**
+
+Then:
+
+> **Which line in my code triggered it?**
+
+---
+
+# 39. Example Viva Question
+
+### Teacher:
+
+> What is debugging?
+
+Answer:
+
+> Debugging is the systematic process of identifying, locating, analyzing, and fixing errors or unexpected behavior in a program.
+
+---
+
+# 40. Viva Question
+
+### Teacher:
+
+> What is `DEBUG` in Django?
+
+Answer:
+
+> `DEBUG` is a Django setting that controls development debugging behavior. When `DEBUG=True`, Django provides detailed error information. It should not be enabled in production.
+
+---
+
+# 41. Viva Question
+
+### Teacher:
+
+> Why shouldn't `DEBUG=True` be used in production?
+
+Answer:
+
+> Because detailed error pages can expose sensitive application and environment information.
+
+---
+
+# 42. Viva Question
+
+### Teacher:
+
+> What is `TemplateDoesNotExist`?
+
+Answer:
+
+> It occurs when Django cannot locate the template requested by the application.
+
+---
+
+# 43. Viva Question
+
+### Teacher:
+
+> What is `NoReverseMatch`?
+
+Answer:
+
+> It occurs when Django cannot construct a URL from a named URL pattern, commonly because the URL name or required parameters are incorrect or missing.
+
+---
+
+# 44. Viva Question
+
+### Teacher:
+
+> What is a traceback?
+
+Answer:
+
+> A traceback is a report showing the sequence of function calls that led to an exception, along with information about where the error occurred.
+
+---
+
+# 45. Viva Question
+
+### Teacher:
+
+> Difference between 404 and 500?
+
+Answer:
+
+> A 404 indicates that the requested resource or URL was not found, while a 500 indicates an unexpected server-side error occurred while processing the request.
+
+---
+
+# 46. Viva Question
+
+### Teacher:
+
+> How can you debug a variable in a Django view?
+
+Answer:
+
+> During development, I can use `print()` statements, Python's `breakpoint()`, or an IDE debugger to inspect the variable and program execution.
+
+---
+
+# 47. Coding Question
+
+### Question:
+
+This code gives an error:
+
+```python
+def home(request):
+    return render(request, "home.html")
+```
+
+The file actually exists at:
+
+```text
+students/templates/students/home.html
+```
+
+What should you change?
+
+### Answer:
+
+```python
+def home(request):
+    return render(request, "students/home.html")
+```
+
+assuming the app is correctly installed and template discovery is configured.
+
+---
+
+# 48. Coding Question
+
+Given:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+This template causes `NoReverseMatch`:
+
+```html
+<a href="{% url 'student_detail' %}">
+    Student
+</a>
+```
+
+Fix it.
+
+### Answer:
+
+```html
+<a href="{% url 'student_detail' id=101 %}">
+    Student
+</a>
+```
+
+Or dynamically:
+
+```html
+<a href="{% url 'student_detail' id=student.id %}">
+    Student
+</a>
+```
+
+---
+
+# 49. Coding Question
+
+Find the error:
+
+```python
+def home(request)
+    return HttpResponse("Hello")
+```
+
+### Answer:
+
+Missing colon:
+
+```python
+def home(request):
+    return HttpResponse("Hello")
+```
+
+---
+
+# 50. Coding Question
+
+Find the error:
+
+```python
+from django.http import HttpRespons
+```
+
+### Answer:
+
+The class name is:
+
+```python
+HttpResponse
+```
+
+Correct:
+
+```python
+from django.http import HttpResponse
+```
+
+---
+
+# 51. Debugging Checklist ⭐
+
+Whenever your Django application isn't working:
+
+### 1. Check terminal
+
+Look for:
+
+```text
+Exception
+Error
+Traceback
+```
+
+### 2. Check browser
+
+Look at:
+
+```text
+404
+403
+500
+```
+
+### 3. Read the exception
+
+For example:
+
+```text
+TemplateDoesNotExist
+```
+
+### 4. Check exact line
+
+Don't just read the filename.
+
+### 5. Check spelling
+
+Especially:
+
+```text
+URLs
+view names
+template names
+variable names
+imports
+```
+
+### 6. Check configuration
+
+Especially:
+
+```text
+INSTALLED_APPS
+TEMPLATES
+DATABASES
+URL patterns
+```
+
+### 7. Test again
+
+Don't assume the fix worked until you reload/test.
+
+---
+
+# 52. ⭐ Master Debugging Flow
+
+Memorize this:
+
+```text
+                    ERROR
+                      ↓
+             Read exception type
+                      ↓
+             Read error message
+                      ↓
+             Find file + line
+                      ↓
+              Identify Django layer
+                      ↓
+             Check relevant code
+                      ↓
+                 Fix it
+                      ↓
+                  Test again
+```
+
+This is much better than randomly modifying code.
+
+---
+
+# 🧠 Module 18 Summary
+
+You should now know:
+
+* What debugging means
+* Error vs bug
+* `DEBUG=True`
+* Why production uses `DEBUG=False`
+* Tracebacks
+* `SyntaxError`
+* `NameError`
+* `ImportError`
+* `ModuleNotFoundError`
+* `TemplateDoesNotExist`
+* `NoReverseMatch`
+* `ViewDoesNotExist`
+* `AttributeError`
+* `TypeError`
+* `DoesNotExist`
+* `OperationalError`
+* 404/403/500
+* `print()`
+* `breakpoint()`
+* VS Code debugging
+* Systematic debugging
+
+### The most important exam answer:
+
+> **Debugging is the systematic process of identifying, locating, analyzing, and correcting errors or unexpected behavior in a program.**
+
+And the most important practical rule:
+
+> **Always read the exception type, error message, and traceback before changing your code.**
+
+---
+
+## Next → Module 19: Testing in Django
+
+We'll cover **Django testing from beginner to coding/viva level**:
+
+* Why testing is required
+* Unit testing
+* Django `TestCase`
+* `tests.py`
+* Testing views
+* Testing URLs
+* Django test client
+* GET/POST testing
+* Status codes
+* `assertEqual`
+* `assertContains`
+* `assertRedirects`
+* Testing templates
+* Running tests
+* Test discovery
+* Test database
+* Common testing mistakes
+* Viva + coding questions.

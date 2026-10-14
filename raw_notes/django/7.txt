@@ -1,0 +1,1635 @@
+# Module 7 — URL Routing in Depth
+
+Now we're going deeper into **Django URLs**.
+
+You already know the basic flow:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+urls.py
+   ↓
+View
+   ↓
+Response
+```
+
+In this module we'll understand exactly how Django matches URLs and how to write different types of URL patterns.
+
+This is important for both **viva and coding questions**.
+
+---
+
+# 1. What is URL Routing?
+
+**URL routing** is the process of determining which view should handle a particular URL.
+
+For example:
+
+```text
+/students/
+```
+
+might be mapped to:
+
+```python
+views.students
+```
+
+while:
+
+```text
+/teachers/
+```
+
+might be mapped to:
+
+```python
+views.teachers
+```
+
+Conceptually:
+
+```text
+URL
+ ↓
+URL Pattern
+ ↓
+View
+```
+
+---
+
+# 2. `urlpatterns`
+
+Django looks for URL patterns inside a variable conventionally named:
+
+```python
+urlpatterns
+```
+
+Example:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home),
+    path('about/', views.about),
+]
+```
+
+Here there are two URL patterns.
+
+---
+
+# 3. What is `path()`?
+
+`path()` is used to define URL patterns.
+
+Basic syntax:
+
+```python
+path(route, view)
+```
+
+Example:
+
+```python
+path('home/', views.home)
+```
+
+Meaning:
+
+> If the requested URL matches `home/`, call `views.home`.
+
+---
+
+# 4. Basic URL Mapping
+
+Suppose:
+
+```python
+path('about/', views.about)
+```
+
+The user visits:
+
+```text
+/about/
+```
+
+Django calls:
+
+```python
+views.about(request)
+```
+
+Flow:
+
+```text
+/about/
+   ↓
+path('about/', views.about)
+   ↓
+views.about(request)
+```
+
+---
+
+# 5. Multiple URL Patterns
+
+You can define multiple routes:
+
+```python
+urlpatterns = [
+    path('', views.home),
+    path('about/', views.about),
+    path('contact/', views.contact),
+    path('students/', views.students),
+]
+```
+
+So:
+
+```text
+/              → home
+/about/        → about
+/contact/      → contact
+/students/     → students
+```
+
+---
+
+# 6. Does Django Check All URLs?
+
+Django checks URL patterns **in order**.
+
+Conceptually:
+
+```text
+Request
+   ↓
+Pattern 1?
+   ↓
+No
+   ↓
+Pattern 2?
+   ↓
+No
+   ↓
+Pattern 3?
+   ↓
+Yes
+   ↓
+Call View
+```
+
+Once Django finds a matching URL pattern, it uses that match rather than continuing through later patterns.
+
+This is why **URL ordering can matter**.
+
+---
+
+# 7. Example of URL Ordering
+
+Suppose:
+
+```python
+urlpatterns = [
+    path('students/', views.students),
+    path('students/profile/', views.profile),
+]
+```
+
+A request for:
+
+```text
+/students/profile/
+```
+
+does not simply mean Django will always choose the first pattern. Django's `path()` route matching requires the route to match the URL path appropriately; `students/` does not consume the extra `profile/` segment as a complete match.
+
+So this is different from a prefix-based router.
+
+However, ordering becomes especially important when patterns can match the same URL, such as dynamic converters.
+
+For example:
+
+```python
+urlpatterns = [
+    path('<str:value>/', views.string_view),
+    path('about/', views.about),
+]
+```
+
+The request:
+
+```text
+/about/
+```
+
+can match the dynamic string route first.
+
+So Django calls:
+
+```text
+string_view
+```
+
+instead of:
+
+```text
+about
+```
+
+This is why specific patterns should generally come before broad dynamic patterns.
+
+---
+
+# 8. Empty Path `''`
+
+You have already seen:
+
+```python
+path('', views.home)
+```
+
+The empty route means:
+
+> Match the empty path at this URL configuration level.
+
+For example, if project URLs contain:
+
+```python
+path('students/', include('students.urls'))
+```
+
+and app URLs contain:
+
+```python
+path('', views.home)
+```
+
+then:
+
+```text
+/students/
+```
+
+calls:
+
+```text
+views.home
+```
+
+---
+
+# 9. URL Prefix + App URL
+
+Let's understand this carefully.
+
+### Project:
+
+```python
+path('students/', include('students.urls'))
+```
+
+### App:
+
+```python
+path('', views.home)
+```
+
+Final URL:
+
+```text
+/students/
+```
+
+If app URL is:
+
+```python
+path('profile/', views.profile)
+```
+
+final URL:
+
+```text
+/students/profile/
+```
+
+So:
+
+```text
+Project prefix
+      +
+App route
+      =
+Final URL
+```
+
+---
+
+# 10. `include()`
+
+Syntax:
+
+```python
+include('students.urls')
+```
+
+It tells Django to include URL patterns from another URL configuration.
+
+Example:
+
+```python
+from django.urls import path, include
+
+urlpatterns = [
+    path('students/', include('students.urls')),
+]
+```
+
+This is useful for organizing URLs by app.
+
+---
+
+# 11. Why Use `include()`?
+
+Imagine your college project has:
+
+```text
+students
+teachers
+courses
+accounts
+```
+
+Project URL:
+
+```python
+urlpatterns = [
+    path('students/', include('students.urls')),
+    path('teachers/', include('teachers.urls')),
+    path('courses/', include('courses.urls')),
+    path('accounts/', include('accounts.urls')),
+]
+```
+
+Now each app handles its own URLs.
+
+This provides better organization.
+
+---
+
+# 12. URL Parameters
+
+Now we reach an important concept.
+
+Suppose you want:
+
+```text
+/students/10/
+```
+
+where:
+
+```text
+10
+```
+
+is the student's ID.
+
+You don't want to create a separate URL for every student.
+
+Instead, use a **dynamic URL parameter**.
+
+```python
+path('students/<int:id>/', views.student_detail)
+```
+
+Now:
+
+```text
+/students/10/
+/students/20/
+/students/50/
+```
+
+can all use the same URL pattern.
+
+---
+
+# 13. Passing the Parameter to the View
+
+URL:
+
+```python
+path('students/<int:id>/', views.student_detail)
+```
+
+View:
+
+```python
+def student_detail(request, id):
+    return HttpResponse(f"Student ID: {id}")
+```
+
+If the user visits:
+
+```text
+/students/25/
+```
+
+Django calls approximately:
+
+```python
+student_detail(request, id=25)
+```
+
+Response:
+
+```text
+Student ID: 25
+```
+
+---
+
+# 14. Why Must the View Have `id`?
+
+Because Django captures the URL value and passes it to the view.
+
+URL:
+
+```python
+<int:id>
+```
+
+means:
+
+```text
+capture integer
+     ↓
+call it id
+```
+
+Therefore your view needs to accept:
+
+```python
+def student_detail(request, id):
+```
+
+---
+
+# 15. Important Syntax
+
+The general syntax is:
+
+```python
+path('<converter:name>/', view)
+```
+
+For example:
+
+```python
+path('<int:id>/', views.student)
+```
+
+Here:
+
+```text
+int
+ ↓
+Converter
+
+id
+ ↓
+Parameter name
+```
+
+---
+
+# 16. Common Path Converters
+
+Django provides several built-in path converters.
+
+### `str`
+
+```python
+path('user/<str:name>/', views.user)
+```
+
+Matches a non-empty string excluding `/`.
+
+Example:
+
+```text
+/user/Aman/
+/user/Rahul/
+```
+
+---
+
+### `int`
+
+```python
+path('student/<int:id>/', views.student)
+```
+
+Matches integers.
+
+Examples:
+
+```text
+/student/10/
+/student/25/
+```
+
+---
+
+### `slug`
+
+```python
+path('post/<slug:title>/', views.post)
+```
+
+Useful for URL-friendly strings such as:
+
+```text
+/my-first-post/
+/django-tutorial/
+```
+
+A slug generally contains letters, numbers, hyphens, and underscores.
+
+---
+
+### `uuid`
+
+```python
+path('item/<uuid:id>/', views.item)
+```
+
+Used for UUID values.
+
+---
+
+### `path`
+
+```python
+path('files/<path:file_path>/', views.file)
+```
+
+Can capture a path including `/`.
+
+For example:
+
+```text
+/files/docs/django/chapter1/
+```
+
+---
+
+# 17. Path Converter Table
+
+Remember:
+
+| Converter | Purpose                     |
+| --------- | --------------------------- |
+| `str`     | String excluding `/`        |
+| `int`     | Integer                     |
+| `slug`    | Slug-style string           |
+| `uuid`    | UUID                        |
+| `path`    | String that can include `/` |
+
+---
+
+# 18. `str` vs `int`
+
+Suppose:
+
+```python
+path('student/<int:id>/', views.student)
+```
+
+Request:
+
+```text
+/student/25/
+```
+
+✅ Matches.
+
+Request:
+
+```text
+/student/abc/
+```
+
+❌ Doesn't match this pattern because `abc` isn't an integer.
+
+Now:
+
+```python
+path('student/<str:id>/', views.student)
+```
+
+Both:
+
+```text
+/student/25/
+/student/abc/
+```
+
+can match because they're strings.
+
+---
+
+# 19. Multiple URL Parameters
+
+You can have multiple parameters.
+
+Example:
+
+```python
+path(
+    'student/<int:id>/<str:name>/',
+    views.student
+)
+```
+
+View:
+
+```python
+def student(request, id, name):
+    return HttpResponse(
+        f"ID: {id}, Name: {name}"
+    )
+```
+
+URL:
+
+```text
+/student/10/Aman/
+```
+
+Result:
+
+```text
+ID: 10, Name: Aman
+```
+
+---
+
+# 20. Parameter Names Matter
+
+Suppose URL:
+
+```python
+path('student/<int:id>/', views.student)
+```
+
+View:
+
+```python
+def student(request, student_id):
+```
+
+This doesn't match Django's keyword argument name.
+
+Django passes:
+
+```python
+id=10
+```
+
+but your function expects:
+
+```python
+student_id
+```
+
+So use matching names:
+
+```python
+def student(request, id):
+```
+
+or change the URL:
+
+```python
+path(
+    'student/<int:student_id>/',
+    views.student
+)
+```
+
+and:
+
+```python
+def student(request, student_id):
+```
+
+---
+
+# 21. Query Parameters vs URL Parameters
+
+This distinction is important.
+
+### URL parameter
+
+```text
+/students/10/
+```
+
+Defined with:
+
+```python
+path('students/<int:id>/', ...)
+```
+
+### Query parameter
+
+```text
+/students/?name=Aman
+```
+
+The `name=Aman` portion is a query parameter.
+
+It's accessed through:
+
+```python
+request.GET
+```
+
+We'll study query parameters properly in the HTTP requests module.
+
+---
+
+# 22. Named URLs
+
+Now an important Django feature.
+
+Suppose:
+
+```python
+path('about/', views.about, name='about')
+```
+
+We have given the URL a name:
+
+```text
+about
+```
+
+Why?
+
+Because instead of hardcoding:
+
+```text
+/about/
+```
+
+throughout your application, you can refer to the URL by its name.
+
+This becomes extremely useful when URLs change.
+
+---
+
+# 23. Why Name URLs?
+
+Suppose you have:
+
+```text
+/about/
+```
+
+and use this URL in 20 templates.
+
+Later you change it to:
+
+```text
+/company/about/
+```
+
+If you've hardcoded `/about/` everywhere, you may need to modify many files.
+
+Named URLs allow Django to resolve the correct URL from the name.
+
+This is called **URL reversing**.
+
+---
+
+# 24. Example Named URL
+
+```python
+urlpatterns = [
+    path('about/', views.about, name='about'),
+]
+```
+
+Now Django associates:
+
+```text
+about
+ ↓
+/about/
+```
+
+Later we can use:
+
+```django
+{% url 'about' %}
+```
+
+inside a template.
+
+We'll study this properly in the Templates module.
+
+---
+
+# 25. URL Names in Python
+
+You can also reverse URLs in Python using:
+
+```python
+from django.urls import reverse
+```
+
+Example:
+
+```python
+url = reverse('about')
+```
+
+This could produce:
+
+```text
+/about/
+```
+
+We'll use this later.
+
+---
+
+# 26. URL Names with Parameters
+
+Suppose:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student,
+    name='student'
+)
+```
+
+To reverse it, Django needs the ID.
+
+Conceptually:
+
+```python
+reverse('student', kwargs={'id': 10})
+```
+
+Result:
+
+```text
+/student/10/
+```
+
+This becomes very useful when working with dynamic pages.
+
+---
+
+# 27. Namespaces
+
+When multiple apps have URLs with the same name, namespaces help avoid conflicts.
+
+Suppose:
+
+```text
+students → detail
+teachers → detail
+```
+
+Both might have:
+
+```python
+name='detail'
+```
+
+Without namespaces, it can become ambiguous.
+
+You can organize them using an application namespace.
+
+We'll cover this more deeply once we start building larger applications.
+
+For now, know:
+
+> **Namespaces help distinguish URL names belonging to different applications.**
+
+---
+
+# 28. `app_name`
+
+Inside an app's `urls.py`, you can define:
+
+```python
+app_name = 'students'
+```
+
+Example:
+
+```python
+from django.urls import path
+from . import views
+
+app_name = 'students'
+
+urlpatterns = [
+    path(
+        'profile/',
+        views.profile,
+        name='profile'
+    ),
+]
+```
+
+Now the URL name can be referenced as:
+
+```text
+students:profile
+```
+
+For example in a template:
+
+```django
+{% url 'students:profile' %}
+```
+
+This is especially useful when several apps have similarly named URLs.
+
+---
+
+# 29. Complete Example
+
+Let's build a small app URL configuration.
+
+### `students/views.py`
+
+```python
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Students Home")
+
+def about(request):
+    return HttpResponse("About Students")
+
+def student_detail(request, id):
+    return HttpResponse(f"Student ID: {id}")
+```
+
+### `students/urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+app_name = 'students'
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path(
+        '<int:id>/',
+        views.student_detail,
+        name='detail'
+    ),
+]
+```
+
+### `College/urls.py`
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path(
+        'students/',
+        include('students.urls')
+    ),
+]
+```
+
+Now:
+
+```text
+/students/           → home
+/students/about/     → about
+/students/10/        → student_detail(id=10)
+/students/25/        → student_detail(id=25)
+```
+
+---
+
+# 30. How Django Chooses a URL
+
+Suppose user requests:
+
+```text
+/students/25/
+```
+
+Project:
+
+```python
+path('students/', include('students.urls'))
+```
+
+Django passes the remaining portion:
+
+```text
+25/
+```
+
+to `students.urls`.
+
+Then:
+
+```python
+path('<int:id>/', views.student_detail)
+```
+
+matches it.
+
+Django extracts:
+
+```text
+id = 25
+```
+
+and calls:
+
+```python
+views.student_detail(request, id=25)
+```
+
+---
+
+# 31. URL Routing Mental Model
+
+Think of URL routing like a chain:
+
+```text
+Full URL
+   ↓
+Project URL
+   ↓
+Prefix removed
+   ↓
+App URL
+   ↓
+Converter captures parameters
+   ↓
+View receives parameters
+```
+
+Example:
+
+```text
+/students/25/
+      ↓
+students/
+      ↓
+25/
+      ↓
+<int:id>
+      ↓
+id = 25
+      ↓
+student_detail(request, id=25)
+```
+
+This understanding is much more useful than memorizing syntax.
+
+---
+
+# 32. `path()` vs `re_path()`
+
+Your syllabus specifically mentions:
+
+> **Regular expressions in URLs**
+
+For most modern URL routing, use:
+
+```python
+path()
+```
+
+because built-in converters handle common cases.
+
+For more complex matching, Django provides:
+
+```python
+re_path()
+```
+
+Example:
+
+```python
+from django.urls import re_path
+
+urlpatterns = [
+    re_path(
+        r'^student/(?P<id>[0-9]+)/$',
+        views.student
+    ),
+]
+```
+
+Don't worry about regex syntax yet.
+
+We'll dedicate a later module specifically to it.
+
+---
+
+# 33. Common URL Errors
+
+## Error 1 — Forgetting `include`
+
+Wrong:
+
+```python
+from django.urls import path
+
+urlpatterns = [
+    path('students/', include('students.urls')),
+]
+```
+
+`include` wasn't imported.
+
+Correct:
+
+```python
+from django.urls import path, include
+```
+
+---
+
+## Error 2 — Wrong parameter in view
+
+URL:
+
+```python
+path('<int:id>/', views.student)
+```
+
+View:
+
+```python
+def student(request, student_id):
+```
+
+Mismatch.
+
+Correct:
+
+```python
+def student(request, id):
+```
+
+---
+
+## Error 3 — App URLs Not Included
+
+You create:
+
+```text
+students/urls.py
+```
+
+but forget:
+
+```python
+path('students/', include('students.urls'))
+```
+
+Then Django's project-level routing won't reach those app URL patterns.
+
+---
+
+# 34. Viva Questions
+
+### Q1. What is URL routing?
+
+> URL routing is the process of mapping requested URLs to the appropriate Django views.
+
+### Q2. What is `urlpatterns`?
+
+> It is the list containing URL patterns used by Django's URL dispatcher.
+
+### Q3. What is `path()`?
+
+> `path()` is used to define URL patterns in Django.
+
+### Q4. What is `include()`?
+
+> `include()` allows URL patterns from another URL configuration, commonly an app's `urls.py`, to be included in the current URL configuration.
+
+### Q5. What is a path converter?
+
+> A path converter defines the type of value that Django should capture from a dynamic URL segment, such as an integer or string.
+
+### Q6. Name Django's built-in path converters.
+
+> `str`, `int`, `slug`, `uuid`, and `path`.
+
+### Q7. How do you create a dynamic integer URL?
+
+```python
+path('<int:id>/', views.view_name)
+```
+
+### Q8. How is the captured parameter passed to the view?
+
+> Django passes it as an argument to the view using the parameter name defined in the URL pattern.
+
+---
+
+# 35. Viva Trap ⚠️
+
+### Teacher:
+
+> What happens if the URL contains `/student/abc/` but the pattern is:
+
+```python
+path('student/<int:id>/', views.student)
+```
+
+Answer:
+
+> The pattern does not match because `abc` cannot be converted to an integer.
+
+Django will continue looking for another matching pattern. If none matches, the request results in a 404 response.
+
+---
+
+# 36. Another Viva Trap
+
+### Teacher:
+
+> Is `/student/10/` and `/student/abc/` the same type of URL?
+
+Not necessarily.
+
+With:
+
+```python
+<int:id>
+```
+
+the first can match, while the second cannot.
+
+With:
+
+```python
+<str:id>
+```
+
+both can match.
+
+---
+
+# 37. Coding Practice
+
+### Question 1
+
+Create:
+
+```text
+/products/
+```
+
+that calls:
+
+```python
+views.products
+```
+
+Answer:
+
+```python
+path('products/', views.products)
+```
+
+---
+
+### Question 2
+
+Create:
+
+```text
+/student/10/
+```
+
+where `10` is an integer.
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+---
+
+### Question 3
+
+Write the view:
+
+```python
+def student(request, id):
+    return HttpResponse(f"Student ID: {id}")
+```
+
+---
+
+### Question 4
+
+Create a URL:
+
+```text
+/user/Aman/
+```
+
+Answer:
+
+```python
+path(
+    'user/<str:name>/',
+    views.user
+)
+```
+
+View:
+
+```python
+def user(request, name):
+    return HttpResponse(f"Hello {name}")
+```
+
+---
+
+# 38. Predict the Output
+
+Given:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+and:
+
+```python
+def student(request, id):
+    return HttpResponse(f"ID = {id}")
+```
+
+### Request:
+
+```text
+/student/50/
+```
+
+Output:
+
+```text
+ID = 50
+```
+
+### Request:
+
+```text
+/student/abc/
+```
+
+Result:
+
+```text
+404
+```
+
+assuming no other matching URL pattern exists.
+
+---
+
+# 39. Predict the Final URL
+
+Project:
+
+```python
+path(
+    'college/',
+    include('students.urls')
+)
+```
+
+App:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+Final URL for ID 25:
+
+```text
+/college/student/25/
+```
+
+---
+
+# ⭐ Module 7 — What You Must Remember
+
+### Basic route
+
+```python
+path('about/', views.about)
+```
+
+### Dynamic route
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+### Include app URLs
+
+```python
+path(
+    'students/',
+    include('students.urls')
+)
+```
+
+### Named URL
+
+```python
+path(
+    'about/',
+    views.about,
+    name='about'
+)
+```
+
+### App namespace
+
+```python
+app_name = 'students'
+```
+
+Then:
+
+```text
+students:about
+```
+
+can refer to that named URL.
+
+---
+
+# 🧠 The Most Important Concept
+
+If you understand this:
+
+```text
+Browser requests:
+
+/students/25/
+       ↓
+Project urls.py
+
+path('students/', include('students.urls'))
+       ↓
+students/urls.py
+
+path('<int:id>/', views.student)
+       ↓
+Django captures:
+
+id = 25
+       ↓
+views.student(request, id=25)
+       ↓
+HttpResponse
+       ↓
+Browser
+```
+
+then you've understood the foundation of Django URL routing.
+
+---
+
+# 🎯 Module 7 Challenge
+
+Try these yourself.
+
+### 1. Create a URL:
+
+```text
+/books/
+```
+
+that calls:
+
+```python
+views.books
+```
+
+### 2. Create a dynamic URL:
+
+```text
+/books/25/
+```
+
+where `25` is an integer.
+
+### 3. Write the corresponding view that displays:
+
+```text
+Book ID: 25
+```
+
+### 4. Create:
+
+```text
+/user/Aman/
+```
+
+and display:
+
+```text
+Welcome Aman
+```
+
+### 5. Explain the difference between:
+
+```text
+/students/25/
+```
+
+and:
+
+```text
+/students/?id=25
+```
+
+### 6. Why should specific URL patterns generally come before broad dynamic patterns?
+
+### 7. What is the purpose of naming a URL?
+
+### 8. What are the five built-in path converters?
+
+---
+
+When you're ready, say **“next”**.
+
+## Module 8 — HTTP Requests & Responses
+
+We'll now go deeper into the `request` object you have been passing to every view.
+
+You'll learn:
+
+```text
+GET
+POST
+request.method
+request.GET
+request.POST
+request.path
+request.user
+request.COOKIES
+request.headers
+HttpResponse
+JsonResponse
+status codes
+```
+
+This will directly prepare you for your **Unit II + Unit IV** coding and viva questions.

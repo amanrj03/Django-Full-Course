@@ -1,0 +1,999 @@
+# MODULE 6 — PUBLIC KEY CRYPTOGRAPHY 🔑
+
+### Unit II — Part 2
+
+Now we move to the **second half of Unit II: Public Key Cryptography**. I’ll stick closely to your **Unit 2 Public Key PPT** and the provided cryptography textbook.
+
+Your PPT starts this section with **public/private keys, RSA, elliptic-curve cryptography, digital signatures**, and then moves into advanced cryptographic constructs such as homomorphic encryption, signcryption, secret sharing, commitment schemes, and zero-knowledge proofs. 
+
+---
+
+# 1. Public Key Cryptography ⭐⭐⭐⭐⭐
+
+Public-key cryptography is also called:
+
+> **Asymmetric-key cryptography**
+
+The key difference from symmetric cryptography is:
+
+### Symmetric
+
+```text
+        SAME KEY
+           ↓
+Encryption ↔ Decryption
+```
+
+### Asymmetric
+
+```text
+       TWO DIFFERENT KEYS
+              │
+       ┌──────┴──────┐
+       ↓             ↓
+   PUBLIC KEY    PRIVATE KEY
+```
+
+Your PPT explicitly states that asymmetric cryptography uses **two separate keys: public and private**. 
+
+---
+
+# 2. Public Key vs Private Key ⭐⭐⭐⭐⭐
+
+### Public Key
+
+Can be distributed openly.
+
+```text
+Anyone can know it.
+```
+
+### Private Key
+
+Must be kept secret by its owner.
+
+```text
+Only the owner should know it.
+```
+
+The fundamental idea is that the two keys are mathematically related, but knowing the public key should not allow an attacker to practically derive the private key.
+
+---
+
+# 3. Encryption Using Public-Key Cryptography
+
+Suppose **Alice wants to send Bob a secret message**.
+
+Bob has:
+
+```text
+Bob's public key
+Bob's private key
+```
+
+Alice obtains Bob's **public key** and encrypts the message:
+
+```text
+Alice
+  │
+  │ Message
+  ↓
+Encrypt using Bob's PUBLIC KEY
+  │
+  ↓
+Ciphertext
+  │
+  ↓
+Bob
+  │
+  ↓
+Decrypt using Bob's PRIVATE KEY
+  │
+  ↓
+Original message
+```
+
+So:
+
+$$
+C = E(PU_B,M)
+$$
+
+and:
+
+$$
+M = D(PR_B,C)
+$$
+
+where:
+
+* \(PU_B\) = Bob's public key
+* \(PR_B\) = Bob's private key
+* \(M\) = message
+* \(C\) = ciphertext
+
+### Exam sentence:
+
+> **For confidentiality, the sender encrypts using the receiver's public key, and the receiver decrypts using their private key.**
+
+---
+
+# 4. Symmetric vs Asymmetric Cryptography ⭐⭐⭐⭐⭐
+
+| Feature          | Symmetric             | Asymmetric                     |
+| ---------------- | --------------------- | ------------------------------ |
+| Keys             | One shared secret key | Public + private key           |
+| Encryption       | Secret key            | Usually public key             |
+| Decryption       | Secret key            | Corresponding private key      |
+| Key distribution | Difficult             | Easier                         |
+| Speed            | Generally faster      | Generally slower               |
+| Examples         | AES, DES              | RSA, ECC                       |
+| Typical use      | Bulk data encryption  | Key exchange, signatures, etc. |
+
+The textbook's contents specifically cover RSA, Diffie-Hellman, elliptic-curve cryptography and digital-signature schemes as major public-key topics. 
+
+---
+
+# 5. RSA ⭐⭐⭐⭐⭐
+
+**RSA** is one of the most important public-key algorithms.
+
+RSA is named after its inventors:
+
+> **Rivest, Shamir and Adleman**
+
+Your PPT calls RSA the most common public-key algorithm. 
+
+### RSA can be used for:
+
+* Encryption
+* Decryption
+* Digital signatures
+
+---
+
+# 6. RSA Basic Idea
+
+RSA uses:
+
+```text
+PUBLIC KEY
+   +
+PRIVATE KEY
+```
+
+For encryption:
+
+```text
+Message
+   ↓
+RSA
+   ↓
+Encrypted message
+```
+
+The corresponding private key is then used for decryption.
+
+The important mathematical basis behind RSA is the difficulty of **factoring large numbers**.
+
+You don't need to get lost in the mathematics initially. For your exam, first remember:
+
+> **RSA is an asymmetric/public-key cryptosystem based on the computational difficulty of factoring large integers.**
+
+---
+
+# 7. RSA Key Generation — Basic Steps ⭐⭐⭐⭐⭐
+
+The standard conceptual procedure is:
+
+### Step 1 — Choose two large primes
+
+$$
+p,\ q
+$$
+
+### Step 2 — Calculate
+
+$$
+n=pq
+$$
+
+### Step 3 — Calculate Euler's totient
+
+$$
+\phi(n)=(p-1)(q-1)
+$$
+
+### Step 4 — Choose public exponent
+
+Choose \(e\) such that:
+
+$$
+gcd(e,\phi(n))=1
+$$
+
+### Step 5 — Calculate private exponent
+
+Find \(d\) such that:
+
+$$
+ed\equiv1\pmod{\phi(n)}
+$$
+
+### Public key
+
+$$
+(e,n)
+$$
+
+### Private key
+
+$$
+(d,n)
+$$
+
+---
+
+# 8. RSA Encryption and Decryption ⭐⭐⭐⭐⭐
+
+For message \(M\):
+
+### Encryption
+
+$$
+C=M^e\bmod n
+$$
+
+### Decryption
+
+$$
+M=C^d\bmod n
+$$
+
+So remember:
+
+```text
+PUBLIC KEY  → encryption
+PRIVATE KEY → decryption
+```
+
+for the confidentiality use case.
+
+---
+
+# 9. Small RSA Example
+
+Let's use tiny numbers just to understand the mechanism.
+
+Suppose:
+
+$$
+p=3,\quad q=11
+$$
+
+Then:
+
+$$
+n=3\times11=33
+$$
+
+and:
+
+$$
+\phi(n)=(3-1)(11-1)=20
+$$
+
+Choose:
+
+$$
+e=3
+$$
+
+because:
+
+$$
+gcd(3,20)=1
+$$
+
+Now find \(d\):
+
+$$
+3d\equiv1\pmod{20}
+$$
+
+Therefore:
+
+$$
+d=7
+$$
+
+because:
+
+$$
+3\times7=21\equiv1\pmod{20}
+$$
+
+So:
+
+```text
+Public key  = (3,33)
+Private key = (7,33)
+```
+
+This is just a toy example; real RSA uses extremely large numbers.
+
+---
+
+# 10. Digital Signatures ⭐⭐⭐⭐⭐
+
+This is **very important for blockchain**.
+
+A digital signature provides evidence that a message was signed by the holder of a particular private key and allows verification using the corresponding public key.
+
+Conceptually:
+
+```text
+              Alice
+                │
+             Message
+                ↓
+          Hash the message
+                ↓
+          Message Digest
+                ↓
+       Sign with PRIVATE KEY
+                ↓
+        DIGITAL SIGNATURE
+```
+
+The receiver can verify using Alice's public key.
+
+Your PPT specifically includes **RSA Signature on the Message Digest** and an **Elliptic Curve Digital Signature Scheme**.  
+
+---
+
+# 11. Digital Signature Verification ⭐⭐⭐⭐⭐
+
+Suppose Alice sends:
+
+```text
+Message + Digital Signature
+```
+
+Bob:
+
+```text
+             Message
+                ↓
+              Hash
+                ↓
+          Digest A
+
+Digital Signature
+       ↓
+Verify using
+Alice's PUBLIC KEY
+       ↓
+    Digest B
+
+Digest A == Digest B
+       ↓
+   Signature valid
+```
+
+If verification fails, something is wrong:
+
+* Message may have been modified.
+* Signature may not correspond to Alice's private key.
+
+---
+
+# 12. Digital Signature vs Encryption ⭐⭐⭐⭐⭐
+
+This distinction is **very important**.
+
+### Encryption
+
+Main purpose:
+
+> **Confidentiality**
+
+### Digital Signature
+
+Main purposes include:
+
+> **Authentication, integrity and non-repudiation**
+
+For example:
+
+```text
+Encryption:
+
+Public key → Encrypt
+Private key → Decrypt
+```
+
+Whereas conceptually for a signature:
+
+```text
+Private key → Sign
+Public key → Verify
+```
+
+### Easy memory:
+
+> **Encryption protects the message from being read.**
+
+> **Signature proves who signed it and helps detect modification.**
+
+---
+
+# 13. ECC — Elliptic Curve Cryptography ⭐⭐⭐⭐
+
+Your PPT includes **elliptic curve cryptography** and elliptic-curve digital signatures. 
+
+ECC is another public-key cryptographic approach based on mathematical operations involving points on elliptic curves.
+
+The major attraction is:
+
+> **Strong security with comparatively smaller key sizes.**
+
+The provided textbook has dedicated sections on elliptic-curve arithmetic and elliptic-curve cryptography. 
+
+---
+
+# 14. RSA vs ECC
+
+| RSA                                 | ECC                                        |
+| ----------------------------------- | ------------------------------------------ |
+| Based on integer factorization      | Based on elliptic-curve mathematics        |
+| Larger keys for comparable security | Smaller keys for comparable security       |
+| Public-key cryptography             | Public-key cryptography                    |
+| Can provide encryption/signatures   | Commonly used for signatures/key agreement |
+| Example: RSA signatures             | Example: ECDSA                             |
+
+For your exam, the key phrase is:
+
+> **ECC provides comparable cryptographic strength with smaller key sizes.**
+
+---
+
+# 15. Advanced Cryptographic Constructs
+
+Your PPT now introduces several advanced concepts:
+
+```text
+Cryptographic Constructs
+       │
+       ├── Homomorphic Encryption
+       ├── Signcryption
+       ├── Secret Sharing
+       ├── Commitment Schemes
+       ├── Zero-Knowledge Proofs
+       ├── Digital Signatures
+       ├── Encoding Schemes
+       └── Applications of Hash Functions
+```
+
+
+
+These are especially useful for blockchain applications.
+
+---
+
+# 16. Homomorphic Encryption ⭐⭐⭐⭐⭐
+
+This is an interesting and likely **5-mark theory question**.
+
+Homomorphic encryption allows operations to be performed on **encrypted data without first decrypting it**.
+
+Your PPT states that it enables complex mathematical operations on encrypted data without compromising the encryption. 
+
+Conceptually:
+
+```text
+Plaintext:
+
+5 + 10 = 15
+
+Encrypt:
+
+Enc(5) + Enc(10)
+
+       ↓
+
+Operation performed
+WITHOUT decryption
+
+       ↓
+
+Enc(15)
+
+       ↓ Decrypt
+
+15
+```
+
+---
+
+# 17. Types of Homomorphic Encryption
+
+Your PPT identifies:
+
+### 1. Multiplicative homomorphic
+
+Supports a multiplicative operation on encrypted data.
+
+### 2. Additive homomorphic
+
+Supports an additive operation on encrypted data.
+
+
+
+The PPT also mentions **fully homomorphic encryption** and Craig Gentry's 2009 result. 
+
+---
+
+# 18. PPT Example of Homomorphic Encryption
+
+Your PPT gives:
+
+```text
+Plaintext:
+
+5 + 10 = 15
+
+Encrypted:
+
+AS + DF = GH
+
+Decrypted:
+
+5 + 10 = 15
+```
+
+The important thing isn't the letters **AS, DF, GH** themselves.
+
+The important concept is:
+
+> **The server performs the operation while the values remain encrypted.**
+
+
+
+---
+
+# 19. Signcryption ⭐⭐⭐⭐⭐
+
+This is another concept you should memorize.
+
+**Signcryption** combines:
+
+> **Digital signature + Encryption**
+
+into one logical operation.
+
+Your PPT states that signcryption provides the functions of a digital signature and encryption, including **unforgeability, authentication and non-repudiation**, with lower cost than independently signing and then encrypting. 
+
+Conceptually:
+
+### Traditional
+
+```text
+Message
+   ↓
+SIGN
+   ↓
+Signed message
+   ↓
+ENCRYPT
+   ↓
+Ciphertext
+```
+
+### Signcryption
+
+```text
+Message
+   ↓
+SIGNCRYPTION
+   ↓
+Signed + Encrypted message
+```
+
+### Important exam point:
+
+$$
+Cost(Signcryption)
+<
+Cost(Signature)+Cost(Encryption)
+$$
+
+according to the framing used in your PPT. 
+
+---
+
+# 20. Secret Sharing ⭐⭐⭐⭐⭐
+
+Secret sharing means:
+
+> A secret is divided among multiple entities, with each entity receiving a share.
+
+For example:
+
+```text
+             SECRET
+                │
+         Split into shares
+                │
+       ┌────────┼────────┐
+       ↓        ↓        ↓
+    Share A  Share B  Share C
+```
+
+A certain number of shares can then be required to reconstruct the secret.
+
+### Important property:
+
+> **An individual share by itself does not reveal the secret.**
+
+Your PPT explicitly describes reconstruction using all or some shares according to a threshold. 
+
+---
+
+# 21. Threshold Secret Sharing
+
+Imagine a secret is divided among five people.
+
+Suppose the rule is:
+
+$$
+3\text{ out of }5
+$$
+
+Then:
+
+```text
+A + B + C → Secret recovered
+```
+
+but:
+
+```text
+A + B → Not enough
+```
+
+This is called a **threshold** approach.
+
+### Easy memory:
+
+> **t-of-n = t shares required out of n total shares.**
+
+---
+
+# 22. Commitment Schemes ⭐⭐⭐⭐
+
+A commitment scheme is useful when someone wants to:
+
+> **Commit to a value now, but reveal it later.**
+
+Think of it like putting a value inside a sealed envelope.
+
+```text
+       Alice chooses X
+             ↓
+          Commit
+             ↓
+      "I have committed"
+             ↓
+       Later reveal X
+             ↓
+          Verify
+```
+
+Two key ideas are commonly associated with commitment:
+
+### Hiding
+
+The commitment doesn't reveal the secret value.
+
+### Binding
+
+After committing, the sender shouldn't be able to change the committed value.
+
+Your PPT lists **commitment schemes** among the cryptographic constructs covered in this unit. 
+
+---
+
+# 23. Zero-Knowledge Proofs ⭐⭐⭐⭐⭐
+
+A **zero-knowledge proof (ZKP)** allows one party to prove that they know something or that a statement is true **without revealing the underlying secret information**.
+
+Simple idea:
+
+```text
+Prover                         Verifier
+   │                               │
+   │ "I know the secret"           │
+   │──────────────────────────────>│
+   │                               │
+   │        Proof                  │
+   │──────────────────────────────>│
+   │                               │
+   │                        "Verified"
+```
+
+The verifier gains confidence that the prover knows the required information, but doesn't learn the secret itself.
+
+Your PPT explicitly includes zero-knowledge proofs in its cryptographic constructs. 
+
+---
+
+# 24. Blockchain Connection ⭐⭐⭐⭐⭐
+
+Now connect everything.
+
+Your Unit 1 material describes blockchain as a distributed peer-to-peer layer and identifies **public-key cryptography, digital signatures and cryptographic hash functions** as important cryptographic components. 
+
+So:
+
+```text
+                 BLOCKCHAIN
+                     │
+       ┌─────────────┼─────────────┐
+       ↓             ↓             ↓
+     HASH       PUBLIC KEY      DIGITAL
+   FUNCTION     CRYPTOGRAPHY    SIGNATURE
+       │             │             │
+       ↓             ↓             ↓
+ Connect blocks   Identity /    Authenticate
+                 key-related    transactions
+                  operations
+```
+
+And advanced constructs can provide additional privacy, efficiency and security mechanisms.
+
+---
+
+# 25. Threshold Signatures ⭐⭐⭐⭐⭐
+
+Your PPT also discusses **threshold signatures**.
+
+Instead of requiring every participant to produce a separate signature, the private key is divided into multiple shares.
+
+Each signer uses their share during signing.
+
+The resulting process can produce:
+
+> **One digital signature**
+
+which the verifier checks using:
+
+> **One public key**
+
+Your PPT highlights that this can result in a smaller transaction and quicker verification. 
+
+Conceptually:
+
+```text
+        Private Key
+             │
+       Split into shares
+       /       |       \
+      ↓        ↓        ↓
+   Signer A Signer B Signer C
+       \       |       /
+        \      |      /
+          Threshold
+          Signature
+               ↓
+       One public key
+               ↓
+          Verification
+```
+
+---
+
+# 🔥 26. MOST IMPORTANT DIFFERENCE: Encryption vs Signature
+
+Memorize this table.
+
+|                            | Encryption                       | Digital Signature                            |
+| -------------------------- | -------------------------------- | -------------------------------------------- |
+| Main purpose               | Confidentiality                  | Authentication + integrity + non-repudiation |
+| Key used to create         | Receiver's public key            | Sender's private key                         |
+| Key used to recover/verify | Receiver's private key           | Sender's public key                          |
+| Result                     | Ciphertext                       | Digital signature                            |
+| Blockchain use             | Protect confidential information | Authenticate transactions                    |
+
+---
+
+# 🔥 27. MOST IMPORTANT DIFFERENCE: Symmetric vs Public Key
+
+|                         | Symmetric                  | Public Key                  |
+| ----------------------- | -------------------------- | --------------------------- |
+| Keys                    | One secret key             | Public + private            |
+| Key relationship        | Same shared key            | Mathematically related pair |
+| Speed                   | Generally faster           | Generally slower            |
+| Key distribution        | Difficult                  | Easier                      |
+| Examples                | AES, DES                   | RSA, ECC                    |
+| Signature               | No                         | Yes                         |
+| Typical blockchain role | Specialized encryption/MAC | Identity/signatures         |
+
+---
+
+# 🎯 28. Exam Priority
+
+If you have limited time, study in this order:
+
+### 🔴 VERY HIGH PRIORITY
+
+1. **Public-key cryptography**
+2. **RSA**
+3. **Digital signatures**
+4. **RSA signature on message digest**
+5. **ECC**
+6. **Homomorphic encryption**
+7. **Signcryption**
+8. **Secret sharing**
+9. **Zero-knowledge proofs**
+
+### 🟠 HIGH PRIORITY
+
+10. Commitment schemes
+11. Threshold signatures
+12. Applications of cryptographic hash functions
+13. Encoding schemes
+
+---
+
+# 📝 29. Likely 5-Mark Questions
+
+### Q1. What is public-key cryptography?
+
+Write:
+
+> Public-key cryptography, also called asymmetric cryptography, uses two separate but mathematically related keys: a public key and a private key. The public key may be openly distributed, while the private key must be kept secret.
+
+### Q2. Explain RSA.
+
+Include:
+
+```text
+p, q
+ ↓
+n = pq
+ ↓
+φ(n)
+ ↓
+choose e
+ ↓
+calculate d
+ ↓
+Public key (e,n)
+Private key (d,n)
+```
+
+### Q3. What is a digital signature?
+
+Include:
+
+```text
+Message
+ ↓
+Hash
+ ↓
+Digest
+ ↓
+Private-key signing
+ ↓
+Digital Signature
+```
+
+### Q4. Explain homomorphic encryption.
+
+Key sentence:
+
+> **Computation can be performed on encrypted data without decrypting it first.**
+
+### Q5. Explain signcryption.
+
+Key sentence:
+
+> **Signcryption combines encryption and digital signing in a single logical operation.**
+
+### Q6. Explain secret sharing.
+
+Key sentence:
+
+> **A secret is divided into shares and reconstructed when a sufficient number of shares are combined.**
+
+---
+
+# 🔥 30. Likely 10-Mark Questions
+
+### ⭐⭐⭐⭐⭐
+
+**"Explain RSA cryptosystem with key generation, encryption and decryption."**
+
+### ⭐⭐⭐⭐⭐
+
+**"Explain digital signatures and their working."**
+
+### ⭐⭐⭐⭐⭐
+
+**"Explain public-key cryptography and compare it with symmetric cryptography."**
+
+### ⭐⭐⭐⭐
+
+**"Explain various cryptographic constructs used in blockchain technology."**
+
+For that question, write:
+
+```text
+Homomorphic Encryption
+Signcryption
+Secret Sharing
+Commitment Schemes
+Zero-Knowledge Proofs
+Digital Signatures
+Hash Functions
+```
+
+Then explain each in 2–4 lines.
+
+---
+
+# 🧠 Final Memory Map
+
+```text
+              PUBLIC KEY CRYPTOGRAPHY
+                       │
+             ┌─────────┴─────────┐
+             ↓                   ↓
+          PUBLIC               PRIVATE
+           KEY                   KEY
+             │                   │
+             └─────────┬─────────┘
+                       ↓
+              ASYMMETRIC CRYPTO
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+         RSA          ECC       DIGITAL
+                                SIGNATURES
+          │                         │
+          │                         ↓
+          │                  Private → Sign
+          │                  Public  → Verify
+          │
+          ↓
+      Encryption
+          │
+          ↓
+     Confidentiality
+
+       ADVANCED CONSTRUCTS
+              │
+    ┌─────────┼─────────┬──────────┐
+    ↓         ↓         ↓          ↓
+ Homomorphic Signcryption Secret   ZKP
+ Encryption             Sharing
+                         │
+                         ↓
+                    Commitment
+```
+
+### The 10 things I would memorize tonight:
+
+**1.** Symmetric = one shared secret key
+**2.** Asymmetric = public + private key
+**3.** RSA = Rivest, Shamir, Adleman
+**4.** RSA encryption → public key; decryption → private key
+**5.** Digital signature → private key signs, public key verifies
+**6.** ECC → smaller keys for comparable cryptographic strength
+**7.** Homomorphic → computation on encrypted data
+**8.** Signcryption → signing + encryption
+**9.** Secret sharing → split secret + threshold reconstruction
+**10.** ZKP → prove knowledge without revealing the secret
+
+**Next: we can do the remaining Unit II topics in the same exam-focused way, especially the numerical/problem-solving parts of RSA and the digital-signature concepts.**

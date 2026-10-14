@@ -1,0 +1,836 @@
+# Chapter 3 — Module 4: Introduction to Bitcoin, Cryptographic Keys and Transactions
+
+Based on your teacher's All topics of bitcoin.pptx and BitcoinSCript.pptx.
+
+This module covers the first part of the Bitcoin syllabus:
+
+1. Bitcoin overview
+2. Bitcoin's architecture and components
+3. Cryptographic keys
+4. Public keys and Bitcoin addresses
+5. Digital signatures
+6. Bitcoin transactions
+7. Transaction inputs, outputs and UTXOs
+8. Bitcoin Script
+
+We'll begin from the basics and gradually connect the concepts, with exam-ready 5-mark and 10-mark answers.
+
+# Topic 1: Introduction to Bitcoin
+
+## 1.1 What is Bitcoin?
+
+Bitcoin is a peer-to-peer digital currency that allows people to transfer value over a network without requiring a central intermediary such as a bank to process every transaction.
+
+Let's understand each term.
+
+- Digital currency: money represented and transferred electronically.
+- Peer-to-peer (P2P): participants communicate directly through a network of computers.
+- Decentralised: the system does not rely on one central authority to maintain the entire transaction history.
+- Cryptocurrency: digital value that uses cryptographic techniques as part of its operation and security.
+
+For example, suppose Aman wants to send Bitcoin to Rahul. The transaction can be broadcast to the Bitcoin network, checked by participating nodes, and included in a block. Aman does not need a bank to maintain the Bitcoin ledger.
+
+## 1.2 History of Bitcoin
+
+Your teacher's PPT identifies the following historical points.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+- 2008: a whitepaper titled Bitcoin: A Peer-to-Peer Electronic Cash System was published under the name Satoshi Nakamoto.
+- Satoshi Nakamoto is an alias; the true identity remains unknown.
+- Bitcoin introduced a practical system combining cryptography, peer-to-peer communication, a distributed ledger and consensus through Proof of Work.
+
+The important idea is not merely that Bitcoin is digital money. It is that a network of participants can maintain a shared transaction history without depending on one central operator.
+
+## 1.3 Why was Bitcoin introduced?
+
+Consider the traditional online payment system.
+
+Sender
+
+Bank or payment intermediary
+
+Maintains records and processes the transfer
+
+Receiver
+
+The intermediary maintains the account records and controls the transfer process.
+
+Bitcoin uses a different approach:
+
+Sender
+
+Receiver
+
+Bitcoin P2P network
+
+Nodes verify and relay transactions
+
+Distributed blockchain
+
+Accepted transactions are recorded in blocks
+
+The network uses protocol rules and consensus to determine which transactions become part of the accepted blockchain history.
+
+## 1.4 Main features of Bitcoin
+
+1. Peer-to-peer network: participants communicate directly through the network.
+2. Decentralised ledger: transaction records are replicated across nodes.
+3. Cryptographic security: public-key cryptography and digital signatures authorise spending.
+4. Consensus: Proof of Work and chain-selection rules help nodes agree on the accepted transaction history.
+5. Transparency: confirmed transaction records can be inspected on the public blockchain.
+6. Pseudonymity: transactions use addresses rather than requiring every transaction to display a person's legal name.
+7. Limited issuance: Bitcoin's protocol limits the total supply to approximately 21 million BTC.
+
+Bitcoin is not completely anonymous: public addresses and transaction flows are visible, and they may sometimes be linked to real-world identities.
+
+# Topic 2: Bitcoin Architecture and Components
+
+Your teacher's All topics of bitcoin.pptx identifies seven major components of the Bitcoin network:
+
+1. Digital keys
+2. Addresses
+3. Transactions
+4. Blockchain
+5. Miners
+6. Bitcoin network
+7. Wallets (client software)&#x20;
+
+   All topics of bitcoin.pptx
+
+
+
+Let's understand how these components work together.
+
+## 2.1 Digital keys
+
+Bitcoin uses a pair of cryptographic keys:
+
+- Private key: kept secret by its owner and used to authorise spending.
+- Public key: derived from the private key and used to verify the corresponding digital signature.
+
+The private key must be protected. Anyone who obtains the ability to use it may be able to authorise transactions spending the associated funds.
+
+## 2.2 Bitcoin address
+
+A Bitcoin address is a destination identifier used in a payment.
+
+A wallet creates or manages the information needed to receive funds. Depending on the address type, the address can represent a public-key hash or a script hash.
+
+A public key and a Bitcoin address are not the same thing.
+
+## 2.3 Transactions
+
+A Bitcoin transaction specifies how previously received funds are spent and how the resulting funds are assigned to new outputs.
+
+Transactions are digitally authorised and checked against Bitcoin's rules.
+
+## 2.4 Blockchain
+
+The blockchain is an ordered history of blocks. Each block refers to the previous block through its hash, creating a chain of linked records.
+
+The blockchain records accepted transactions and helps nodes verify the history of Bitcoin transfers.
+
+## 2.5 Miners
+
+Miners collect transactions, construct candidate blocks, and perform Proof of Work. Other nodes independently verify blocks and follow the protocol's chain-selection rules.
+
+Miners are not the only participants who verify transactions; ordinary full nodes also check protocol rules.
+
+## 2.6 Bitcoin network
+
+The Bitcoin network consists of participating computers that exchange transactions and blocks. Nodes may relay information, validate it and maintain local copies of blockchain data.
+
+## 2.7 Wallets
+
+A Bitcoin wallet is software or hardware that manages keys and helps users construct, authorise and track transactions.
+
+A wallet does not literally contain coins in the way a physical wallet contains cash. The Bitcoin ledger records unspent transaction outputs, and the wallet manages the credentials needed to spend outputs that the user controls.
+
+### How all seven components work together
+
+1\. Wallet
+
+Selects funds and constructs a transaction
+
+2\. Private key / digital signature
+
+Authorises the transaction
+
+3\. Bitcoin network
+
+Transaction is broadcast and relayed
+
+4\. Nodes and miners
+
+Validate transactions; miners propose blocks
+
+5\. Blockchain
+
+Accepted block records the transaction
+
+# Topic 3: Cryptographic Keys in Bitcoin
+
+This is one of the most important topics in this module.
+
+## 3.1 What is cryptography?
+
+Cryptography is the study and use of techniques that protect information and enable secure communication.
+
+Bitcoin uses cryptography for several purposes:
+
+- Digital signatures authorise transactions.
+- Public keys allow others to verify signatures.
+- Hash functions help construct addresses, link blocks and support Proof of Work.
+
+For this topic, the main concept is public-key cryptography, also called asymmetric cryptography.
+
+## 3.2 What is public-key cryptography?
+
+In public-key cryptography, a user has two mathematically related keys:
+
+- A private key, which must remain secret.
+- A public key, which can be shared.
+
+In Bitcoin, the public key is derived from the private key using elliptic-curve cryptography.
+
+Your teacher's PPT specifically describes the use of Elliptic Curve Cryptography (ECC) and ECDSA in Bitcoin.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+## 3.3 Private key
+
+A Bitcoin private key is a secret number used to generate digital signatures.
+
+In the elliptic-curve system presented in your PPT, it is a 256-bit number selected from the valid range for the secp256k1 curve.
+
+For an exam answer, remember these points:
+
+1. It must be kept secret.
+2. It is used to sign transactions.
+3. It enables the holder to authorise spending of associated funds.
+4. It must be generated and stored securely.
+5. Losing access to it can mean losing access to the associated funds.
+
+Never share a real private key or seed phrase.
+
+## 3.4 Public key
+
+The public key is mathematically derived from the private key.
+
+It can be shared with others and is used to verify digital signatures.
+
+The relationship can be shown as:
+
+Private key
+
+Secret
+
+Elliptic-curve operation
+
+Public key
+
+Can be shared
+
+The reverse operation—recovering the private key from the public key—is considered computationally infeasible with properly chosen parameters and current practical computing capabilities.
+
+## 3.5 Private key vs public key
+
+| Feature         | Private key                          | Public key                                                   |
+| --------------- | ------------------------------------ | ------------------------------------------------------------ |
+| Confidentiality | Must remain secret                   | Can be shared                                                |
+| Generation      | Securely generated secret number     | Derived from private key                                     |
+| Main role       | Creates digital signatures           | Verifies signatures                                          |
+| If exposed      | Funds controlled by it may be stolen | Not secret by itself                                         |
+| In Bitcoin      | Authorises spending                  | Helps prove that the correct private key authorised spending |
+
+## 3.6 A simple analogy
+
+Imagine a private key as your personal, secret signing tool.
+
+- You use it to create a digital signature.
+- Anyone with the corresponding public key can check the signature.
+- The verifier does not need to know your private key.
+
+This allows the network to verify transaction authorisation without requiring the secret key to be sent across the network.
+
+Important exam distinction: a digital signature does not encrypt the entire transaction. It proves authorisation and helps protect the integrity of the signed data.
+
+# Topic 4: Bitcoin Addresses
+
+## 4.1 What is a Bitcoin address?
+
+A Bitcoin address is an identifier used to specify where a payment should be directed.
+
+It is similar to sharing bank account details to receive money, but Bitcoin addresses are generated using cryptographic information and may represent different kinds of spending conditions.
+
+For a common legacy Pay-to-Public-Key-Hash (P2PKH) address, the address is created from a public-key hash.
+
+## 4.2 How is a Bitcoin address generated?
+
+Your teacher's PPT describes the following process for a traditional P2PKH address.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+Private key
+
+Generate public key
+
+SHA-256 hash
+
+RIPEMD-160 hash
+
+Produces a 160-bit hash
+
+Add version and checksum
+
+Base58Check encoding
+
+Produces the address string
+
+Let's understand each step.
+
+1. Generate the public key: derive it from the private key.
+2. Apply SHA-256: calculate a cryptographic hash of the public key.
+3. Apply RIPEMD-160: hash the SHA-256 result to obtain a 160-bit value.
+4. Add version and checksum information: identify the address format and help detect errors.
+5. Encode using Base58Check: convert the result into a human-readable string.
+
+This is the process for a traditional P2PKH address, not every modern Bitcoin address type.
+
+## 4.3 What is Base58Check?
+
+Base58Check is an encoding format used for certain Bitcoin addresses and key representations.
+
+It uses a Base58 character set that avoids visually confusing characters such as `0`, `O`, `I` and `l`. It also incorporates a checksum that helps detect accidental typing errors.
+
+Your PPT gives examples of traditional P2PKH addresses beginning with `1` and P2SH addresses beginning with `3`.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+Modern Bitcoin also supports other address formats, so not every valid Bitcoin address begins with `1` or `3`.
+
+## 4.4 Public key vs Bitcoin address
+
+| Public key                                   | Bitcoin address                                           |
+| -------------------------------------------- | --------------------------------------------------------- |
+| Cryptographic key derived from a private key | Payment identifier derived according to an address format |
+| Used to verify signatures                    | Used to direct payments                                   |
+| Can be represented in binary or encoded text | Usually represented as a human-readable string            |
+| Not identical to an address                  | Not identical to a public key                             |
+
+Remember: private key → public key → address is the general relationship for a common key-based address. An address is not itself the private key.
+
+# Topic 5: Digital Signatures in Bitcoin
+
+## 5.1 What is a digital signature?
+
+A digital signature is a cryptographic value that allows a verifier to check whether a message was authorised by the holder of a corresponding private key and whether the signed data has been altered.
+
+In Bitcoin, digital signatures are used to authorise spending according to the relevant transaction rules.
+
+Bitcoin's traditional signature system uses the Elliptic Curve Digital Signature Algorithm (ECDSA) with the secp256k1 curve. Bitcoin also supports newer signature mechanisms, but ECDSA is the focus of your PPT.
+
+## 5.2 How does it work?
+
+Suppose Aman wants to spend Bitcoin that he controls.
+
+1. His wallet constructs the transaction.
+2. The wallet creates the required signature using the private key.
+3. The transaction is broadcast to the network.
+4. Nodes check the signature and other transaction rules.
+5. If the transaction satisfies the rules, it can be considered for inclusion in a block.
+
+Transaction data
+
+Sign with private key
+
+Transaction + signature
+
+Broadcast to the network
+
+Verify using public-key information
+
+Check signature and transaction rules
+
+## 5.3 Three purposes of a digital signature
+
+### 1. Authentication
+
+The signature provides evidence that the signer had access to the relevant private key.
+
+### 2. Integrity
+
+A valid signature helps detect unauthorised changes to the data covered by the signature.
+
+### 3. Authorisation / non-repudiation context
+
+In Bitcoin, the signature authorises spending under the transaction's spending conditions.
+
+In broader cryptography, signatures are often discussed in relation to non-repudiation, but the legal or practical consequences depend on the context.
+
+## 5.4 What digital signatures do not do
+
+A digital signature does not:
+
+- Hide the transaction from the public.
+- Prove the signer's real-world identity by itself.
+- Guarantee that the transaction has been confirmed.
+- Guarantee that the transaction is valid in every other respect.
+
+A signature can be correct while a transaction is rejected because it attempts to spend an already-spent output.
+
+### Exam-ready 5-mark answer
+
+Question: Explain the role of public and private keys in Bitcoin.
+
+Bitcoin uses public-key cryptography to authorise transactions. The private key is kept secret and is used to generate a digital signature for a transaction. The corresponding public key is used to verify the signature. Bitcoin addresses are generated from cryptographic information, commonly a public-key hash for traditional P2PKH addresses. Nodes verify signatures and other transaction rules before accepting transactions. This enables Bitcoin users to authorise transfers without transmitting their private keys to the network.
+
+# Topic 6: Bitcoin Transactions
+
+A transaction is the core operation in Bitcoin. It describes how existing funds are spent and how new outputs are created.
+
+## 6.1 What is a Bitcoin transaction?
+
+A Bitcoin transaction is a data structure that references existing unspent outputs as inputs and creates new outputs with specified values and spending conditions.
+
+Unlike a traditional bank account, Bitcoin does not simply update a balance field in a central database. Its transaction system uses the Unspent Transaction Output (UTXO) model.
+
+Let's first understand the transaction's inputs and outputs.
+
+## 6.2 Transaction inputs
+
+A transaction input references an output from an earlier transaction.
+
+It identifies the earlier output and provides the information required to satisfy that output's spending conditions.
+
+In a traditional transaction, this may include a digital signature and public key.
+
+Simple meaning: an input identifies which existing funds are being spent.
+
+## 6.3 Transaction outputs
+
+A transaction output contains:
+
+- A value, measured in satoshis
+- A locking script that defines the conditions for spending those funds
+
+One transaction can create multiple outputs.
+
+For example, Aman may send funds to Rahul and receive change back into an address controlled by his wallet.
+
+## 6.4 Understanding UTXO
+
+UTXO stands for Unspent Transaction Output.
+
+It is an output from a previous transaction that has not yet been consumed by a later transaction.
+
+Your teacher's All topics of bitcoin.pptx explicitly defines a UTXO as an unspent output that can be used as an input to a new transaction.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+### Simple example
+
+Suppose Aman receives an output worth 1 BTC.
+
+```
+Previous transaction
+        │
+        ▼
+Output: 1 BTC
+        │
+        ▼
+    UTXO = 1 BTC
+```
+
+As long as Aman has not spent that output, it remains a UTXO.
+
+Now suppose he spends it by sending 0.6 BTC to Rahul and receiving 0.39 BTC as change. Assume the transaction fee is 0.01 BTC.
+
+Input
+
+# 1.00 BTC
+
+Previously unspent output
+
+Output 1
+
+# 0.60 BTC
+
+To Rahul
+
+Output 2
+
+# 0.39 BTC
+
+Change to Aman
+
+Transaction fee = 0.01 BTC
+
+The arithmetic is:
+
+\\[ \text{Input value}=\text{Output values}+\text{Transaction fee} \\]
+
+\\[ 1.00=0.60+0.39+0.01 \\]
+
+The original 1 BTC output is now spent. The two newly created outputs become UTXOs until they are spent later.
+
+## 6.5 What is a satoshi?
+
+Bitcoin can be divided into smaller units.
+
+\\[ 1\text{ BTC}=100,000,000\text{ satoshis} \\]
+
+Therefore:
+
+\\[ 0.01\text{ BTC}=1,000,000\text{ satoshis} \\]
+
+Satoshis are useful because transaction values and fees often involve small fractions of a Bitcoin.
+
+## 6.6 Why does Bitcoin use UTXOs?
+
+The UTXO model offers several benefits:
+
+1. Clear spending rules: each input references a specific earlier output.
+2. Double-spending prevention: once an output is spent, it cannot be spent again in a valid transaction.
+3. Parallel verification: independent inputs and outputs can often be checked efficiently.
+4. Explicit ownership conditions: outputs specify the conditions under which funds can be spent.
+
+## 6.7 Transaction fees
+
+A transaction fee is the difference between the total input value and total output value.
+
+\\[ \boxed{\text{Fee}=\sum\text{Inputs}-\sum\text{Outputs}} \\]
+
+Miners may collect fees from transactions included in a block, in addition to the block subsidy.
+
+A fee is not simply a fixed percentage of the transfer amount. In Bitcoin, the fee market is strongly influenced by transaction size or weight and the fee rate offered by the user.
+
+## 6.8 Important fields in a Bitcoin transaction
+
+Your teacher's PPT lists fields and metadata such as transaction size, weight, received time, block inclusion, confirmations, input/output counts and fees.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+| Field             | Meaning                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| Inputs            | References to previous outputs being spent                                                     |
+| Outputs           | New values and spending conditions                                                             |
+| Size              | Transaction's serialized size in bytes                                                         |
+| Weight            | A metric used for block and transaction resource limits                                        |
+| Fees              | Difference between total input and output values                                               |
+| Confirmations     | Number of blocks in the accepted chain containing the transaction or built on top of its block |
+| Included in block | Identifies the block that recorded the transaction                                             |
+
+## 6.9 Complete Bitcoin payment flow
+
+The payment process described in your teacher's PPT follows this general sequence.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+1. The sender obtains the receiver's address.
+2. The sender's wallet constructs the transaction.
+3. The wallet signs it using the required private key.
+4. The transaction is serialised and broadcast.
+5. Nodes check the transaction's legitimacy.
+6. Miners may include it in a candidate block.
+7. The mined block is broadcast and checked by other nodes.
+8. Additional blocks build on the accepted history, increasing the transaction's confirmation count.
+
+Important: broadcasting does not mean a transaction is confirmed. Inclusion in a block gives it its first confirmation; later blocks add further confirmations.
+
+# Topic 7: Bitcoin Script
+
+Bitcoin Script is the transaction scripting language used to express the conditions under which outputs can be spent.
+
+Your teacher's BitcoinSCript.pptx describes it as a compact, stack-based language processed from left to right. It is not Turing-complete and does not support general-purpose loops.&#x20;
+
+BitcoinSCript.pptx
+
+
+
+## 7.1 Why is Bitcoin Script required?
+
+Suppose Aman sends Bitcoin to Rahul.
+
+The network needs a way to specify the conditions Rahul must satisfy before spending the received funds.
+
+For a common payment type, the condition requires:
+
+- A public key that corresponds to the public-key hash specified in the output
+- A valid digital signature proving the ability to use the corresponding private key
+
+Bitcoin Script expresses and checks these conditions.
+
+## 7.2 Two scripts in a traditional transaction
+
+### A. ScriptPubKey — locking script
+
+The locking script is stored in the transaction output.
+
+It defines the conditions that must be satisfied before the output can be spent.
+
+For example, a traditional P2PKH output uses a script template similar to:
+
+```
+OP_DUP OP_HASH160 <pubKeyHash>
+OP_EQUALVERIFY OP_CHECKSIG
+```
+
+### B. ScriptSig — unlocking script
+
+For a traditional P2PKH input, the unlocking script supplies the signature and public key:
+
+```
+<signature> <publicKey>
+```
+
+When the input is checked, the unlocking and locking scripts are evaluated together under the applicable rules.
+
+## 7.3 How P2PKH script verification works
+
+P2PKH stands for Pay-to-Public-Key-Hash.
+
+Let's break the process down.
+
+Unlocking script
+
+`<signature> <publicKey>`
+
+OP_DUP
+
+Duplicates the public key on the stack.
+
+OP_HASH160
+
+Hashes the public key using RIPEMD-160 applied to SHA-256.
+
+Compare with the stored public-key hash
+
+The computed hash must match the hash in the locking script.
+
+OP_EQUALVERIFY
+
+Fails if the two hash values do not match.
+
+OP_CHECKSIG
+
+Verifies the signature against the relevant transaction data and public key.
+
+If the checks succeed and the transaction also satisfies the other protocol rules, the input can be accepted as valid.
+
+## 7.4 Important opcodes
+
+An opcode is an instruction executed by Bitcoin Script.
+
+| Opcode           | Purpose                                    |
+| ---------------- | ------------------------------------------ |
+| `OP_DUP`         | Duplicates the top stack item              |
+| `OP_HASH160`     | Applies SHA-256 followed by RIPEMD-160     |
+| `OP_EQUALVERIFY` | Checks equality and fails if values differ |
+| `OP_CHECKSIG`    | Verifies a digital signature               |
+
+Your teacher's PPT also lists arithmetic, conditional, logical, data-handling, cryptographic, hashing and signature-verification instructions.&#x20;
+
+BitcoinSCript.pptx
+
+
+
+## 7.5 Why is Bitcoin Script not Turing-complete?
+
+A general-purpose Turing-complete language can express arbitrary computations, including general loops.
+
+Bitcoin Script intentionally restricts its computation model. In particular, it does not provide general-purpose looping constructs.
+
+This helps make transaction validation more predictable and reduces the risk of scripts consuming unbounded computation.
+
+### Advantages
+
+1. Defines spending conditions.
+2. Supports digital-signature verification.
+3. Enables more complex conditions than simple single-key payments.
+4. Helps nodes verify whether an input satisfies the corresponding output's requirements.
+
+### Limitations
+
+1. Not designed as a general-purpose application programming language.
+2. Restricted computation limits the types of programs that can be expressed.
+3. Script validity alone does not guarantee that a transaction satisfies every other Bitcoin rule.
+
+## 7.6 Types of scripts in your PPT
+
+Your teacher's slides specifically cover these two types:
+
+### A. Pay-to-Public-Key-Hash (P2PKH)
+
+P2PKH locks funds to a public-key hash.
+
+The spender supplies a public key and signature that satisfy the output's conditions.
+
+### B. Pay-to-Script-Hash (P2SH)
+
+P2SH locks funds to a hash of a redeem script.
+
+The spender later provides the redeem script and the information needed to satisfy its conditions.
+
+Your PPT identifies P2SH with the traditional address format beginning with `3`.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+| P2PKH                                      | P2SH                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| Locks to a public-key hash                 | Locks to a script hash                                |
+| Commonly uses a public key and signature   | Uses a redeem script plus the required unlocking data |
+| Traditional addresses often begin with `1` | Traditional addresses often begin with `3`            |
+
+# Module 4 — Exam Revision
+
+## Important definitions
+
+| Term               | Exam-ready definition                                                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Bitcoin            | A peer-to-peer digital currency that operates without requiring a central intermediary to maintain its ledger. |
+| Private key        | A secret cryptographic value used to create digital signatures.                                                |
+| Public key         | A key derived from the private key and used to verify digital signatures.                                      |
+| Bitcoin address    | An identifier used to direct a payment to the appropriate spending conditions.                                 |
+| Digital signature  | A cryptographic mechanism used to verify transaction authorisation and integrity.                              |
+| Transaction input  | A reference to a previous output being spent.                                                                  |
+| Transaction output | A value and the conditions under which it can be spent.                                                        |
+| UTXO               | An unspent transaction output that can be used as an input in a future transaction.                            |
+| Transaction fee    | The difference between the total input value and the total output value.                                       |
+| Bitcoin Script     | A restricted, stack-based scripting language used to express and verify spending conditions.                   |
+| ScriptPubKey       | The locking script that defines an output's spending conditions.                                               |
+| ScriptSig          | The traditional unlocking script that supplies data to satisfy a locking script.                               |
+| P2PKH              | Pay-to-Public-Key-Hash.                                                                                        |
+| P2SH               | Pay-to-Script-Hash.                                                                                            |
+
+## Important formulas and sequences
+
+Bitcoin's smallest commonly used unit:
+
+\\[ 1\text{ BTC}=100,000,000\text{ satoshis} \\]
+
+Transaction fee:
+
+\\[ \text{Fee}=\sum\text{Inputs}-\sum\text{Outputs} \\]
+
+Traditional P2PKH address-generation sequence:
+
+Private key → Public key → SHA-256 → RIPEMD-160 → Version/checksum → Base58Check
+
+P2PKH script verification:
+
+Unlocking data → Duplicate key → Hash key → Compare hash → Verify signature
+
+## Likely 5-mark questions
+
+1. Explain Bitcoin and its important features.
+2. Explain the main components of the Bitcoin network.
+3. Differentiate public and private keys.
+4. Explain how a Bitcoin address is generated.
+5. Explain the role of digital signatures in Bitcoin.
+6. Define UTXO with an example.
+7. Explain Bitcoin transaction inputs and outputs.
+8. What is Bitcoin Script? Explain its characteristics.
+9. Differentiate P2PKH and P2SH.
+10. Explain the steps involved in a Bitcoin payment.
+
+## Likely 10-mark questions
+
+1. Explain Bitcoin architecture and the roles of its major components.
+2. Explain public-key cryptography and digital signatures in Bitcoin.
+3. Explain the generation of a Bitcoin address with a diagram.
+4. Explain Bitcoin transactions, including inputs, outputs, UTXOs and transaction fees.
+5. Explain Bitcoin Script and the verification of a P2PKH transaction.
+6. Describe the complete lifecycle of a Bitcoin transaction from creation to confirmation.
+
+### How to write a 10-mark answer on Bitcoin transactions
+
+Use this sequence:
+
+1. Definition of a Bitcoin transaction
+2. Transaction inputs and outputs
+3. UTXO model
+4. Transaction fee formula
+5. Digital-signature authorisation
+6. Transaction broadcasting
+7. Node validation
+8. Block inclusion and confirmations
+9. Diagram
+10. Conclusion
+
+## Quick self-test
+
+1\. Which key must be kept secret in Bitcoin?
+
+Public key
+
+Private key
+
+Bitcoin address
+
+Transaction ID
+
+2\. What does UTXO stand for?
+
+Unified Transaction Transfer Operation
+
+Unspent Transaction Output
+
+Universal Token Transfer Object
+
+Unverified Transaction Output
+
+3\. What is the purpose of OP_CHECKSIG?
+
+Mine a block
+
+Verify a digital signature
+
+Create a Bitcoin address
+
+Calculate the transaction fee
+
+4\. Which script type locks funds to a public-key hash?
+
+P2SH
+
+P2PKH
+
+PoW
+
+UTXO
+
+5\. If total inputs are 1 BTC and total outputs are 0.98 BTC, what is the fee?
+
+0.02 BTC
+
+0.98 BTC
+
+1.98 BTC
+
+1 BTC
+
+0/5 answered
+
+Reset quiz
+
+Module 4 is complete.
+
+When you're ready, say NEXT MODULE for Module 5: Bitcoin Blockchain, Network and Mining. We'll cover block structure, block headers, Merkle trees, block hashes, mining steps, difficulty adjustment, block rewards, halving, forks and confirmations to finish Chapter 3.

@@ -1,0 +1,2637 @@
+# Module 40 — Complete Django CRUD Project
+
+This is a **major practical module**.
+
+Until now, we learned Django concepts separately:
+
+```text
+Models
+URLs
+Views
+Templates
+Forms
+Validation
+CSRF
+ORM
+Admin
+Authentication
+Permissions
+```
+
+Now we're going to connect them into one complete application.
+
+We will build a:
+
+# 🎓 Student Management System
+
+It will support:
+
+```text
+Create Student
+       ↓
+Read Students
+       ↓
+Update Student
+       ↓
+Delete Student
+```
+
+And we'll use:
+
+```text
+Model
+ORM
+Forms
+Templates
+URLs
+Views
+Validation
+CSRF
+POST → Redirect → GET
+Admin
+```
+
+---
+
+# 1. What Are We Building?
+
+Our application will look conceptually like:
+
+```text
+Student Management System
+
+┌─────────────────────────────┐
+│ Student Management          │
+├─────────────────────────────┤
+│ [Add Student]               │
+│                             │
+│ ID | Name | Course | Marks  │
+│ 1  | Aman | CSE    | 85     │
+│ 2  | Rahul| ECE    | 78     │
+│                             │
+│ Edit | Delete                │
+└─────────────────────────────┘
+```
+
+---
+
+# 2. CRUD Meaning
+
+CRUD is one of the most important programming concepts.
+
+```text
+C → Create
+R → Read
+U → Update
+D → Delete
+```
+
+For our Student model:
+
+```text
+Create → Add student
+Read   → Display students
+Update → Edit student
+Delete → Remove student
+```
+
+---
+
+# 3. Project Structure
+
+We'll assume:
+
+```text
+College/
+│
+├── manage.py
+│
+├── College/
+│   ├── settings.py
+│   ├── urls.py
+│   └── ...
+│
+└── students/
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── views.py
+    ├── forms.py
+    ├── urls.py
+    ├── tests.py
+    │
+    ├── migrations/
+    │
+    └── templates/
+        └── students/
+            ├── base.html
+            ├── student_list.html
+            ├── student_form.html
+            └── student_confirm_delete.html
+```
+
+---
+
+# 4. Step 1 — Create the App
+
+If you haven't already created the app:
+
+```bash
+python manage.py startapp students
+```
+
+Then add it to `settings.py`:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+---
+
+# 5. Step 2 — Create the Model
+
+Open:
+
+```text
+students/models.py
+```
+
+Write:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    email = models.EmailField()
+
+    course = models.CharField(
+        max_length=50
+    )
+
+    age = models.IntegerField()
+
+    marks = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+```
+
+---
+
+# 6. Understand the Model
+
+We have:
+
+```python
+name = models.CharField(max_length=100)
+```
+
+This stores the student's name.
+
+```python
+email = models.EmailField()
+```
+
+Stores email.
+
+```python
+course = models.CharField(max_length=50)
+```
+
+Stores course.
+
+```python
+age = models.IntegerField()
+```
+
+Stores age.
+
+```python
+marks = models.IntegerField()
+```
+
+Stores marks.
+
+---
+
+# 7. Why `__str__()`?
+
+```python
+def __str__(self):
+    return self.name
+```
+
+This controls the human-readable representation of the object.
+
+Without it, Django might display:
+
+```text
+Student object (1)
+Student object (2)
+```
+
+With it:
+
+```text
+Aman
+Rahul
+```
+
+This is particularly useful in Django Admin and shell output.
+
+---
+
+# 8. Step 3 — Create Migrations
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Django creates a migration describing the new `Student` table.
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Now the database schema is updated.
+
+---
+
+# 9. Model → Migration → Database
+
+Remember:
+
+```text
+models.py
+    ↓
+makemigrations
+    ↓
+migration file
+    ↓
+migrate
+    ↓
+database table
+```
+
+This is extremely important.
+
+---
+
+# 10. Step 4 — Create the Form
+
+Create:
+
+```text
+students/forms.py
+```
+
+Write:
+
+```python
+from django import forms
+from .models import Student
+
+
+class StudentForm(forms.ModelForm):
+
+    class Meta:
+        model = Student
+
+        fields = [
+            "name",
+            "email",
+            "course",
+            "age",
+            "marks",
+        ]
+```
+
+This is a **ModelForm**.
+
+---
+
+# 11. What Is `ModelForm`?
+
+A `ModelForm` creates a form based on a Django model.
+
+Instead of manually writing:
+
+```python
+name = forms.CharField(...)
+email = forms.EmailField(...)
+age = forms.IntegerField(...)
+```
+
+Django derives the form fields from:
+
+```python
+class Student(models.Model):
+```
+
+---
+
+# 12. `Meta.model`
+
+```python
+class Meta:
+    model = Student
+```
+
+This tells Django:
+
+> This form is associated with the Student model.
+
+---
+
+# 13. `Meta.fields`
+
+```python
+fields = [
+    "name",
+    "email",
+    "course",
+    "age",
+    "marks",
+]
+```
+
+This determines which model fields appear in the form.
+
+You can also use:
+
+```python
+fields = "__all__"
+```
+
+but explicitly listing fields is often safer and clearer.
+
+---
+
+# 14. Step 5 — Create the View
+
+Open:
+
+```text
+students/views.py
+```
+
+We'll first create the **Read** operation.
+
+```python
+from django.shortcuts import render
+from .models import Student
+
+
+def student_list(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students/student_list.html",
+        {
+            "students": students
+        }
+    )
+```
+
+---
+
+# 15. Understand the Read View
+
+This:
+
+```python
+Student.objects.all()
+```
+
+retrieves all students.
+
+We store the result:
+
+```python
+students = Student.objects.all()
+```
+
+Then pass it to the template:
+
+```python
+{
+    "students": students
+}
+```
+
+---
+
+# 16. Step 6 — Create URL Configuration
+
+Create:
+
+```text
+students/urls.py
+```
+
+Write:
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "",
+        views.student_list,
+        name="student_list"
+    ),
+
+]
+```
+
+---
+
+# 17. Connect App URLs to Project
+
+Open:
+
+```text
+College/urls.py
+```
+
+Add:
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+
+urlpatterns = [
+
+    path(
+        "admin/",
+        admin.site.urls
+    ),
+
+    path(
+        "students/",
+        include("students.urls")
+    ),
+
+]
+```
+
+---
+
+# 18. URL Flow
+
+When you visit:
+
+```text
+/students/
+```
+
+Django does:
+
+```text
+College/urls.py
+       ↓
+students/
+       ↓
+students/urls.py
+       ↓
+student_list()
+       ↓
+Student.objects.all()
+       ↓
+student_list.html
+```
+
+This is the full Django flow.
+
+---
+
+# 19. Step 7 — Base Template
+
+Create:
+
+```text
+students/templates/students/base.html
+```
+
+Write:
+
+```html
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>
+        Student Management
+    </title>
+
+</head>
+
+<body>
+
+    <h1>
+        Student Management System
+    </h1>
+
+    <hr>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+
+</html>
+```
+
+---
+
+# 20. Step 8 — Student List Template
+
+Create:
+
+```text
+student_list.html
+```
+
+Write:
+
+```html
+{% extends "students/base.html" %}
+
+
+{% block content %}
+
+<h2>Students</h2>
+
+<a href="{% url 'student_create' %}">
+    Add Student
+</a>
+
+<br>
+<br>
+
+<table border="1">
+
+    <tr>
+
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Course</th>
+        <th>Age</th>
+        <th>Marks</th>
+        <th>Actions</th>
+
+    </tr>
+
+
+    {% for student in students %}
+
+    <tr>
+
+        <td>
+            {{ student.id }}
+        </td>
+
+        <td>
+            {{ student.name }}
+        </td>
+
+        <td>
+            {{ student.email }}
+        </td>
+
+        <td>
+            {{ student.course }}
+        </td>
+
+        <td>
+            {{ student.age }}
+        </td>
+
+        <td>
+            {{ student.marks }}
+        </td>
+
+        <td>
+
+            <a href="{% url 'student_update' student.id %}">
+                Edit
+            </a>
+
+            |
+
+            <a href="{% url 'student_delete' student.id %}">
+                Delete
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+
+        <td colspan="7">
+            No students found.
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}
+```
+
+---
+
+# 21. Important Template Concepts Used
+
+This one template uses many concepts you've already learned:
+
+### Inheritance
+
+```django
+{% extends "students/base.html" %}
+```
+
+### Block
+
+```django
+{% block content %}
+```
+
+### URL reversing
+
+```django
+{% url 'student_create' %}
+```
+
+### Loop
+
+```django
+{% for student in students %}
+```
+
+### Variables
+
+```django
+{{ student.name }}
+```
+
+### Empty state
+
+```django
+{% empty %}
+```
+
+---
+
+# 22. Step 9 — Create Student
+
+Now implement **Create**.
+
+In `views.py`:
+
+```python
+from django.shortcuts import (
+    render,
+    redirect
+)
+
+from .forms import StudentForm
+
+
+def student_create(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "student_list"
+            )
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "students/student_form.html",
+        {
+            "form": form
+        }
+    )
+```
+
+---
+
+# 23. Understand Create Flow
+
+Initial request:
+
+```text
+GET /students/create/
+```
+
+creates an empty form:
+
+```python
+form = StudentForm()
+```
+
+Then:
+
+```text
+POST /students/create/
+```
+
+creates a bound form:
+
+```python
+form = StudentForm(request.POST)
+```
+
+Then:
+
+```python
+form.is_valid()
+```
+
+checks validation.
+
+If valid:
+
+```python
+form.save()
+```
+
+creates the Student database record.
+
+Then:
+
+```python
+redirect("student_list")
+```
+
+returns to the list.
+
+---
+
+# 24. Why `form.save()`?
+
+Because this is a `ModelForm`.
+
+It knows:
+
+```text
+Form fields
+     ↓
+Model fields
+     ↓
+Create model object
+     ↓
+Save to database
+```
+
+So:
+
+```python
+form.save()
+```
+
+is effectively handling the model creation for us.
+
+---
+
+# 25. Step 10 — Student Form Template
+
+Create:
+
+```text
+student_form.html
+```
+
+Write:
+
+```html
+{% extends "students/base.html" %}
+
+
+{% block content %}
+
+<h2>
+    Add Student
+</h2>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Save Student
+    </button>
+
+</form>
+
+
+<a href="{% url 'student_list' %}">
+    Back to Students
+</a>
+
+{% endblock %}
+```
+
+---
+
+# 26. Why CSRF?
+
+Because this is a POST request:
+
+```html
+<form method="POST">
+```
+
+We include:
+
+```django
+{% csrf_token %}
+```
+
+Without it, Django's CSRF middleware may reject the request.
+
+---
+
+# 27. Step 11 — Add Create URL
+
+Update:
+
+```text
+students/urls.py
+```
+
+```python
+urlpatterns = [
+
+    path(
+        "",
+        views.student_list,
+        name="student_list"
+    ),
+
+    path(
+        "create/",
+        views.student_create,
+        name="student_create"
+    ),
+
+]
+```
+
+Now:
+
+```text
+/students/create/
+```
+
+opens the form.
+
+---
+
+# 28. Our Application Can Now Create and Read
+
+We have:
+
+```text
+CREATE
+   ↓
+/students/create/
+   ↓
+StudentForm
+   ↓
+form.save()
+   ↓
+Database
+
+
+READ
+   ↓
+/students/
+   ↓
+Student.objects.all()
+   ↓
+Template
+```
+
+---
+
+# 29. Step 12 — Update Student
+
+Now implement **Update**.
+
+In `views.py`:
+
+```python
+from django.shortcuts import (
+    get_object_or_404
+)
+
+
+def student_update(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        form = StudentForm(
+            request.POST,
+            instance=student
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "student_list"
+            )
+
+    else:
+
+        form = StudentForm(
+            instance=student
+        )
+
+    return render(
+        request,
+        "students/student_form.html",
+        {
+            "form": form
+        }
+    )
+```
+
+---
+
+# 30. The Important Part of Update
+
+Look carefully:
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+The:
+
+```python
+instance=student
+```
+
+is what tells the ModelForm:
+
+> "Update this existing student rather than creating a new student."
+
+---
+
+# 31. Update Without `instance`
+
+If you write:
+
+```python
+form = StudentForm(request.POST)
+```
+
+then:
+
+```python
+form.save()
+```
+
+normally creates a **new object**.
+
+But:
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+means:
+
+```text
+Existing student
+       ↓
+Update it
+```
+
+This is a very important coding question.
+
+---
+
+# 32. GET vs POST During Update
+
+### GET
+
+```text
+/student/5/edit/
+```
+
+shows the existing data:
+
+```python
+form = StudentForm(
+    instance=student
+)
+```
+
+### POST
+
+```text
+student data submitted
+```
+
+updates it:
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+---
+
+# 33. Add Update URL
+
+In `students/urls.py`:
+
+```python
+path(
+    "<int:id>/edit/",
+    views.student_update,
+    name="student_update"
+),
+```
+
+So:
+
+```text
+/students/5/edit/
+```
+
+means:
+
+```text
+Student ID = 5
+```
+
+---
+
+# 34. Reusing the Same Form Template
+
+Notice something clever.
+
+We already have:
+
+```text
+student_form.html
+```
+
+We can use the same template for:
+
+```text
+Create
+Update
+```
+
+because Django's ModelForm can represent either case.
+
+For example:
+
+```text
+Create:
+StudentForm()
+
+Update:
+StudentForm(instance=student)
+```
+
+The template can remain:
+
+```django
+{{ form.as_p }}
+```
+
+---
+
+# 35. Step 13 — Delete Student
+
+Now implement Delete.
+
+A safe approach is to show a confirmation page first.
+
+In `views.py`:
+
+```python
+def student_delete(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        student.delete()
+
+        return redirect(
+            "student_list"
+        )
+
+    return render(
+        request,
+        "students/student_confirm_delete.html",
+        {
+            "student": student
+        }
+    )
+```
+
+---
+
+# 36. Why Use GET to Show Confirmation?
+
+The GET request:
+
+```text
+/students/5/delete/
+```
+
+doesn't actually delete anything.
+
+It displays:
+
+```text
+Are you sure you want to delete Aman?
+```
+
+Then the user submits POST.
+
+```text
+POST /students/5/delete/
+```
+
+The deletion happens.
+
+This is much safer than deleting data immediately on GET.
+
+---
+
+# 37. Delete Confirmation Template
+
+Create:
+
+```text
+student_confirm_delete.html
+```
+
+Write:
+
+```html
+{% extends "students/base.html" %}
+
+
+{% block content %}
+
+<h2>
+    Delete Student
+</h2>
+
+
+<p>
+    Are you sure you want to delete
+    {{ student.name }}?
+</p>
+
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Yes, Delete
+    </button>
+
+</form>
+
+
+<a href="{% url 'student_list' %}">
+    Cancel
+</a>
+
+{% endblock %}
+```
+
+---
+
+# 38. Add Delete URL
+
+```python
+path(
+    "<int:id>/delete/",
+    views.student_delete,
+    name="student_delete"
+),
+```
+
+Now:
+
+```text
+/students/5/delete/
+```
+
+shows confirmation.
+
+---
+
+# 39. Full URL Configuration
+
+Your `students/urls.py` should now look like:
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "",
+        views.student_list,
+        name="student_list"
+    ),
+
+    path(
+        "create/",
+        views.student_create,
+        name="student_create"
+    ),
+
+    path(
+        "<int:id>/edit/",
+        views.student_update,
+        name="student_update"
+    ),
+
+    path(
+        "<int:id>/delete/",
+        views.student_delete,
+        name="student_delete"
+    ),
+
+]
+```
+
+---
+
+# 40. Complete `views.py`
+
+At this point:
+
+```python
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404
+)
+
+from .models import Student
+from .forms import StudentForm
+
+
+def student_list(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students/student_list.html",
+        {
+            "students": students
+        }
+    )
+
+
+def student_create(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(
+            request.POST
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "student_list"
+            )
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "students/student_form.html",
+        {
+            "form": form
+        }
+    )
+
+
+def student_update(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        form = StudentForm(
+            request.POST,
+            instance=student
+        )
+
+        if form.is_valid():
+
+            form.save()
+
+            return redirect(
+                "student_list"
+            )
+
+    else:
+
+        form = StudentForm(
+            instance=student
+        )
+
+    return render(
+        request,
+        "students/student_form.html",
+        {
+            "form": form
+        }
+    )
+
+
+def student_delete(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        student.delete()
+
+        return redirect(
+            "student_list"
+        )
+
+    return render(
+        request,
+        "students/student_confirm_delete.html",
+        {
+            "student": student
+        }
+    )
+```
+
+This is a **very important coding pattern**.
+
+---
+
+# 41. CRUD Flow
+
+Now visualize the entire application:
+
+```text
+                  STUDENT CRUD
+
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+       CREATE         READ        UPDATE
+          │            │            │
+          ↓            ↓            ↓
+     ModelForm      ORM all()    ModelForm
+          │            │            │
+          ↓            ↓            ↓
+      form.save()   Template     instance=
+          │                         student
+          ↓                           │
+      Database                    form.save()
+                                      │
+                                      ↓
+                                  Database
+
+                       │
+                       ↓
+                     DELETE
+                       │
+                       ↓
+                 get_object_or_404
+                       │
+                       ↓
+                 POST + CSRF
+                       │
+                       ↓
+                 student.delete()
+                       │
+                       ↓
+                    redirect
+```
+
+---
+
+# 42. Why `get_object_or_404()`?
+
+Instead of:
+
+```python
+student = Student.objects.get(
+    id=id
+)
+```
+
+we use:
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+If the student exists:
+
+```text
+Student object
+```
+
+If it doesn't:
+
+```text
+404 Not Found
+```
+
+This is much cleaner for web views.
+
+---
+
+# 43. Why `redirect()` After CRUD?
+
+After:
+
+```python
+form.save()
+```
+
+we use:
+
+```python
+return redirect("student_list")
+```
+
+And after:
+
+```python
+student.delete()
+```
+
+we also use:
+
+```python
+return redirect("student_list")
+```
+
+This follows:
+
+```text
+POST
+ ↓
+Process
+ ↓
+Redirect
+ ↓
+GET
+```
+
+the **POST-Redirect-GET pattern** we studied in Module 24.
+
+---
+
+# 44. Validation
+
+Our `ModelForm` already gets many validation rules from the model.
+
+For example:
+
+```python
+email = models.EmailField()
+```
+
+helps generate appropriate form validation.
+
+But we can add custom validation.
+
+Suppose marks must be:
+
+```text
+0 ≤ marks ≤ 100
+```
+
+---
+
+# 45. Add Validation
+
+In `forms.py`:
+
+```python
+from django import forms
+from .models import Student
+
+
+class StudentForm(forms.ModelForm):
+
+    class Meta:
+        model = Student
+
+        fields = [
+            "name",
+            "email",
+            "course",
+            "age",
+            "marks",
+        ]
+
+    def clean_marks(self):
+
+        marks = self.cleaned_data["marks"]
+
+        if marks < 0 or marks > 100:
+
+            raise forms.ValidationError(
+                "Marks must be between 0 and 100."
+            )
+
+        return marks
+```
+
+---
+
+# 46. Understand `clean_marks()`
+
+This method:
+
+```python
+clean_marks()
+```
+
+is called for the `marks` field.
+
+We retrieve:
+
+```python
+marks = self.cleaned_data["marks"]
+```
+
+Then:
+
+```python
+if marks < 0 or marks > 100:
+```
+
+checks the business rule.
+
+If invalid:
+
+```python
+raise forms.ValidationError(...)
+```
+
+If valid:
+
+```python
+return marks
+```
+
+---
+
+# 47. Add Age Validation
+
+We can also validate age:
+
+```python
+def clean_age(self):
+
+    age = self.cleaned_data["age"]
+
+    if age < 5 or age > 100:
+
+        raise forms.ValidationError(
+            "Enter a valid age."
+        )
+
+    return age
+```
+
+---
+
+# 48. Full Form
+
+```python
+from django import forms
+from .models import Student
+
+
+class StudentForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Student
+
+        fields = [
+            "name",
+            "email",
+            "course",
+            "age",
+            "marks",
+        ]
+
+
+    def clean_marks(self):
+
+        marks = self.cleaned_data["marks"]
+
+        if marks < 0 or marks > 100:
+
+            raise forms.ValidationError(
+                "Marks must be between 0 and 100."
+            )
+
+        return marks
+
+
+    def clean_age(self):
+
+        age = self.cleaned_data["age"]
+
+        if age < 5 or age > 100:
+
+            raise forms.ValidationError(
+                "Enter a valid age."
+            )
+
+        return age
+```
+
+---
+
+# 49. Admin
+
+We can also register the model in Admin.
+
+`students/admin.py`:
+
+```python
+from django.contrib import admin
+from .models import Student
+
+
+@admin.register(Student)
+class StudentAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "course",
+        "age",
+        "marks",
+    )
+
+    search_fields = (
+        "name",
+        "email",
+    )
+
+    list_filter = (
+        "course",
+    )
+
+    ordering = (
+        "-marks",
+    )
+```
+
+---
+
+# 50. Create Admin User
+
+Run:
+
+```bash
+python manage.py createsuperuser
+```
+
+Then:
+
+```bash
+python manage.py runserver
+```
+
+Visit:
+
+```text
+/admin/
+```
+
+Log in with your superuser credentials.
+
+You'll be able to manage Students through the Django admin interface.
+
+---
+
+# 51. Admin vs Our CRUD
+
+This is an important distinction.
+
+### Django Admin
+
+```text
+/admin/
+```
+
+is mainly an administrative interface.
+
+### Our application
+
+```text
+/students/
+```
+
+is the custom public/user-facing application.
+
+Both can manipulate the same model.
+
+```text
+              Student Model
+                  │
+          ┌───────┴────────┐
+          ↓                ↓
+       Admin            Custom UI
+      /admin/           /students/
+```
+
+---
+
+# 52. Adding Authentication
+
+Now suppose we want only logged-in users to manage students.
+
+We can protect our views.
+
+Import:
+
+```python
+from django.contrib.auth.decorators import login_required
+```
+
+Then:
+
+```python
+@login_required
+def student_list(request):
+    ...
+```
+
+Similarly:
+
+```python
+@login_required
+def student_create(request):
+    ...
+```
+
+---
+
+# 53. Protect All CRUD Views
+
+```python
+@login_required
+def student_list(request):
+    ...
+
+
+@login_required
+def student_create(request):
+    ...
+
+
+@login_required
+def student_update(request, id):
+    ...
+
+
+@login_required
+def student_delete(request, id):
+    ...
+```
+
+Now an unauthenticated user can't access the CRUD interface.
+
+---
+
+# 54. Add Permissions
+
+We can make the system more advanced.
+
+For example:
+
+```text
+Logged-in user
+    ↓
+Can view students
+
+Teacher
+    ↓
+Can add/change students
+
+Admin
+    ↓
+Can delete students
+```
+
+For example:
+
+```python
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required
+)
+```
+
+Then:
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def student_delete(request, id):
+    ...
+```
+
+---
+
+# 55. Complete Delete Security
+
+Our delete view could become:
+
+```python
+@login_required
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def student_delete(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        student.delete()
+
+        return redirect(
+            "student_list"
+        )
+
+    return render(
+        request,
+        "students/student_confirm_delete.html",
+        {
+            "student": student
+        }
+    )
+```
+
+Now:
+
+```text
+Authentication
+       ↓
+Authorization
+       ↓
+Object exists?
+       ↓
+POST?
+       ↓
+CSRF
+       ↓
+Delete
+       ↓
+Redirect
+```
+
+That's a strong production-style pattern.
+
+---
+
+# 56. Important: GET Shouldn't Delete
+
+Never do:
+
+```python
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    student.delete()
+
+    return redirect("student_list")
+```
+
+if that deletion is triggered by a GET request.
+
+Why?
+
+Because GET should generally be safe/read-only.
+
+A crawler, prefetcher, link checker, or accidental browser request shouldn't cause destructive state changes.
+
+Prefer:
+
+```text
+GET
+ ↓
+Confirmation page
+
+POST
+ ↓
+Delete
+```
+
+---
+
+# 57. Complete Project Flow
+
+Let's combine everything:
+
+```text
+                    Browser
+                       │
+                       ↓
+                   URL Request
+                       │
+                       ↓
+                Project urls.py
+                       │
+                       ↓
+                students/urls.py
+                       │
+                       ↓
+                      View
+                       │
+            ┌──────────┼──────────┐
+            ↓          ↓          ↓
+        Authentication Permission Validation
+            │          │          │
+            └──────────┼──────────┘
+                       ↓
+                     Form
+                       │
+                       ↓
+                    Model
+                       │
+                       ↓
+                     ORM
+                       │
+                       ↓
+                   Database
+                       │
+                       ↓
+                    Context
+                       │
+                       ↓
+                   Template
+                       │
+                       ↓
+                   Response
+```
+
+---
+
+# 58. The MVT Architecture in This Project
+
+### Model
+
+```python
+class Student(models.Model):
+```
+
+handles database structure.
+
+### View
+
+```python
+def student_create(request):
+```
+
+handles application logic.
+
+### Template
+
+```html
+student_list.html
+```
+
+handles presentation.
+
+So:
+
+```text
+Model
+ ↓
+Database
+
+View
+ ↓
+Logic
+
+Template
+ ↓
+HTML
+```
+
+---
+
+# 59. Complete CRUD Table
+
+| Operation | Django Code                           |
+| --------- | ------------------------------------- |
+| Create    | `form.save()`                         |
+| Read      | `Student.objects.all()`               |
+| Update    | `form.save()` with `instance=student` |
+| Delete    | `student.delete()`                    |
+
+Very important:
+
+```python
+# Create
+form = StudentForm(request.POST)
+form.save()
+```
+
+versus:
+
+```python
+# Update
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+form.save()
+```
+
+---
+
+# 60. CRUD URLs
+
+Our URLs are:
+
+```text
+/students/
+```
+
+Read.
+
+```text
+/students/create/
+```
+
+Create.
+
+```text
+/students/5/edit/
+```
+
+Update.
+
+```text
+/students/5/delete/
+```
+
+Delete.
+
+---
+
+# 61. CRUD HTTP Methods
+
+A sensible design is:
+
+```text
+GET /students/
+    → Read
+
+GET /students/create/
+    → Display create form
+
+POST /students/create/
+    → Create
+
+GET /students/5/edit/
+    → Display edit form
+
+POST /students/5/edit/
+    → Update
+
+GET /students/5/delete/
+    → Display confirmation
+
+POST /students/5/delete/
+    → Delete
+```
+
+This is an excellent thing to know for interviews.
+
+---
+
+# 62. Why Doesn't Create Use GET?
+
+A GET request should generally be safe and shouldn't change server state.
+
+So:
+
+```text
+GET /students/create/
+```
+
+only displays the form.
+
+Then:
+
+```text
+POST /students/create/
+```
+
+actually creates the student.
+
+---
+
+# 63. Why Does Update Use POST?
+
+Because update changes server-side state.
+
+```text
+GET
+ ↓
+Show existing data
+
+POST
+ ↓
+Save changed data
+```
+
+---
+
+# 64. Why Does Delete Use POST?
+
+Because deleting changes server-side state.
+
+```text
+GET
+ ↓
+Ask for confirmation
+
+POST
+ ↓
+Actually delete
+```
+
+---
+
+# 65. One Very Important Interview Question
+
+### "Explain your Django CRUD project."
+
+A strong answer:
+
+> "I created a Student model containing fields such as name, email, course, age and marks. I created a ModelForm from that model for input handling and validation. The list view uses Django ORM to retrieve students and passes them to a template. The create and update views process POST requests using the ModelForm and follow the POST-Redirect-GET pattern after successful submission. The update form uses `instance=student` so the existing record is modified rather than creating a new one. For deletion, I retrieve the object with `get_object_or_404()`, require a POST request with CSRF protection, delete the object, and redirect back to the list. Authentication and permissions can then be added using Django's decorators."
+
+That's an excellent practical/interview answer.
+
+---
+
+# 66. Common Viva Questions
+
+### Q1. What is CRUD?
+
+> Create, Read, Update and Delete.
+
+### Q2. What is a ModelForm?
+
+> A Django form class that is associated with a model and can generate form fields and save model instances.
+
+### Q3. Why use `instance` during update?
+
+> It tells the ModelForm which existing model instance should be updated instead of creating a new record.
+
+### Q4. Why use `get_object_or_404()`?
+
+> It retrieves an object or raises an HTTP 404 response if the object doesn't exist.
+
+### Q5. Why use `redirect()` after saving?
+
+> To follow the POST-Redirect-GET pattern and prevent duplicate form submissions on refresh.
+
+### Q6. Why use CSRF token?
+
+> To protect POST requests against CSRF attacks.
+
+### Q7. Why shouldn't deletion happen through GET?
+
+> GET should generally be safe and read-only; destructive operations should use an appropriate state-changing method such as POST.
+
+### Q8. Why use `ModelForm` instead of manually creating every form field?
+
+> It reduces repetitive code and connects form validation and saving directly to the model.
+
+### Q9. Where does `form.save()` save data?
+
+> It saves the model instance to the configured database.
+
+### Q10. How does update differ from create?
+
+```python
+# Create
+StudentForm(request.POST)
+
+# Update
+StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+---
+
+# 67. Coding Questions Your Teacher Can Ask
+
+### Question 1
+
+**Create a Student model.**
+
+```python
+class Student(models.Model):
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    email = models.EmailField()
+
+    course = models.CharField(
+        max_length=50
+    )
+
+    age = models.IntegerField()
+
+    marks = models.IntegerField()
+```
+
+---
+
+### Question 2
+
+**Retrieve all students.**
+
+```python
+students = Student.objects.all()
+```
+
+---
+
+### Question 3
+
+**Retrieve one student or return 404.**
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+---
+
+### Question 4
+
+**Create a student using ModelForm.**
+
+```python
+form = StudentForm(
+    request.POST
+)
+
+if form.is_valid():
+    form.save()
+```
+
+---
+
+### Question 5
+
+**Update an existing student.**
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+
+if form.is_valid():
+    form.save()
+```
+
+---
+
+### Question 6
+
+**Delete a student.**
+
+```python
+student.delete()
+```
+
+---
+
+### Question 7
+
+**Protect a CRUD view.**
+
+```python
+@login_required
+def student_list(request):
+    ...
+```
+
+---
+
+### Question 8
+
+**Require delete permission.**
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def student_delete(request, id):
+    ...
+```
+
+---
+
+# 68. Most Important Code to Memorize
+
+### Read
+
+```python
+students = Student.objects.all()
+```
+
+### Create
+
+```python
+form = StudentForm(request.POST)
+
+if form.is_valid():
+    form.save()
+    return redirect("student_list")
+```
+
+### Update
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+
+if form.is_valid():
+    form.save()
+    return redirect("student_list")
+```
+
+### Delete
+
+```python
+if request.method == "POST":
+
+    student.delete()
+
+    return redirect(
+        "student_list"
+    )
+```
+
+### Authentication
+
+```python
+@login_required
+```
+
+### Permission
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+```
+
+---
+
+# 69. The Complete Mental Model
+
+Memorize this diagram:
+
+```text
+                         USER
+                          │
+                          ↓
+                       Browser
+                          │
+                          ↓
+                         URL
+                          │
+                          ↓
+                     URL Routing
+                          │
+                          ↓
+                         VIEW
+                          │
+             ┌────────────┼────────────┐
+             ↓            ↓            ↓
+          Form          ORM        Auth/Permission
+             │            │            │
+             ↓            ↓            ↓
+        Validation     Model        User
+             │            │
+             └────────────┼────────────┘
+                          ↓
+                       Database
+                          │
+                          ↓
+                       Context
+                          │
+                          ↓
+                      Template
+                          │
+                          ↓
+                       Response
+```
+
+---
+
+# 70. What You Have Achieved
+
+At this point you've learned enough Django to build a genuine database-backed web application.
+
+You can now explain:
+
+```text
+Project
+App
+URLs
+Views
+HTTP
+Templates
+DTL
+Forms
+Validation
+CSRF
+PRG
+Models
+Fields
+Migrations
+ORM
+CRUD
+Foreign Keys
+Admin
+Users
+Groups
+Permissions
+Cookies
+Sessions
+Login
+Logout
+Protected Views
+```
+
+And now you've seen how they work **together**, rather than only individually.
+
+---
+
+# Module 40 Complete ✅
+
+The next module is:
+
+# Module 41 — Complete Authentication Project
+
+We'll build a more complete application around:
+
+```text
+Registration
+    ↓
+User Creation
+    ↓
+Login
+    ↓
+Session
+    ↓
+Dashboard
+    ↓
+request.user
+    ↓
+Logout
+```
+
+and combine it with:
+
+```text
+Forms
+Validation
+CSRF
+Passwords
+Authentication
+Sessions
+Protected Views
+Permissions
+```
+
+After that, Modules **42–44** will turn everything into **complete revision + viva masterclass + coding-question masterclass**, so you'll be prepared for both theory and practical Django questions.

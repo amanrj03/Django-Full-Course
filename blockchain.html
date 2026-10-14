@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain &amp; Cryptography — 13 Modules Complete Reference</title>
+    <meta name="description" content="Comprehensive 13-module study guide for Blockchain and Cryptography covering consensus protocols, Paxos, Raft, PBFT, PoW, PoS, Bitcoin architecture, UTXOs, and mining.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-body);
+    margin: 0; padding: 0;
+}
+
+.hub-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    color: white;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.hub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+.hub-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 16px;
+}
+
+.hub-hero-desc {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 760px;
+    opacity: 0.95;
+    margin-bottom: 28px;
+}
+
+.hub-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: background 0.2s;
+}
+.btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Exam Features Banner */
+.exam-banner {
+    max-width: 1200px;
+    margin: -24px auto 30px;
+    padding: 20px 28px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.exam-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.exam-banner-icon {
+    font-size: 32px;
+}
+
+.exam-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0 0 4px;
+}
+
+.exam-banner-sub {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.exam-banner-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.exam-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-heading);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.exam-pill:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+}
+
+/* Modules Grid */
+.modules-container {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+.bc-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+.bc-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: #0284c7;
+}
+.bc-card.completed {
+    border-left: 4px solid #10b981;
+    background: rgba(16, 185, 129, 0.03);
+}
+
+.bc-tags-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.badge-cat-bc {
+    background: rgba(2, 132, 199, 0.08);
+    color: #0284c7;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.bc-exam-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bg-subtle);
+    border-left: 3px solid #0284c7;
+    border-radius: 4px;
+    margin: 14px 0;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+.mod-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 10px 0 8px;
+    line-height: 1.35;
+}
+.mod-title a {
+    color: var(--text-heading);
+    text-decoration: none;
+}
+.mod-title a:hover {
+    color: #0284c7;
+}
+
+.mod-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 10px;
+    flex-grow: 1;
+}
+
+.mod-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-read {
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.btn-read:hover {
+    text-decoration: underline;
+}
+
+.completion-checkbox input {
+    cursor: pointer;
+    accent-color: #0284c7;
+    width: 17px;
+    height: 17px;
+}
+
+@media (max-width: 768px) {
+    .hub-hero-title { font-size: 30px; }
+    .exam-banner { margin-top: 15px; flex-direction: column; align-items: stretch; }
+    .modules-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 13 Modules</a>
+        </div>
+    </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hub-hero">
+    <div class="hub-hero-container">
+        <div class="hub-badge">⛓️ Cryptography, Distributed Systems &amp; Bitcoin</div>
+        <h1 class="hub-hero-title">Blockchain &amp; Cryptography</h1>
+        <p class="hub-hero-desc">An exhaustive 13-module mastery guide covering Bitcoin's history, Byzantine Generals problem, Consensus mechanisms (PoW, PoS, PBFT, Paxos, Raft), Symmetric/Asymmetric ciphers, RSA &amp; ECC, Digital Signatures, SHA hashing, and Bitcoin mining architecture.</p>
+        <div class="hub-hero-actions">
+            <a href="blockchain-module-1.html" class="btn-hero-primary">Start Module 01 &rarr;</a>
+            <a href="blockchain-module-9.html" class="btn-hero-secondary">📘 Unit 3: Consensus (Mod 09)</a>
+            <a href="blockchain-module-12.html" class="btn-hero-secondary">₿ Bitcoin Architecture (Mod 12)</a>
+            <a href="blockchain_guide.html" class="btn-hero-secondary">📖 Full Interactive Guide (1–8)</a>
+        </div>
+    </div>
+</section>
+
+<!-- EXAM BANNER -->
+<div class="exam-banner">
+    <div class="exam-banner-left">
+        <div class="exam-banner-icon">🎯</div>
+        <div>
+            <h3 class="exam-banner-title">Semester Exam &amp; Viva Focus Ready — 13 Modules</h3>
+            <p class="exam-banner-sub">Every module includes one-page revision sheets, memory tricks, and 5- &amp; 10-mark standard university questions.</p>
+        </div>
+    </div>
+    <div class="exam-banner-pills">
+        <a href="blockchain-module-9.html" class="exam-pill">Mod 9 FLP &amp; SMR</a>
+        <a href="blockchain-module-10.html" class="exam-pill">Mod 10 PBFT &amp; Paxos</a>
+        <a href="blockchain-module-11.html" class="exam-pill">Mod 11 PoW vs PoS</a>
+        <a href="blockchain-module-12.html" class="exam-pill">Mod 12 Bitcoin UTXO</a>
+        <a href="blockchain-module-13.html" class="exam-pill">Mod 13 Mining &amp; Halving</a>
+    </div>
+</div>
+
+<!-- MODULES GRID -->
+<div class="modules-container">
+    <div class="modules-grid" id="bcModulesGrid">
+
+    <div class="bc-card" data-mod="1">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 01</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Bitcoin Evolution</span><span class="mod-cat badge-cat-bc">Double Spending</span><span class="mod-cat badge-cat-bc">Blind Signatures</span><span class="mod-cat badge-cat-bc">DigiCash</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-1.html">Growth, History of Blockchain & Bitcoin</a></h3>
+        <p class="mod-desc">How e-cash problems, blind signatures, Hashcash, and B-money culminated in Satoshi Nakamoto's breakthrough Bitcoin whitepaper in 2008.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Evolution of electronic cash to Bitcoin | ⭐ 5-Mark: Double spending problem & Blind signatures</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-1.html" class="btn-read" style="color: #0284c7;">Read Module 01 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 1, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="2">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 02</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Distributed Systems</span><span class="mod-cat badge-cat-bc">Byzantine Generals</span><span class="mod-cat badge-cat-bc">Block Structure</span><span class="mod-cat badge-cat-bc">Merkle Trees</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-2.html">Distributed Systems & Blockchain</a></h3>
+        <p class="mod-desc">Centralized vs distributed models, network partitions, Byzantine fault tolerance, block headers, nonces, and blockchain layers.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🎯 5-Mark: Byzantine Generals Problem | Structure of a Block | Merkle Root derivation</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-2.html" class="btn-read" style="color: #0284c7;">Read Module 02 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 2, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="3">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 03</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Proof of Work</span><span class="mod-cat badge-cat-bc">Proof of Stake</span><span class="mod-cat badge-cat-bc">PBFT</span><span class="mod-cat badge-cat-bc">Raft</span><span class="mod-cat badge-cat-bc">Paxos</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-3.html">Consensus Protocols ⭐⭐⭐⭐⭐</a></h3>
+        <p class="mod-desc">How untrusted nodes reach consensus: PoW mining difficulty, PoS validators & slashing, PBFT 3-phase commit, and crash fault tolerance.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Proof of Work vs Proof of Stake in detail | PBFT working and mathematical threshold (3f+1)</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-3.html" class="btn-read" style="color: #0284c7;">Read Module 03 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 3, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="4">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 04</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Decentralization</span><span class="mod-cat badge-cat-bc">Disintermediation</span><span class="mod-cat badge-cat-bc">Public vs Private</span><span class="mod-cat badge-cat-bc">Governance</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-4.html">Decentralization ⭐⭐⭐⭐⭐</a></h3>
+        <p class="mod-desc">Architectural, political, and logical decentralization; routes to disintermediation, token economics, and consortium blockchains.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🎯 5-Mark: Public vs Private vs Consortium blockchains | Routes to decentralization</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-4.html" class="btn-read" style="color: #0284c7;">Read Module 04 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 4, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="5">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 05</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">DES</span><span class="mod-cat badge-cat-bc">AES</span><span class="mod-cat badge-cat-bc">Block Ciphers</span><span class="mod-cat badge-cat-bc">Cipher Modes</span><span class="mod-cat badge-cat-bc">Feistel Network</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-5.html">Symmetric Cryptography 🔐</a></h3>
+        <p class="mod-desc">Classical vs modern ciphers, Feistel networks, DES rounds, AES substitution-permutation network, and ECB/CBC/CTR modes.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: AES Encryption Algorithm & Round transformations | ⭐ 5-Mark: CBC vs ECB Mode</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-5.html" class="btn-read" style="color: #0284c7;">Read Module 05 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 5, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="6">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 06</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">RSA Algorithm</span><span class="mod-cat badge-cat-bc">Diffie-Hellman</span><span class="mod-cat badge-cat-bc">Discrete Log</span><span class="mod-cat badge-cat-bc">ECC</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-6.html">Public Key Cryptography 🔑</a></h3>
+        <p class="mod-desc">Mathematical foundations of asymmetric crypto, Euler's totient function, key generation in RSA, Diffie-Hellman exchange, and Elliptic Curves.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: RSA numerical calculation with (p, q, e) | Diffie-Hellman Key Exchange steps</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-6.html" class="btn-read" style="color: #0284c7;">Read Module 06 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 6, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="7">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 07</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">ECDSA</span><span class="mod-cat badge-cat-bc">Digital Signatures</span><span class="mod-cat badge-cat-bc">Schnorr</span><span class="mod-cat badge-cat-bc">Non-Repudiation</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-7.html">Digital Signatures & Cryptographic Constructs</a></h3>
+        <p class="mod-desc">Signing and verification algorithms, ECDSA curve secp256k1 used in Bitcoin, signature aggregation, and blind signatures.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🎯 5-Mark: Working of Digital Signatures | ECDSA verification process | Authentication vs Integrity</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-7.html" class="btn-read" style="color: #0284c7;">Read Module 07 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 7, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="8">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 08</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">SHA-256</span><span class="mod-cat badge-cat-bc">Hash Properties</span><span class="mod-cat badge-cat-bc">Avalanche Effect</span><span class="mod-cat badge-cat-bc">Merkle Trees</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-8.html">SHA & Cryptographic Hash Functions 🔐</a></h3>
+        <p class="mod-desc">One-way property, collision resistance, compression functions, SHA-256 internal rounds, Merkle tree proofs, and mining nonces.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: 3 Fundamental properties of cryptographic hash functions | SHA-256 internal pipeline</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-8.html" class="btn-read" style="color: #0284c7;">Read Module 08 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 8, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="9">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 09</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Consensus</span><span class="mod-cat badge-cat-bc">CFT vs BFT</span><span class="mod-cat badge-cat-bc">SMR</span><span class="mod-cat badge-cat-bc">Safety & Liveness</span><span class="mod-cat badge-cat-bc">FLP Impossibility</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-9.html">Consensus Problem, Analysis & Design</a></h3>
+        <p class="mod-desc">Core foundations of distributed agreement: message passing vs shared memory, Byzantine Generals problem, State Machine Replication, network synchrony models, FLP impossibility, and lower bounds on fault tolerance (N >= 2F+1, 3F+1).</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Safety, Liveness & FLP Impossibility | ⭐ 5-Mark: CFT vs BFT & Node Count formulas (2F+1 vs 3F+1)</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-9.html" class="btn-read" style="color: #0284c7;">Read Module 09 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 9, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="10">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 10</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Paxos</span><span class="mod-cat badge-cat-bc">Raft</span><span class="mod-cat badge-cat-bc">PBFT</span><span class="mod-cat badge-cat-bc">Voting Consensus</span><span class="mod-cat badge-cat-bc">View Change</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-10.html">Classification & Traditional Consensus (Paxos, Raft, PBFT)</a></h3>
+        <p class="mod-desc">Deep dive into traditional voting algorithms: Paxos prepare/accept phases, Raft leader election and log replication, PBFT three-phase commit (Pre-prepare, Prepare, Commit), view change subprotocol and checkpointing.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Complete working of PBFT with 3 phases | ⭐ 5-Mark: Paxos Proposer/Acceptor/Learner & Raft States</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-10.html" class="btn-read" style="color: #0284c7;">Read Module 10 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 10, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="11">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 11</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Proof of Work</span><span class="mod-cat badge-cat-bc">Proof of Stake</span><span class="mod-cat badge-cat-bc">DPoS</span><span class="mod-cat badge-cat-bc">Sybil Attacks</span><span class="mod-cat badge-cat-bc">51% Attack</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-11.html">Blockchain Consensus (PoW, PoS, DPoS) & Selection</a></h3>
+        <p class="mod-desc">Lottery-based consensus mechanisms: PoW nonce search & difficulty adjustment, Nakamoto consensus properties (Common Prefix, Chain Quality, Chain Growth), PoS staking & slashing, DPoS delegates, and criteria for choosing an algorithm.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Proof of Work vs Proof of Stake in detail | Sybil Attacks vs 51% Attacks</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-11.html" class="btn-read" style="color: #0284c7;">Read Module 11 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 11, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="12">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 12</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Bitcoin Architecture</span><span class="mod-cat badge-cat-bc">Private & Public Keys</span><span class="mod-cat badge-cat-bc">P2PKH & P2SH</span><span class="mod-cat badge-cat-bc">UTXO Model</span><span class="mod-cat badge-cat-bc">Bitcoin Script</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-12.html">Bitcoin Architecture, Keys & Transactions</a></h3>
+        <p class="mod-desc">The 7 structural components of Bitcoin, ECC secp256k1 key generation, P2PKH address generation pipeline (SHA-256 + RIPEMD-160 + Base58Check), digital signatures, UTXO lifecycle, and stack-based Bitcoin Script verification.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Bitcoin Address Generation & UTXO Lifecycle | ⭐ 5-Mark: P2PKH script execution with OP_CHECKSIG</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-12.html" class="btn-read" style="color: #0284c7;">Read Module 12 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 12, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="bc-card" data-mod="13">
+        <div class="mod-card-top">
+            <span class="mod-num" style="color: #0284c7; background: rgba(2, 132, 199, 0.1);">Module 13</span>
+            <div class="bc-tags-row"><span class="mod-cat badge-cat-bc">Block Header</span><span class="mod-cat badge-cat-bc">Merkle Trees</span><span class="mod-cat badge-cat-bc">P2P Network</span><span class="mod-cat badge-cat-bc">Mining Lifecycle</span><span class="mod-cat badge-cat-bc">Halving</span><span class="mod-cat badge-cat-bc">Forks</span></div>
+        </div>
+        <h3 class="mod-title"><a href="blockchain-module-13.html">Bitcoin Blockchain, Network, Mining & Forks</a></h3>
+        <p class="mod-desc">Bitcoin block structure (80-byte header), Merkle root calculation & tamper detection, P2P peer discovery and transaction flooding, mining lifecycle & difficulty retargeting (every 2,016 blocks), halving (every 210,000 blocks), accidental/hard/soft forks, and confirmations.</p>
+        <div class="bc-exam-callout">
+            <span class="exam-icon">📌</span>
+            <div class="exam-text">🔥 10-Mark: Complete Lifecycle of a Bitcoin Payment | ⭐ 5-Mark: Merkle Tree construction & Accidental vs Hard/Soft Forks</div>
+        </div>
+        <div class="mod-card-actions">
+            <a href="blockchain-module-13.html" class="btn-read" style="color: #0284c7;">Read Module 13 &rarr;</a>
+            <label class="completion-checkbox" title="Mark as Completed">
+                <input type="checkbox" onchange="toggleCardComplete('blockchain', 13, this)">
+                <span class="checkmark"></span>
+            </label>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="portal-footer">
+    <div class="portal-footer-container">
+        <div class="footer-col">
+            <h4>OmniCourse Hub</h4>
+            <p>A unified, interactive study and revision platform built for Computer Science &amp; Engineering students.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Courses</h4>
+            <ul>
+                <li><a href="django.html">Django Full Course (45 Modules)</a></li>
+                <li><a href="blockchain.html">Blockchain &amp; Cryptography (13 Modules)</a></li>
+                <li><a href="maths.html">Engineering Mathematics (Upcoming)</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Special Guides</h4>
+            <ul>
+                <li><a href="django_guide.html">Django Full Reader</a></li>
+                <li><a href="blockchain_guide.html">Blockchain Full Reader</a></li>
+                <li><a href="module-45.html">Django Cheat Sheet</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Repository</h4>
+            <ul>
+                <li><a href="https://github.com/amanrj03/Django-Full-Course.git" target="_blank" rel="noopener">GitHub Project</a></li>
+                <li><a href="index.html">Master Portal Home</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div>&copy; 2026 OmniCourse Hub. Open Source &amp; Free for All Learners.</div>
+        <div>Connected via Git Repository</div>
+    </div>
+</footer>
+
+<script src="shared.js"></script>
+<script>
+function toggleCardComplete(subject, modNum, checkbox) {
+    var card = checkbox.closest('.bc-card');
+    var isDone = window.toggleModuleCompletion(subject, modNum);
+    if (isDone) {
+        card.classList.add('completed');
+    } else {
+        card.classList.remove('completed');
+    }
+}
+
+// Restore checkboxes state from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    var doneList = window.getSubjectProgress('blockchain');
+    doneList.forEach(function(modNum) {
+        var card = document.querySelector('.bc-card[data-mod="' + modNum + '"]');
+        if (card) {
+            card.classList.add('completed');
+            var chk = card.querySelector('input[type="checkbox"]');
+            if (chk) chk.checked = true;
+        }
+    });
+});
+</script>
+</body>
+</html>

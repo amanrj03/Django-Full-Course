@@ -1,0 +1,1169 @@
+# Module 1 — Web & Django Fundamentals
+
+We’ll start from **zero**. By the end of this module, you should be able to explain the basic working of a web application and confidently answer the common viva questions about Django.
+
+---
+
+# 1. What is a Website?
+
+A **website** is a collection of web pages that can be accessed through the internet using a web browser.
+
+Examples:
+
+* Google
+* YouTube
+* Amazon
+* Wikipedia
+
+A website generally contains:
+
+* **HTML** → structure
+* **CSS** → styling
+* **JavaScript** → behavior/interactivity
+* **Backend** → processing and business logic
+* **Database** → storing information
+
+For example, when you open an online shopping website:
+
+```text
+You → Browser → Website Server → Database
+                       ↓
+                    Response
+                       ↓
+                    Browser
+```
+
+---
+
+# 2. What is a Web Application?
+
+A **web application** is a website that allows users to perform operations and interact with data.
+
+For example:
+
+### Simple website
+
+A page that says:
+
+```text
+Welcome to my website
+```
+
+There may be little or no user interaction.
+
+### Web application
+
+An online shopping application allows you to:
+
+```text
+Register
+Login
+Search products
+Add products to cart
+Place orders
+Make payments
+View previous orders
+```
+
+So:
+
+> **A web application is an application that runs through a web browser and allows users to interact with data and functionality provided by a server.**
+
+Django is mainly used for developing the **backend of web applications**.
+
+---
+
+# 3. Client and Server
+
+This is VERY important for understanding Django.
+
+## Client
+
+The **client** is usually the user's device/browser that sends requests to a server.
+
+For example:
+
+```text
+Chrome
+Firefox
+Edge
+Safari
+```
+
+## Server
+
+The **server** is a computer/program that receives requests, processes them, and sends responses.
+
+For example, when you type:
+
+```text
+youtube.com
+```
+
+your browser sends a request to YouTube's servers.
+
+The server processes it and sends information back.
+
+---
+
+# 4. Request and Response
+
+The basic communication is:
+
+```text
+Client
+   |
+   | Request
+   ↓
+Server
+   |
+   | Response
+   ↓
+Client
+```
+
+### Request
+
+The browser says:
+
+> "Give me this webpage."
+
+### Response
+
+The server says:
+
+> "Here is the webpage."
+
+This concept is the foundation of Django.
+
+---
+
+# 5. Example of Request-Response
+
+Suppose you visit:
+
+```text
+example.com/about
+```
+
+The process is approximately:
+
+```text
+1. Browser sends request
+          ↓
+2. Server receives request
+          ↓
+3. Django processes request
+          ↓
+4. Django determines what should happen
+          ↓
+5. Django generates response
+          ↓
+6. Server sends response
+          ↓
+7. Browser displays webpage
+```
+
+Later, we'll learn exactly how Django performs steps 3–5.
+
+---
+
+# 6. What is HTTP?
+
+**HTTP = HyperText Transfer Protocol**
+
+HTTP is a protocol used for communication between a client and a web server.
+
+It defines how requests and responses are exchanged.
+
+For example:
+
+```text
+Browser ─── HTTP Request ───→ Server
+
+Browser ←── HTTP Response ─── Server
+```
+
+Common HTTP methods include:
+
+```text
+GET
+POST
+PUT
+PATCH
+DELETE
+```
+
+For your Django syllabus, **GET and POST are particularly important**.
+
+We'll study them deeply in Unit II and Unit IV.
+
+---
+
+# 7. GET vs POST — Basic Idea
+
+Don't worry about the details yet.
+
+### GET
+
+Generally used to **request/retrieve data**.
+
+Example:
+
+```text
+/products
+/products/10
+```
+
+### POST
+
+Generally used to **send data to the server**.
+
+For example, submitting a registration form:
+
+```text
+Name: Aman
+Email: aman@example.com
+Password: ********
+```
+
+The browser can send that information to the server using POST.
+
+We'll study this properly later.
+
+---
+
+# 8. Frontend vs Backend
+
+A web application generally has two major sides.
+
+## Frontend
+
+The frontend is what the user sees and interacts with.
+
+Technologies include:
+
+```text
+HTML
+CSS
+JavaScript
+React
+Angular
+Vue
+```
+
+Example:
+
+```text
++---------------------------+
+|       My Website          |
+|                           |
+| Name: [____________]      |
+|                           |
+|       [ Submit ]          |
++---------------------------+
+```
+
+That's frontend.
+
+---
+
+# 9. Backend
+
+The backend handles things that happen behind the scenes.
+
+For example:
+
+```text
+User submits login
+        ↓
+Backend receives username/password
+        ↓
+Backend checks database
+        ↓
+Is user valid?
+      /    \
+    Yes     No
+     ↓       ↓
+ Dashboard  Error
+```
+
+Backend can handle:
+
+* Authentication
+* Database operations
+* Business logic
+* Form processing
+* Security
+* APIs
+* Sessions
+* User permissions
+
+**Django is a backend web framework.**
+
+---
+
+# 10. Where Does the Database Come In?
+
+Suppose you create an account.
+
+The information needs to be stored somewhere:
+
+```text
+Username
+Email
+Password
+```
+
+A database stores this information.
+
+So a simplified application looks like:
+
+```text
+                Web Application
+
+Browser
+   ↓
+Request
+   ↓
+Django Backend
+   ↓
+Database
+   ↓
+Django Backend
+   ↓
+Response
+   ↓
+Browser
+```
+
+Django provides tools to communicate with the database.
+
+Later you'll learn something very important called:
+
+> **ORM — Object Relational Mapping**
+
+---
+
+# 11. What is a Framework?
+
+Before understanding Django, you need to understand **framework**.
+
+Suppose you want to build a house.
+
+You could create everything from raw materials yourself:
+
+```text
+Bricks
+Cement
+Doors
+Windows
+Electrical system
+Plumbing
+etc.
+```
+
+Or you could use an established structure/design that makes construction easier.
+
+A software framework provides a similar advantage.
+
+> **A framework is a collection of tools, libraries, conventions, and structures that helps developers build applications more efficiently.**
+
+---
+
+# 12. Why Do We Need Frameworks?
+
+Imagine building a web application completely from scratch.
+
+You would have to handle:
+
+* URL routing
+* HTTP requests
+* Database connections
+* Authentication
+* Security
+* Forms
+* Sessions
+* Error handling
+* HTML rendering
+
+Doing everything manually would take a lot of time.
+
+A framework provides many of these facilities.
+
+So instead of reinventing everything, you can focus on your application's functionality.
+
+---
+
+# 13. What is Django?
+
+Now the main question.
+
+> **Django is a high-level, open-source Python web framework used for building web applications quickly, securely, and maintainably.**
+
+Important keywords for viva:
+
+**Django**
+
+* Python-based
+* Web framework
+* Open-source
+* High-level
+* Used for web application development
+
+You should remember this definition.
+
+---
+
+# 14. Why is Django Called a Python Web Framework?
+
+Because Django is:
+
+```text
+Python
+   ↓
+Django
+   ↓
+Web Application
+```
+
+You write Django applications primarily using Python.
+
+For example, a very simple Django view can look like:
+
+```python
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")
+```
+
+Don't worry if you don't understand this yet.
+
+We'll build this from scratch in later modules.
+
+---
+
+# 15. Why Use Django?
+
+Django provides many things out of the box.
+
+### 1. URL Routing
+
+It helps map URLs to application logic.
+
+Example:
+
+```text
+/about → about view
+/login → login view
+/products → products view
+```
+
+---
+
+### 2. Templates
+
+Django allows Python-generated data to be displayed in HTML.
+
+For example:
+
+```text
+Hello, Aman
+```
+
+can be dynamically generated.
+
+---
+
+### 3. Forms
+
+Django provides tools for creating and validating forms.
+
+---
+
+### 4. Database Support
+
+Django provides an ORM for working with databases using Python.
+
+Instead of writing SQL for everything, you can write:
+
+```python
+Student.objects.all()
+```
+
+---
+
+### 5. Authentication
+
+Django provides built-in support for:
+
+```text
+Users
+Login
+Logout
+Passwords
+Permissions
+Groups
+```
+
+---
+
+### 6. Security
+
+Django provides protections/features for common web security concerns, including:
+
+```text
+CSRF protection
+SQL injection protection through ORM usage
+Clickjacking protection
+XSS-related protections
+Secure password handling
+```
+
+---
+
+### 7. Admin Panel
+
+One of Django's famous features is its built-in admin interface.
+
+You can manage database data through a web interface.
+
+Conceptually:
+
+```text
+Django Application
+       ↓
+     Models
+       ↓
+   Django Admin
+       ↓
+Manage data
+```
+
+---
+
+# 16. Django's "Batteries Included" Philosophy
+
+You may hear this phrase in a viva.
+
+Django is often described as having a **"batteries-included"** philosophy.
+
+It means Django provides many commonly needed features as part of the framework.
+
+For example:
+
+```text
+Authentication
+Admin
+ORM
+Forms
+Sessions
+Security
+Templates
+URL routing
+```
+
+You don't need to build all of these from scratch.
+
+---
+
+# 17. What is MVT?
+
+This is **VERY IMPORTANT for your viva**.
+
+Django follows an architectural pattern commonly described as:
+
+> **MVT = Model – View – Template**
+
+The three components are:
+
+```text
+Model
+View
+Template
+```
+
+Let's understand each.
+
+---
+
+# 18. Model
+
+The **Model** deals mainly with **data and database structure**.
+
+Suppose you have students.
+
+A model might represent:
+
+```text
+Student
+----------------
+id
+name
+email
+age
+course
+```
+
+Django can use this model to interact with the database.
+
+Think:
+
+> **Model = Data + Database logic**
+
+---
+
+# 19. View
+
+The **View** contains the logic that processes a request and determines what response should be returned.
+
+For example:
+
+```python
+def home(request):
+    return HttpResponse("Welcome")
+```
+
+Think:
+
+> **View = Business/request processing logic**
+
+---
+
+# 20. Template
+
+The **Template** is generally the presentation layer.
+
+It usually contains HTML with Django Template Language.
+
+Example:
+
+```html
+<h1>Welcome {{ name }}</h1>
+```
+
+If the name is:
+
+```text
+Aman
+```
+
+the resulting page can display:
+
+```text
+Welcome Aman
+```
+
+Think:
+
+> **Template = Presentation/UI**
+
+---
+
+# 21. MVT Diagram
+
+Remember this:
+
+```text
+                 USER
+                  |
+                  | Request
+                  ↓
+                URL
+                  |
+                  ↓
+                VIEW
+              /      \
+             ↓        ↓
+         MODEL     TEMPLATE
+           |           |
+           ↓           ↓
+       DATABASE      HTML
+             \       /
+              ↓     ↓
+                VIEW
+                  |
+                  | Response
+                  ↓
+                USER
+```
+
+This is a simplified conceptual diagram. Django internally handles some details differently, but this is the useful mental model for your course.
+
+---
+
+# 22. Real Example of MVT
+
+Suppose the user visits:
+
+```text
+/students/
+```
+
+### Step 1 — URL
+
+Django sees:
+
+```text
+/students/
+```
+
+and determines which view should handle it.
+
+### Step 2 — View
+
+The view asks the model for student information.
+
+```text
+View → Model
+```
+
+### Step 3 — Model
+
+The model interacts with the database.
+
+```text
+Model → Database
+```
+
+Database returns:
+
+```text
+Aman
+Rahul
+Priya
+```
+
+### Step 4 — View
+
+The view sends the data to a template.
+
+```text
+View → Template
+```
+
+### Step 5 — Template
+
+The template generates HTML.
+
+```text
+Template → HTML
+```
+
+### Step 6 — Response
+
+Django sends the generated HTML back to the browser.
+
+```text
+Django → Browser
+```
+
+The browser displays:
+
+```text
+Students
+
+1. Aman
+2. Rahul
+3. Priya
+```
+
+---
+
+# 23. Django Request-Response Cycle
+
+This is one of the most important things to understand.
+
+Suppose you enter:
+
+```text
+http://127.0.0.1:8000/about/
+```
+
+The simplified flow is:
+
+```text
+Browser
+   |
+   | HTTP Request
+   ↓
+Django
+   |
+   ↓
+URL Configuration
+   |
+   ↓
+View
+   |
+   ↓
+Model / Database
+   |
+   ↓
+Template
+   |
+   ↓
+HTTP Response
+   |
+   ↓
+Browser
+```
+
+You will gradually learn every part of this flow throughout the course.
+
+---
+
+# 24. What is `127.0.0.1:8000`?
+
+When we start Django's development server, you'll commonly see:
+
+```text
+Starting development server at http://127.0.0.1:8000/
+```
+
+### `127.0.0.1`
+
+This means the **local machine** (localhost).
+
+### `8000`
+
+This is the port on which Django's development server is listening by default.
+
+So:
+
+```text
+127.0.0.1:8000
+```
+
+means:
+
+> "Access the Django development server running on this computer at port 8000."
+
+---
+
+# 25. Django vs Python
+
+A common viva question:
+
+### Is Django a programming language?
+
+**No.**
+
+Django is a **web framework written in Python**.
+
+Correct relationship:
+
+```text
+Python
+  ↓
+Programming Language
+
+Django
+  ↓
+Python Web Framework
+```
+
+---
+
+# 26. Django vs Flask
+
+You may be asked this in an interview/viva.
+
+Both are Python web frameworks.
+
+A simplified comparison:
+
+| Django                                     | Flask                                          |
+| ------------------------------------------ | ---------------------------------------------- |
+| More batteries-included                    | More minimal                                   |
+| Built-in ORM                               | Doesn't force a specific ORM                   |
+| Built-in admin                             | No built-in Django-style admin                 |
+| Built-in authentication tools              | Usually assembled through extensions/code      |
+| More structured                            | More flexible/minimal                          |
+| Suitable for large structured applications | Useful for lightweight/custom applications too |
+
+Don't say:
+
+> "Django is always better than Flask."
+
+Instead say:
+
+> "Both are useful Python web frameworks. Django provides more built-in functionality, while Flask is more lightweight and minimal."
+
+---
+
+# 27. Important Django Terminology
+
+Start becoming familiar with these words:
+
+| Term      | Meaning                                            |
+| --------- | -------------------------------------------------- |
+| Django    | Python web framework                               |
+| Project   | Overall Django application/configuration           |
+| App       | Component that performs a particular functionality |
+| View      | Handles request/application logic                  |
+| Model     | Represents/manages data                            |
+| Template  | Presentation layer                                 |
+| URL       | Maps requested paths to views                      |
+| ORM       | Allows database interaction using Python objects   |
+| Migration | Tracks/applies database schema changes             |
+| Admin     | Built-in interface for managing data               |
+| Form      | Handles user input                                 |
+| Session   | Stores user-specific state across requests         |
+| Cookie    | Small data stored by the browser                   |
+
+We'll study every one of these in detail.
+
+---
+
+# 28. Project vs App — Important
+
+Students often confuse these.
+
+Imagine you're building an e-commerce website.
+
+The **project** could be:
+
+```text
+E-Commerce Website
+```
+
+Inside it, you could have apps:
+
+```text
+accounts
+products
+orders
+payments
+reviews
+```
+
+Conceptually:
+
+```text
+                 PROJECT
+                    |
+       +------------+------------+
+       |            |            |
+    accounts     products      orders
+       |            |            |
+    users        products      orders
+```
+
+### Project
+
+The overall Django site/application configuration.
+
+### App
+
+A component that handles a particular functionality.
+
+We'll learn exactly how to create both later.
+
+---
+
+# 29. What You Should Be Able to Explain Now
+
+If your teacher asks:
+
+### "What is Django?"
+
+Answer:
+
+> Django is a high-level, open-source Python web framework used to develop web applications quickly, securely, and maintainably.
+
+### "What is MVT?"
+
+Answer:
+
+> MVT stands for Model, View, and Template. Model handles data and database-related operations, View handles request and application logic, and Template handles presentation.
+
+### "What is a Model?"
+
+Answer:
+
+> A Model is a Python class that represents the structure of application data and provides an interface for interacting with the database.
+
+### "What is a View?"
+
+Answer:
+
+> A View is responsible for processing a request and returning an appropriate response.
+
+### "What is a Template?"
+
+Answer:
+
+> A Template is used to define the presentation layer, usually HTML, and can contain Django Template Language for displaying dynamic data.
+
+---
+
+# 30. Viva Questions — Module 1
+
+Try answering these **without looking above**.
+
+### Basic
+
+**Q1. What is Django?**
+
+**Q2. Django is written in which programming language?**
+
+**Q3. Is Django a programming language?**
+
+**Q4. What is a web framework?**
+
+**Q5. What is a web application?**
+
+**Q6. What is HTTP?**
+
+**Q7. What is the difference between client and server?**
+
+**Q8. What is a request?**
+
+**Q9. What is a response?**
+
+---
+
+### Django-specific
+
+**Q10. What does MVT stand for?**
+
+**Q11. What is the role of Model?**
+
+**Q12. What is the role of View?**
+
+**Q13. What is the role of Template?**
+
+**Q14. What is the difference between a Django project and an app?**
+
+**Q15. Why is Django called a batteries-included framework?**
+
+**Q16. What is Django ORM?**
+
+**Q17. What is Django Admin?**
+
+**Q18. What are some features provided by Django?**
+
+---
+
+### Slightly harder
+
+**Q19. Explain the Django request-response cycle.**
+
+**Q20. A user visits `/students/`. What happens inside a Django application?**
+
+**Q21. Why do we need a framework instead of writing everything from scratch?**
+
+**Q22. Difference between Django and Flask?**
+
+**Q23. What is the purpose of `127.0.0.1:8000`?**
+
+---
+
+# 31. Coding Understanding
+
+We aren't going to properly code yet—that starts in the next modules.
+
+But look at this:
+
+```python
+from django.http import HttpResponse
+
+def hello(request):
+    return HttpResponse("Hello, Aman!")
+```
+
+Understand only the conceptual flow for now:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+hello(request)
+   ↓
+HttpResponse("Hello, Aman!")
+   ↓
+Browser
+```
+
+Later, you'll learn exactly:
+
+* where this code goes,
+* how Django finds this function,
+* how to create the project,
+* how to create the app,
+* how to connect the URL,
+* how to run it.
+
+---
+
+# ⭐ Module 1 — What You Must Remember
+
+If you remember only these things for now:
+
+```text
+Django = Python Web Framework
+
+MVT = Model + View + Template
+
+Model    → Data / Database
+View     → Request / Application Logic
+Template → Presentation / HTML
+
+Client → Request → Server
+Client ← Response ← Server
+
+Django provides:
+→ URL routing
+→ Templates
+→ Forms
+→ ORM
+→ Authentication
+→ Sessions
+→ Admin
+→ Security features
+```
+
+And the overall mental model:
+
+```text
+             Django
+
+Browser
+   ↓
+Request
+   ↓
+URL
+   ↓
+View
+   ↓
+Model ←→ Database
+   ↓
+Template
+   ↓
+Response
+   ↓
+Browser
+```
+
+**Do not memorize the entire diagram blindly.** Understand what each component does. That understanding will make the remaining 43 modules much easier.
+
+---
+
+## 📝 Mini Test
+
+Before saying **next**, try answering these 10:
+
+1. What is Django?
+2. Is Django a programming language?
+3. What is a framework?
+4. What does MVT stand for?
+5. What does a Model do?
+6. What does a View do?
+7. What does a Template do?
+8. What is the difference between a Django project and an app?
+9. What is ORM?
+10. Explain the Django request-response cycle in your own words.
+
+You can send your answers, and I'll **check/correct them like a viva examiner**. Then when you're ready, say **“next”** and we'll start **Module 2 — Python Environment, Virtual Environment & Django Installation**.

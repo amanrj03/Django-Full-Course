@@ -1,0 +1,1578 @@
+# Module 8 — HTTP Requests & Responses in Django
+
+Now we're going deeper into something you've already used:
+
+```python
+def home(request):
+```
+
+You know that `request` represents the incoming HTTP request.
+
+Now we'll learn **what is actually inside `request`**, how to read it, and how Django sends responses back.
+
+This module is very important because it connects directly to:
+
+* **Unit II — HTTP requests**
+* **Unit IV — GET/POST**
+* Forms
+* Authentication
+* Cookies
+* Sessions
+* APIs
+
+---
+
+# 1. What Is an HTTP Request?
+
+Whenever a browser communicates with a web server, it sends a **request**.
+
+For example, when you visit:
+
+```text
+http://127.0.0.1:8000/students/
+```
+
+the browser sends an HTTP request to Django.
+
+Conceptually:
+
+```text
+Browser
+   |
+   | HTTP Request
+   ↓
+Django
+```
+
+The request contains information about what the browser wants.
+
+---
+
+# 2. What Is an HTTP Response?
+
+After processing the request, Django sends a response.
+
+```text
+Browser
+   |
+   | Request
+   ↓
+Django
+   |
+   | Response
+   ↓
+Browser
+```
+
+For example:
+
+```python
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello World")
+```
+
+The:
+
+```python
+HttpResponse("Hello World")
+```
+
+is the response.
+
+---
+
+# 3. Request-Response Cycle
+
+The basic cycle is:
+
+```text
+1. User opens URL
+        ↓
+2. Browser creates HTTP request
+        ↓
+3. Django receives request
+        ↓
+4. URL routing finds view
+        ↓
+5. View processes request
+        ↓
+6. View creates response
+        ↓
+7. Django sends response
+        ↓
+8. Browser displays result
+```
+
+Remember this flow for your viva.
+
+---
+
+# 4. The `request` Object
+
+Consider:
+
+```python
+def home(request):
+    ...
+```
+
+The `request` parameter is an instance of Django's `HttpRequest` class.
+
+It contains information about the incoming request.
+
+For example:
+
+```python
+request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user
+```
+
+We'll look at these one by one.
+
+---
+
+# 5. `request.method`
+
+This tells you which HTTP method was used.
+
+Example:
+
+```python
+def home(request):
+    return HttpResponse(request.method)
+```
+
+If you visit the page normally in your browser, you'll usually get:
+
+```text
+GET
+```
+
+because browsers commonly use GET when retrieving a page.
+
+---
+
+# 6. GET Request
+
+GET is generally used when the client wants to **retrieve data**.
+
+Examples:
+
+```text
+/products/
+students/10/
+search/?q=django
+```
+
+Conceptually:
+
+```text
+Browser
+   |
+   | GET /products/
+   ↓
+Django
+   |
+   ↓
+Return products
+```
+
+---
+
+# 7. POST Request
+
+POST is generally used when the client wants to **submit data to the server**.
+
+For example:
+
+```text
+Registration form
+      ↓
+POST
+      ↓
+Django
+      ↓
+Create user
+```
+
+Example data:
+
+```text
+Name = Aman
+Email = aman@example.com
+```
+
+We'll study POST extensively in the Forms unit.
+
+---
+
+# 8. GET vs POST
+
+This is a **very common viva question**.
+
+| GET                                            | POST                                                                             |
+| ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| Usually retrieves data                         | Usually submits data                                                             |
+| Data often appears in URL query string         | Data is sent in request body                                                     |
+| Can be bookmarked/shared with query parameters | Usually not represented by URL                                                   |
+| Should not be relied on for sensitive data     | Better suited for submitting sensitive form data, though HTTPS is still required |
+| Common for searches/filtering                  | Common for login/forms/create operations                                         |
+
+Important:
+
+> **POST is not automatically secure.**
+
+For example, passwords should still be sent over **HTTPS**.
+
+---
+
+# 9. `request.GET`
+
+Django provides:
+
+```python
+request.GET
+```
+
+to access query parameters sent using GET.
+
+Suppose the URL is:
+
+```text
+/search/?name=Aman
+```
+
+Then:
+
+```python
+def search(request):
+    name = request.GET.get('name')
+    return HttpResponse(f"Searching for {name}")
+```
+
+Output:
+
+```text
+Searching for Aman
+```
+
+---
+
+# 10. Why Use `.get()`?
+
+You might write:
+
+```python
+name = request.GET.get('name')
+```
+
+instead of:
+
+```python
+name = request.GET['name']
+```
+
+The `.get()` approach is generally safer when the parameter might be missing.
+
+If:
+
+```text
+/search/
+```
+
+is requested without `name`, then:
+
+```python
+request.GET.get('name')
+```
+
+returns:
+
+```text
+None
+```
+
+whereas:
+
+```python
+request.GET['name']
+```
+
+can raise a `KeyError`.
+
+---
+
+# 11. Example: Simple Search
+
+### `views.py`
+
+```python
+from django.http import HttpResponse
+
+def search(request):
+    name = request.GET.get('name')
+
+    if name:
+        return HttpResponse(f"Searching for {name}")
+
+    return HttpResponse("Please enter a name")
+```
+
+Then:
+
+```text
+/search/?name=Aman
+```
+
+gives:
+
+```text
+Searching for Aman
+```
+
+while:
+
+```text
+/search/
+```
+
+gives:
+
+```text
+Please enter a name
+```
+
+---
+
+# 12. Multiple GET Parameters
+
+Suppose:
+
+```text
+/search/?name=Aman&age=21
+```
+
+Then:
+
+```python
+def search(request):
+    name = request.GET.get('name')
+    age = request.GET.get('age')
+
+    return HttpResponse(
+        f"Name: {name}, Age: {age}"
+    )
+```
+
+Output:
+
+```text
+Name: Aman, Age: 21
+```
+
+---
+
+# 13. Query String
+
+The part after `?` is called the **query string**.
+
+Example:
+
+```text
+/search/?name=Aman&age=21
+```
+
+Here:
+
+```text
+/search/
+```
+
+is the path.
+
+And:
+
+```text
+name=Aman&age=21
+```
+
+is the query string.
+
+---
+
+# 14. `request.path`
+
+You can get the requested path using:
+
+```python
+request.path
+```
+
+Example:
+
+```python
+def home(request):
+    return HttpResponse(request.path)
+```
+
+If you visit:
+
+```text
+/students/
+```
+
+you'll get:
+
+```text
+/students/
+```
+
+---
+
+# 15. `request.method` + `request.path`
+
+You can combine them:
+
+```python
+def home(request):
+    return HttpResponse(
+        f"Method: {request.method}, Path: {request.path}"
+    )
+```
+
+For:
+
+```text
+/students/
+```
+
+you might see:
+
+```text
+Method: GET, Path: /students/
+```
+
+---
+
+# 16. `request.headers`
+
+HTTP requests contain headers.
+
+Django exposes them through:
+
+```python
+request.headers
+```
+
+For example, you can inspect a specific header:
+
+```python
+user_agent = request.headers.get('User-Agent')
+```
+
+This can tell you information about the browser/client.
+
+Don't rely on browser-provided headers as proof of identity or security.
+
+---
+
+# 17. `request.COOKIES`
+
+Django allows you to read cookies using:
+
+```python
+request.COOKIES
+```
+
+For example:
+
+```python
+cookie_value = request.COOKIES.get('username')
+```
+
+We'll study cookies in detail in Unit VI.
+
+For now:
+
+> `request.COOKIES` contains cookies sent by the browser with the request.
+
+---
+
+# 18. `request.user`
+
+Django's authentication system provides:
+
+```python
+request.user
+```
+
+This represents the current user associated with the request.
+
+For example:
+
+```python
+def profile(request):
+    return HttpResponse(
+        f"Hello {request.user}"
+    )
+```
+
+If the user is authenticated, this can represent that user.
+
+We'll study authentication later.
+
+---
+
+# 19. `request.GET` vs `request.POST`
+
+Very important.
+
+### GET data
+
+```python
+request.GET
+```
+
+Example:
+
+```text
+/search/?q=django
+```
+
+### POST data
+
+```python
+request.POST
+```
+
+Example:
+
+```text
+Form submission
+Name = Aman
+```
+
+View:
+
+```python
+def register(request):
+    name = request.POST.get('name')
+```
+
+---
+
+# 20. Handling GET and POST in the Same View
+
+A common pattern is:
+
+```python
+def register(request):
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(f"Registered: {name}")
+
+    return HttpResponse("Registration form")
+```
+
+The logic is:
+
+```text
+Request
+   |
+   ├── GET
+   |    ↓
+   |  Show form
+   |
+   └── POST
+        ↓
+      Process data
+```
+
+This pattern will become very important when we learn Django Forms.
+
+---
+
+# 21. Important Security Point
+
+Never assume:
+
+```python
+request.POST
+```
+
+means the data is automatically safe.
+
+User input can be malicious.
+
+Django provides tools for:
+
+* Validation
+* CSRF protection
+* ORM parameterization
+* Authentication
+* Password hashing
+
+We'll study these throughout the course.
+
+---
+
+# 22. `HttpResponse`
+
+We've already used:
+
+```python
+from django.http import HttpResponse
+```
+
+Example:
+
+```python
+def hello(request):
+    return HttpResponse("Hello")
+```
+
+This creates an HTTP response.
+
+---
+
+# 23. Returning HTML
+
+`HttpResponse` can contain HTML.
+
+Example:
+
+```python
+def home(request):
+    return HttpResponse("<h1>Hello</h1>")
+```
+
+The browser can render:
+
+```text
+Hello
+```
+
+as a heading.
+
+But don't build large webpages this way.
+
+Instead, Django provides **templates**.
+
+We'll learn templates in Unit III.
+
+---
+
+# 24. HTTP Status Codes
+
+An HTTP response includes a status code.
+
+Common codes:
+
+```text
+200 → OK
+201 → Created
+400 → Bad Request
+401 → Unauthorized
+403 → Forbidden
+404 → Not Found
+500 → Internal Server Error
+```
+
+These are extremely useful in web development.
+
+---
+
+# 25. Status Code 200
+
+`200 OK` generally means the request was successfully processed.
+
+A normal:
+
+```python
+return HttpResponse("Hello")
+```
+
+usually produces a response with:
+
+```text
+200
+```
+
+---
+
+# 26. Status Code 404
+
+`404 Not Found` means the requested resource could not be found.
+
+For example:
+
+```text
+/does-not-exist/
+```
+
+if there is no matching URL.
+
+Django can return a 404 response.
+
+---
+
+# 27. Creating a Custom Status Code
+
+You can specify a status code:
+
+```python
+return HttpResponse(
+    "Page not found",
+    status=404
+)
+```
+
+Now the response has status:
+
+```text
+404
+```
+
+---
+
+# 28. Status Code 201
+
+`201 Created` is commonly used when a request successfully creates a resource.
+
+Example:
+
+```python
+return HttpResponse(
+    "Student created",
+    status=201
+)
+```
+
+---
+
+# 29. Status Code 400
+
+`400 Bad Request` generally means the server cannot process the request because it is invalid.
+
+Example:
+
+```python
+return HttpResponse(
+    "Invalid request",
+    status=400
+)
+```
+
+---
+
+# 30. Status Code 403
+
+`403 Forbidden` means the server understood the request but refuses to authorize it.
+
+Example situations include access to a resource the current user isn't allowed to access.
+
+---
+
+# 31. Status Code 401
+
+`401 Unauthorized` traditionally indicates that authentication is required or failed.
+
+The exact semantics are important:
+
+> `401` is about authentication, while `403` is about refusing access despite understanding the request.
+
+Django authentication views and APIs can use these statuses depending on the situation.
+
+---
+
+# 32. `JsonResponse`
+
+Django also provides:
+
+```python
+from django.http import JsonResponse
+```
+
+This is used for returning JSON data.
+
+Example:
+
+```python
+def student(request):
+    data = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return JsonResponse(data)
+```
+
+The response is JSON-like:
+
+```json
+{
+    "name": "Aman",
+    "age": 21
+}
+```
+
+This is especially useful when creating APIs.
+
+---
+
+# 33. `HttpResponse` vs `JsonResponse`
+
+| `HttpResponse`          | `JsonResponse`    |
+| ----------------------- | ----------------- |
+| General HTTP response   | JSON response     |
+| Can return text/HTML    | Designed for JSON |
+| Common for simple views | Common for APIs   |
+
+Example:
+
+```python
+HttpResponse("Hello")
+```
+
+vs:
+
+```python
+JsonResponse({
+    "message": "Hello"
+})
+```
+
+---
+
+# 34. Returning JSON Lists
+
+Suppose:
+
+```python
+data = [
+    {"id": 1, "name": "Aman"},
+    {"id": 2, "name": "Rahul"}
+]
+```
+
+You can use:
+
+```python
+return JsonResponse(data, safe=False)
+```
+
+Why `safe=False`?
+
+By default, `JsonResponse` expects a dictionary-like object.
+
+For a top-level list, `safe=False` is needed.
+
+---
+
+# 35. Important Viva Question
+
+### What is the difference between `HttpResponse` and `JsonResponse`?
+
+Strong answer:
+
+> `HttpResponse` is a general-purpose Django response class for returning content such as text or HTML, while `JsonResponse` is specifically designed to return JSON-encoded data.
+
+---
+
+# 36. Request Object — Important Attributes
+
+You should remember these:
+
+```python
+request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user
+```
+
+Think:
+
+```text
+request
+   |
+   ├── method
+   ├── path
+   ├── GET
+   ├── POST
+   ├── COOKIES
+   ├── headers
+   └── user
+```
+
+---
+
+# 37. Practical Example
+
+Let's create a view that tells us how the request arrived.
+
+```python
+from django.http import HttpResponse
+
+def request_info(request):
+    method = request.method
+    path = request.path
+
+    return HttpResponse(
+        f"Method: {method}<br>"
+        f"Path: {path}"
+    )
+```
+
+If you visit:
+
+```text
+/request-info/
+```
+
+you might get:
+
+```text
+Method: GET
+Path: /request-info/
+```
+
+---
+
+# 38. Practical GET Example
+
+```python
+from django.http import HttpResponse
+
+def greet(request):
+    name = request.GET.get('name', 'Guest')
+
+    return HttpResponse(
+        f"Hello {name}"
+    )
+```
+
+URL:
+
+```text
+/greet/?name=Aman
+```
+
+Output:
+
+```text
+Hello Aman
+```
+
+Without a name:
+
+```text
+/greet/
+```
+
+Output:
+
+```text
+Hello Guest
+```
+
+The second argument to `.get()` provides a default value.
+
+---
+
+# 39. Practical POST Example
+
+Suppose later we have an HTML form:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="name">
+    <button type="submit">Submit</button>
+</form>
+```
+
+Our view can do:
+
+```python
+def submit(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(f"Hello {name}")
+
+    return HttpResponse("Submit the form")
+```
+
+We'll build the full version later.
+
+---
+
+# 40. GET Request Flow
+
+Suppose:
+
+```text
+/greet/?name=Aman
+```
+
+The flow is:
+
+```text
+Browser
+   ↓
+GET /greet/?name=Aman
+   ↓
+Django
+   ↓
+greet(request)
+   ↓
+request.GET.get('name')
+   ↓
+"Aman"
+   ↓
+HttpResponse("Hello Aman")
+   ↓
+Browser
+```
+
+---
+
+# 41. POST Request Flow
+
+Conceptually:
+
+```text
+Browser
+   ↓
+POST /register/
+   ↓
+Django
+   ↓
+register(request)
+   ↓
+request.POST.get('name')
+   ↓
+Process data
+   ↓
+Response
+   ↓
+Browser
+```
+
+---
+
+# 42. GET vs URL Parameters
+
+This is an important distinction.
+
+### Dynamic URL:
+
+```text
+/student/25/
+```
+
+defined with:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student
+)
+```
+
+The `25` is passed directly as a URL argument.
+
+---
+
+### Query parameter:
+
+```text
+/student/?id=25
+```
+
+The `25` is retrieved using:
+
+```python
+request.GET.get('id')
+```
+
+So:
+
+```text
+/student/25/
+      ↓
+URL parameter
+
+/student/?id=25
+      ↓
+GET query parameter
+```
+
+---
+
+# 43. Common Mistake
+
+Don't write:
+
+```python
+request.get('name')
+```
+
+For GET query parameters, use:
+
+```python
+request.GET.get('name')
+```
+
+For POST data:
+
+```python
+request.POST.get('name')
+```
+
+---
+
+# 44. Common Mistake — Using GET for Passwords
+
+Don't design a login form like:
+
+```text
+/login/?username=Aman&password=1234
+```
+
+because query parameters can appear in URLs, browser history, logs, analytics, etc.
+
+Use POST for submitting credentials, and use HTTPS.
+
+Later Django's authentication system will handle this properly.
+
+---
+
+# 45. Common Mistake — Assuming POST Is Automatically Secure
+
+This is another viva trap.
+
+Teacher:
+
+> "Is POST secure?"
+
+Correct answer:
+
+> POST does not by itself provide encryption or security. HTTPS is required to protect data in transit, and the application must also use appropriate validation and security protections.
+
+Excellent answer.
+
+---
+
+# 46. Viva Questions
+
+### Q1. What is an HTTP request?
+
+> An HTTP request is a message sent by a client to a server asking it to perform an operation or return a resource.
+
+### Q2. What is an HTTP response?
+
+> An HTTP response is the message sent by the server back to the client after processing the request.
+
+### Q3. What is `request.method`?
+
+> It contains the HTTP method used for the request, such as GET or POST.
+
+### Q4. What is `request.GET`?
+
+> It provides access to query parameters submitted through the GET request.
+
+### Q5. What is `request.POST`?
+
+> It provides access to form data submitted through a POST request.
+
+### Q6. What is `request.path`?
+
+> It contains the path portion of the requested URL.
+
+### Q7. What is `request.COOKIES`?
+
+> It contains cookies sent by the client with the request.
+
+### Q8. What is `request.user`?
+
+> It represents the user associated with the request through Django's authentication system.
+
+---
+
+# 47. Status Code Viva
+
+### Q: What does 200 mean?
+
+> Successful request.
+
+### Q: What does 201 mean?
+
+> A resource was successfully created.
+
+### Q: What does 400 mean?
+
+> Bad/invalid request.
+
+### Q: What does 401 mean?
+
+> Authentication is required or has failed.
+
+### Q: What does 403 mean?
+
+> The server understood the request but refuses access.
+
+### Q: What does 404 mean?
+
+> Requested resource was not found.
+
+### Q: What does 500 mean?
+
+> Internal server error.
+
+---
+
+# 48. Coding Viva
+
+### Question:
+
+Write a Django view that returns the HTTP method.
+
+Answer:
+
+```python
+from django.http import HttpResponse
+
+def method(request):
+    return HttpResponse(request.method)
+```
+
+---
+
+### Question:
+
+Get a `name` from the URL query string.
+
+For:
+
+```text
+/greet/?name=Aman
+```
+
+Answer:
+
+```python
+def greet(request):
+    name = request.GET.get('name')
+    return HttpResponse(f"Hello {name}")
+```
+
+---
+
+### Question:
+
+Return a JSON response.
+
+```python
+from django.http import JsonResponse
+
+def student(request):
+    data = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return JsonResponse(data)
+```
+
+---
+
+# 49. Predict the Output
+
+Given:
+
+```python
+def test(request):
+    name = request.GET.get('name', 'Guest')
+    return HttpResponse(f"Hello {name}")
+```
+
+### Request:
+
+```text
+/test/?name=Rahul
+```
+
+Output:
+
+```text
+Hello Rahul
+```
+
+### Request:
+
+```text
+/test/
+```
+
+Output:
+
+```text
+Hello Guest
+```
+
+---
+
+# 50. Predict the Output — POST
+
+Given:
+
+```python
+def test(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        return HttpResponse(name)
+
+    return HttpResponse("GET request")
+```
+
+### GET:
+
+```text
+/test/
+```
+
+Output:
+
+```text
+GET request
+```
+
+### POST with:
+
+```text
+name=Aman
+```
+
+Output:
+
+```text
+Aman
+```
+
+---
+
+# ⭐ Module 8 — What You Must Remember
+
+The most important concepts:
+
+```text
+HTTP Request
+      ↓
+Django View
+      ↓
+HTTP Response
+```
+
+### Request:
+
+```python
+request.method
+request.path
+request.GET
+request.POST
+request.COOKIES
+request.headers
+request.user
+```
+
+### GET:
+
+```python
+request.GET.get('name')
+```
+
+### POST:
+
+```python
+request.POST.get('name')
+```
+
+### Response:
+
+```python
+HttpResponse("Hello")
+```
+
+### JSON:
+
+```python
+JsonResponse({"name": "Aman"})
+```
+
+### Important status codes:
+
+```text
+200 → OK
+201 → Created
+400 → Bad Request
+401 → Authentication required/failed
+403 → Forbidden
+404 → Not Found
+500 → Server Error
+```
+
+---
+
+# 🎯 Module 8 Practical Test
+
+Try solving these **without looking above**.
+
+### Q1
+
+Write a view that displays:
+
+```text
+HTTP Method: GET
+```
+
+when the browser sends a GET request.
+
+---
+
+### Q2
+
+Create a view that accepts:
+
+```text
+/greet/?name=Aman
+```
+
+and displays:
+
+```text
+Hello Aman
+```
+
+---
+
+### Q3
+
+Create a view that accepts:
+
+```text
+/student/25/
+```
+
+and displays:
+
+```text
+Student ID: 25
+```
+
+**Hint:** This one uses a URL parameter, not `request.GET`.
+
+---
+
+### Q4
+
+Create a view that returns:
+
+```json
+{
+    "name": "Aman",
+    "course": "Django"
+}
+```
+
+using `JsonResponse`.
+
+---
+
+### Q5
+
+Explain the difference between:
+
+```text
+/student/25/
+```
+
+and:
+
+```text
+/student/?id=25
+```
+
+---
+
+### Q6
+
+What is the difference between:
+
+```python
+request.GET
+```
+
+and:
+
+```python
+request.POST
+```
+
+---
+
+### Q7
+
+Teacher asks:
+
+> "Is POST secure?"
+
+Give the technically correct answer.
+
+---
+
+### Q8
+
+Teacher asks:
+
+> "What happens if I access `/abc/` but no URL pattern matches it?"
+
+Explain what Django does.
+
+---
+
+When you're ready, say **“next”**.
+
+## Module 9 — URL Parameters in Depth
+
+We'll go deeper into your syllabus topic **"Mapping URLs with Params"**:
+
+```text
+<int:id>
+<str:name>
+<slug:slug>
+<uuid:id>
+<path:path>
+```
+
+We'll also learn:
+
+* Multiple parameters
+* Passing parameters to views
+* Optional-looking URL designs
+* URL reversing
+* Named URLs
+* `reverse()`
+* `redirect()`
+* Practical coding questions
+* Tricky viva questions on URL parameters

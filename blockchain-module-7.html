@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: Digital Signatures + Cryptographic Constructs — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 7 of 13: Digital Signatures + Cryptographic Constructs.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['$$', '$$']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain_guide.html" class="nav-action-pill" title="Read all modules in single document">📖 Full Guide</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 7 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Digital Signatures + Cryptographic Constructs</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<span class="nav-item current">7. Digital Signatures + Cryptographic Constructs</span>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<h1 id="h-513-module-7-digital-signatures-cryptographic-construc">MODULE 7 — DIGITAL SIGNATURES + CRYPTOGRAPHIC CONSTRUCTS</h1>
+<h3 id="h-514-final-part-of-unit-ii">Final part of Unit II 🔐</h3>
+<p>We have covered the basic public-key cryptography, RSA and ECC. Your PPT then goes deeper into <strong>different types of digital signatures, commitment schemes, encoding schemes, and applications of cryptographic hash functions</strong>. These are still part of the material you shared, so they are worth preparing because a <strong>5-mark or 10-mark theory question</strong> can be formed from them.</p>
+<hr>
+<h1 id="h-515-1-digital-signature">1. Digital Signature ⭐⭐⭐⭐⭐</h1>
+<p>First make this absolutely clear:</p>
+<blockquote>A <strong>digital signature</strong> is a cryptographic mechanism that allows a signer to prove that a message was signed using their private key and allows others to verify it using the corresponding public key.</blockquote>
+<p>Your PPT states:</p>
+<blockquote><strong>Signer → private key</strong></blockquote>
+<blockquote><strong>Verifier → signer's public key</strong></blockquote>
+<h3 id="h-516-basic-process">Basic process</h3>
+<pre id="5g1x7d">                 MESSAGE
+                    │
+                    ↓
+                  HASH
+                    │
+                    ↓
+             MESSAGE DIGEST
+                    │
+                    ↓
+          Sign with PRIVATE KEY
+                    │
+                    ↓
+           DIGITAL SIGNATURE
+                    │
+          ┌─────────┴─────────┐
+          ↓                   ↓
+       Message             Signature
+          │                   │
+          └─────────┬─────────┘
+                    ↓
+                VERIFIER
+                    │
+             PUBLIC KEY
+                    ↓
+              Verification</pre>
+<hr>
+<h1 id="h-517-2-why-hash-the-message-before-signing">2. Why Hash the Message Before Signing?</h1>
+<p>Suppose the message is extremely large:</p>
+<pre>10 MB message</pre>
+<p>Instead of directly signing the entire message, we can:</p>
+<pre>10 MB message
+      ↓
+    HASH
+      ↓
+Fixed-size digest
+      ↓
+    SIGN</pre>
+<p>This makes the signing operation more efficient.</p>
+<p>Your PPT specifically includes <strong>RSA signature on the message digest</strong>.</p>
+<hr>
+<h1 id="h-518-3-what-does-a-digital-signature-provide">3. What Does a Digital Signature Provide?</h1>
+<p>The major properties you should remember are:</p>
+<h3 id="h-519-1-authentication">1. Authentication</h3>
+<p>Helps establish who signed the message.</p>
+<h3 id="h-520-2-integrity">2. Integrity</h3>
+<p>If the message is modified, signature verification should fail.</p>
+<h3 id="h-521-3-non-repudiation">3. Non-repudiation</h3>
+<p>Provides evidence that can help prevent the signer from credibly denying the signing action.</p>
+<h3 id="h-522-easy-memory">Easy memory:</h3>
+<blockquote><strong>A-I-N</strong></blockquote>
+<p><strong>A</strong>uthentication <strong>I</strong>ntegrity <strong>N</strong>on-repudiation</p>
+<hr>
+<h1 id="h-523-4-digital-signature-vs-encryption">4. Digital Signature vs Encryption</h1>
+<p>This is an extremely common exam question.</p>
+<table>
+<tr>
+<th>Digital Signature</th>
+<th>Encryption</th>
+</tr>
+<tr>
+<td>Provides authentication/integrity</td>
+<td>Provides confidentiality</td>
+</tr>
+<tr>
+<td>Sign with private key</td>
+<td>Encrypt using receiver's public key</td>
+</tr>
+<tr>
+<td>Verify with public key</td>
+<td>Decrypt using receiver's private key</td>
+</tr>
+<tr>
+<td>Proves/signifies origin of message</td>
+<td>Hides message contents</td>
+</tr>
+<tr>
+<td>Used heavily in blockchain transactions</td>
+<td>Used when confidentiality is required</td>
+</tr>
+</table>
+<h3 id="h-524-remember">Remember:</h3>
+<pre id="0vqh4k">SIGNATURE:
+Private → Sign
+Public  → Verify
+
+ENCRYPTION:
+Public  → Encrypt
+Private → Decrypt</pre>
+<hr>
+<h1 id="h-525-5-types-of-digital-signatures">5. Types of Digital Signatures ⭐⭐⭐⭐⭐</h1>
+<p>Your PPT specifically lists four types:</p>
+<ol>
+<li><strong>Blind signatures</strong></li>
+<li><strong>Multisignatures</strong></li>
+<li><strong>Threshold signatures</strong></li>
+<li><strong>Aggregate signatures</strong></li>
+</ol>
+<p>These are important.</p>
+<hr>
+<h1 id="h-526-6-blind-signature">6. Blind Signature ⭐⭐⭐⭐⭐</h1>
+<p>The idea is very interesting:</p>
+<blockquote>The signer signs a message <strong>without actually seeing the message</strong>.</blockquote>
+<p>Your PPT says the message is first disguised/blinded before signing.</p>
+<p>Conceptually:</p>
+<pre id="qj7j1d">Original Message
+       ↓
+    BLINDING
+       ↓
+Blinded Message
+       ↓
+     SIGN
+       ↓
+Blind Signature
+       ↓
+    UNBLIND
+       ↓
+Signature on original message</pre>
+<p>The signer never learns the original content.</p>
+<hr>
+<h1 id="h-527-7-why-blind-signatures">7. Why Blind Signatures?</h1>
+<p>One important application mentioned in your PPT:</p>
+<blockquote><strong>Digital cash</strong></blockquote>
+<p>Blind signatures can allow someone to obtain a valid signature without revealing the underlying message/value to the signer.</p>
+<p>Your PPT also mentions Blindcoin/Mixcoin-related use for hiding addresses from a mixing service.</p>
+<h3 id="h-528-exam-definition">Exam definition:</h3>
+<blockquote><strong>A blind signature allows a signer to sign a message without learning the message itself.</strong></blockquote>
+<hr>
+<h1 id="h-529-8-multisignature-multi-sig">8. Multisignature — Multi-Sig ⭐⭐⭐⭐⭐</h1>
+<p>A multisignature scheme allows:</p>
+<blockquote><strong>Multiple users to sign one message/transaction.</strong></blockquote>
+<p>Your PPT says multiple unique keys held by different owners can be used to sign a single message.</p>
+<p>Example:</p>
+<pre id="w4xj4m">Alice ──┐
+Bob   ──┼──→ Transaction
+Charlie ─┘
+          ↓
+     Multiple signatures
+          ↓
+       Authorized</pre>
+<hr>
+<h1 id="h-530-9-real-world-example-of-multisig">9. Real-World Example of Multisig</h1>
+<p>Suppose a company wants <strong>2 out of 3 directors</strong> to approve a transaction.</p>
+<pre id="k9e2qy">Alice
+Bob
+Charlie
+
+2 signatures required
+
+Alice + Bob       → ACCEPT
+Alice + Charlie   → ACCEPT
+Bob + Charlie     → ACCEPT
+
+Alice only        → REJECT</pre>
+<p>This increases security because one compromised key may not be enough.</p>
+<p>Your PPT notes that multisignatures can set a required number of signatures to authorize transactions and have been implemented in Bitcoin.</p>
+<hr>
+<h1 id="h-531-10-threshold-signatures">10. Threshold Signatures ⭐⭐⭐⭐⭐</h1>
+<p>Threshold signatures are related to secret sharing.</p>
+<p>The basic concept is:</p>
+<pre id="t6b3gy">Private Key
+     ↓
+Split into shares
+     ↓
+┌────┬────┬────┬────┐
+A    B    C    D</pre>
+<p>A required number of participants use their shares to participate in signing.</p>
+<p>Your PPT emphasizes that threshold signatures split the private key into multiple parts, with each signer holding a share.</p>
+<hr>
+<h1 id="h-532-11-threshold-vs-multisignature">11. Threshold vs Multisignature</h1>
+<p>This distinction can earn marks.</p>
+<h3 id="h-533-multisignature">Multisignature</h3>
+<pre id="fzr3yn">Different users
+     ↓
+Different private keys
+     ↓
+Multiple signatures</pre>
+<h3 id="h-534-threshold-signature">Threshold signature</h3>
+<pre id="8jrxzt">One distributed private key
+        ↓
+Key shares
+        ↓
+Participants cooperate
+        ↓
+One resulting signature</pre>
+<p>Your PPT specifically says threshold signatures can produce <strong>one digital signature</strong> verified with <strong>one public key</strong>, resulting in smaller transactions and faster verification.</p>
+<hr>
+<h1 id="h-535-12-aggregate-signatures">12. Aggregate Signatures ⭐⭐⭐⭐⭐</h1>
+<p>Aggregate signatures combine multiple signatures into:</p>
+<blockquote><strong>A single compact signature.</strong></blockquote>
+<p>Your PPT explains that the purpose is to reduce signature size when multiple signatures are used.</p>
+<p>Example:</p>
+<pre id="s5w7lq">Signature A ─┐
+Signature B ─┼──→ AGGREGATION → One signature
+Signature C ─┘</pre>
+<p>The verifier can use the aggregate signature to verify that the relevant users signed their messages.</p>
+<hr>
+<h1 id="h-536-13-aggregate-signature-example">13. Aggregate Signature Example</h1>
+<p>Suppose:</p>
+<pre id="0m3qwb">Message A → Signature A
+Message B → Signature B
+Message C → Signature C</pre>
+<p>Without aggregation:</p>
+<pre>A + B + C = 3 signatures</pre>
+<p>With aggregation:</p>
+<pre>A + B + C
+    ↓
+One aggregate signature</pre>
+<p>This reduces communication/storage overhead.</p>
+<p>Your PPT gives <strong>Boneh–Lynn–Shacham (BLS)</strong> aggregate signatures as a popular example and notes their use in blockchains, including Ethereum 2.0.</p>
+<hr>
+<h1 id="h-537-14-multisignature-vs-threshold-vs-aggregate">14. Multisignature vs Threshold vs Aggregate</h1>
+<p>🔥 <strong>Memorize this table.</strong></p>
+<table>
+<tr>
+<th>Type</th>
+<th>Main idea</th>
+</tr>
+<tr>
+<td><strong>Blind</strong></td>
+<td>Sign without seeing the message</td>
+</tr>
+<tr>
+<td><strong>Multisignature</strong></td>
+<td>Multiple users sign one message</td>
+</tr>
+<tr>
+<td><strong>Threshold</strong></td>
+<td>Key divided into shares; sufficient participants cooperate</td>
+</tr>
+<tr>
+<td><strong>Aggregate</strong></td>
+<td>Multiple signatures combined into one compact signature</td>
+</tr>
+</table>
+<hr>
+<h1 id="h-538-15-commitment-schemes">15. Commitment Schemes ⭐⭐⭐⭐⭐</h1>
+<p>Your PPT describes commitment schemes as the cryptographic equivalent of a <strong>sealed envelope</strong>.</p>
+<p>Imagine:</p>
+<pre id="b8u4m5">Alice chooses a secret value
+          ↓
+     Put it in sealed
+       envelope
+          ↓
+      COMMIT
+          ↓
+Later...
+          ↓
+       OPEN
+          ↓
+      Reveal value</pre>
+<p>The commitment itself should not reveal the actual value.</p>
+<hr>
+<h1 id="h-539-16-two-phases-of-commitment">16. Two Phases of Commitment</h1>
+<p>Your PPT explicitly identifies:</p>
+<h3 id="h-540-1-commit-phase">1. Commit phase</h3>
+<p>The sender commits to the value.</p>
+<h3 id="h-541-2-open-phase">2. Open phase</h3>
+<p>The sender reveals the value and information needed for verification.</p>
+<h3 id="h-542-easy-memory">Easy memory:</h3>
+<blockquote><strong>Commit → Hide</strong></blockquote>
+<blockquote><strong>Open → Reveal</strong></blockquote>
+<hr>
+<h1 id="h-543-17-properties-of-commitment-schemes">17. Properties of Commitment Schemes</h1>
+<p>The two important conceptual properties are:</p>
+<h3 id="h-544-hiding">Hiding</h3>
+<p>The commitment doesn't reveal the committed value.</p>
+<h3 id="h-545-binding">Binding</h3>
+<p>After committing, the sender should not be able to change the value.</p>
+<p>Think:</p>
+<pre id="xsk8jw">COMMIT
+  ↓
+"I choose X"
+  ↓
+Cannot secretly change X → Y</pre>
+<hr>
+<h1 id="h-546-18-encoding-schemes">18. Encoding Schemes ⭐⭐⭐⭐</h1>
+<p>⚠️ Very important:</p>
+<blockquote><strong>Encoding is NOT encryption.</strong></blockquote>
+<p>Encoding changes representation; it is not intended to provide confidentiality.</p>
+<p>Your PPT covers:</p>
+<ul>
+<li>Base64</li>
+<li>Base58</li>
+</ul>
+<hr>
+<h1 id="h-547-19-base64">19. Base64</h1>
+<p>Base64 converts binary data into printable characters.</p>
+<p>Your PPT states:</p>
+<blockquote>Base64 is used to encode binary data into printable characters.</blockquote>
+<p>Conceptually:</p>
+<pre id="a7i3ka">Binary data
+    ↓
+ Base64
+    ↓
+Printable characters</pre>
+<h3 id="h-548-important">Important:</h3>
+<p>Base64 <strong>doesn't provide secrecy</strong>.</p>
+<p>Anyone can decode Base64.</p>
+<hr>
+<h1 id="h-549-20-base58">20. Base58 ⭐⭐⭐⭐⭐</h1>
+<p>Base58 is particularly relevant to Bitcoin.</p>
+<p>Your PPT says Base58 was first introduced with Bitcoin and is used to encode integers into alphanumeric strings.</p>
+<p>Why?</p>
+<p>It avoids confusing characters.</p>
+<p>For example:</p>
+<pre id="9h6d5n">0  O
+1  I
+l</pre>
+<p>Characters that can easily be confused are avoided.</p>
+<p>This is useful for Bitcoin addresses because confusing characters could result in sending funds to an incorrect address.</p>
+<hr>
+<h1 id="h-550-21-base64-vs-base58">21. Base64 vs Base58</h1>
+<table>
+<tr>
+<th>Base64</th>
+<th>Base58</th>
+</tr>
+<tr>
+<td>Encodes binary data</td>
+<td>Used for compact alphanumeric representation</td>
+</tr>
+<tr>
+<td>Printable characters</td>
+<td>Avoids visually confusing characters</td>
+</tr>
+<tr>
+<td>Common in many systems</td>
+<td>Strongly associated with Bitcoin addresses</td>
+</tr>
+<tr>
+<td>Not encryption</td>
+<td>Not encryption</td>
+</tr>
+</table>
+<hr>
+<h1 id="h-551-22-applications-of-cryptographic-hash-functions">22. Applications of Cryptographic Hash Functions ⭐⭐⭐⭐⭐</h1>
+<p>Your PPT specifically lists:</p>
+<ol>
+<li><strong>Merkle Trees</strong></li>
+<li><strong>Patricia Trees</strong></li>
+<li><strong>Distributed Hash Tables</strong></li>
+</ol>
+<p>These are important blockchain-related applications.</p>
+<hr>
+<h1 id="h-552-23-merkle-tree">23. Merkle Tree ⭐⭐⭐⭐⭐</h1>
+<p>A Merkle tree is a tree structure where hashes are used to summarize data.</p>
+<p>Suppose we have four transactions:</p>
+<pre id="s4v2bb">T1     T2     T3     T4
+│      │      │      │
+Hash   Hash   Hash   Hash
+ \      /       \     /
+  H12             H34
+      \           /
+        ROOT</pre>
+<p>The root is called the:</p>
+<blockquote><strong>Merkle Root</strong></blockquote>
+<hr>
+<h1 id="h-553-24-why-merkle-trees">24. Why Merkle Trees?</h1>
+<p>They allow efficient verification of whether a particular transaction belongs to a set of transactions.</p>
+<p>Instead of sending every transaction:</p>
+<pre id="h9k2g1">T1 T2 T3 T4 T5 T6 T7 T8</pre>
+<p>you can provide a relatively small set of hashes forming a <strong>Merkle proof</strong>.</p>
+<p>This is particularly useful for blockchain data structures.</p>
+<hr>
+<h1 id="h-554-25-patricia-tree">25. Patricia Tree</h1>
+<p>Your PPT lists <strong>Patricia Tree</strong> as another application of cryptographic hash functions.</p>
+<p>For your exam, remember:</p>
+<blockquote><strong>Patricia trees are trie-based data structures used to efficiently store and retrieve key-value information.</strong></blockquote>
+<p>They are especially important in blockchain systems such as Ethereum.</p>
+<hr>
+<h1 id="h-555-26-distributed-hash-table-dht">26. Distributed Hash Table — DHT</h1>
+<p>You already encountered this in the decentralization module.</p>
+<p>A DHT distributes key-value information across nodes in a peer-to-peer network.</p>
+<p>Conceptually:</p>
+<pre id="6pj7d0">Key
+ ↓
+Hash
+ ↓
+Determine responsible node
+ ↓
+Store / retrieve data</pre>
+<p>Your PPT lists DHT as an application of cryptographic hash functions.</p>
+<hr>
+<h1 id="h-556-27-big-picture-all-cryptographic-constructs">🔥 27. BIG PICTURE — ALL CRYPTOGRAPHIC CONSTRUCTS</h1>
+<p>This is what you should reproduce if asked:</p>
+<h3 id="h-557-explain-cryptographic-constructs-used-in-blockchai">"Explain cryptographic constructs used in blockchain."</h3>
+<pre id="f9m8e7">             CRYPTOGRAPHIC CONSTRUCTS
+                       │
+      ┌────────────────┼────────────────┐
+      ↓                ↓                ↓
+   Encryption       Signatures         Hash
+      │                │                │
+      ↓                ↓                ↓
+ Confidentiality   Authentication    Integrity
+                   Non-repudiation
+                       │
+       ┌───────────────┼───────────────┐
+       ↓               ↓               ↓
+     Blind         Multisig        Threshold
+   Signature       Signature       Signature
+                       │
+                       ↓
+                  Aggregate
+                   Signature
+
+       Other Constructs
+             │
+     ┌───────┼──────────┐
+     ↓       ↓          ↓
+ Homomorphic Signcryption Secret
+ Encryption             Sharing
+     │
+     └──────────┬─────────────┐
+                ↓             ↓
+          Commitment          ZKP
+            Scheme</pre>
+<p>Your PPT explicitly groups these constructs together.</p>
+<hr>
+<h1 id="h-558-28-very-likely-5-mark-questions">🎯 28. VERY LIKELY 5-MARK QUESTIONS</h1>
+<p>Prepare these word-for-word in concept:</p>
+<h3 id="h-559-q1-what-is-a-digital-signature">Q1. What is a digital signature?</h3>
+<blockquote>A cryptographic mechanism in which the signer uses a private key to create a signature and the verifier uses the signer's public key to verify it.</blockquote>
+<hr>
+<h3 id="h-560-q2-explain-blind-signatures">Q2. Explain blind signatures.</h3>
+<p><strong>Key points:</strong></p>
+<ul>
+<li>Based on public-key signatures</li>
+<li>Message is blinded</li>
+<li>Signer doesn't see actual message</li>
+<li>Signature can later be verified against original message</li>
+<li>Used in digital cash</li>
+</ul>
+<hr>
+<h3 id="h-561-q3-what-is-multisignature">Q3. What is multisignature?</h3>
+<blockquote>Multiple users use their own keys to sign a single message/transaction.</blockquote>
+<p>Mention:</p>
+<blockquote>Bitcoin supports multisignature transactions.</blockquote>
+<hr>
+<h3 id="h-562-q4-what-is-threshold-signature">Q4. What is threshold signature?</h3>
+<p>Mention:</p>
+<ul>
+<li>Private key split into shares</li>
+<li>Participants hold shares</li>
+<li>Sufficient participants cooperate</li>
+<li>One resulting signature</li>
+<li>One public key for verification</li>
+<li>Smaller transaction/quicker verification</li>
+</ul>
+<hr>
+<h3 id="h-563-q5-what-is-aggregate-signature">Q5. What is aggregate signature?</h3>
+<blockquote>Multiple signatures are combined into one compact signature.</blockquote>
+<p>Mention <strong>BLS</strong>.</p>
+<hr>
+<h3 id="h-564-q6-what-is-a-commitment-scheme">Q6. What is a commitment scheme?</h3>
+<blockquote>Cryptographic equivalent of a sealed envelope with Commit and Open phases.</blockquote>
+<hr>
+<h3 id="h-565-q7-differentiate-base64-and-base58">Q7. Differentiate Base64 and Base58.</h3>
+<p>Remember:</p>
+<blockquote><strong>Base64 → binary → printable characters</strong></blockquote>
+<blockquote><strong>Base58 → Bitcoin/alphanumeric representation → avoids confusing characters</strong></blockquote>
+<hr>
+<h3 id="h-566-q8-explain-applications-of-cryptographic-hash-func">Q8. Explain applications of cryptographic hash functions.</h3>
+<p>Write:</p>
+<ul>
+<li>Merkle Tree</li>
+<li>Patricia Tree</li>
+<li>Distributed Hash Table</li>
+</ul>
+<hr>
+<h1 id="h-567-29-very-likely-10-mark-questions">🔥 29. VERY LIKELY 10-MARK QUESTIONS</h1>
+<h2 id="h-568-question-1-digital-signatures">Question 1 — Digital Signatures</h2>
+<h3 id="h-569-explain-digital-signatures-and-their-different-typ">"Explain digital signatures and their different types."</h3>
+<p>Answer structure:</p>
+<pre>Definition
+ ↓
+Need for public/private keys
+ ↓
+Signing process
+ ↓
+Verification process
+ ↓
+Authentication
+ ↓
+Integrity
+ ↓
+Non-repudiation
+ ↓
+Types:
+   Blind
+   Multisignature
+   Threshold
+   Aggregate
+ ↓
+Blockchain applications</pre>
+<hr>
+<h1 id="h-570-question-2-cryptographic-constructs">Question 2 — Cryptographic Constructs</h1>
+<h3 id="h-571-explain-various-cryptographic-constructs-used-in-b">"Explain various cryptographic constructs used in blockchain."</h3>
+<p>Write:</p>
+<h3 id="h-572-1-homomorphic-encryption">1. Homomorphic encryption</h3>
+<p>Operations on encrypted data.</p>
+<h3 id="h-573-2-signcryption">2. Signcryption</h3>
+<p>Encryption + signature.</p>
+<h3 id="h-574-3-secret-sharing">3. Secret sharing</h3>
+<p>Split secret among participants.</p>
+<h3 id="h-575-4-commitment">4. Commitment</h3>
+<p>Commit now, reveal later.</p>
+<h3 id="h-576-5-zero-knowledge-proof">5. Zero-knowledge proof</h3>
+<p>Prove knowledge without revealing the secret.</p>
+<h3 id="h-577-6-digital-signatures">6. Digital signatures</h3>
+<p>Authentication + integrity + non-repudiation.</p>
+<h3 id="h-578-7-advanced-signature-schemes">7. Advanced signature schemes</h3>
+<p>Blind, multisignature, threshold, aggregate.</p>
+<hr>
+<h1 id="h-579-question-3-digital-signature-types">Question 3 — Digital Signature Types</h1>
+<p>This is a particularly good 10-marker:</p>
+<pre id="zj9xra">Digital Signatures
+       │
+ ┌─────┼─────┬──────┐
+ ↓     ↓     ↓      ↓
+Blind Multi Threshold Aggregate</pre>
+<p>Explain each with an example/application.</p>
+<hr>
+<h1 id="h-580-30-final-unit-ii-master-map">🧠 30. FINAL UNIT-II MASTER MAP</h1>
+<p>You have now covered the entire syllabus:</p>
+<pre id="y5f3nw">                    UNIT II
+                       │
+        ┌──────────────┴──────────────┐
+        ↓                             ↓
+ SYMMETRIC CRYPTO              PUBLIC KEY CRYPTO
+        │                             │
+   ┌────┴────┐                 ┌──────┼──────┐
+   ↓         ↓                 ↓      ↓      ↓
+ Stream    Block              RSA     ECC  Signatures
+   │         │
+  RC4       AES
+             │
+      ┌──────┼───────┐
+      ↓      ↓       ↓
+  SubBytes ShiftRows MixColumns
+                     ↓
+                AddRoundKey
+                     │
+                     ↓
+                  AES
+                     │
+                     ↓
+               OpenSSL AES
+                     
+PUBLIC KEY
+    │
+    ├── RSA
+    ├── ECC
+    ├── Digital Signatures
+    │     ├── Blind
+    │     ├── Multisignature
+    │     ├── Threshold
+    │     └── Aggregate
+    │
+    └── Cryptographic Constructs
+          ├── Homomorphic Encryption
+          ├── Signcryption
+          ├── Secret Sharing
+          ├── Commitment
+          └── Zero-Knowledge Proofs
+
+ENCODING
+   ├── Base64
+   └── Base58
+
+HASH APPLICATIONS
+   ├── Merkle Tree
+   ├── Patricia Tree
+   └── DHT</pre>
+<hr>
+<h1 id="h-581-your-exam-priority-now">🚨 Your Exam Priority Now</h1>
+<p>Since you've gone through all the modules, <strong>don't keep endlessly reading theory</strong>. The next best step is <strong>active recall + answer writing</strong>.</p>
+<h3 id="h-582-must-be-able-to-write-a-10-mark-answer-from-memory">🔴 Must be able to write a 10-mark answer from memory:</h3>
+<ol>
+<li><strong>AES algorithm</strong></li>
+<li><strong>RSA cryptosystem</strong></li>
+<li><strong>Digital signatures</strong></li>
+<li><strong>Consensus protocols</strong></li>
+<li><strong>Decentralization using blockchain</strong></li>
+<li><strong>Cryptographic constructs</strong></li>
+<li><strong>DApps / decentralization ecosystem</strong></li>
+</ol>
+<h3 id="h-583-must-know-for-5-marks">🟠 Must know for 5 marks:</h3>
+<ul>
+<li>PoW vs PoS</li>
+<li>PBFT</li>
+<li>Byzantine vs fail-stop</li>
+<li>DPoS</li>
+<li>Ethereum</li>
+<li>Stream vs block cipher</li>
+<li>AES parameters</li>
+<li>ECC</li>
+<li>Homomorphic encryption</li>
+<li>Signcryption</li>
+<li>Secret sharing</li>
+<li>Commitment scheme</li>
+<li>ZKP</li>
+<li>Blind/multisig/threshold/aggregate signatures</li>
+<li>Base64 vs Base58</li>
+<li>Merkle tree</li>
+<li>Patricia tree</li>
+<li>DHT</li>
+</ul>
+<p><strong>At this point, the syllabus content is covered.</strong> The smartest next step is for me to put you through a <strong>mock university exam</strong>: I'll give you 5-mark and 10-mark questions one at a time, you answer without looking, and I'll <strong>mark/correct your answer exactly like an examiner</strong>.</p>
+
+
+<div class="module-separator" id="module-8">
+    <div class="module-badge">Module 8</div>
+</div>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-6.html">&larr; Module 6</a>
+        <a class="pn-reader" href="blockchain_guide.html">📖 Single-Page Reader View</a>
+        <a class="pn-btn" href="blockchain-module-8.html">Module 8 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

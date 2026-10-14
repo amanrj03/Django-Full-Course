@@ -1,0 +1,1182 @@
+# Module 11 — Error Handling in Django
+
+This is the last topic of **Unit II**.
+
+Error handling is very important for both **viva and practical coding**, because your teacher can easily ask:
+
+* What happens when a URL doesn't exist?
+* What is a 404 error?
+* Difference between 404 and 500?
+* What is `Http404`?
+* What is `get_object_or_404()`?
+* Why should `DEBUG=False` be used in production?
+
+Let's start from zero.
+
+---
+
+# 1. What Is an Error?
+
+An error occurs when the application cannot complete the requested operation normally.
+
+For example:
+
+```text
+User requests:
+    /student/999/
+          ↓
+Django
+          ↓
+Student doesn't exist
+          ↓
+404 Not Found
+```
+
+Or:
+
+```text
+View contains a programming error
+          ↓
+Django cannot execute it
+          ↓
+500 Internal Server Error
+```
+
+---
+
+# 2. HTTP Error Status Codes
+
+You've already seen status codes in Module 8.
+
+The important error codes are:
+
+| Code  | Meaning               |
+| ----- | --------------------- |
+| `400` | Bad Request           |
+| `401` | Unauthorized          |
+| `403` | Forbidden             |
+| `404` | Not Found             |
+| `500` | Internal Server Error |
+
+For Django URL/view error handling, **404 and 500 are particularly important**.
+
+---
+
+# 3. 404 — Not Found
+
+A `404` means:
+
+> The requested resource could not be found.
+
+For example:
+
+```text
+http://127.0.0.1:8000/hello/
+```
+
+If there is no matching URL pattern, Django returns:
+
+```text
+404 Not Found
+```
+
+---
+
+# 4. What Happens When a URL Doesn't Match?
+
+Suppose your `urls.py` contains:
+
+```python
+urlpatterns = [
+    path('home/', views.home),
+]
+```
+
+User requests:
+
+```text
+/about/
+```
+
+Django checks:
+
+```text
+/about/
+   ↓
+Does it match home/?
+   ↓
+No
+   ↓
+No other matching pattern
+   ↓
+404 Not Found
+```
+
+---
+
+# 5. `DEBUG=True`
+
+During development, Django normally has:
+
+```python
+DEBUG = True
+```
+
+When an error occurs, Django displays a detailed debugging page.
+
+For example, if your Python code contains an error:
+
+```python
+def home(request):
+    print(x)
+```
+
+where `x` doesn't exist, Django can show a detailed traceback.
+
+This is extremely useful during development.
+
+---
+
+# 6. Why Is `DEBUG=True` Dangerous in Production?
+
+Because the detailed error page can reveal sensitive technical information, such as:
+
+* File paths
+* Code details
+* Configuration information
+* Stack traces
+* Environment information
+
+Therefore:
+
+```python
+DEBUG = True
+```
+
+is for development.
+
+Production should generally use:
+
+```python
+DEBUG = False
+```
+
+---
+
+# 7. `Http404`
+
+Django provides:
+
+```python
+from django.http import Http404
+```
+
+You can explicitly raise a 404 error.
+
+Example:
+
+```python
+def student(request, id):
+
+    if id != 1:
+        raise Http404("Student not found")
+
+    return HttpResponse("Student found")
+```
+
+If the ID isn't `1`, Django raises a 404.
+
+---
+
+# 8. What Does `raise Http404` Mean?
+
+This:
+
+```python
+raise Http404
+```
+
+means:
+
+> Stop processing this view and tell Django that the requested resource was not found.
+
+You can also provide a message:
+
+```python
+raise Http404("Student not found")
+```
+
+---
+
+# 9. Example With a List
+
+Suppose:
+
+```python
+students = [
+    "Aman",
+    "Rahul",
+    "Rohit"
+]
+```
+
+We can write:
+
+```python
+from django.http import Http404, HttpResponse
+
+def student(request, id):
+
+    if id < 1 or id > len(students):
+        raise Http404("Student not found")
+
+    return HttpResponse(
+        students[id - 1]
+    )
+```
+
+Now:
+
+```text
+/student/1/
+```
+
+returns:
+
+```text
+Aman
+```
+
+while:
+
+```text
+/student/10/
+```
+
+raises a 404.
+
+---
+
+# 10. `get_object_or_404()`
+
+One of the **most important Django shortcuts** is:
+
+```python
+get_object_or_404()
+```
+
+Import it:
+
+```python
+from django.shortcuts import get_object_or_404
+```
+
+It is commonly used with Django models.
+
+Suppose we have a model:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+We could write:
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+If the student exists:
+
+```text
+Student object
+```
+
+is returned.
+
+If it doesn't exist:
+
+```text
+404 Not Found
+```
+
+is raised.
+
+---
+
+# 11. Why Is `get_object_or_404()` Useful?
+
+Without it, you might write:
+
+```python
+try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404("Student not found")
+```
+
+That's valid.
+
+But Django provides:
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+which is much cleaner.
+
+---
+
+# 12. What Does It Do Internally?
+
+Conceptually:
+
+```text
+get_object_or_404(Student, id=25)
+              ↓
+Try to get Student with id=25
+              ↓
+        ┌─────┴─────┐
+        ↓           ↓
+      Found       Not Found
+        ↓           ↓
+ Return object   Raise 404
+```
+
+This is why the function has that name:
+
+> **Get object OR return a 404 response.**
+
+Technically, it raises Django's `Http404` exception.
+
+---
+
+# 13. Important Coding Example
+
+Suppose:
+
+```python
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        student.name
+    )
+```
+
+URL:
+
+```python
+path(
+    'student/<int:id>/',
+    views.student_detail
+)
+```
+
+Request:
+
+```text
+/student/25/
+```
+
+Django:
+
+```text
+id = 25
+   ↓
+Search Student with id=25
+   ↓
+Found?
+   ├── Yes → display student
+   └── No → 404
+```
+
+---
+
+# 14. `Student.objects.get()` vs `get_object_or_404()`
+
+Suppose:
+
+```python
+Student.objects.get(id=25)
+```
+
+If the object doesn't exist, Django raises:
+
+```text
+Student.DoesNotExist
+```
+
+You would have to handle it.
+
+With:
+
+```python
+get_object_or_404(Student, id=25)
+```
+
+Django converts the missing-object situation into a 404 response.
+
+---
+
+# 15. 404 vs `DoesNotExist`
+
+This distinction is useful for viva.
+
+### ORM:
+
+```python
+Student.objects.get(id=25)
+```
+
+If missing:
+
+```text
+Student.DoesNotExist
+```
+
+### Shortcut:
+
+```python
+get_object_or_404(Student, id=25)
+```
+
+If missing:
+
+```text
+Http404
+```
+
+Therefore:
+
+> `get_object_or_404()` is convenient when a missing database object should result in an HTTP 404 response.
+
+---
+
+# 16. 500 — Internal Server Error
+
+A `500` means:
+
+> Something went wrong on the server while processing the request.
+
+For example:
+
+```python
+def home(request):
+    result = 10 / 0
+    return HttpResponse(result)
+```
+
+This causes:
+
+```text
+ZeroDivisionError
+```
+
+and Django will generally return a:
+
+```text
+500 Internal Server Error
+```
+
+response.
+
+---
+
+# 17. 500 Is Usually a Programming/Server Problem
+
+Examples:
+
+```text
+SyntaxError
+NameError
+TypeError
+Database error
+Unexpected exception
+```
+
+can result in server errors depending on the circumstances.
+
+For example:
+
+```python
+def home(request):
+    print(student_name)
+```
+
+If `student_name` isn't defined, Django encounters:
+
+```text
+NameError
+```
+
+---
+
+# 18. 400 — Bad Request
+
+A `400` generally means:
+
+> The server cannot process the request because the request is invalid.
+
+For example:
+
+```python
+return HttpResponse(
+    "Bad request",
+    status=400
+)
+```
+
+You can explicitly return a 400 response when appropriate.
+
+---
+
+# 19. 403 — Forbidden
+
+`403` generally means:
+
+> The server understood the request but refuses to allow the requested action.
+
+Example:
+
+```text
+User tries to access an admin-only operation
+             ↓
+Permission denied
+             ↓
+403 Forbidden
+```
+
+We'll study permissions later.
+
+---
+
+# 20. 401 — Unauthorized
+
+`401` generally indicates:
+
+> Authentication is required or the authentication attempt failed.
+
+Don't confuse:
+
+```text
+401 → authentication
+403 → authorization/access refusal
+```
+
+This distinction is commonly asked in interviews.
+
+---
+
+# 21. Custom 404 Page
+
+Django allows you to create a custom:
+
+```text
+404.html
+```
+
+For example:
+
+```html
+<h1>Page Not Found</h1>
+<p>Sorry, the requested page doesn't exist.</p>
+```
+
+When Django handles a 404 in production, it can use the custom template.
+
+---
+
+# 22. Custom 500 Page
+
+Similarly:
+
+```text
+500.html
+```
+
+can be used for server errors.
+
+Example:
+
+```html
+<h1>Something went wrong</h1>
+<p>Please try again later.</p>
+```
+
+---
+
+# 23. Important: `DEBUG`
+
+For development:
+
+```python
+DEBUG = True
+```
+
+For production:
+
+```python
+DEBUG = False
+```
+
+With:
+
+```python
+DEBUG = True
+```
+
+Django displays detailed debugging information.
+
+With:
+
+```python
+DEBUG = False
+```
+
+users should see a friendly error page instead of the detailed traceback.
+
+---
+
+# 24. Why Custom Error Pages?
+
+Imagine a real website showing:
+
+```text
+Traceback:
+File "/home/server/project/app/views.py", line 47...
+```
+
+to a normal user.
+
+That's bad UX and potentially a security problem.
+
+Instead:
+
+```text
+Oops!
+Something went wrong.
+Please try again later.
+```
+
+is better.
+
+---
+
+# 25. Handling Exceptions With `try/except`
+
+Python's exception handling can also be used in Django.
+
+Example:
+
+```python
+def divide(request):
+    try:
+        result = 10 / 0
+        return HttpResponse(result)
+
+    except ZeroDivisionError:
+        return HttpResponse(
+            "Cannot divide by zero",
+            status=400
+        )
+```
+
+Here the Python exception is handled explicitly.
+
+---
+
+# 26. But Don't Catch Everything Blindly
+
+Avoid doing:
+
+```python
+try:
+    ...
+except:
+    return HttpResponse("Something went wrong")
+```
+
+without understanding the problem.
+
+Why?
+
+Because it can hide genuine programming errors.
+
+Better:
+
+```python
+except ZeroDivisionError:
+```
+
+when you specifically expect that exception.
+
+---
+
+# 27. `Http404` vs `try/except`
+
+Suppose an object isn't found.
+
+You could write:
+
+```python
+try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404("Student not found")
+```
+
+Or simply:
+
+```python
+student = get_object_or_404(
+    Student,
+    id=id
+)
+```
+
+The second is cleaner.
+
+---
+
+# 28. Error Handling Flow
+
+A useful mental model:
+
+```text
+                    Request
+                       ↓
+                    Django
+                       ↓
+                    View
+                       ↓
+              ┌────────┴────────┐
+              ↓                 ↓
+           Success             Error
+              ↓                 ↓
+          200 response       Handle error
+                                ↓
+                       ┌────────┼────────┐
+                       ↓        ↓        ↓
+                      400      404      500
+```
+
+---
+
+# 29. URL 404 vs Object 404
+
+This is a very important distinction.
+
+### Case 1 — URL doesn't exist
+
+Request:
+
+```text
+/abcxyz/
+```
+
+No URL pattern matches.
+
+Django returns:
+
+```text
+404
+```
+
+### Case 2 — URL exists but object doesn't
+
+Request:
+
+```text
+/student/999/
+```
+
+URL pattern matches, but student 999 doesn't exist.
+
+Your view can use:
+
+```python
+get_object_or_404()
+```
+
+and return:
+
+```text
+404
+```
+
+So both can produce a 404, but for different reasons.
+
+---
+
+# 30. Complete Example
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        'student/<int:id>/',
+        views.student_detail
+    ),
+]
+```
+
+### `views.py`
+
+```python
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        f"Student: {student.name}"
+    )
+```
+
+If student exists:
+
+```text
+Student: Aman
+```
+
+If student doesn't exist:
+
+```text
+404 Not Found
+```
+
+---
+
+# 31. Common Mistake
+
+Beginners sometimes write:
+
+```python
+student = Student.objects.get(id=id)
+
+if student is None:
+    raise Http404
+```
+
+This doesn't work as expected.
+
+Why?
+
+`objects.get()` doesn't return `None` when nothing is found.
+
+It raises:
+
+```text
+Student.DoesNotExist
+```
+
+Therefore either use:
+
+```python
+try:
+    student = Student.objects.get(id=id)
+except Student.DoesNotExist:
+    raise Http404
+```
+
+or preferably:
+
+```python
+student = get_object_or_404(Student, id=id)
+```
+
+---
+
+# 32. Common Mistake — `DEBUG=True` in Production
+
+Never think:
+
+```python
+DEBUG = True
+```
+
+should remain enabled because it helps you see errors.
+
+It's useful during development, but production should normally have:
+
+```python
+DEBUG = False
+```
+
+and proper production error handling/logging.
+
+---
+
+# 33. Common Mistake — Returning 500 for User Mistakes
+
+Suppose a user submits invalid data.
+
+Don't automatically do:
+
+```python
+status=500
+```
+
+A 500 generally indicates an unexpected server-side failure.
+
+For invalid client input, an appropriate response might be:
+
+```text
+400 Bad Request
+```
+
+depending on the application.
+
+---
+
+# 34. Viva Questions
+
+### Q1. What is a 404 error?
+
+> A 404 Not Found response indicates that the requested resource could not be found.
+
+### Q2. What is a 500 error?
+
+> A 500 Internal Server Error indicates an unexpected error occurred while processing the request on the server.
+
+### Q3. What is `Http404`?
+
+> `Http404` is a Django exception that can be raised when a requested resource does not exist.
+
+### Q4. What is `get_object_or_404()`?
+
+> It retrieves an object and raises `Http404` if the object does not exist.
+
+### Q5. Why use `get_object_or_404()`?
+
+> It provides a concise way to convert a missing database object into an HTTP 404 response.
+
+---
+
+# 35. Important Viva Question
+
+### Teacher:
+
+> What's the difference between `Student.objects.get()` and `get_object_or_404()`?
+
+Strong answer:
+
+> `Student.objects.get()` raises the model's `DoesNotExist` exception when no object is found, whereas `get_object_or_404()` catches the missing-object situation and raises Django's `Http404`, which results in a 404 HTTP response.
+
+---
+
+# 36. Important Viva Question
+
+### Teacher:
+
+> What's the difference between 401 and 403?
+
+Answer:
+
+> `401 Unauthorized` generally indicates that authentication is required or has failed, while `403 Forbidden` indicates that the server understands the request but refuses to authorize the requested action.
+
+---
+
+# 37. Important Viva Question
+
+### Teacher:
+
+> Why should `DEBUG` be False in production?
+
+Answer:
+
+> Because Django's debug output can expose sensitive technical information such as stack traces, file paths, and configuration details. Production applications should not expose this information to users.
+
+---
+
+# 38. Coding Question
+
+### Question:
+
+Write a view that raises a 404 if `id` is less than 1.
+
+```python
+from django.http import Http404, HttpResponse
+
+def student(request, id):
+
+    if id < 1:
+        raise Http404("Student not found")
+
+    return HttpResponse(
+        f"Student ID: {id}"
+    )
+```
+
+---
+
+# 39. Coding Question
+
+### Question:
+
+Write a view that returns a 400 response.
+
+```python
+from django.http import HttpResponse
+
+def test(request):
+    return HttpResponse(
+        "Bad Request",
+        status=400
+    )
+```
+
+---
+
+# 40. Coding Question
+
+### Question:
+
+Retrieve a student or return 404.
+
+```python
+from django.shortcuts import get_object_or_404
+
+def student_detail(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    return HttpResponse(
+        student.name
+    )
+```
+
+This is one of the most useful patterns to remember for future Django CRUD applications.
+
+---
+
+# ⭐ Module 11 Cheat Sheet
+
+### 404:
+
+```text
+Resource not found
+```
+
+### 500:
+
+```text
+Unexpected server-side error
+```
+
+### Explicit 404:
+
+```python
+raise Http404
+```
+
+### Object or 404:
+
+```python
+get_object_or_404(Student, id=id)
+```
+
+### Development:
+
+```python
+DEBUG = True
+```
+
+### Production:
+
+```python
+DEBUG = False
+```
+
+### Important status codes:
+
+```text
+400 → Bad Request
+401 → Authentication required/failed
+403 → Forbidden
+404 → Not Found
+500 → Internal Server Error
+```
+
+---
+
+# 🎯 Unit II Completed
+
+You've now covered the entire **Unit II** syllabus:
+
+```text
+UNIT II — Views and URLs
+
+✓ Creating views
+✓ Mapping views to URLs
+✓ View logic
+✓ HTTP requests
+✓ HTTP responses
+✓ GET
+✓ POST
+✓ request.method
+✓ request.GET
+✓ request.POST
+✓ Understanding URLs
+✓ URL parameters
+✓ URL converters
+✓ Regex URLs
+✓ re_path()
+✓ Error handling
+✓ 404
+✓ 400
+✓ 403
+✓ 401
+✓ 500
+✓ Http404
+✓ get_object_or_404()
+```
+
+The next unit is **Templates, Debugging and Testing**, where Django starts becoming much more like a real web application.
+
+# Next → Module 12: Introduction to Django Templates
+
+We'll build actual HTML pages instead of returning things like:
+
+```python
+return HttpResponse("Hello World")
+```
+
+You'll learn:
+
+* Why templates are needed
+* Creating HTML templates
+* `render()`
+* Template folders
+* Connecting views to HTML
+* Sending data from views to templates
+* Template configuration
+* Complete first dynamic webpage
+* Common template errors
+* Viva + coding questions

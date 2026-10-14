@@ -1,0 +1,1753 @@
+# Module 30 — Advanced Django ORM
+
+You already know the basic ORM:
+
+```python
+Student.objects.all()
+Student.objects.filter(...)
+Student.objects.get(...)
+Student.objects.create(...)
+Student.objects.update(...)
+Student.objects.delete(...)
+```
+
+Now we move to the **advanced ORM**, which is very important for interviews, viva, and coding questions.
+
+We will learn:
+
+1. `Q` objects
+2. `F` expressions
+3. `aggregate()`
+4. `annotate()`
+5. `Count`, `Sum`, `Avg`, `Max`, `Min`
+6. `values()`
+7. `values_list()`
+8. Complex queries
+9. QuerySet chaining
+10. Practical coding questions
+
+---
+
+# 1. Why Do We Need Advanced ORM?
+
+Suppose you have 10,000 students.
+
+You want to find:
+
+> Students who are from CSE **OR** ECE and have marks greater than 80.
+
+Basic `filter()` isn't enough for this kind of OR logic.
+
+Or suppose you want:
+
+> Increase every student's marks by 5.
+
+You don't want to retrieve every student into Python, modify each one, and save them individually.
+
+Or:
+
+> Find the average marks of all students.
+
+You don't need to manually calculate it.
+
+Django ORM provides advanced tools for these situations.
+
+---
+
+# 2. Our Example Model
+
+We'll continue with:
+
+```python
+from django.db import models
+
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+```
+
+Imagine the database contains:
+
+| id | name  | course | age | marks |
+| -: | ----- | ------ | --: | ----: |
+|  1 | Aman  | CSE    |  21 |    85 |
+|  2 | Rahul | ECE    |  22 |    75 |
+|  3 | Priya | CSE    |  20 |    92 |
+|  4 | Neha  | IT     |  21 |    68 |
+|  5 | Karan | ECE    |  23 |    88 |
+
+---
+
+# 3. Q Objects
+
+Normally:
+
+```python
+Student.objects.filter(course="CSE")
+```
+
+means:
+
+```text
+course = CSE
+```
+
+If you write:
+
+```python
+Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)
+```
+
+Django interprets this as:
+
+```text
+course = CSE
+AND
+marks >= 80
+```
+
+But what if you need:
+
+```text
+course = CSE
+OR
+course = ECE
+```
+
+That's where `Q` comes in.
+
+---
+
+# 4. Import Q
+
+```python
+from django.db.models import Q
+```
+
+Then:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)
+```
+
+The `|` means **OR**.
+
+So:
+
+```text
+CSE OR ECE
+```
+
+---
+
+# 5. Q Object OR
+
+Example:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(marks__gte=90)
+)
+```
+
+Meaning:
+
+```text
+course = CSE
+OR
+marks >= 90
+```
+
+---
+
+# 6. Q Object AND
+
+The `&` operator means AND:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") & Q(marks__gte=80)
+)
+```
+
+Equivalent to:
+
+```python
+Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)
+```
+
+---
+
+# 7. Q Object NOT
+
+The `~` operator means NOT.
+
+Example:
+
+```python
+Student.objects.filter(
+    ~Q(course="CSE")
+)
+```
+
+Meaning:
+
+> Students who are NOT in CSE.
+
+---
+
+# 8. Combining Q Objects
+
+You can create complex conditions:
+
+```python
+Student.objects.filter(
+    (Q(course="CSE") | Q(course="ECE"))
+    & Q(marks__gte=80)
+)
+```
+
+Meaning:
+
+```text
+(CSE OR ECE)
+AND
+marks >= 80
+```
+
+This is a very common interview question.
+
+---
+
+# 9. Q Object Practical Question
+
+### Question:
+
+Find students who are:
+
+```text
+CSE OR ECE
+```
+
+Answer:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)
+```
+
+---
+
+### Question:
+
+Find students who are:
+
+```text
+CSE OR marks >= 90
+```
+
+Answer:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(marks__gte=90)
+)
+```
+
+---
+
+### Question:
+
+Find students who are not in CSE.
+
+```python
+Student.objects.filter(
+    ~Q(course="CSE")
+)
+```
+
+---
+
+# 10. F Expressions
+
+Now an extremely important concept.
+
+Suppose every student should get:
+
+```text
+marks = marks + 5
+```
+
+A beginner might write:
+
+```python
+students = Student.objects.all()
+
+for student in students:
+    student.marks += 5
+    student.save()
+```
+
+This requires retrieving and updating objects individually.
+
+Django provides `F()` expressions.
+
+---
+
+# 11. Import F
+
+```python
+from django.db.models import F
+```
+
+Then:
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+This means:
+
+> Take the existing database value of `marks` and add 5.
+
+Conceptually:
+
+```text
+marks = marks + 5
+```
+
+---
+
+# 12. Why F Expressions Are Powerful
+
+Suppose:
+
+```text
+Aman = 85
+Priya = 92
+Karan = 88
+```
+
+Run:
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+Result:
+
+```text
+Aman  → 90
+Priya → 97
+Karan → 93
+```
+
+The operation is performed by the database rather than manually calculating each value in Python.
+
+---
+
+# 13. F Expression Comparison
+
+You can also compare fields.
+
+Suppose another model has:
+
+```python
+price = models.DecimalField(...)
+discount = models.DecimalField(...)
+```
+
+You could query relationships between fields using `F()` expressions.
+
+Basic idea:
+
+```python
+Product.objects.filter(
+    discount__gt=F("price")
+)
+```
+
+Meaning:
+
+```text
+discount > price
+```
+
+---
+
+# 14. F Expression Operators
+
+You can use arithmetic:
+
+```python
+F("marks") + 5
+```
+
+```python
+F("marks") - 5
+```
+
+```python
+F("price") * 2
+```
+
+and other supported expressions.
+
+---
+
+# 15. Important Viva Question
+
+### What is an `F()` expression?
+
+A good answer:
+
+> An `F()` expression allows Django to reference database field values directly inside a query, enabling database-side operations and comparisons without first loading the values into Python.
+
+---
+
+# 16. Aggregate Functions
+
+Now suppose you want:
+
+> Average marks of all students.
+
+You could retrieve everything and calculate manually, but Django can ask the database to calculate it.
+
+```python
+from django.db.models import Avg
+
+Student.objects.aggregate(
+    Avg("marks")
+)
+```
+
+Result might look like:
+
+```python
+{'marks__avg': 81.6}
+```
+
+---
+
+# 17. `aggregate()`
+
+`aggregate()` calculates a summary over a QuerySet.
+
+Common aggregate functions:
+
+```text
+Count
+Sum
+Avg
+Max
+Min
+```
+
+Import:
+
+```python
+from django.db.models import Count, Sum, Avg, Max, Min
+```
+
+---
+
+# 18. Average
+
+```python
+Student.objects.aggregate(
+    Avg("marks")
+)
+```
+
+Example result:
+
+```python
+{'marks__avg': 81.6}
+```
+
+---
+
+# 19. Sum
+
+```python
+Student.objects.aggregate(
+    Sum("marks")
+)
+```
+
+Meaning:
+
+> Sum the marks of all students.
+
+---
+
+# 20. Maximum
+
+```python
+Student.objects.aggregate(
+    Max("marks")
+)
+```
+
+Meaning:
+
+> Find the highest marks.
+
+---
+
+# 21. Minimum
+
+```python
+Student.objects.aggregate(
+    Min("marks")
+)
+```
+
+Meaning:
+
+> Find the lowest marks.
+
+---
+
+# 22. Count
+
+```python
+Student.objects.aggregate(
+    Count("id")
+)
+```
+
+Meaning:
+
+> Count IDs/records represented by the aggregation.
+
+For simply counting all Student rows, this is usually more straightforward:
+
+```python
+Student.objects.count()
+```
+
+---
+
+# 23. Naming Aggregate Results
+
+Instead of:
+
+```python
+Student.objects.aggregate(
+    Avg("marks")
+)
+```
+
+you can give the result a name:
+
+```python
+Student.objects.aggregate(
+    average_marks=Avg("marks")
+)
+```
+
+Result:
+
+```python
+{
+    "average_marks": 81.6
+}
+```
+
+This is cleaner.
+
+---
+
+# 24. Multiple Aggregations
+
+You can calculate multiple statistics at once:
+
+```python
+Student.objects.aggregate(
+    total=Count("id"),
+    average=Avg("marks"),
+    highest=Max("marks"),
+    lowest=Min("marks"),
+    total_marks=Sum("marks")
+)
+```
+
+Possible result:
+
+```python
+{
+    "total": 5,
+    "average": 81.6,
+    "highest": 92,
+    "lowest": 68,
+    "total_marks": 408
+}
+```
+
+---
+
+# 25. `aggregate()` Key Concept
+
+Remember:
+
+```python
+aggregate()
+```
+
+generally gives you:
+
+> **One summary dictionary for the entire QuerySet.**
+
+Example:
+
+```python
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+Result:
+
+```python
+{"average": 81.6}
+```
+
+---
+
+# 26. `annotate()`
+
+Now comes one of the most important advanced ORM concepts.
+
+`annotate()` adds calculated information to **each object/group in the QuerySet**.
+
+This becomes especially powerful with relationships, which we'll study more deeply in Module 31.
+
+---
+
+# 27. Simple Idea of `annotate()`
+
+Suppose we want each student to have an additional calculated value.
+
+For example:
+
+```python
+from django.db.models import F
+
+students = Student.objects.annotate(
+    bonus_marks=F("marks") + 5
+)
+```
+
+Now each returned student has:
+
+```python
+student.marks
+```
+
+and:
+
+```python
+student.bonus_marks
+```
+
+For Aman:
+
+```text
+marks = 85
+bonus_marks = 90
+```
+
+---
+
+# 28. `aggregate()` vs `annotate()`
+
+This distinction is **very important for viva**.
+
+### `aggregate()`
+
+Produces a summary:
+
+```python
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+Conceptually:
+
+```text
+All students
+    ↓
+One summary
+```
+
+### `annotate()`
+
+Adds calculated information to individual returned objects/groups:
+
+```python
+Student.objects.annotate(
+    bonus_marks=F("marks") + 5
+)
+```
+
+Conceptually:
+
+```text
+Student 1 → calculated value
+Student 2 → calculated value
+Student 3 → calculated value
+```
+
+### Memorize:
+
+> **aggregate = summary**
+> **annotate = add calculated data to each result/group**
+
+---
+
+# 29. `values()`
+
+Normally:
+
+```python
+Student.objects.all()
+```
+
+returns model objects.
+
+But sometimes you only want specific fields.
+
+Use:
+
+```python
+Student.objects.values(
+    "name",
+    "marks"
+)
+```
+
+Result:
+
+```python
+<QuerySet [
+    {'name': 'Aman', 'marks': 85},
+    {'name': 'Rahul', 'marks': 75}
+]>
+```
+
+So `values()` returns dictionaries.
+
+---
+
+# 30. Why Use `values()`?
+
+Suppose you only need:
+
+```text
+name
+email
+```
+
+Instead of retrieving full model objects:
+
+```python
+Student.objects.all()
+```
+
+you can use:
+
+```python
+Student.objects.values(
+    "name",
+    "email"
+)
+```
+
+This is useful when you specifically need dictionary-like results containing selected fields.
+
+---
+
+# 31. `values()` Example
+
+```python
+students = Student.objects.filter(
+    course="CSE"
+).values(
+    "name",
+    "marks"
+)
+```
+
+Output conceptually:
+
+```python
+[
+    {"name": "Aman", "marks": 85},
+    {"name": "Priya", "marks": 92}
+]
+```
+
+---
+
+# 32. `values_list()`
+
+`values_list()` is similar, but returns tuples instead of dictionaries.
+
+```python
+Student.objects.values_list(
+    "name",
+    "marks"
+)
+```
+
+Result:
+
+```python
+[
+    ("Aman", 85),
+    ("Priya", 92)
+]
+```
+
+---
+
+# 33. `values()` vs `values_list()`
+
+| Method          | Result       |
+| --------------- | ------------ |
+| `values()`      | Dictionaries |
+| `values_list()` | Tuples       |
+
+Memorize:
+
+```text
+values()      → dict
+values_list() → tuple
+```
+
+---
+
+# 34. `flat=True`
+
+Suppose you only want student names.
+
+Without `flat=True`:
+
+```python
+Student.objects.values_list(
+    "name"
+)
+```
+
+Result:
+
+```python
+[
+    ("Aman",),
+    ("Rahul",),
+    ("Priya",)
+]
+```
+
+With:
+
+```python
+Student.objects.values_list(
+    "name",
+    flat=True
+)
+```
+
+Result:
+
+```python
+[
+    "Aman",
+    "Rahul",
+    "Priya"
+]
+```
+
+### Important:
+
+`flat=True` is used when selecting **one field** with `values_list()`.
+
+---
+
+# 35. Practical Question
+
+### Get only names.
+
+```python
+Student.objects.values_list(
+    "name",
+    flat=True
+)
+```
+
+---
+
+### Get names and marks.
+
+```python
+Student.objects.values_list(
+    "name",
+    "marks"
+)
+```
+
+---
+
+### Get names and marks as dictionaries.
+
+```python
+Student.objects.values(
+    "name",
+    "marks"
+)
+```
+
+---
+
+# 36. Chaining QuerySets
+
+You already know:
+
+```python
+Student.objects.filter(...)
+```
+
+You can chain operations.
+
+Example:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).filter(
+    marks__gte=80
+).order_by(
+    "-marks"
+)
+```
+
+This means:
+
+```text
+CSE
+ ↓
+marks >= 80
+ ↓
+highest marks first
+```
+
+---
+
+# 37. Better Chaining Example
+
+```python
+students = (
+    Student.objects
+    .filter(is_active=True)
+    .filter(age__gte=18)
+    .filter(marks__gte=70)
+    .order_by("-marks")
+)
+```
+
+This is perfectly valid and readable.
+
+You can also combine the conditions:
+
+```python
+students = Student.objects.filter(
+    is_active=True,
+    age__gte=18,
+    marks__gte=70
+).order_by("-marks")
+```
+
+---
+
+# 38. `distinct()`
+
+Suppose a query produces duplicate rows.
+
+You can use:
+
+```python
+Student.objects.values(
+    "course"
+).distinct()
+```
+
+This can give unique course values.
+
+Conceptually:
+
+```text
+CSE
+CSE
+ECE
+IT
+ECE
+```
+
+becomes:
+
+```text
+CSE
+ECE
+IT
+```
+
+---
+
+# 39. Advanced Query Example
+
+### Question:
+
+Find active students who are either CSE or ECE and have marks at least 80, highest marks first.
+
+```python
+from django.db.models import Q
+
+students = Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE"),
+    is_active=True,
+    marks__gte=80
+).order_by("-marks")
+```
+
+Break it down:
+
+```text
+Q(course="CSE") | Q(course="ECE")
+              ↓
+          CSE OR ECE
+
+is_active=True
+              ↓
+          AND active
+
+marks__gte=80
+              ↓
+          AND marks >= 80
+
+order_by("-marks")
+              ↓
+          highest first
+```
+
+---
+
+# 40. Top 3 Students
+
+```python
+Student.objects.order_by(
+    "-marks"
+)[:3]
+```
+
+The `[:3]` is QuerySet slicing.
+
+Meaning:
+
+> Return the first three records after ordering.
+
+---
+
+# 41. Students With Marks Between 70 and 90
+
+```python
+Student.objects.filter(
+    marks__range=(70, 90)
+)
+```
+
+---
+
+# 42. Students Whose Name Contains "am"
+
+```python
+Student.objects.filter(
+    name__icontains="am"
+)
+```
+
+`icontains` is case-insensitive.
+
+---
+
+# 43. Students From CSE or IT
+
+Using `Q`:
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(course="IT")
+)
+```
+
+---
+
+# 44. Students Not in CSE
+
+```python
+Student.objects.exclude(
+    course="CSE"
+)
+```
+
+This is often simpler than:
+
+```python
+Student.objects.filter(
+    ~Q(course="CSE")
+)
+```
+
+Both express the exclusion concept, but `exclude()` is often more readable for straightforward negation.
+
+---
+
+# 45. `exclude()`
+
+Example:
+
+```python
+Student.objects.exclude(
+    marks__lt=40
+)
+```
+
+Meaning:
+
+> Students whose marks are not less than 40.
+
+---
+
+# 46. `exists()` vs `count()`
+
+Suppose you only need to know:
+
+> Are there any CSE students?
+
+Use:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).exists()
+```
+
+Don't use:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).count() > 0
+```
+
+when existence is all you need.
+
+`exists()` communicates the intention clearly and is designed for existence checks.
+
+---
+
+# 47. `first()` and `last()`
+
+```python
+Student.objects.order_by(
+    "-marks"
+).first()
+```
+
+This gives the highest-mark student.
+
+You can also:
+
+```python
+Student.objects.order_by(
+    "marks"
+).first()
+```
+
+to get the lowest-mark student.
+
+---
+
+# 48. Highest and Lowest Marks
+
+Method 1:
+
+```python
+Student.objects.aggregate(
+    highest=Max("marks"),
+    lowest=Min("marks")
+)
+```
+
+Method 2 — retrieve the actual student:
+
+```python
+top_student = Student.objects.order_by(
+    "-marks"
+).first()
+```
+
+These answer different questions:
+
+```text
+Max("marks")
+       ↓
+highest NUMBER
+
+order_by("-marks").first()
+       ↓
+STUDENT who has highest marks
+```
+
+That's a useful distinction.
+
+---
+
+# 49. Average Marks of CSE Students
+
+```python
+Student.objects.filter(
+    course="CSE"
+).aggregate(
+    average=Avg("marks")
+)
+```
+
+This means:
+
+```text
+Filter CSE
+   ↓
+Calculate average
+```
+
+---
+
+# 50. Total Marks of CSE Students
+
+```python
+Student.objects.filter(
+    course="CSE"
+).aggregate(
+    total=Sum("marks")
+)
+```
+
+---
+
+# 51. Count Active Students
+
+```python
+Student.objects.filter(
+    is_active=True
+).count()
+```
+
+Simple and preferred when you only need the count of rows.
+
+---
+
+# 52. Important `aggregate()` vs `annotate()` Example
+
+Suppose marks are:
+
+```text
+Aman   85
+Rahul  75
+Priya  92
+```
+
+### Aggregate:
+
+```python
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+Result:
+
+```text
+average = 84
+```
+
+One summary.
+
+### Annotate:
+
+```python
+Student.objects.annotate(
+    adjusted_marks=F("marks") + 5
+)
+```
+
+Conceptually:
+
+```text
+Aman  → 85 → adjusted 90
+Rahul → 75 → adjusted 80
+Priya → 92 → adjusted 97
+```
+
+---
+
+# 53. Very Important: Lazy QuerySets
+
+Remember from Module 28:
+
+```python
+students = Student.objects.filter(
+    marks__gte=80
+)
+```
+
+Creating this QuerySet does not necessarily immediately retrieve the rows.
+
+The QuerySet is generally **lazy**.
+
+The database query is executed when Django needs the results.
+
+Examples of evaluation include:
+
+```python
+list(students)
+```
+
+```python
+for student in students:
+    ...
+```
+
+```python
+students.exists()
+```
+
+```python
+students.count()
+```
+
+```python
+students.first()
+```
+
+This is an important ORM concept.
+
+---
+
+# 54. QuerySet Does Not Mean Database Rows Immediately
+
+This:
+
+```python
+students = Student.objects.filter(
+    course="CSE"
+)
+```
+
+is a QuerySet representing a query.
+
+Think:
+
+```text
+Python
+  ↓
+QuerySet
+  ↓
+"Give me CSE students"
+```
+
+Django determines when it needs to execute the underlying database query.
+
+---
+
+# 55. Practical Coding Questions
+
+### Q1. Find all students with marks above 90.
+
+```python
+Student.objects.filter(
+    marks__gt=90
+)
+```
+
+---
+
+### Q2. Find CSE students with marks between 70 and 90.
+
+```python
+Student.objects.filter(
+    course="CSE",
+    marks__range=(70, 90)
+)
+```
+
+---
+
+### Q3. Find students whose name starts with A.
+
+```python
+Student.objects.filter(
+    name__startswith="A"
+)
+```
+
+---
+
+### Q4. Find students whose email contains `gmail`.
+
+```python
+Student.objects.filter(
+    email__icontains="gmail"
+)
+```
+
+---
+
+### Q5. Find students from CSE or ECE.
+
+```python
+Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)
+```
+
+---
+
+### Q6. Find students who are not in CSE.
+
+```python
+Student.objects.exclude(
+    course="CSE"
+)
+```
+
+---
+
+### Q7. Increase all marks by 5.
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+---
+
+### Q8. Find average marks.
+
+```python
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+---
+
+### Q9. Find highest marks.
+
+```python
+Student.objects.aggregate(
+    highest=Max("marks")
+)
+```
+
+---
+
+### Q10. Find lowest marks.
+
+```python
+Student.objects.aggregate(
+    lowest=Min("marks")
+)
+```
+
+---
+
+### Q11. Get only names.
+
+```python
+Student.objects.values_list(
+    "name",
+    flat=True
+)
+```
+
+---
+
+### Q12. Get name and course as dictionaries.
+
+```python
+Student.objects.values(
+    "name",
+    "course"
+)
+```
+
+---
+
+### Q13. Get top 5 students.
+
+```python
+Student.objects.order_by(
+    "-marks"
+)[:5]
+```
+
+---
+
+# 56. Viva Masterclass
+
+### Q1. What is a `Q` object?
+
+> `Q` objects are used to construct complex database queries involving logical conditions such as OR, AND, and NOT.
+
+---
+
+### Q2. What does `|` mean with Q objects?
+
+> OR.
+
+```python
+Q(course="CSE") | Q(course="ECE")
+```
+
+---
+
+### Q3. What does `&` mean?
+
+> AND.
+
+```python
+Q(course="CSE") & Q(marks__gte=80)
+```
+
+---
+
+### Q4. What does `~Q()` mean?
+
+> NOT.
+
+```python
+~Q(course="CSE")
+```
+
+---
+
+### Q5. What is an F expression?
+
+> It allows Django to reference database field values directly in queries and perform database-side calculations or comparisons.
+
+---
+
+### Q6. What does this do?
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+> It increases the existing marks of every affected student by 5 using a database-side expression.
+
+---
+
+### Q7. What is `aggregate()`?
+
+> `aggregate()` performs summary calculations over a QuerySet and returns a dictionary containing the calculated results.
+
+---
+
+### Q8. Name five aggregate functions.
+
+> `Count`, `Sum`, `Avg`, `Max`, and `Min`.
+
+---
+
+### Q9. What is `annotate()`?
+
+> `annotate()` adds calculated values to each returned object or group in a QuerySet.
+
+---
+
+### Q10. Difference between `aggregate()` and `annotate()`?
+
+> `aggregate()` produces an overall summary, while `annotate()` adds calculated values to individual results or groups.
+
+---
+
+### Q11. What does `values()` return?
+
+> A QuerySet containing dictionaries with the requested fields.
+
+---
+
+### Q12. What does `values_list()` return?
+
+> A QuerySet containing tuples of the requested field values.
+
+---
+
+### Q13. What does `flat=True` do?
+
+> When `values_list()` selects a single field, `flat=True` returns the values directly instead of one-element tuples.
+
+---
+
+### Q14. What is QuerySet laziness?
+
+> A QuerySet generally delays database execution until its results are actually needed.
+
+---
+
+# 57. Most Important Things to Memorize
+
+If your teacher asks you to write advanced ORM code, these are the patterns you should immediately recognize:
+
+```python
+# OR
+Student.objects.filter(
+    Q(course="CSE") | Q(course="ECE")
+)
+```
+
+```python
+# NOT
+Student.objects.filter(
+    ~Q(course="CSE")
+)
+```
+
+```python
+# Database-side calculation
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+```python
+# Average
+Student.objects.aggregate(
+    average=Avg("marks")
+)
+```
+
+```python
+# Multiple aggregate calculations
+Student.objects.aggregate(
+    total=Count("id"),
+    average=Avg("marks"),
+    highest=Max("marks"),
+    lowest=Min("marks")
+)
+```
+
+```python
+# Selected fields as dictionaries
+Student.objects.values(
+    "name",
+    "marks"
+)
+```
+
+```python
+# Selected fields as tuples
+Student.objects.values_list(
+    "name",
+    "marks"
+)
+```
+
+```python
+# One field as flat list-like results
+Student.objects.values_list(
+    "name",
+    flat=True
+)
+```
+
+```python
+# Highest marks first
+Student.objects.order_by("-marks")
+```
+
+```python
+# Top 3
+Student.objects.order_by("-marks")[:3]
+```
+
+---
+
+# 58. Module 30 Final Mental Map
+
+```text
+                 ADVANCED ORM
+                      │
+       ┌──────────────┼──────────────┐
+       ↓              ↓              ↓
+      Q()            F()         QuerySet
+       │              │              │
+   OR/AND/NOT    DB calculations   chaining
+       │              │              │
+       ↓              ↓              ↓
+ complex filters   update fields   filter/order
+                                      │
+                         ┌────────────┴────────────┐
+                         ↓                         ↓
+                    aggregate()               annotate()
+                         │                         │
+                    one summary          calculated result/object
+                         │
+              ┌──────────┼──────────┐
+              ↓          ↓          ↓
+             Avg        Sum       Count
+             Max        Min
+                         
+                         ↓
+                   values()
+                   values_list()
+```
+
+### The four lines I especially want you to remember:
+
+```python
+Q(...) | Q(...)       # OR
+F("field") + value   # database-side calculation
+aggregate(...)       # overall summary
+annotate(...)        # calculated data on results/groups
+```
+
+**Next → Module 31: Django Relationships & Foreign Keys**
+
+We'll learn how to connect models such as **Student → Department**, understand `ForeignKey`, `OneToOneField`, `ManyToManyField`, `on_delete`, reverse relationships, and write ORM queries across related tables.

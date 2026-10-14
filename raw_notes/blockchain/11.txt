@@ -1,0 +1,793 @@
+# Chapter 3 — Module 3: Blockchain Consensus Algorithms and Choosing an Algorithm
+
+Based on your teacher's POW Consensus.pptx, CONSENSUS UNIT-3.pptx and Consensus Protocol.pptx.
+
+This module covers the consensus mechanisms used in blockchain, especially Proof of Work (PoW), Proof of Stake (PoS), other algorithms listed in your teacher's PPT, and how to choose a suitable algorithm.
+
+## Module roadmap
+
+1. Permissionless blockchain and its consensus challenges
+2. Proof of Work (PoW)
+3. Nakamoto consensus and chain properties
+4. Proof of Stake (PoS) and Delegated Proof of Stake (DPoS)
+5. Other consensus algorithms from your PPT
+6. Sybil attacks and 51% attacks
+7. Comparing consensus mechanisms
+8. Choosing an appropriate consensus algorithm
+
+# Topic 1: Why does a public blockchain need a different approach?
+
+In Module 2, we learned algorithms such as Paxos and PBFT. These algorithms coordinate participants through proposals, messages and quorum rules.
+
+But consider a public blockchain such as Bitcoin.
+
+Anyone may participate, and nodes may not know one another. There is no single administrator who decides which participant is trusted to add the next block.
+
+This creates several challenges.
+
+- Participants may be anonymous or pseudonymous.
+- A malicious user may create many identities.
+- Nodes may receive blocks in different orders.
+- Network messages may be delayed.
+- Different miners may propose different blocks at approximately the same time.
+
+Your teacher's POW Consensus.pptx highlights these challenges and explains that PoW helps mitigate Sybil attacks in permissionless networks.&#x20;
+
+POW Consensus.pptx
+
+
+
+## 1.1 What is a Sybil attack?
+
+A Sybil attack occurs when one adversary creates or controls many identities to appear as multiple independent participants.
+
+For example, imagine a network that accepts one vote per account.
+
+An attacker creates 1,000 accounts and tries to control the vote. Although there is only one attacker, the network may incorrectly treat the accounts as 1,000 independent participants.
+
+Traditional one-account-one-vote rules are therefore difficult to use safely when participants can create identities cheaply.
+
+## 1.2 How does Proof of Work help?
+
+PoW makes block proposals depend on performing computational work, rather than simply creating more identities.
+
+Creating 1,000 accounts does not automatically provide 1,000 times the computational power.
+
+The attacker must obtain real computational resources to gain a greater chance of producing blocks.
+
+Important: PoW does not make Sybil attacks impossible. It raises the cost of influencing the network by tying influence to computational work.
+
+# Topic 2: Proof of Work (PoW)
+
+## 2.1 Definition
+
+Proof of Work is a blockchain consensus mechanism in which miners perform computational work to find a block whose cryptographic hash satisfies a specified target.
+
+Bitcoin uses PoW, commonly associated with Nakamoto consensus. Your teacher's PPT also lists Litecoin and other cryptocurrency blockchains as examples of PoW use.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+The basic idea is simple:
+
+- Finding a valid hash can require many attempts.
+- Checking a proposed hash is comparatively easy.
+- The successful miner broadcasts the block.
+- Other nodes verify it before accepting it under their blockchain rules.
+
+## 2.2 What is a hash?
+
+A cryptographic hash function converts input data into a fixed-length output called a hash or digest.
+
+For example, SHA-256 produces a 256-bit hash.
+
+Even a small change in the input usually produces a very different output.
+
+Miners use the hash function repeatedly while trying different inputs to find a hash below the required target.
+
+## 2.3 What is a nonce?
+
+A nonce is a number that a miner can vary while searching for a valid block hash.
+
+Suppose the block header includes a nonce. The miner changes the nonce and calculates a new hash each time.
+
+Candidate block header
+
+Previous block hash + transaction summary + nonce
+
+Cryptographic hash function
+
+Compare hash with target
+
+Hash too high
+
+Try another nonce
+
+Hash below target
+
+Valid PoW found
+
+## 2.4 The PoW condition
+
+Your teacher's PPT expresses the condition in this form:
+
+\\[ H(N\parallel P\_{\text{hash}}\parallel Tx_1\parallel Tx_2\parallel\cdots)\<T \\]
+
+Where:
+
+- \\(H\\) = cryptographic hash function
+- \\(N\\) = nonce
+- \\(P\_{\text{hash}}\\) = previous block hash
+- \\(Tx_i\\) = transaction data
+- \\(T\\) = target or threshold value
+- \\(\parallel\\) = concatenation of inputs
+
+This is a conceptual representation of the PoW condition. Bitcoin hashes its block header; the header commits to transaction data through the Merkle root rather than directly concatenating every transaction into the header.
+
+Remember: a smaller target means a stricter condition, so finding a valid hash becomes harder on average.
+
+## 2.5 Step-by-step working of PoW
+
+According to your teacher's POW Consensus PPT, the process is as follows.&#x20;
+
+POW Consensus.pptx
+
+
+
+Step 1 — Transactions are broadcast. Users send transactions to the network.
+
+Step 2 — Miners collect transactions. Each miner selects transactions and builds a candidate block.
+
+Step 3 — Include the previous block hash. The candidate block is linked to the existing blockchain.
+
+Step 4 — Try different nonce values. The miner calculates hashes while changing the nonce and, when needed, other permitted header data.
+
+Step 5 — Check the target. If the hash does not satisfy the target, the miner tries again.
+
+Step 6 — Broadcast the successful block. A miner that finds a valid PoW announces its block to the network.
+
+Step 7 — Other nodes verify the block. Nodes independently check the proof, transactions and protocol rules. A valid block can then be accepted under the network's chain-selection rules.
+
+Transactions received
+
+Build candidate block
+
+Calculate hash using nonce
+
+Is hash below target?
+
+No
+
+Try again
+
+Yes
+
+Broadcast block
+
+Simplified mining flow
+
+## 2.6 A simple numerical illustration
+
+Suppose a toy hash function produces numbers between 0 and 999, and the target is 10.
+
+The miner must find a hash value satisfying:
+
+\\[ H(\text{candidate})<10 \\]
+
+Examples:
+
+| Attempt | Hash result | Valid? |
+| ------- | ----------- | ------ |
+| Nonce 1 | 583         | No     |
+| Nonce 2 | 219         | No     |
+| Nonce 3 | 8           | Yes    |
+
+In this simplified example, nonce 3 succeeds.
+
+Real Bitcoin mining uses SHA-256-based block-header hashing and a much larger numerical space. The toy example only demonstrates the target-checking idea.
+
+## 2.7 What is mining difficulty?
+
+Mining difficulty describes how difficult it is, on average, to find a valid PoW hash.
+
+- A lower target means greater difficulty.
+- A higher target means lower difficulty.
+
+Your teacher's Bitcoin material explains that Bitcoin adjusts difficulty every 2,016 blocks to keep the average block interval near ten minutes.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+The important concept is that miners may perform many unsuccessful hash calculations before one finds a valid block.
+
+## 2.8 Why is PoW secure?
+
+PoW makes it expensive to repeatedly produce competing blocks because miners must expend computational resources.
+
+An attacker attempting to rewrite an established chain generally needs substantial hash power and must compete with honest mining activity.
+
+Security depends on assumptions about the distribution of hash power, network behaviour, incentives and the attacker's resources.
+
+PoW is not mathematically impossible to attack. Its security is based on making certain attacks sufficiently costly and difficult under the protocol's assumptions.
+
+## 2.9 Advantages and limitations of PoW
+
+Advantages
+
+1. Supports permissionless participation.
+2. Does not require a fixed, trusted validator group.
+3. Makes block production depend on computational work.
+4. Helps mitigate Sybil attacks.
+5. Has a long operational history through Bitcoin.
+
+Limitations
+
+1. High energy consumption.
+2. Mining hardware and electricity can be expensive.
+3. Block production and confirmation take time.
+4. Mining power may become concentrated among large operators.
+5. Temporary forks can occur when different miners find competing blocks.
+
+### Exam-ready 10-mark structure: PoW
+
+For the question "Explain the Proof of Work consensus algorithm", write:
+
+1. Definition
+2. Need for PoW in permissionless networks
+3. Hash function and nonce
+4. PoW target condition
+5. Step-by-step mining process
+6. Mining difficulty
+7. How PoW helps mitigate Sybil attacks
+8. Advantages and limitations
+9. Diagram
+10. Conclusion
+
+# Topic 3: Nakamoto Consensus and Blockchain Properties
+
+PoW is the computational-work mechanism. Nakamoto consensus refers more broadly to Bitcoin's approach to achieving agreement using PoW, block production, and chain selection.
+
+## 3.1 Why can forks happen?
+
+Suppose two miners find valid blocks at nearly the same time.
+
+Some nodes receive Block A first, while others receive Block B first.
+
+Common previous block
+
+Block A
+
+Miner A
+
+Block B
+
+Miner B
+
+Temporary fork: different nodes initially see different tips.
+
+When miners continue producing blocks, one branch may accumulate more proof of work. Bitcoin nodes follow the valid chain with the most cumulative proof of work, not simply the chain with the largest number of blocks.
+
+As the network converges on a branch, the competing block may become stale.
+
+## 3.2 Why are confirmations important?
+
+When a transaction is included in a block, it has one confirmation. When another block is added on top, it has two confirmations, and so on.
+
+More confirmations generally make reversal more difficult because an attacker must overcome the accumulated work securing the accepted history.
+
+However, confirmations do not create absolute mathematical finality: the practical security depends on network conditions and the attacker's resources.
+
+## 3.3 Three chain properties in your teacher's PPT
+
+Your POW Consensus PPT explains three important properties: common prefix, chain quality and chain growth.&#x20;
+
+POW Consensus.pptx
+
+
+
+### A. Common prefix
+
+The common-prefix property means that honest nodes' blockchains share a sufficiently long common history, apart from a limited number of recent blocks that may be reorganised.
+
+It supports agreement: honest nodes should not remain permanently committed to conflicting histories.
+
+### B. Chain quality
+
+Chain quality refers to the proportion of blocks produced by honest participants relative to adversarial participants under the protocol's assumptions.
+
+It helps ensure that a malicious participant cannot dominate block production beyond the security bounds.
+
+### C. Chain growth
+
+Chain growth means that the blockchain continues to grow as new blocks are added.
+
+It supports liveness by ensuring that the network can keep processing transactions and extending its history.
+
+| Property      | Main idea                            | Related consensus guarantee                      |
+| ------------- | ------------------------------------ | ------------------------------------------------ |
+| Common prefix | Honest chains share a common history | Agreement / safety                               |
+| Chain quality | Sufficient honest block contribution | Validity and resistance to adversarial dominance |
+| Chain growth  | The chain continues to extend        | Liveness                                         |
+
+Memory trick: C–Q–G
+
+- Common prefix — shared history
+- Quality — honest block contribution
+- Growth — new blocks continue to appear
+
+# Topic 4: Proof of Stake (PoS)
+
+## 4.1 What is Proof of Stake?
+
+Proof of Stake (PoS) is a consensus mechanism in which a participant's stake in the system helps determine their opportunity to propose or validate blocks.
+
+A stake is an amount of cryptocurrency committed under the protocol's rules.
+
+Unlike PoW, where miners compete by performing computational work, PoS selects validators through a protocol-specific selection mechanism that considers stake and may include other factors.
+
+Your teacher's POW Consensus PPT presents PoS as an energy-efficient alternative to PoW and describes validators as miners, minters or stakeholders.&#x20;
+
+POW Consensus.pptx
+
+
+
+## 4.2 How does PoS work?
+
+Consider a blockchain with three participants:
+
+- Alice stakes 100 coins.
+- Bob stakes 50 coins.
+- Charlie stakes 25 coins.
+
+A PoS protocol uses its selection rules to choose a validator or block proposer.
+
+In a simple stake-proportional illustration, Alice's share of the total stake is:
+
+\\[ \frac{100}{100+50+25}\times100 =57.14\\% \\]
+
+Alice would have a 57.14% selection probability if this particular protocol used direct stake-proportional selection. This is only an illustration; actual PoS protocols may use committees, randomness, eligibility rules and other mechanisms.
+
+After selection, the validator proposes or validates a block according to the protocol.
+
+Depending on the design, validators may lose some of their stake for specific kinds of misconduct. This is commonly called slashing.
+
+## 4.3 PoW vs PoS
+
+| Feature               | Proof of Work                                               | Proof of Stake                                                         |
+| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Main resource         | Computational work                                          | Staked assets and protocol-defined selection                           |
+| Participant           | Miner                                                       | Validator or block proposer                                            |
+| Block selection       | Successful hash puzzle and chain-selection rules            | Stake-based or stake-influenced selection                              |
+| Energy use            | Can be high                                                 | Generally much lower                                                   |
+| Main cost             | Hardware and electricity                                    | Capital committed as stake                                             |
+| Main security concern | Concentration of hash power and attacks on accumulated work | Stake concentration, validator collusion and protocol-specific attacks |
+
+## 4.4 Advantages of PoS
+
+1. Lower energy consumption than PoW.
+2. Does not require continuous mining competition.
+3. Can support efficient block production.
+4. Economic penalties can discourage certain malicious actions, depending on the protocol.
+
+## 4.5 Limitations of PoS
+
+1. Stake may become concentrated among a small group.
+2. A large stake may give a participant greater influence.
+3. Validator selection and incentive design can be complex.
+4. Security depends on the specific protocol's assumptions and mechanisms.
+
+Exam point: Do not write that every PoS algorithm works exactly the same way. Different protocols use different selection and finality rules.
+
+## 4.6 Variants of PoS in your teacher's PPT
+
+Your POW Consensus PPT lists these PoS variants:
+
+- Chain-based PoS
+- Committee-based PoS
+- BFT-based PoS
+- Delegated PoS
+- Leased PoS
+- Masternode PoS&#x20;
+
+  POW Consensus.pptx
+
+
+
+For a theory answer, explain the general principle of PoS first, then mention the variants as examples.
+
+# Topic 5: Delegated Proof of Stake (DPoS)
+
+## 5.1 Definition
+
+Delegated Proof of Stake (DPoS) is a consensus approach in which stakeholders vote to select or delegate block validation to a smaller group of representatives.
+
+Your teacher's Consensus Protocol PPT describes DPoS as allowing stakeholders to delegate validation through voting and mentions BitShares as an example.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+## 5.2 How does it work?
+
+Stakeholders
+
+Vote for representatives
+
+Selected delegates / validators
+
+Propose or validate blocks
+
+Network accepts blocks under protocol rules
+
+The main steps are:
+
+1. Stakeholders vote for delegates.
+2. The protocol selects a group of delegates.
+3. The selected delegates participate in block production or validation.
+4. Stakeholders may be able to replace delegates through later voting, depending on the protocol.
+
+## 5.3 Advantages and limitations
+
+Advantages
+
+- Can reduce the number of active block producers.
+- Can improve transaction throughput and reduce confirmation delays.
+- Provides stakeholders with a voting role.
+
+Limitations
+
+- A small delegate group may concentrate power.
+- Voter participation can be low.
+- Delegates may collude.
+- Governance becomes an important security consideration.
+
+### PoS vs DPoS
+
+| PoS                                                                 | DPoS                                                            |
+| ------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Validators are selected under a stake-based protocol.               | Stakeholders vote for or delegate to representatives.           |
+| The validator set may be large or small, depending on the protocol. | Active block producers are often a smaller selected group.      |
+| Influence depends on the protocol's stake and selection rules.      | Voting and delegation are central to selecting representatives. |
+
+# Topic 6: Other Consensus Algorithms from Your Teacher's PPT
+
+Your teacher's Consensus Protocol.pptx lists several additional consensus mechanisms. These are important for short notes, definitions and comparison questions.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+## 6.1 Proof of Elapsed Time (PoET)
+
+PoET selects a participant using a randomly assigned waiting time.
+
+The participant whose waiting period expires first may be allowed to propose the next block, subject to the protocol's rules.
+
+Your PPT explains that PoET uses a Trusted Execution Environment (TEE) to support randomness and security in leader selection. It specifically mentions Intel SGX as the security technology in the presented design.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+Advantage: can avoid the energy-intensive competition of PoW.
+
+Limitation: security depends on the trusted hardware and execution environment.
+
+## 6.2 Proof of Deposit (PoD)
+
+In the mechanism described in your teacher's PPT, participants must make a security deposit before they can participate in mining or block proposals.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+The deposit provides an economic commitment that may be used to discourage misconduct, depending on the protocol's rules.
+
+Remember: PoD is based on depositing funds as a participation condition.
+
+## 6.3 Proof of Importance (PoI)
+
+Proof of Importance assigns an importance score to participants and uses that score to influence the selection of block producers.
+
+Your PPT associates PoI with NEM and explains that factors can include transaction activity, vested currency and network activity.&#x20;
+
+Consensus Protocol.pptx
+
+
+
+Remember: PoI considers more than merely holding coins; its importance calculation can include activity-related factors.
+
+## 6.4 Federated Byzantine Consensus
+
+Federated Byzantine consensus uses groups of participants that trust selected subsets of other participants.
+
+Agreement emerges when the relevant trusted groups overlap sufficiently according to the protocol's rules.
+
+Advantage: can support Byzantine fault tolerance without requiring every participant to trust every other participant directly.
+
+Limitation: security depends on the structure of trust relationships and the required quorum overlap.
+
+## 6.5 Reputation-based consensus
+
+Reputation-based mechanisms use a participant's reputation or historical behaviour to influence its role in consensus.
+
+A system may give greater authority or selection priority to participants that satisfy its reputation rules.
+
+Limitation: reputation can be difficult to measure fairly, and the system must handle manipulation, identity changes and collusion.
+
+## 6.6 Proof of Activity (PoA)
+
+In your PPT's list, PoA means Proof of Activity, not Proof of Authority.
+
+Proof of Activity combines aspects of PoW and PoS: PoW can be used to initiate block creation, while stake-based participants help complete or validate the block under the protocol's design.
+
+Advantage: combines mechanisms from two consensus approaches.
+
+Limitation: inherits design complexity and security considerations from the mechanisms it combines.
+
+## 6.7 Proof of Capacity (PoC)
+
+Proof of Capacity uses available storage space to participate in the consensus process. Participants prepare storage data, and the protocol uses that data in its block-selection mechanism.
+
+Advantage: can reduce dependence on continuous computational hashing.
+
+Limitation: can favour participants with large storage capacity.
+
+## 6.8 Proof of Storage
+
+Proof of Storage focuses on proving that a participant is storing specified data.
+
+It is especially relevant to decentralised storage systems. It is not automatically a complete blockchain consensus algorithm: a system may combine storage proofs with another mechanism to decide which blocks are accepted.
+
+## 6.9 Proof of Authority (also abbreviated PoA)
+
+Your PPT separately lists Proof of Authority, which uses an authorised set of validators whose identities or eligibility have been approved according to the network's rules.
+
+Advantage: often supports efficient block production in permissioned or controlled networks.
+
+Limitation: trust is concentrated in the authorised validators, so the model is less open than permissionless consensus.
+
+## 6.10 Quick comparison of additional algorithms
+
+| Algorithm                     | Main selection or security idea                      | Main consideration                              |
+| ----------------------------- | ---------------------------------------------------- | ----------------------------------------------- |
+| PoET                          | Random waiting time with trusted execution support   | Depends on the TEE                              |
+| PoD                           | Security deposit                                     | Depends on deposit and penalty rules            |
+| PoI                           | Importance score, including activity-related factors | Score calculation and concentration             |
+| Federated Byzantine consensus | Overlapping trusted groups                           | Trust and quorum configuration                  |
+| Reputation-based              | Reputation or past behaviour                         | Reputation manipulation                         |
+| Proof of Activity             | Combines PoW and stake-related participation         | More complex design                             |
+| Proof of Capacity             | Storage capacity                                     | Storage advantage                               |
+| Proof of Storage              | Evidence that data is stored                         | Does not necessarily provide complete consensus |
+| Proof of Authority            | Approved validators                                  | Dependence on authorised participants           |
+
+Exam tip: If the question asks for "different blockchain consensus algorithms," define each in two or three sentences, mention one advantage or limitation, and include the detailed working of PoW and PoS if marks permit.
+
+# Topic 7: Important Attacks — Sybil Attack and 51% Attack
+
+These concepts help explain why blockchain consensus mechanisms are designed the way they are.
+
+## 7.1 Sybil attack
+
+A Sybil attack happens when an adversary creates or controls many identities to gain disproportionate influence in a network.
+
+Example: one person creates hundreds of fake nodes to appear to be hundreds of independent participants.
+
+How consensus helps: PoW ties block-production influence to computational work rather than identity count. Other protocols use different protections, such as stake requirements, permissioned identities or validator selection rules.
+
+## 7.2 51% attack
+
+A 51% attack is commonly used to describe an attacker controlling a majority of the relevant resource in a consensus system.
+
+In a PoW blockchain, this generally refers to controlling more than half of the network's total mining hash power.
+
+Such an attacker may be able to reorganise recent blocks or reverse the attacker's own recent payments by producing a competing chain with greater cumulative work.
+
+However, controlling a majority of hash power does not automatically allow the attacker to:
+
+- Forge another user's digital signature
+- Spend coins belonging to someone else without the required authorisation
+- Make honest nodes accept blocks that violate the protocol's validity rules
+
+### Sybil attack vs 51% attack
+
+| Sybil attack                                                             | 51% attack                                                                            |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Creates or controls many identities.                                     | Controls a majority of the relevant consensus resource.                               |
+| Exploits weak identity-based assumptions.                                | Exploits concentration of mining power or an analogous resource.                      |
+| Creating identities alone does not necessarily grant more PoW influence. | A majority of PoW hash power can provide significant chain-reorganisation capability. |
+
+For PoS systems, majority-stake attacks have different mechanics and consequences. Do not automatically apply every PoW attack description to PoS.
+
+# Topic 8: How to Choose a Consensus Algorithm
+
+Your syllabus explicitly includes choosing an algorithm, so this topic deserves a full theory answer.
+
+There is no single consensus algorithm that is best for every blockchain. Selection depends on the application's requirements and threat model.
+
+## 8.1 Main selection factors
+
+### 1. Network type
+
+Ask whether the network is public and permissionless or permissioned.
+
+- A public blockchain must account for unknown participants.
+- A permissioned network may have a known validator set.
+
+PoW is one established approach for permissionless networks. PBFT-style protocols are often appropriate for permissioned systems with known validators and Byzantine fault-tolerance requirements.
+
+### 2. Security and fault tolerance
+
+Ask what kinds of failures must be tolerated.
+
+- If nodes may simply crash, a CFT algorithm such as Raft may be suitable.
+- If validators may behave maliciously, a BFT algorithm such as PBFT may be needed.
+- If participants are unknown and open participation is required, a Nakamoto-style mechanism may be considered.
+
+### 3. Transaction throughput
+
+Throughput means how many transactions a system processes per unit of time.
+
+Applications with heavy transaction loads need to consider how the algorithm's communication, validation and block-production processes affect throughput.
+
+### 4. Latency and finality
+
+Latency means how long a decision takes.
+
+Some applications require a decision to become final quickly. Others can tolerate waiting for more confirmations.
+
+### 5. Energy and resource requirements
+
+PoW may consume substantial electricity and computational resources.
+
+PoS and many voting-based protocols can avoid the same kind of continuous mining competition, but have their own resource and security requirements.
+
+### 6. Decentralisation and participation
+
+Consider how many participants can take part and how influence is distributed.
+
+A system with a small authorised validator set may be efficient, but it relies on that set. A permissionless system offers broader participation but faces different coordination and security challenges.
+
+### 7. Communication overhead and scalability
+
+Some algorithms require many messages between validators. As the validator count grows, this can affect performance and cost.
+
+### 8. Governance and operational complexity
+
+Consider:
+
+- How validators join and leave
+- How failed leaders are replaced
+- How software upgrades are handled
+- Whether identities must be verified
+- How the system responds to attacks and network partitions
+
+## 8.2 Example: selecting an algorithm
+
+| Application                                                     | Possible choice          | Reason                                                            |
+| --------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
+| Replicated database with trusted servers and crash failures     | Raft                     | Leader-based replication and CFT                                  |
+| Permissioned network that must tolerate malicious validators    | PBFT-style BFT           | Designed for Byzantine faults                                     |
+| Public cryptocurrency with permissionless participation         | PoW / Nakamoto consensus | Does not require a fixed trusted validator set                    |
+| Blockchain seeking lower energy use with stake-based validation | PoS                      | Uses stake-based selection rather than continuous PoW competition |
+
+These are illustrative choices, not universal rules. A real design must also consider the exact protocol, scale, security assumptions, finality requirements and operational constraints.
+
+# Module 3 — Exam Revision Notes
+
+## Important definitions
+
+| Term               | One-line definition                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| PoW                | Uses computational work to find a valid block hash.                                   |
+| Nonce              | A variable changed during the search for a valid PoW hash.                            |
+| Target             | The threshold a candidate hash must satisfy.                                          |
+| Mining difficulty  | A measure of how difficult it is to find a valid PoW hash.                            |
+| PoS                | Uses stake-based mechanisms to select or authorise validators.                        |
+| DPoS               | Uses stakeholder voting or delegation to select block producers.                      |
+| PoET               | Uses random waiting times, with trusted execution support in the presented design.    |
+| PoI                | Uses an importance score to influence block selection.                                |
+| PoC                | Uses storage capacity in the consensus mechanism.                                     |
+| Proof of Authority | Uses approved validators.                                                             |
+| Common prefix      | Honest blockchain histories share a sufficiently long common history.                 |
+| Chain quality      | Measures the contribution of honest block producers under the protocol's assumptions. |
+| Chain growth       | The blockchain continues to grow through new blocks.                                  |
+| Sybil attack       | One adversary creates or controls many identities to gain influence.                  |
+| 51% attack         | In PoW, an attacker controls a majority of total hash power.                          |
+
+## Likely 5-mark questions
+
+1. Define Proof of Work and explain its working.
+2. What are nonce and mining difficulty?
+3. Explain the role of PoW in mitigating Sybil attacks.
+4. Differentiate PoW and PoS.
+5. Explain Delegated Proof of Stake.
+6. Write short notes on PoET, PoD and PoI.
+7. Explain common prefix, chain quality and chain growth.
+8. Differentiate Sybil attack and 51% attack.
+9. List the factors used to choose a consensus algorithm.
+
+## Likely 10-mark questions
+
+1. Explain Proof of Work with a diagram, its working, advantages and limitations.
+2. Explain Nakamoto consensus and the three blockchain properties: common prefix, chain quality and chain growth.
+3. Explain Proof of Stake and Delegated Proof of Stake, comparing them with PoW.
+4. Discuss different blockchain consensus algorithms and their applications.
+5. Explain the criteria for selecting an appropriate consensus algorithm.
+6. Explain Sybil attacks and 51% attacks in blockchain networks.
+
+### A good structure for the 10-mark PoW answer
+
+1. Definition of PoW
+2. Need for PoW in permissionless networks
+3. Hash function, nonce and target
+4. PoW equation
+5. Mining process diagram
+6. Difficulty adjustment
+7. Role in network security
+8. Advantages and limitations
+9. Conclusion
+
+## Quick self-test
+
+1\. What does a miner change repeatedly while searching for a valid PoW hash?
+
+Private key
+
+Nonce
+
+Block reward
+
+Validator identity
+
+2\. What is the main idea behind Proof of Stake?
+
+Use more electricity
+
+Select or authorise validators based on stake-related rules
+
+Require every node to mine continuously
+
+Use only trusted hardware
+
+3\. Which property means honest blockchain histories share a common history?
+
+Chain growth
+
+Chain quality
+
+Common prefix
+
+Checkpointing
+
+4\. What does a 51% attack refer to in a PoW system?
+
+Owning 51 coins
+
+Controlling more than half of total mining hash power
+
+Creating 51 fake accounts only
+
+Changing 51 transactions
+
+5\. Which factor is important when choosing a consensus algorithm?
+
+Only the programming language
+
+Only the number of transactions
+
+Security, fault model, latency, throughput and network type
+
+Only the block colour
+
+0/5 answered
+
+Reset quiz
+
+Module 3 is complete.
+
+Next is Module 4: Introduction to Bitcoin — Overview, Cryptographic Keys and Transactions, covering how Bitcoin works, public and private keys, addresses, digital signatures, transaction inputs and outputs, UTXOs and Bitcoin Script.
+
+Say NEXT MODULE when you're ready.

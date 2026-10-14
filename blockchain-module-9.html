@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 9: Consensus Problem, Analysis & Design — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 9 of 13: Consensus Problem, Analysis & Design.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)'], ['$', '$']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 4px 0 12px;
+}
+
+.math-display {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    text-align: center;
+    overflow-x: auto;
+}
+
+.exam-header-banner {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 28px 0 16px;
+}
+
+.memory-trick-banner {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin: 20px 0 14px;
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Cryptography</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Cryptography</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 Syllabus</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 9 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Consensus Problem, Analysis & Design</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules (13) ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<span class="nav-item current">9. Consensus Problem, Analysis & Design</span>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<p>Based on your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span>, with beginner-friendly explanations and exam-oriented notes.</p>
+<p>This module covers the first part of your syllabus: introducing the consensus problem, analysing consensus algorithms, and understanding their design. We'll build the fundamentals carefully before studying individual algorithms in Module 2.</p>
+<h2>Module 1 roadmap</h2>
+<ol>
+<li>Distributed systems and consensus</li>
+<li>Why blockchain needs consensus</li>
+<li>The Byzantine Generals Problem</li>
+<li>Fault tolerance: CFT and BFT</li>
+<li>Replication and state machine replication</li>
+<li>Properties of consensus: safety and liveness</li>
+<li>Analysis and design of consensus algorithms</li>
+<li>Synchronous, asynchronous and partially synchronous networks</li>
+<li>FLP impossibility</li>
+<li>Minimum number of nodes for fault tolerance</li>
+</ol>
+<h1>Topic 1: Distributed systems — the foundation</h1>
+<p>Before understanding consensus, we need to understand what a distributed system is.</p>
+<h2>1.1 What is a distributed system?</h2>
+<p>A distributed system is a collection of independent computers that communicate and coordinate with one another to perform a task.</p>
+<p>Each computer can process information independently, but the computers cooperate to provide a common service.</p>
+<p>For example, imagine a banking system with three computers:</p>
+<p>Banking application</p>
+<p>A user requests a money transfer.</p>
+<p>Node A</p>
+<p>Balance data</p>
+<p>Node B</p>
+<p>Transaction log</p>
+<p>Node C</p>
+<p>Backup copy</p>
+<p>The nodes communicate to keep the system consistent.</p>
+<p>Here, a node is a computer or process participating in the system.</p>
+<p>A distributed system offers several benefits:</p>
+<ul>
+<li>Reliability: the system can continue operating despite some failures.</li>
+<li>Availability: services may remain accessible when some nodes fail.</li>
+<li>Scalability: additional computers can contribute resources.</li>
+<li>Replication: multiple nodes can maintain copies of data.</li>
+</ul>
+<p>However, distributed systems also face a problem: different computers may have different information at the same time.</p>
+<h3>Example</h3>
+<p>Suppose Node A receives a transaction first, but Node C receives it two seconds later. During those two seconds, their local records may differ.</p>
+<p>This can happen because of:</p>
+<ul>
+<li>Network delays</li>
+<li>Lost messages</li>
+<li>Failed computers</li>
+<li>Faulty or malicious participants</li>
+</ul>
+<p>This is why distributed systems need mechanisms to coordinate their decisions.</p>
+<h2>1.2 Two distributed-system communication models</h2>
+<p>Your teacher's PPT introduces two broad models.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Meaning</th>
+<th>Simple example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Message passing</td>
+<td>Computers exchange messages over a network.</td>
+<td>One node sends a transaction or vote to another node.</td>
+</tr>
+<tr>
+<td>Shared memory</td>
+<td>Processes communicate by reading and writing shared memory.</td>
+<td>Two processes access a common memory region.</td>
+</tr>
+</tbody>
+</table>
+<p>In the blockchain context covered by your PPT, the important model is message passing: nodes communicate by sending messages to one another.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h1>Topic 2: What is consensus?</h1>
+<h2>2.1 Basic meaning</h2>
+<p>The word consensus means agreement.</p>
+<p>In a distributed system, consensus is the process through which participating nodes agree on a common decision or value according to a defined protocol.</p>
+<p>In blockchain, nodes need to agree on which transactions and blocks are accepted and on the resulting ledger state.</p>
+<h3>Simple example</h3>
+<p>Suppose four nodes must decide whether a transaction should be accepted.</p>
+<p>Proposed transaction</p>
+<p>Aman sends 2 coins to Rahul.</p>
+<p>Node A</p>
+<p>Valid</p>
+<p>Node B</p>
+<p>Valid</p>
+<p>Node C</p>
+<p>Valid</p>
+<p>Node D</p>
+<p>Valid</p>
+<p>Common decision: Accept the transaction</p>
+<p>The nodes don't necessarily need to receive messages simultaneously. They need to follow the protocol so that honest participants reach compatible decisions under the protocol's assumptions.</p>
+<p>Important: Consensus is not always a simple majority vote. Different algorithms use different mechanisms, including voting, cryptographic proofs, and computational work.</p>
+<h2>2.2 Why does blockchain need consensus?</h2>
+<p>Consider a digital currency without a central bank or administrator. If different nodes maintain different transaction histories, they may disagree about who owns the funds.</p>
+<p>Consensus helps solve the following problems:</p>
+<ol>
+<li>Agreement: nodes need to agree on the accepted ledger history.</li>
+<li>Double spending: the same funds must not be spent successfully twice.</li>
+<li>Fault tolerance: the system should cope with some failed or malicious nodes.</li>
+<li>Consistency: replicated ledgers should converge on a compatible state.</li>
+<li>Transaction ordering: conflicting transactions need to be handled consistently.</li>
+</ol>
+<p>Your teacher's PPT identifies Bitcoin as a public blockchain using Proof of Work, also known as Nakamoto consensus, and contrasts it with traditional consensus approaches used by many permissioned blockchains.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h2>2.3 A crucial distinction: validation vs consensus</h2>
+<p>These terms are related but not identical.</p>
+<table>
+<thead>
+<tr>
+<th>Validation</th>
+<th>Consensus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Checks whether a transaction or block follows protocol rules.</td>
+<td>Determines which proposed blocks or decisions the network accepts.</td>
+</tr>
+<tr>
+<td>Checks signatures, balances or other required conditions.</td>
+<td>Coordinates agreement across distributed nodes.</td>
+</tr>
+<tr>
+<td>A transaction can pass validation but still conflict with another transaction.</td>
+<td>The consensus protocol helps determine the accepted history.</td>
+</tr>
+</tbody>
+</table>
+<p>Remember: validation checks the rules; consensus coordinates agreement.</p>
+<h1>Topic 3: The Byzantine Generals Problem</h1>
+<p>This is one of the most important concepts in consensus algorithms and a strong candidate for a 5-mark or 10-mark theory question.</p>
+<h2>3.1 What is the Byzantine Generals Problem?</h2>
+<p>The Byzantine Generals Problem is a classic problem in distributed computing that explains how a group of participants can reach a common decision when some participants may be faulty or deliberately dishonest.</p>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s CONSENSUS UNIT-3.pptx</span> uses the military analogy of generals coordinating an attack or retreat.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h3>Understand the story</h3>
+<p>Imagine an army surrounding a city. Three generals command different army units. They must decide whether to attack or retreat.</p>
+<p>They communicate through messengers because they are in different locations.</p>
+<p>However, one general may be a traitor and send contradictory messages.</p>
+<p>Commander</p>
+<p>Sends conflicting instructions</p>
+<p>General A</p>
+<p>Receives "Attack"</p>
+<p>General B</p>
+<p>Receives "Retreat"</p>
+<p>Problem: How can the loyal generals agree on one decision despite the traitor?</p>
+<p>If loyal generals follow conflicting instructions, the army may fail even though most generals are honest.</p>
+<p>The challenge is to design a protocol that allows the honest participants to agree despite a limited number of malicious participants.</p>
+<h2>3.2 Mapping the problem to blockchain</h2>
+<table>
+<thead>
+<tr>
+<th>Military example</th>
+<th>Blockchain equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>General</td>
+<td>Node or validator</td>
+</tr>
+<tr>
+<td>Attack or retreat</td>
+<td>Accept or reject a proposed decision</td>
+</tr>
+<tr>
+<td>Messenger</td>
+<td>Network message</td>
+</tr>
+<tr>
+<td>Traitor</td>
+<td>Malicious or Byzantine node</td>
+</tr>
+<tr>
+<td>Agreement among loyal generals</td>
+<td>Agreement among honest nodes</td>
+</tr>
+<tr>
+<td>Common battle plan</td>
+<td>Consistent ledger decision</td>
+</tr>
+</tbody>
+</table>
+<p>For example, a malicious blockchain node might claim that one transaction is valid to one node but tell another node that a conflicting transaction should be accepted.</p>
+<p>A Byzantine fault-tolerant protocol is designed to handle this kind of behaviour within its specified fault threshold.</p>
+<h2>3.3 What is a Byzantine fault?</h2>
+<p>A Byzantine fault is an arbitrary fault in which a node may behave incorrectly in many possible ways, including deliberately malicious behaviour.</p>
+<p>Examples:</p>
+<ul>
+<li>Sending conflicting messages to different nodes</li>
+<li>Sending invalid data</li>
+<li>Failing to follow the protocol</li>
+<li>Pretending to have accepted a decision when it has not</li>
+<li>Cooperating with other malicious nodes to disrupt agreement</li>
+</ul>
+<p>This is more difficult to handle than a computer that simply crashes.</p>
+<h2>3.4 What is the solution idea?</h2>
+<p>Consensus algorithms use rules that help honest nodes distinguish acceptable decisions from conflicting or invalid ones.</p>
+<p>Depending on the algorithm, these rules can involve:</p>
+<ul>
+<li>Collecting messages from multiple participants</li>
+<li>Counting votes or obtaining a quorum</li>
+<li>Using cryptographic signatures to verify message origins</li>
+<li>Requiring enough independent participants to confirm a decision</li>
+<li>Ignoring decisions that fail the protocol's conditions</li>
+</ul>
+<p>No protocol can tolerate an unlimited number of faulty nodes. Its guarantees depend on the algorithm and the assumptions about how many nodes may be faulty.</p>
+<div class="exam-header-banner">🎯 Exam-ready 5-mark answer</div>
+<p>Question: Explain the Byzantine Generals Problem and its relevance to blockchain.</p>
+<p>The Byzantine Generals Problem describes the difficulty of achieving agreement in a distributed system when some participants may be faulty or malicious. In the classical example, several generals must agree on whether to attack or retreat, but a traitorous general may send conflicting messages. This can cause honest generals to make inconsistent decisions.</p>
+<p>In blockchain, generals correspond to nodes, messengers correspond to network messages, and traitors correspond to malicious nodes. A Byzantine fault-tolerant consensus algorithm enables honest participants to reach a consistent decision despite a limited number of faulty participants.</p>
+<p>Thus, the problem provides the foundation for understanding Byzantine Fault Tolerance (BFT) and consensus algorithms used in distributed systems.</p>
+<h1>Topic 4: Fault Tolerance — CFT vs BFT</h1>
+<h2>4.1 What is fault tolerance?</h2>
+<p>Fault tolerance is the ability of a system to continue operating correctly even when some of its components fail.</p>
+<p>For example, if one server stops working but the remaining servers continue to provide the service, the system demonstrates fault tolerance.</p>
+<p>Your teacher's PPT classifies fault-tolerant consensus into two major categories:</p>
+<ul>
+<li>Crash Fault Tolerance (CFT)</li>
+<li>Byzantine Fault Tolerance (BFT)&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+</ul>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h2>4.2 Crash Fault Tolerance (CFT)</h2>
+<p>CFT handles nodes that fail in relatively predictable ways, such as crashing or stopping communication.</p>
+<p>Imagine five servers maintaining copies of a database. One server suddenly switches off. The remaining servers can still reach a decision using the protocol's rules.</p>
+<p>The failed server does not deliberately send contradictory information; it simply stops functioning or communicating.</p>
+<p>Example algorithms: Paxos and Raft, as covered in your teacher's consensus material.</p>
+<h2>4.3 Byzantine Fault Tolerance (BFT)</h2>
+<p>BFT handles more complex failures, including arbitrary and malicious behaviour.</p>
+<p>Imagine five validators. One validator sends conflicting messages to different participants, while another sends invalid information. The protocol must still protect agreement within its fault-tolerance assumptions.</p>
+<p>Example algorithm: Practical Byzantine Fault Tolerance (PBFT).</p>
+<h2>4.4 CFT vs BFT — important comparison</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>CFT</th>
+<th>BFT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full form</td>
+<td>Crash Fault Tolerance</td>
+<td>Byzantine Fault Tolerance</td>
+</tr>
+<tr>
+<td>Type of failure</td>
+<td>Nodes crash or stop responding</td>
+<td>Nodes may behave arbitrarily or maliciously</td>
+</tr>
+<tr>
+<td>Handles conflicting malicious messages?</td>
+<td>Not designed to tolerate Byzantine behaviour</td>
+<td>Designed to tolerate it within its fault threshold</td>
+</tr>
+<tr>
+<td>Typical algorithm</td>
+<td>Paxos, Raft</td>
+<td>PBFT</td>
+</tr>
+<tr>
+<td>Complexity</td>
+<td>Usually simpler</td>
+<td>Usually more complex</td>
+</tr>
+<tr>
+<td>Communication overhead</td>
+<td>Often lower</td>
+<td>Often higher</td>
+</tr>
+<tr>
+<td>Common application</td>
+<td>Replicated databases and services</td>
+<td>Distributed systems with potentially untrusted validators</td>
+</tr>
+</tbody>
+</table>
+<div class="memory-trick-banner">🧠 Easy memory trick</div>
+<ul>
+<li>CFT = Crash</li>
+<li>BFT = Bad behaviour</li>
+</ul>
+<p>BFT covers a broader and more difficult class of faults.</p>
+<h2>4.5 What does _<strong>MATH_INL_0</strong>_ mean?</h2>
+<p>In consensus algorithms, _<strong>MATH_INL_1</strong>_ commonly denotes the maximum number of faulty nodes the protocol is designed to tolerate.</p>
+<p>For example, if a protocol is designed to tolerate one faulty node, then _<strong>MATH_INL_2</strong>_.</p>
+<p>The number of nodes needed depends on the fault model and the particular algorithm. We'll derive the important formulas later in this module.</p>
+<h1>Topic 5: Replication and State Machine Replication</h1>
+<h2>5.1 What is replication?</h2>
+<p>Replication means maintaining copies of the same data or system state on multiple nodes.</p>
+<p>Why do we need it?</p>
+<p>Suppose a blockchain stores all its data on only one computer. If that computer fails, the ledger may become unavailable.</p>
+<p>Instead, multiple nodes maintain copies of the ledger.</p>
+<p>Transaction history</p>
+<p>Copy A</p>
+<p>Copy B</p>
+<p>Copy C</p>
+<p>Multiple nodes store replicas of the system state.</p>
+<p>Replication improves availability and fault tolerance. However, merely copying data is not enough: the copies must be updated consistently.</p>
+<p>For example, if Node A processes a transfer before Node B does, both nodes need to process the relevant transactions in a compatible order.</p>
+<p>This is where consensus and replication work together.</p>
+<h2>5.2 Types of replication</h2>
+<p>Your teacher's PPT mentions two replication techniques: active replication and passive replication.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h3>A. Active replication</h3>
+<p>In active replication, multiple replicas process the same requests in the same order.</p>
+<p>The replicas independently execute the requests and should reach the same state, assuming they start from the same state and process requests deterministically.</p>
+<pre><code>             Client request
+                   │
+          Ordered broadcast
+                   │
+          ┌────────┼────────┐
+          ▼        ▼        ▼
+        Node A   Node B   Node C
+        Execute  Execute  Execute
+          │        │        │
+          ▼        ▼        ▼
+         Same resulting state
+</code></pre>
+<p>Key point: all replicas actively execute the ordered requests.</p>
+<h3>B. Passive replication</h3>
+<p>In passive replication, a primary node processes requests and communicates the relevant state changes to backup replicas.</p>
+<pre><code>             Client request
+                   │
+                   ▼
+              Primary
+             processes it
+                   │
+          State updates sent
+             ┌─────┴─────┐
+             ▼           ▼
+          Backup A    Backup B
+</code></pre>
+<p>Key point: the primary performs the main processing, while backups maintain the state and can support recovery.</p>
+<table>
+<thead>
+<tr>
+<th>Active replication</th>
+<th>Passive replication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiple replicas execute requests.</td>
+<td>Primary processes requests and sends state updates.</td>
+</tr>
+<tr>
+<td>Requires requests to be ordered consistently.</td>
+<td>Depends on reliable state updates from the primary.</td>
+</tr>
+<tr>
+<td>Replicas actively maintain the resulting state.</td>
+<td>Backups maintain state and support recovery.</td>
+</tr>
+</tbody>
+</table>
+<h2>5.3 What is state machine replication?</h2>
+<p>A state machine is a model of a system that has a current state and changes that state when it receives an input.</p>
+<p>Consider a simple bank account:</p>
+<ul>
+<li>Initial state: balance = ₹1,000</li>
+<li>Input: deposit ₹500</li>
+<li>New state: balance = ₹1,500</li>
+</ul>
+<p>Mathematically, we can represent this as:</p>
+<p>_<strong>MATH_DISP_0</strong>_</p>
+<p>Here, _<strong>MATH_INL_3</strong>_ is the operation that determines the next state.</p>
+<h3>State machine replication (SMR)</h3>
+<p>State machine replication means maintaining multiple copies of a state machine and ensuring that they process the same requests in the same order.</p>
+<p>If all replicas begin with the same state and deterministically execute the same ordered requests, they should arrive at the same final state.</p>
+<p>Your teacher's PPT describes a primary/backup approach in which requests are broadcast in a total order so replicas process them in the same sequence. It also connects total-order broadcast with distributed consensus.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h3>Why is request ordering important?</h3>
+<p>Suppose an account contains ₹1,000 and receives two operations:</p>
+<ol>
+<li>Withdraw ₹800.</li>
+<li>Withdraw ₹500.</li>
+</ol>
+<p>If the first withdrawal happens before the second, the second must fail for insufficient funds.</p>
+<p>If replicas process the operations in inconsistent orders, they may reach inconsistent outcomes. Consensus and ordered processing help prevent that.</p>
+<h3>Exam definition</h3>
+<p>State machine replication is a fault-tolerance technique in which multiple replicas of a state machine process the same ordered requests to maintain a consistent system state.</p>
+<h1>Topic 6: Properties of Consensus — Safety and Liveness</h1>
+<p>This is a particularly important exam topic because it explains what a correct consensus algorithm must guarantee.</p>
+<p>Your teacher's PPT divides the requirements into safety and liveness, with agreement, validity, integrity and termination as the associated properties.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h2>6.1 What is safety?</h2>
+<p>Safety means, broadly, nothing incorrect happens.</p>
+<p>A consensus protocol must prevent honest nodes from deciding on conflicting values.</p>
+<p>Three properties are especially important.</p>
+<h3>A. Agreement</h3>
+<p>No two honest processes should decide on different values.</p>
+<p>Example: if the protocol decides to accept Block A, another honest node must not decide to accept a conflicting Block B for the same decision.</p>
+<h3>B. Validity</h3>
+<p>The value decided must satisfy the protocol's validity condition.</p>
+<p>In the formulation used in your teacher's PPT, a decided value must have been proposed by a process; it cannot simply appear from nowhere. In blockchain, validity additionally involves checking protocol rules for transactions and blocks.</p>
+<h3>C. Integrity</h3>
+<p>A process must not decide more than once in a single consensus instance.</p>
+<p>For example, a validator should not decide one value and then decide a conflicting value for the same decision.</p>
+<h2>6.2 What is liveness?</h2>
+<p>Liveness means, broadly, something good eventually happens.</p>
+<p>A key property is:</p>
+<h3>D. Termination</h3>
+<p>Every honest node should eventually reach a decision, provided the algorithm's required assumptions hold.</p>
+<p>A protocol that preserves agreement forever but never reaches a decision has a liveness problem.</p>
+<h2>6.3 Safety vs liveness</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Safety</th>
+<th>Liveness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main idea</td>
+<td>Nothing bad happens.</td>
+<td>Something good eventually happens.</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>Prevent conflicting or invalid decisions.</td>
+<td>Ensure the protocol makes progress.</td>
+</tr>
+<tr>
+<td>Example failure</td>
+<td>Two honest nodes decide conflicting blocks.</td>
+<td>Nodes wait indefinitely and no block is decided.</td>
+</tr>
+<tr>
+<td>Key terms</td>
+<td>Agreement, validity, integrity</td>
+<td>Termination</td>
+</tr>
+</tbody>
+</table>
+<p>Memory trick: A–V–I–T</p>
+<ul>
+<li>Agreement — same decision</li>
+<li>Validity — permitted decision</li>
+<li>Integrity — decide only once</li>
+<li>Termination — eventually decide</li>
+</ul>
+<p>Agreement, validity and integrity are safety properties in the presentation's framework; termination is the liveness property.</p>
+<h3>Important nuance</h3>
+<p>Safety and liveness are separate guarantees. A protocol may preserve safety while temporarily making no progress during a network problem. Whether it eventually makes progress depends on its assumptions and recovery mechanisms.</p>
+<div class="exam-header-banner">🎯 Exam-ready 5-mark answer</div>
+<p>Question: Explain safety and liveness properties of consensus algorithms.</p>
+<p>A consensus algorithm must maintain safety and liveness to provide reliable agreement in a distributed system.</p>
+<ol>
+<li>Agreement: no two honest processes decide on different values.</li>
+<li>Validity: the decided value must satisfy the protocol's validity requirements.</li>
+<li>Integrity: a process decides only once in a consensus instance.</li>
+<li>Termination: every honest process eventually reaches a decision under the protocol's assumptions.</li>
+</ol>
+<p>Safety prevents incorrect or conflicting decisions, whereas liveness ensures that the system makes progress. Both are essential for reliable distributed consensus.</p>
+<h1>Topic 7: Analysis and Design of Consensus Algorithms</h1>
+<p>Now let's understand the second major phrase in your syllabus: analysis and design.</p>
+<h2>7.1 What does designing a consensus algorithm mean?</h2>
+<p>Before creating a consensus algorithm, we must define the environment in which it will operate.</p>
+<p>Your teacher's PPT identifies three important aspects of a computational model:</p>
+<ol>
+<li>Processes</li>
+<li>Network conditions</li>
+<li>Timing assumptions</li>
+</ol>
+<p>These assumptions help us analyse whether an algorithm will work correctly.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h3>1. Processes</h3>
+<p>A process is an executing participant in a distributed system.</p>
+<p>We must decide:</p>
+<ul>
+<li>How many nodes participate?</li>
+<li>Can nodes crash?</li>
+<li>Can nodes behave maliciously?</li>
+<li>Are all nodes trusted or are some potentially faulty?</li>
+</ul>
+<p>For example, a private company network might contain a known set of validators, while a public blockchain permits unknown participants.</p>
+<h3>2. Network conditions</h3>
+<p>Nodes communicate using messages, but messages may be delayed, lost or delivered at different times.</p>
+<p>We must consider:</p>
+<ul>
+<li>Whether messages are delivered reliably</li>
+<li>Whether nodes can communicate with every other node</li>
+<li>Whether network partitions may occur</li>
+<li>Whether nodes receive messages in different orders</li>
+</ul>
+<h3>3. Timing assumptions</h3>
+<p>We must decide what the algorithm assumes about the time required to send messages and execute operations.</p>
+<p>This leads to three models: synchronous, asynchronous and partially synchronous.</p>
+<p>We'll study them in Topic 8.</p>
+<h2>7.2 What do we measure when analysing an algorithm?</h2>
+<p>A consensus algorithm can be evaluated using several criteria.</p>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>What it asks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Safety</td>
+<td>Can honest nodes decide conflicting values?</td>
+</tr>
+<tr>
+<td>Liveness</td>
+<td>Can the system eventually decide?</td>
+</tr>
+<tr>
+<td>Fault tolerance</td>
+<td>How many faulty nodes can it tolerate?</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>How long does a decision take?</td>
+</tr>
+<tr>
+<td>Communication overhead</td>
+<td>How many messages must nodes exchange?</td>
+</tr>
+<tr>
+<td>Scalability</td>
+<td>Does performance remain acceptable as the network grows?</td>
+</tr>
+<tr>
+<td>Resource cost</td>
+<td>How much energy, computation and storage are required?</td>
+</tr>
+</tbody>
+</table>
+<p>A consensus algorithm is not necessarily best simply because it is fast. A fast protocol that cannot tolerate the failures relevant to an application may be unsuitable.</p>
+<h3>Example: choosing for two systems</h3>
+<p>Consider two applications:</p>
+<ul>
+<li>Application A: a consortium of five known banks wants fast transaction finality.</li>
+<li>Application B: a public cryptocurrency allows anyone to join and does not want to depend on a fixed set of trusted validators.</li>
+</ul>
+<p>These systems have different trust models and participation requirements. They may therefore choose different consensus mechanisms.</p>
+<p>That is the central idea behind analysis and design: first understand the system's requirements, then select a protocol that satisfies them.</p>
+<h1>Topic 8: Synchronous, Asynchronous and Partially Synchronous Networks</h1>
+<p>This is an important theory topic and a foundation for understanding FLP impossibility.</p>
+<h2>8.1 Synchronous network</h2>
+<p>A synchronous network assumes that there is a known upper bound on communication and processing delays.</p>
+<p>For example, suppose a system assumes that a message will arrive within 100 milliseconds under the model's conditions.</p>
+<p>If the expected time passes without a response, the algorithm can use that timing assumption when deciding how to proceed.</p>
+<p>Key point: the maximum delay is known.</p>
+<h2>8.2 Asynchronous network</h2>
+<p>An asynchronous network makes no fixed upper-bound assumption about communication or processing delays.</p>
+<p>A message might arrive quickly, or it might take a very long time.</p>
+<p>If a node does not receive a response, it cannot always distinguish between:</p>
+<ul>
+<li>A failed node</li>
+<li>A delayed message</li>
+<li>A slow process</li>
+</ul>
+<p>This uncertainty makes consensus difficult.</p>
+<p>Key point: no known upper bound on delay.</p>
+<h2>8.3 Partially synchronous network</h2>
+<p>A partially synchronous network lies between the two.</p>
+<p>The delays may be unpredictable, or the upper bound may exist but be unknown to the nodes. In an eventual-synchrony model, the network eventually behaves synchronously for long enough that the protocol can make progress.</p>
+<p>Your teacher's PPT calls the time after which the network becomes sufficiently synchronous the Global Stabilization Time (GST). Nodes do not know the exact GST in advance.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<p>Key point: the system may initially behave asynchronously but eventually provides sufficiently predictable communication.</p>
+<h2>8.4 Comparison table</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Synchronous</th>
+<th>Asynchronous</th>
+<th>Partially synchronous</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Upper bound on delay</td>
+<td>Known</td>
+<td>No known bound</td>
+<td>May exist but be unknown, or apply eventually</td>
+</tr>
+<tr>
+<td>Message timing</td>
+<td>Predictable within the model</td>
+<td>Unpredictable</td>
+<td>Initially unpredictable; may later stabilise</td>
+</tr>
+<tr>
+<td>Failure detection</td>
+<td>Timing assumptions help</td>
+<td>Difficult to distinguish delay from failure</td>
+<td>Becomes more practical after stabilisation</td>
+</tr>
+<tr>
+<td>Key term</td>
+<td>Known delay bound</td>
+<td>No timing bound</td>
+<td>GST in eventual-synchrony models</td>
+</tr>
+</tbody>
+</table>
+<h3>Real-life analogy</h3>
+<p>Imagine sending a message to a friend:</p>
+<ul>
+<li>Synchronous: you know your friend's reply will arrive within a fixed time.</li>
+<li>Asynchronous: you have no guarantee about when the reply will arrive.</li>
+<li>Partially synchronous: replies may initially be delayed, but the connection eventually becomes stable.</li>
+</ul>
+<h1>Topic 9: FLP Impossibility</h1>
+<h2>9.1 What is the FLP result?</h2>
+<p>The FLP impossibility result, named after Fischer, Lynch and Paterson, establishes a fundamental limitation in distributed computing.</p>
+<p>In simplified terms, it proves that no deterministic consensus algorithm can guarantee termination in every possible execution of a fully asynchronous message-passing system if even one process may crash, under the model's assumptions.</p>
+<p>This does not mean that consensus is impossible in practice.</p>
+<p>It means that a deterministic protocol cannot guarantee that it will always terminate under every allowed asynchronous execution while also meeting the required consensus properties.</p>
+<p>Your teacher's PPT explicitly includes FLP impossibility and lists common approaches used to address its practical implications.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h2>9.2 Why does this happen?</h2>
+<p>Suppose Node A proposes a value and waits for Node B's response.</p>
+<p>No response arrives.</p>
+<p>Node A cannot know with certainty whether:</p>
+<ol>
+<li>Node B has crashed.</li>
+<li>Node B is still running, but its message is delayed.</li>
+</ol>
+<p>If A decides without B, it may risk violating agreement in some execution. If A waits indefinitely, it may violate termination.</p>
+<p>This uncertainty is at the heart of the problem.</p>
+<h2>9.3 How do practical systems address this limitation?</h2>
+<p>Your teacher's PPT lists three approaches:</p>
+<p>1. Failure detectors</p>
+<p>Components attempt to detect or suspect failed processors. In practice, such detectors can be imperfect because slow nodes may look like failed nodes.</p>
+<p>2. Randomized algorithms</p>
+<p>Random choices can help a protocol make progress in situations where deterministic choices cannot guarantee termination under the same assumptions.</p>
+<p>3. Synchrony assumptions</p>
+<p>Protocols may assume bounded delays or eventual synchrony so that they can eventually make progress.</p>
+<div class="exam-header-banner">🎯 Exam-ready answer</div>
+<p>Question: Explain the FLP impossibility result and its implications for consensus algorithms.</p>
+<p>The FLP impossibility result states that deterministic consensus cannot guarantee termination in every execution of a fully asynchronous message-passing system if a process may crash, under the result's assumptions.</p>
+<p>In an asynchronous network, a node cannot reliably distinguish a crashed process from one whose message is delayed indefinitely. Waiting may prevent termination, while deciding without sufficient information may threaten agreement.</p>
+<p>Practical approaches include failure detectors, randomized algorithms and synchrony assumptions. The result highlights the trade-off between making progress and maintaining correctness under unpredictable network conditions.</p>
+<h1>Topic 10: Minimum Number of Nodes for Fault Tolerance</h1>
+<p>Your teacher's PPT includes two important formulas for the minimum number of nodes required under crash and Byzantine fault models. These are worth memorising for theory questions and numerical problems.</p>
+<h2>10.1 Crash Fault Tolerance</h2>
+<p>For the CFT lower bound covered in your PPT:</p>
+<p>_<strong>MATH_DISP_1</strong>_</p>
+<p>Where:</p>
+<ul>
+<li>_<strong>MATH_INL_4</strong>_ = total number of nodes</li>
+<li>_<strong>MATH_INL_5</strong>_ = maximum number of crash failures to tolerate</li>
+</ul>
+<h3>Example</h3>
+<p>If the system must tolerate one crashed node:</p>
+<p>_<strong>MATH_DISP_2</strong>_</p>
+<p>Therefore, at least 3 nodes are required under this bound.</p>
+<p>With 3 nodes, the system can tolerate one crash failure while retaining a majority of 2 functioning nodes.</p>
+<h2>10.2 Byzantine Fault Tolerance</h2>
+<p>For the BFT lower bound in your PPT:</p>
+<p>_<strong>MATH_DISP_3</strong>_</p>
+<h3>Example</h3>
+<p>If the system must tolerate one Byzantine node:</p>
+<p>_<strong>MATH_DISP_4</strong>_</p>
+<p>Therefore, at least 4 nodes are required under this bound.</p>
+<p>The difference arises because Byzantine nodes can behave maliciously and send conflicting messages, making the problem harder than simply handling crashed nodes.</p>
+<p>Your teacher's slides state the lower bounds as _<strong>MATH_INL_6</strong>_ for CFT and _<strong>MATH_INL_7</strong>_ for BFT.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>CONSENSUS UNIT-3.pptx</span></p>
+<h2>10.3 Practice examples</h2>
+<table>
+<thead>
+<tr>
+<th>Faults to tolerate _<strong>MATH_INL_8</strong>_</th>
+<th>CFT: _<strong>MATH_INL_9</strong>_</th>
+<th>BFT: _<strong>MATH_INL_10</strong>_</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3 nodes</td>
+<td>4 nodes</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5 nodes</td>
+<td>7 nodes</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7 nodes</td>
+<td>10 nodes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>9 nodes</td>
+<td>13 nodes</td>
+</tr>
+</tbody>
+</table>
+<p>These are the minimum-node bounds stated in your PPT. Actual deployment requirements depend on the specific protocol and its assumptions.</p>
+<div class="memory-trick-banner">🧠 Memory trick</div>
+<ul>
+<li>CFT: _<strong>MATH_INL_11</strong>_</li>
+<li>BFT: _<strong>MATH_INL_12</strong>_</li>
+</ul>
+<p>Think: Byzantine failures require the larger bound because nodes may act maliciously, not merely stop working.</p>
+<h1>Module 1 — Complete Revision</h1>
+<div class="exam-header-banner">🎯 Important definitions</div>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning to remember</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distributed system</td>
+<td>Multiple independent computers coordinate through communication.</td>
+</tr>
+<tr>
+<td>Consensus</td>
+<td>A protocol for reaching a common decision among distributed participants.</td>
+</tr>
+<tr>
+<td>Byzantine Generals Problem</td>
+<td>The challenge of reaching agreement despite potentially malicious participants.</td>
+</tr>
+<tr>
+<td>Fault tolerance</td>
+<td>The ability to continue operating correctly despite certain failures.</td>
+</tr>
+<tr>
+<td>CFT</td>
+<td>Tolerance of crash-type failures.</td>
+</tr>
+<tr>
+<td>BFT</td>
+<td>Tolerance of arbitrary or malicious faults within a defined threshold.</td>
+</tr>
+<tr>
+<td>Replication</td>
+<td>Maintaining multiple copies of data or state.</td>
+</tr>
+<tr>
+<td>State machine replication</td>
+<td>Replicas process the same ordered requests to maintain a consistent state.</td>
+</tr>
+<tr>
+<td>Safety</td>
+<td>Preventing incorrect or conflicting decisions.</td>
+</tr>
+<tr>
+<td>Liveness</td>
+<td>Ensuring the system eventually makes progress.</td>
+</tr>
+<tr>
+<td>FLP impossibility</td>
+<td>A limitation on guaranteed termination of deterministic consensus under full asynchrony with possible crashes.</td>
+</tr>
+<tr>
+<td>GST</td>
+<td>Global Stabilization Time in an eventual-synchrony model.</td>
+</tr>
+</tbody>
+</table>
+<h2>Important formulas</h2>
+<p>_<strong>MATH_DISP_5</strong>_</p>
+<p>_<strong>MATH_DISP_6</strong>_</p>
+<div class="exam-header-banner">🎯 Likely 5-mark questions</div>
+<ol>
+<li>Define consensus and explain why blockchain requires it.</li>
+<li>Explain the Byzantine Generals Problem.</li>
+<li>Differentiate CFT and BFT.</li>
+<li>Explain active and passive replication.</li>
+<li>Define state machine replication.</li>
+<li>Explain the safety and liveness properties of consensus.</li>
+<li>Differentiate synchronous, asynchronous and partially synchronous networks.</li>
+<li>Explain the FLP impossibility result.</li>
+<li>Calculate the minimum number of nodes needed to tolerate a given number of faults.</li>
+</ol>
+<div class="exam-header-banner">🎯 Likely 10-mark questions</div>
+<ol>
+<li>Explain the consensus problem in distributed systems and discuss its requirements.</li>
+<li>Explain the Byzantine Generals Problem and its significance in blockchain.</li>
+<li>Discuss the analysis and design considerations of consensus algorithms.</li>
+<li>Explain safety, liveness, fault tolerance and the FLP impossibility result.</li>
+<li>Explain CFT and BFT, including their minimum-node requirements.</li>
+</ol>
+<p>For a 10-mark answer, use a clear definition, an appropriate diagram, step-by-step explanation, a comparison table or formulas where relevant, and a short conclusion.</p>
+<h2>Quick self-test</h2>
+<p>1. What does consensus help distributed nodes achieve?</p>
+<p>A common decision</p>
+<p>A faster CPU</p>
+<p>A private network address</p>
+<p>A larger database</p>
+<p>2. Which fault model covers malicious nodes that send conflicting messages?</p>
+<p>CFT</p>
+<p>BFT</p>
+<p>Active replication only</p>
+<p>Shared memory</p>
+<p>3. Which property means that honest nodes eventually decide?</p>
+<p>Agreement</p>
+<p>Integrity</p>
+<p>Termination</p>
+<p>Validity</p>
+<p>4. What is the minimum-node bound for BFT in your teacher's PPT?</p>
+<p>N ≥ F + 1</p>
+<p>N ≥ 2F</p>
+<p>N ≥ 2F + 1</p>
+<p>N ≥ 3F + 1</p>
+<p>5. What is the key difficulty highlighted by FLP?</p>
+<p>Encryption is impossible</p>
+<p>Messages may be delayed indefinitely, making termination impossible to guarantee in every execution</p>
+<p>Nodes cannot store copies</p>
+<p>Every consensus algorithm needs mining</p>
+<p>0 of 5 answered</p>
+<p>Reset quiz</p>
+<p>Module 1 is complete. We have covered the consensus problem, its design assumptions, fault tolerance, replication, safety and liveness, network timing, FLP impossibility, and node-count formulas.</p>
+<p>When you're ready, say NEXT MODULE to begin Module 2: Classification and Traditional Consensus Algorithms, including Paxos and PBFT, with their working and exam diagrams.</p>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-8.html">&larr; Module 8</a>
+        <a class="pn-reader" href="blockchain.html">📋 All 13 Modules Syllabus</a>
+        <a class="pn-btn" href="blockchain-module-10.html">Module 10 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

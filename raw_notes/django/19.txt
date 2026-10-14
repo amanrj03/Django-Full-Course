@@ -1,0 +1,1794 @@
+# Module 19 — Testing in Django
+
+Now we move to **Testing**, the final topic of Unit III.
+
+So far, we've learned how to:
+
+```text
+URLs → Views → Templates → Dynamic Data → Debugging
+```
+
+But how do we know that our application actually works correctly?
+
+That's where **testing** comes in.
+
+---
+
+# 1. What Is Software Testing?
+
+**Software testing** is the process of checking whether software behaves as expected.
+
+Suppose we create:
+
+```python
+def add(a, b):
+    return a + b
+```
+
+We expect:
+
+```text
+add(2, 3) → 5
+```
+
+A test verifies that assumption.
+
+In Django, we can automatically test:
+
+* Views
+* URLs
+* Templates
+* Models
+* Forms
+* Authentication
+* HTTP responses
+* Application logic
+
+---
+
+# 2. Why Do We Need Testing?
+
+Imagine your Django application has:
+
+```text
+100 views
+500 URLs
+50 forms
+20 models
+```
+
+You cannot manually check every feature every time you modify the application.
+
+Suppose you change the login system.
+
+It might accidentally break:
+
+```text
+Registration
+Profile
+Dashboard
+Logout
+```
+
+Automated tests help detect these regressions.
+
+---
+
+# 3. What Is a Test?
+
+A test generally follows:
+
+```text
+Arrange
+   ↓
+Act
+   ↓
+Assert
+```
+
+### Arrange
+
+Prepare the required data.
+
+### Act
+
+Perform the operation.
+
+### Assert
+
+Check whether the result is what you expected.
+
+Example:
+
+```python
+result = add(2, 3)
+
+self.assertEqual(result, 5)
+```
+
+Here:
+
+```text
+Act → add(2, 3)
+Assert → result == 5
+```
+
+---
+
+# 4. What Is Unit Testing?
+
+**Unit testing** tests a small, isolated part of an application.
+
+For example:
+
+```python
+def calculate_total(price, quantity):
+    return price * quantity
+```
+
+We could test this function independently.
+
+```python
+self.assertEqual(
+    calculate_total(100, 5),
+    500
+)
+```
+
+The goal is to verify individual units of behavior.
+
+---
+
+# 5. Django Testing Framework
+
+Django provides built-in support for testing.
+
+A newly created Django app normally contains:
+
+```text
+students/
+├── admin.py
+├── apps.py
+├── models.py
+├── tests.py
+├── views.py
+└── ...
+```
+
+The default:
+
+```text
+tests.py
+```
+
+is where you can begin writing tests.
+
+Django's testing system is built on Python's `unittest` framework.
+
+---
+
+# 6. Basic Django Test
+
+Suppose our `views.py` contains:
+
+```python
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello Django")
+```
+
+We can write:
+
+```python
+from django.test import TestCase
+
+class HomeTest(TestCase):
+
+    def test_home(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+```
+
+Let's understand every line.
+
+---
+
+# 7. `TestCase`
+
+```python
+from django.test import TestCase
+```
+
+`TestCase` provides Django-specific testing functionality.
+
+Then:
+
+```python
+class HomeTest(TestCase):
+```
+
+creates a test class.
+
+It inherits from Django's `TestCase`.
+
+---
+
+# 8. Test Method
+
+Inside the class:
+
+```python
+def test_home(self):
+```
+
+This is a test method.
+
+Django's test discovery looks for methods whose names begin with:
+
+```text
+test
+```
+
+So:
+
+```python
+def test_home(self):
+```
+
+is detected as a test.
+
+---
+
+# 9. Django Test Client
+
+This is extremely important:
+
+```python
+self.client
+```
+
+Django provides a **test client** that can simulate requests to your application.
+
+For example:
+
+```python
+response = self.client.get("/")
+```
+
+This behaves conceptually like a browser making a GET request.
+
+You don't need to manually open Chrome.
+
+---
+
+# 10. GET Request Test
+
+Example:
+
+```python
+response = self.client.get("/")
+```
+
+This sends a GET request to:
+
+```text
+/
+```
+
+Then we can inspect:
+
+```python
+response.status_code
+```
+
+If the page works:
+
+```text
+200
+```
+
+---
+
+# 11. `assertEqual`
+
+We can write:
+
+```python
+self.assertEqual(
+    response.status_code,
+    200
+)
+```
+
+This means:
+
+> Assert that the response status code equals 200.
+
+If it is:
+
+```text
+200
+```
+
+the test passes.
+
+If it is:
+
+```text
+404
+```
+
+the test fails.
+
+---
+
+# 12. Complete Example
+
+### `views.py`
+
+```python
+from django.http import HttpResponse
+
+def home(request):
+    return HttpResponse("Hello Django")
+```
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+]
+```
+
+### `tests.py`
+
+```python
+from django.test import TestCase
+
+class HomeTest(TestCase):
+
+    def test_home(self):
+        response = self.client.get("/")
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+```
+
+Run:
+
+```bash
+python manage.py test
+```
+
+---
+
+# 13. Running Tests
+
+The main command is:
+
+```bash
+python manage.py test
+```
+
+Django searches for tests and runs them.
+
+You might see:
+
+```text
+Creating test database...
+.
+----------------------------------------------------------------------
+Ran 1 test
+
+OK
+```
+
+The `.` indicates a passing test.
+
+---
+
+# 14. What Is the Test Database?
+
+When Django tests interact with the database, Django creates a **separate test database**.
+
+This prevents normal development data from being modified by tests.
+
+Conceptually:
+
+```text
+Normal Database
+      │
+      │ protected
+      ↓
+Test Database
+      │
+      ↓
+Tests run here
+      │
+      ↓
+Test database is removed
+```
+
+This is an important Django testing feature.
+
+---
+
+# 15. Why Not Use the Real Database?
+
+Imagine your database contains:
+
+```text
+1000 students
+```
+
+A test might create:
+
+```text
+Student: Test Student
+```
+
+If tests used your real database, they could modify or delete real data.
+
+Therefore Django isolates testing using a test database.
+
+---
+
+# 16. Testing Response Content
+
+Suppose:
+
+```python
+def home(request):
+    return HttpResponse("Hello Django")
+```
+
+We can test whether the response contains the expected text:
+
+```python
+self.assertContains(
+    response,
+    "Hello Django"
+)
+```
+
+So:
+
+```python
+def test_home_content(self):
+
+    response = self.client.get("/")
+
+    self.assertContains(
+        response,
+        "Hello Django"
+    )
+```
+
+---
+
+# 17. `assertContains`
+
+This is very useful for Django views.
+
+It checks whether the response contains the specified content.
+
+Example:
+
+```python
+self.assertContains(
+    response,
+    "Welcome"
+)
+```
+
+If the response contains:
+
+```text
+Welcome to Django
+```
+
+the test passes.
+
+---
+
+# 18. Testing Status Codes
+
+Common examples:
+
+```python
+self.assertEqual(response.status_code, 200)
+```
+
+For a missing URL:
+
+```python
+response = self.client.get("/does-not-exist/")
+self.assertEqual(response.status_code, 404)
+```
+
+You can test expected HTTP behavior.
+
+---
+
+# 19. Testing Templates
+
+Suppose your view:
+
+```python
+def home(request):
+
+    return render(
+        request,
+        "home.html"
+    )
+```
+
+You can check whether the correct template was used:
+
+```python
+self.assertTemplateUsed(
+    response,
+    "home.html"
+)
+```
+
+Complete:
+
+```python
+def test_home_template(self):
+
+    response = self.client.get("/")
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )
+```
+
+---
+
+# 20. Testing Multiple Things
+
+A good test can check several related expectations.
+
+```python
+def test_home(self):
+
+    response = self.client.get("/")
+
+    self.assertEqual(
+        response.status_code,
+        200
+    )
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )
+
+    self.assertContains(
+        response,
+        "Welcome"
+    )
+```
+
+This checks:
+
+```text
+HTTP status
++
+Template
++
+Content
+```
+
+---
+
+# 21. Testing URL Names
+
+Suppose:
+
+```python
+path(
+    "students/",
+    views.students,
+    name="students"
+)
+```
+
+You can use Django's URL reversing system in tests.
+
+For example:
+
+```python
+from django.urls import reverse
+
+url = reverse("students")
+
+response = self.client.get(url)
+```
+
+Then:
+
+```python
+self.assertEqual(
+    response.status_code,
+    200
+)
+```
+
+This is often better than hardcoding:
+
+```python
+"/students/"
+```
+
+because if the URL path changes but its name remains the same, the test doesn't need to change.
+
+---
+
+# 22. `reverse()` in Tests
+
+Example:
+
+```python
+url = reverse("home")
+response = self.client.get(url)
+```
+
+If:
+
+```python
+path(
+    "",
+    views.home,
+    name="home"
+)
+```
+
+then:
+
+```text
+reverse("home")
+```
+
+returns:
+
+```text
+/
+```
+
+---
+
+# 23. Testing Dynamic URLs
+
+Suppose:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+Use:
+
+```python
+url = reverse(
+    "student_detail",
+    kwargs={"id": 101}
+)
+
+response = self.client.get(url)
+```
+
+Django generates:
+
+```text
+/student/101/
+```
+
+Then:
+
+```python
+self.assertEqual(
+    response.status_code,
+    200
+)
+```
+
+---
+
+# 24. Testing POST Requests
+
+The test client can also send POST requests.
+
+Example:
+
+```python
+response = self.client.post(
+    "/students/",
+    {
+        "name": "Aman",
+        "age": 21
+    }
+)
+```
+
+This simulates submitting a form.
+
+The general syntax is:
+
+```python
+self.client.post(
+    url,
+    data
+)
+```
+
+---
+
+# 25. GET vs POST Testing
+
+### GET
+
+```python
+response = self.client.get("/students/")
+```
+
+### POST
+
+```python
+response = self.client.post(
+    "/students/",
+    {"name": "Aman"}
+)
+```
+
+The test client supports both.
+
+---
+
+# 26. Testing Redirects
+
+Suppose a successful POST redirects to:
+
+```text
+/students/
+```
+
+You might test:
+
+```python
+response = self.client.post(
+    "/students/create/",
+    {"name": "Aman"}
+)
+
+self.assertRedirects(
+    response,
+    "/students/"
+)
+```
+
+`assertRedirects()` checks redirect behavior.
+
+---
+
+# 27. Why Test Redirects?
+
+Imagine you create a student.
+
+Expected:
+
+```text
+POST form
+   ↓
+student created
+   ↓
+redirect
+   ↓
+student list
+```
+
+If the redirect breaks, the user experience breaks.
+
+Testing ensures the expected navigation occurs.
+
+---
+
+# 28. Testing a View With Context
+
+Suppose:
+
+```python
+def home(request):
+
+    return render(
+        request,
+        "home.html",
+        {"name": "Aman"}
+    )
+```
+
+You can inspect:
+
+```python
+response.context["name"]
+```
+
+For example:
+
+```python
+self.assertEqual(
+    response.context["name"],
+    "Aman"
+)
+```
+
+This verifies that the expected context was provided.
+
+---
+
+# 29. Testing a Model
+
+We'll learn models in detail later, but here's the basic idea.
+
+Suppose:
+
+```python
+from django.db import models
+
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+A test might create:
+
+```python
+student = Student.objects.create(
+    name="Aman"
+)
+```
+
+Then:
+
+```python
+self.assertEqual(
+    student.name,
+    "Aman"
+)
+```
+
+This tests model behavior/database interaction.
+
+---
+
+# 30. `setUp()`
+
+Suppose many tests need the same data.
+
+Instead of creating the data repeatedly:
+
+```python
+def test_one(self):
+    ...
+
+def test_two(self):
+    ...
+
+def test_three(self):
+    ...
+```
+
+you can use:
+
+```python
+def setUp(self):
+    ...
+```
+
+Example:
+
+```python
+class StudentTest(TestCase):
+
+    def setUp(self):
+
+        self.student = Student.objects.create(
+            name="Aman"
+        )
+
+    def test_student_name(self):
+
+        self.assertEqual(
+            self.student.name,
+            "Aman"
+        )
+```
+
+`setUp()` runs before each test method.
+
+---
+
+# 31. Why `setUp()` Is Useful
+
+Suppose you have 10 tests and all require:
+
+```text
+Student
+Course
+Teacher
+```
+
+You can prepare the common test data in `setUp()`.
+
+This avoids duplication.
+
+---
+
+# 32. Important: Tests Are Independent
+
+A good test should generally not depend on another test having run first.
+
+For example:
+
+```text
+test_create_student
+        ↓
+test_delete_student
+```
+
+You shouldn't assume `test_create_student` always runs first.
+
+Each test should establish the state it needs.
+
+Django's `TestCase` helps isolate database state between tests.
+
+---
+
+# 33. Test Naming
+
+Good:
+
+```python
+def test_home_page_loads(self):
+```
+
+```python
+def test_student_creation(self):
+```
+
+```python
+def test_invalid_login(self):
+```
+
+Bad:
+
+```python
+def check(self):
+```
+
+The test discovery convention is important.
+
+---
+
+# 34. Testing Invalid Behavior
+
+Don't only test successful cases.
+
+Suppose:
+
+```text
+Valid ID → 200
+Invalid ID → 404
+```
+
+Test both.
+
+Example:
+
+```python
+def test_invalid_student(self):
+
+    response = self.client.get(
+        "/student/999/"
+    )
+
+    self.assertEqual(
+        response.status_code,
+        404
+    )
+```
+
+This is called testing an **edge/error case**.
+
+---
+
+# 35. Positive vs Negative Tests
+
+### Positive test
+
+Tests expected valid behavior.
+
+```text
+Valid request
+→ 200
+```
+
+### Negative test
+
+Tests invalid/unexpected input.
+
+```text
+Invalid request
+→ 400/404/etc.
+```
+
+Both are important.
+
+---
+
+# 36. What Is Regression Testing?
+
+Suppose your login system worked yesterday.
+
+You modify the registration system.
+
+After the modification, login accidentally breaks.
+
+A test that previously passed now fails.
+
+This helps detect a **regression**.
+
+So:
+
+> Regression testing checks that previously working functionality continues to work after changes.
+
+Automated tests are particularly valuable for this.
+
+---
+
+# 37. Test-Driven Development
+
+You may hear the term **TDD**.
+
+TDD stands for:
+
+> Test-Driven Development.
+
+The simplified cycle is:
+
+```text
+Write failing test
+       ↓
+Write code
+       ↓
+Make test pass
+       ↓
+Refactor
+       ↓
+Repeat
+```
+
+This is a development methodology.
+
+You don't need to use TDD for every Django project, but understand the concept for viva.
+
+---
+
+# 38. Complete Example — Testing a Home Page
+
+### `views.py`
+
+```python
+from django.shortcuts import render
+
+def home(request):
+
+    return render(
+        request,
+        "home.html",
+        {
+            "name": "Aman"
+        }
+    )
+```
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "",
+        views.home,
+        name="home"
+    ),
+]
+```
+
+### `tests.py`
+
+```python
+from django.test import TestCase
+from django.urls import reverse
+
+
+class HomeTest(TestCase):
+
+    def test_home_page(self):
+
+        url = reverse("home")
+
+        response = self.client.get(url)
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTemplateUsed(
+            response,
+            "home.html"
+        )
+
+        self.assertContains(
+            response,
+            "Aman"
+        )
+```
+
+This is a very good beginner Django test.
+
+---
+
+# 39. Understanding the Test
+
+Let's break it down.
+
+### Step 1
+
+```python
+url = reverse("home")
+```
+
+Gets the URL using its name.
+
+### Step 2
+
+```python
+response = self.client.get(url)
+```
+
+Simulates a GET request.
+
+### Step 3
+
+```python
+self.assertEqual(
+    response.status_code,
+    200
+)
+```
+
+Checks that the page loaded successfully.
+
+### Step 4
+
+```python
+self.assertTemplateUsed(
+    response,
+    "home.html"
+)
+```
+
+Checks the template.
+
+### Step 5
+
+```python
+self.assertContains(
+    response,
+    "Aman"
+)
+```
+
+Checks the content.
+
+---
+
+# 40. Running a Specific App's Tests
+
+You can run:
+
+```bash
+python manage.py test students
+```
+
+This tells Django to run tests associated with the `students` app.
+
+You can also run a particular test module/class/method using Django's test-label syntax.
+
+For example:
+
+```bash
+python manage.py test students.tests.HomeTest
+```
+
+or:
+
+```bash
+python manage.py test students.tests.HomeTest.test_home_page
+```
+
+This is useful when you have many tests.
+
+---
+
+# 41. Test Output
+
+A successful test run may look approximately like:
+
+```text
+Creating test database...
+.
+----------------------------------------------------------------------
+Ran 1 test
+
+OK
+Destroying test database...
+```
+
+If a test fails, Django provides information about:
+
+* Which test failed
+* Expected result
+* Actual result
+* Traceback
+
+Then you debug the failing test/code.
+
+---
+
+# 42. Common Testing Mistakes
+
+### Mistake 1
+
+Forgetting:
+
+```python
+from django.test import TestCase
+```
+
+---
+
+### Mistake 2
+
+Naming test method incorrectly:
+
+```python
+def home_test(self):
+```
+
+Instead use:
+
+```python
+def test_home(self):
+```
+
+---
+
+### Mistake 3
+
+Using incorrect URL:
+
+```python
+self.client.get("/wrong/")
+```
+
+when the actual URL is:
+
+```text
+/students/
+```
+
+---
+
+### Mistake 4
+
+Expecting the wrong status:
+
+```python
+self.assertEqual(
+    response.status_code,
+    404
+)
+```
+
+when the view should return 200.
+
+---
+
+### Mistake 5
+
+Testing only successful cases.
+
+Always consider invalid input and failure scenarios.
+
+---
+
+# 43. Important Assertions to Know
+
+For your syllabus and viva, know these:
+
+### `assertEqual`
+
+```python
+self.assertEqual(actual, expected)
+```
+
+Checks equality.
+
+---
+
+### `assertContains`
+
+```python
+self.assertContains(response, "Hello")
+```
+
+Checks response content.
+
+---
+
+### `assertTemplateUsed`
+
+```python
+self.assertTemplateUsed(
+    response,
+    "home.html"
+)
+```
+
+Checks template usage.
+
+---
+
+### `assertRedirects`
+
+```python
+self.assertRedirects(
+    response,
+    "/students/"
+)
+```
+
+Checks redirects.
+
+---
+
+# 44. Other Useful Assertions
+
+Python/Django tests also provide many other assertions, including:
+
+```python
+self.assertTrue(value)
+self.assertFalse(value)
+self.assertIsNone(value)
+self.assertIsNotNone(value)
+self.assertIn(item, collection)
+self.assertNotEqual(a, b)
+```
+
+You don't need to memorize every assertion, but understand that Django tests build on Python's testing framework.
+
+---
+
+# 45. Viva Questions
+
+### Q1. What is software testing?
+
+> Software testing is the process of verifying that software behaves according to its expected requirements.
+
+### Q2. Why do we test Django applications?
+
+> To verify correctness, detect bugs, prevent regressions, and ensure that application features continue to work after changes.
+
+### Q3. What is `TestCase`?
+
+> `django.test.TestCase` is a Django testing class that provides a test environment and database isolation for tests.
+
+### Q4. How do you run Django tests?
+
+```bash
+python manage.py test
+```
+
+### Q5. What is Django test client?
+
+> It is a Python interface provided by Django for simulating HTTP requests to an application without using a real browser.
+
+### Q6. How do you send a GET request?
+
+```python
+self.client.get("/")
+```
+
+### Q7. How do you send a POST request?
+
+```python
+self.client.post(
+    "/students/",
+    data
+)
+```
+
+---
+
+# 46. Viva — Test Database
+
+### Teacher:
+
+> Does Django testing use the normal database?
+
+Answer:
+
+> Django creates a separate test database for database-related tests, helping prevent tests from modifying normal application data.
+
+---
+
+# 47. Viva — `setUp()`
+
+### Teacher:
+
+> What is `setUp()`?
+
+Answer:
+
+> `setUp()` is a method used to prepare common test data or state before each test method runs.
+
+---
+
+# 48. Viva — Regression
+
+### Teacher:
+
+> What is regression testing?
+
+Answer:
+
+> Regression testing verifies that existing functionality continues to work after code changes.
+
+---
+
+# 49. Viva — Test Discovery
+
+### Teacher:
+
+> How does Django find tests?
+
+Answer:
+
+> Django's test runner discovers tests according to Python/Django test discovery conventions, including test modules and test methods whose names begin with `test`.
+
+---
+
+# 50. Coding Question
+
+### Question
+
+Write a Django test that checks whether `/about/` returns HTTP 200.
+
+### Answer:
+
+```python
+from django.test import TestCase
+
+
+class AboutTest(TestCase):
+
+    def test_about_page(self):
+
+        response = self.client.get("/about/")
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+```
+
+---
+
+# 51. Coding Question
+
+Test whether the response contains `"Welcome"`.
+
+```python
+from django.test import TestCase
+
+
+class HomeTest(TestCase):
+
+    def test_home_content(self):
+
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            "Welcome"
+        )
+```
+
+---
+
+# 52. Coding Question
+
+Test whether `home.html` was used.
+
+```python
+def test_home_template(self):
+
+    response = self.client.get("/")
+
+    self.assertTemplateUsed(
+        response,
+        "home.html"
+    )
+```
+
+---
+
+# 53. Coding Question
+
+Test a redirect:
+
+```python
+def test_create_student_redirect(self):
+
+    response = self.client.post(
+        "/students/create/",
+        {
+            "name": "Aman"
+        }
+    )
+
+    self.assertRedirects(
+        response,
+        "/students/"
+    )
+```
+
+The exact expected redirect depends on your application's URL configuration.
+
+---
+
+# 54. ⭐ Testing Strategy for a Django Application
+
+For a typical Django project, you might test:
+
+```text
+              Django Application
+                     │
+       ┌─────────────┼─────────────┐
+       ↓             ↓             ↓
+      URLs          Views        Models
+       │             │             │
+       ↓             ↓             ↓
+    Routing       Responses      Database
+       │             │             │
+       └─────────────┼─────────────┘
+                     ↓
+                   Forms
+                     ↓
+              Authentication
+```
+
+For example:
+
+### URL tests
+
+```text
+Does /students/ resolve correctly?
+```
+
+### View tests
+
+```text
+Does the view return 200?
+```
+
+### Template tests
+
+```text
+Is students.html rendered?
+```
+
+### Content tests
+
+```text
+Does the response contain the student's name?
+```
+
+### Model tests
+
+```text
+Can a Student be created correctly?
+```
+
+### Form tests
+
+```text
+Does invalid input get rejected?
+```
+
+### Authentication tests
+
+```text
+Can a logged-in user access the dashboard?
+```
+
+---
+
+# 🧠 Module 19 Cheat Sheet
+
+### Import:
+
+```python
+from django.test import TestCase
+```
+
+### GET:
+
+```python
+response = self.client.get("/")
+```
+
+### POST:
+
+```python
+response = self.client.post(
+    "/students/",
+    {"name": "Aman"}
+)
+```
+
+### Status:
+
+```python
+self.assertEqual(
+    response.status_code,
+    200
+)
+```
+
+### Content:
+
+```python
+self.assertContains(
+    response,
+    "Welcome"
+)
+```
+
+### Template:
+
+```python
+self.assertTemplateUsed(
+    response,
+    "home.html"
+)
+```
+
+### Redirect:
+
+```python
+self.assertRedirects(
+    response,
+    "/students/"
+)
+```
+
+### Named URL:
+
+```python
+from django.urls import reverse
+
+url = reverse("home")
+```
+
+### Run tests:
+
+```bash
+python manage.py test
+```
+
+### App tests:
+
+```bash
+python manage.py test students
+```
+
+---
+
+# 🎯 Unit III Complete
+
+You've now completed all of Unit III:
+
+```text
+Module 12 → Templates
+Module 13 → DTL
+Module 14 → Template Tags
+Module 15 → Template Filters
+Module 16 → Dynamic Templates
+Module 17 → Template Inheritance
+Module 18 → Debugging
+Module 19 → Testing
+```
+
+You now understand the entire flow:
+
+```text
+URL
+ ↓
+View
+ ↓
+Context
+ ↓
+Template
+ ↓
+DTL
+ ↓
+HTML
+ ↓
+Response
+```
+
+And you can test that flow using:
+
+```text
+TestCase
+ ↓
+Test Client
+ ↓
+GET / POST
+ ↓
+Assertions
+```
+
+---
+
+## Next → Module 20: HTML Forms & HTTP
+
+Now we begin **Unit IV — Forms**.
+
+We'll start from the absolute basics before touching Django Forms:
+
+* What is an HTML form?
+* `<form>`
+* `<input>`
+* `<button>`
+* `name` attribute
+* GET forms
+* POST forms
+* How browser sends form data
+* `request.GET`
+* `request.POST`
+* Building a complete Django form manually
+* Handling submitted data in a view
+* Displaying submitted data
+* GET vs POST in depth
+* Why POST is preferred for sensitive/state-changing operations
+* Common form mistakes
+* Viva + coding questions.

@@ -1,0 +1,1332 @@
+# MODULE 2 — Distributed Systems & Blockchain
+
+This module is **very important** because it connects everything from Module 1 to the actual working of blockchain.
+
+Your syllabus says:
+
+> **Distributed systems, blockchain, consensus**
+
+We'll focus here on **distributed systems + blockchain fundamentals/architecture/working**. We'll handle consensus in much greater depth in Module 3.
+
+---
+
+# 1. First: What is a Distributed System?
+
+Your PPT defines a distributed system as a computing paradigm where:
+
+> **Two or more nodes work with each other in a coordinated fashion to achieve a common outcome.** 
+
+### Simple meaning
+
+Imagine 5 computers:
+
+```text
+       N1
+      /  \
+    N2 -- N3
+     \    /
+      N4
+       |
+      N5
+```
+
+Instead of one computer doing everything, multiple computers cooperate.
+
+Each computer is called a **node**.
+
+They communicate with each other and try to maintain a common result/state.
+
+---
+
+# 2. Centralized vs Distributed System
+
+This distinction is extremely important.
+
+### Centralized
+
+```text
+              SERVER
+             /  |  \
+            /   |   \
+          N1    N2    N3
+```
+
+One central system controls the data/process.
+
+If the central server fails, the system may be seriously affected.
+
+### Distributed
+
+```text
+       N1 -------- N2
+       | \         |
+       |  \        |
+       |   \       |
+       N3 -------- N4
+          \       /
+             N5
+```
+
+Multiple nodes cooperate.
+
+There isn't necessarily one single machine that performs all functions.
+
+---
+
+# 3. What is a Node?
+
+A **node** is a participant/computer in a distributed network.
+
+Your PPT notes that nodes have processing and memory resources and can behave as:
+
+* Honest
+* Faulty
+* Malicious
+* Byzantine
+
+
+
+Don't confuse these.
+
+### Honest node
+
+Follows the protocol correctly.
+
+### Faulty node
+
+May malfunction because of hardware/software/network problems.
+
+Example:
+
+```text
+Node crashes
+```
+
+### Malicious node
+
+Intentionally attempts to violate the protocol or harm the system.
+
+### Byzantine node
+
+A node that can behave arbitrarily/unpredictably, potentially sending conflicting or irrational information to other nodes.
+
+Your PPT specifically describes a Byzantine node as one that can perform irrational behavior. 
+
+---
+
+# 4. Why are Distributed Systems Difficult?
+
+Suppose we have:
+
+```text
+N1 ↔ N2 ↔ N3 ↔ N4 ↔ N5
+```
+
+All nodes need to agree about something.
+
+But what if:
+
+* N4 is malicious?
+* N2 crashes?
+* Network connection between N2 and N3 breaks?
+* Messages arrive late?
+* Different nodes receive different information?
+
+Then the nodes may have different views of reality.
+
+Your PPT identifies two major challenges:
+
+### 1. Coordination between nodes
+
+Nodes must communicate and cooperate.
+
+### 2. Fault tolerance
+
+The system should continue functioning even when some components fail.
+
+
+
+---
+
+# 5. Byzantine Generals Problem ⭐⭐⭐⭐⭐
+
+This is a **very important theory topic**.
+
+You should absolutely prepare it for a 5-mark question and potentially a 10-mark question.
+
+## The story
+
+Imagine several generals surrounding an enemy city.
+
+They need to decide:
+
+> **Attack or Retreat?**
+
+They can communicate with each other.
+
+But some generals may be traitors.
+
+The problem is:
+
+```text
+General A → ATTACK
+General B → ATTACK
+General C → RETREAT
+General D → ATTACK
+```
+
+How can the honest generals reach the same decision when some participants may deliberately send false information?
+
+That's the basic idea behind the:
+
+> **Byzantine Generals Problem (BGP)**
+
+---
+
+# 6. Why is Byzantine Problem Important to Blockchain?
+
+This is the connection you need to understand.
+
+Blockchain has many nodes:
+
+```text
+N1   N2   N3   N4   N5   N6
+ \    |    |    |    |   /
+       Distributed Network
+```
+
+They don't necessarily trust each other.
+
+Some nodes could:
+
+* lie
+* send incorrect information
+* behave maliciously
+* stop responding
+
+Yet the network needs to maintain a **consistent ledger state**.
+
+So blockchain needs mechanisms that allow honest nodes to agree despite potentially faulty/malicious nodes.
+
+That brings us to **consensus**.
+
+We'll study consensus properly in Module 3.
+
+---
+
+# 7. Network Partition
+
+Your PPT gives an example:
+
+> **N4 is a Byzantine node and L2 is a broken or slow network link.** 
+
+A broken/slow link can cause a **network partition**.
+
+Imagine:
+
+```text
+Group A                  Group B
+
+N1 ---- N2        X       N3 ---- N4
+                        
+
+       broken link
+```
+
+The two sides may temporarily have different information.
+
+Therefore:
+
+```text
+Network problem
+      ↓
+Nodes cannot communicate properly
+      ↓
+Different views of system state
+      ↓
+Consistency problem
+```
+
+This is one of the reasons distributed systems need fault-tolerance and consensus mechanisms.
+
+---
+
+# 8. PBFT
+
+Your PPT mentions that the Byzantine Generals Problem was addressed by **Practical Byzantine Fault Tolerance (PBFT)**, presented by Castro and Liskov in 1999. 
+
+For now, remember:
+
+> **PBFT is a Byzantine fault-tolerant consensus algorithm designed to allow a distributed system to operate correctly even when some nodes behave maliciously.**
+
+We'll study PBFT properly in Module 3.
+
+---
+
+# 9. Now Connect Distributed Systems to Blockchain
+
+Here's the key concept:
+
+> **Blockchain is a distributed system at its core.**
+
+Your PPT explicitly states this. 
+
+A blockchain network contains multiple nodes.
+
+Each node participates in maintaining the blockchain according to the rules of the particular blockchain.
+
+Conceptually:
+
+```text
+                  Blockchain Network
+
+       N1 -------- N2 -------- N3
+       |          /  \          |
+       |         /    \         |
+       N4 ------ N5 ----------- N6
+```
+
+The nodes communicate over a peer-to-peer network.
+
+---
+
+# 10. What is a Blockchain?
+
+Your PPT's technical definition is:
+
+> A blockchain is a **peer-to-peer, distributed ledger that is cryptographically secure, append-only, immutable, and updateable through consensus/agreement among peers.** 
+
+This definition is **very important**.
+
+Break it into 6 parts.
+
+---
+
+## A. Peer-to-Peer
+
+Nodes communicate directly with other nodes.
+
+There isn't necessarily a central server controlling every transaction.
+
+---
+
+## B. Distributed Ledger
+
+A ledger is basically a record of transactions.
+
+For example:
+
+```text
+Alice → Bob       ₹100
+Bob → Charlie     ₹50
+Charlie → David   ₹20
+```
+
+In a distributed ledger, copies/state of the ledger are maintained across participating nodes.
+
+---
+
+## C. Cryptographically Secure
+
+Blockchain uses cryptographic mechanisms such as:
+
+* Hash functions
+* Digital signatures
+* Public-key cryptography
+
+Your architecture PPT specifically identifies public-key cryptography, digital signatures and cryptographic hash functions as important cryptographic components. 
+
+---
+
+## D. Append-only
+
+New information is added rather than casually replacing old information.
+
+Think:
+
+```text
+Block 1
+   ↓
+Block 2
+   ↓
+Block 3
+   ↓
+Block 4
+```
+
+---
+
+## E. Immutable
+
+Historical information is extremely difficult to alter without detection or without overcoming the network's security/consensus assumptions.
+
+Why?
+
+Because blocks are cryptographically connected.
+
+We'll see this in detail in the cryptography module.
+
+---
+
+## F. Consensus-based
+
+Nodes must follow the blockchain's consensus mechanism to determine the accepted state.
+
+```text
+Transaction
+     ↓
+Validation
+     ↓
+Consensus
+     ↓
+Accepted
+     ↓
+Blockchain
+```
+
+---
+
+# 11. Distributed Ledger vs Blockchain ⭐⭐⭐⭐
+
+This is a **common exam trap**.
+
+### Distributed Ledger
+
+A distributed ledger is a ledger maintained across multiple participants/nodes.
+
+### Blockchain
+
+Blockchain is a particular type of distributed ledger that organizes records into blocks linked cryptographically and uses a consensus mechanism to maintain the accepted state.
+
+Your Consensus PPT makes an important statement:
+
+> **All blockchains are fundamentally distributed ledgers, but all distributed ledgers are not necessarily blockchains.** 
+
+### Remember:
+
+```text
+Distributed Ledger
+       ↓
+   broader concept
+
+Blockchain
+       ↓
+one type of distributed ledger
+```
+
+---
+
+# 12. Permissionless vs Permissioned
+
+This appears in your Unit 1 material and is useful for understanding blockchain networks.
+
+## Permissionless
+
+Anyone can participate according to the network's rules.
+
+Examples given in your material:
+
+* Bitcoin
+* Ethereum
+
+Participants can maintain ledger copies and use distributed consensus. 
+
+Conceptually:
+
+```text
+Anyone
+  ↓
+Join network
+  ↓
+Become participant/node
+```
+
+---
+
+## Permissioned
+
+Participants are already known/authorized.
+
+Your PPT defines a permissioned blockchain as one where participants are known and trusted, with verification handled through an agreement protocol and typically without the need for mining. 
+
+Conceptually:
+
+```text
+Organization
+     ↓
+Authorizes participants
+     ↓
+Selected nodes
+     ↓
+Blockchain
+```
+
+Examples listed in your material include **Hyperledger Fabric and Quorum**. 
+
+---
+
+# 13. Structure of a Blockchain
+
+Now we reach a **very important 10-mark topic**.
+
+A blockchain is basically:
+
+```text
+┌───────────────┐
+│    BLOCK 1    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 2    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 3    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 4    │
+└───────────────┘
+```
+
+Each block contains transactions.
+
+Your PPT explicitly describes a block as containing transactions in the block body. 
+
+---
+
+# 14. Block Structure
+
+A simplified block:
+
+```text
+┌───────────────────────────────────┐
+│           BLOCK HEADER             │
+│                                   │
+│ Previous Block Hash               │
+│ Timestamp                         │
+│ Nonce                             │
+│ Merkle Root                       │
+│                                   │
+├───────────────────────────────────┤
+│           BLOCK BODY               │
+│                                   │
+│ Transaction 1                     │
+│ Transaction 2                     │
+│ Transaction 3                     │
+│ Transaction 4                     │
+│ ...                               │
+└───────────────────────────────────┘
+```
+
+Your PPT explicitly states that the block header consists of:
+
+* Hash of previous block's header
+* Timestamp
+* Nonce
+* Merkle root
+
+and the block body contains transactions. 
+
+---
+
+# 15. What is the Previous Block Hash?
+
+Suppose:
+
+```text
+Block 1
+Hash = ABC123
+```
+
+Then Block 2 contains:
+
+```text
+Previous Hash = ABC123
+```
+
+So:
+
+```text
+Block 1
+Hash = ABC123
+      ↓
+Block 2
+Previous Hash = ABC123
+Hash = XYZ789
+      ↓
+Block 3
+Previous Hash = XYZ789
+```
+
+This creates the chain.
+
+This is why changing an old block affects the cryptographic links afterward.
+
+Later, when we study **hash functions**, you'll understand exactly why.
+
+---
+
+# 16. What is a Merkle Root?
+
+Suppose Block 1 contains four transactions:
+
+```text
+T1
+T2
+T3
+T4
+```
+
+Hash each:
+
+```text
+H(T1) = H1
+H(T2) = H2
+H(T3) = H3
+H(T4) = H4
+```
+
+Then combine them:
+
+```text
+H(H1 + H2) = H12
+H(H3 + H4) = H34
+```
+
+Then:
+
+```text
+H(H12 + H34) = MERKLE ROOT
+```
+
+Your Unit 2 PPT illustrates exactly this hierarchical hash structure. 
+
+So:
+
+> **Merkle root is a single hash representing the transactions in a block.**
+
+This is important because it allows efficient verification of transaction inclusion.
+
+We'll study Merkle trees much more deeply in the cryptography module.
+
+---
+
+# 17. What is a Nonce?
+
+A nonce is a value used in the block creation/mining process.
+
+In Proof of Work systems, miners repeatedly change the nonce to search for a block hash satisfying the required condition.
+
+Simplified:
+
+```text
+Block data + Nonce 1 → Hash ❌
+Block data + Nonce 2 → Hash ❌
+Block data + Nonce 3 → Hash ❌
+...
+Block data + Nonce N → Hash ✅
+```
+
+Then the block can satisfy the PoW requirement.
+
+⚠️ Don't confuse this with the **nonce in encryption protocols**. Your Unit 2 PPT uses nonce more generally as a value that can be used once in a cryptographic protocol. 
+
+In blockchain/Bitcoin context, the nonce is particularly associated with the mining/PoW search.
+
+---
+
+# 18. State Machine
+
+This is another term in your PPT.
+
+A blockchain can be viewed as a **state transition mechanism**.
+
+Suppose initial state:
+
+```text
+Alice = ₹1000
+Bob   = ₹500
+```
+
+Transaction:
+
+```text
+Alice → Bob ₹200
+```
+
+New state:
+
+```text
+Alice = ₹800
+Bob   = ₹700
+```
+
+So:
+
+```text
+State₀
+  ↓
+Transaction
+  ↓
+Execution
+  ↓
+State₁
+```
+
+Your PPT describes blockchain as a state transition mechanism where transaction execution changes the state from one form to the next. 
+
+---
+
+# 19. Smart Contracts
+
+A smart contract is a program running on top of a blockchain that contains business logic and executes when specified conditions are met.
+
+Your PPT describes smart contracts as programs that encapsulate business logic and can be automatically executed/enforced. 
+
+Example:
+
+```text
+IF
+Alice sends ₹100
+
+THEN
+Transfer digital asset to Alice
+```
+
+Smart contracts are used for things such as:
+
+* Identity management
+* Capital markets
+* Trade finance
+* Record management
+* Insurance
+* E-governance
+
+according to your PPT. 
+
+---
+
+# 20. Virtual Machine
+
+Your PPT mentions a virtual machine such as:
+
+> **Ethereum Virtual Machine (EVM)**
+
+A virtual machine provides an execution environment for smart contracts.
+
+The distinction in your PPT is:
+
+```text
+Transaction Script
+       ↓
+Limited operations
+
+Virtual Machine
+       ↓
+Can execute more general/Turing-complete code
+```
+
+The PPT uses Ethereum's EVM as the example. 
+
+---
+
+# 21. What is a Blockchain Node?
+
+A blockchain node can perform different functions depending on its role.
+
+It may:
+
+* Propose transactions
+* Validate transactions
+* Perform mining
+* Facilitate consensus
+* Validate blocks
+* Sign transactions
+* Maintain blockchain data
+
+Your PPT explicitly describes these roles. 
+
+So don't think:
+
+> Node = only miner.
+
+That's incorrect.
+
+A blockchain can have different types/roles of nodes.
+
+---
+
+# 22. HOW BLOCKCHAIN WORKS ⭐⭐⭐⭐⭐
+
+This is **one of the most important things in this entire module**.
+
+Your PPT gives the exact sequence:
+
+```text
+1. Transaction is initiated
+          ↓
+2. Transaction is validated and broadcast
+          ↓
+3. Find new block
+          ↓
+4. New block found
+          ↓
+5. Add new block to blockchain
+```
+
+
+
+Now understand every step.
+
+---
+
+## STEP 1 — Transaction is initiated
+
+Suppose Alice wants to send Bob some cryptocurrency.
+
+Alice creates a transaction.
+
+The transaction contains information such as:
+
+```text
+Sender
+Receiver
+Amount
+Other validation information
+```
+
+The transaction is digitally signed using Alice's private key.
+
+Your PPT explicitly describes transaction creation and signing using the private key. 
+
+---
+
+## STEP 2 — Transaction is validated and broadcast
+
+The transaction is propagated to other nodes.
+
+Your PPT mentions data-dissemination mechanisms such as the **Gossip protocol**.
+
+Nodes receive the transaction and check it against validity criteria. 
+
+Conceptually:
+
+```text
+Alice
+  ↓
+Transaction
+  ↓
+Node
+  ↓
+Broadcast
+ ↙ ↓ ↘
+N1 N2 N3
+```
+
+---
+
+## STEP 3 — Find New Block
+
+Validated transactions are included in a block.
+
+In PoW-based blockchains such as Bitcoin, miners work on finding/finalizing the block.
+
+Your PPT describes miners racing to finalize their blocks through mining. 
+
+---
+
+## STEP 4 — New Block Found
+
+The miner/participant satisfies the requirements of the consensus mechanism.
+
+In Bitcoin's PoW case, this involves solving the required mathematical puzzle.
+
+The block is then considered found/finalized, and the transaction is considered confirmed.
+
+
+
+---
+
+## STEP 5 — Add Block to Blockchain
+
+The newly created block is:
+
+1. Validated
+2. Transactions/smart contracts executed
+3. Propagated to peers
+4. Validated by peers
+5. Added to the ledger
+
+Then the next block cryptographically links back to it using a hash pointer. 
+
+---
+
+# 23. Complete Blockchain Working Diagram
+
+**Memorize this diagram.**
+
+```text
+             USER
+               │
+               ↓
+       Create Transaction
+               │
+               ↓
+       Digital Signature
+               │
+               ↓
+       Transaction Broadcast
+               │
+               ↓
+      ┌─────────────────┐
+      │ Network Nodes   │
+      │ Validate Tx     │
+      └────────┬────────┘
+               │
+               ↓
+       Valid Transactions
+               │
+               ↓
+        Block Formation
+               │
+               ↓
+          CONSENSUS
+               │
+               ↓
+          Block Found
+               │
+               ↓
+       Block Validation
+               │
+               ↓
+      Add to Blockchain
+               │
+               ↓
+     Next Block links to it
+```
+
+This follows the transaction lifecycle presented in your Unit 1 material. 
+
+---
+
+# 24. Blockchain Architecture
+
+Your PPT presents blockchain as a layer over a distributed peer-to-peer network.
+
+It also identifies cryptographic protocols as important for:
+
+* Integrity
+* Secure information dissemination
+* Consensus
+
+and identifies public-key cryptography, digital signatures and cryptographic hashes as components. 
+
+The architecture includes these important layers/concepts:
+
+```text
+┌─────────────────────────────┐
+│       APPLICATIONS          │
+│ DApps, DAOs, smart contracts│
+├─────────────────────────────┤
+│         EXECUTION           │
+│ VM, transactions, blocks    │
+│ smart contract execution   │
+├─────────────────────────────┤
+│          CONSENSUS          │
+│ PoW / PoS / BFT etc.       │
+├─────────────────────────────┤
+│       NETWORK / P2P         │
+│       Communication         │
+├─────────────────────────────┤
+│       CRYPTOGRAPHY          │
+│ Hashes / signatures / keys │
+└─────────────────────────────┘
+```
+
+Your PPT specifically describes the **Consensus**, **Execution**, and **Applications** layers and their roles. 
+
+---
+
+# 25. Blockchain Architecture — Explain Each Layer
+
+### 1. Network/P2P layer
+
+Responsible for communication between participating nodes.
+
+```text
+N1 ↔ N2 ↔ N3 ↔ N4
+```
+
+---
+
+### 2. Cryptographic layer
+
+Provides security using mechanisms such as:
+
+* Hash functions
+* Digital signatures
+* Public/private keys
+
+---
+
+### 3. Consensus layer
+
+Allows participants to agree on the accepted blockchain state.
+
+Examples include:
+
+* Proof of Work
+* Proof of Stake
+* Byzantine fault-tolerant protocols
+
+Your PPT explicitly identifies SMR, proof-based consensus and Byzantine fault-tolerant protocols here. 
+
+---
+
+### 4. Execution layer
+
+Handles:
+
+* Transactions
+* Blocks
+* Smart contracts
+* Value transfer
+* Block generation
+* Virtual-machine execution
+
+
+
+---
+
+### 5. Application layer
+
+Contains user-facing blockchain applications such as:
+
+* Smart contracts
+* DApps
+* DAOs
+* Autonomous agents
+
+Users interact with blockchain through applications. 
+
+---
+
+# ⭐ 26. The Most Important Conceptual Connection
+
+You should now understand this:
+
+```text
+DISTRIBUTED SYSTEM
+       ↓
+Many nodes
+       ↓
+Nodes may fail / behave maliciously
+       ↓
+Need agreement
+       ↓
+CONSENSUS
+       ↓
+Accepted state
+       ↓
+BLOCKCHAIN
+       ↓
+Transactions organized into blocks
+       ↓
+Cryptographically linked
+       ↓
+Distributed ledger
+```
+
+This is the **core idea of Unit I**.
+
+---
+
+# 🎯 5-MARK QUESTIONS — MODULE 2
+
+Prepare these very well.
+
+### Q1. Define a distributed system.
+
+Include:
+
+* Multiple nodes
+* Coordination
+* Common outcome
+* Communication
+* Distributed computation
+
+---
+
+### Q2. What is a Byzantine node?
+
+Mention:
+
+* Arbitrary/malicious behavior
+* Can send incorrect/conflicting information
+* Creates consistency problems
+* Requires Byzantine fault tolerance
+
+---
+
+### Q3. Explain the Byzantine Generals Problem.
+
+Mention:
+
+* Multiple participants
+* Need for common decision
+* Some participants may be malicious
+* Honest participants must reach consistent decision
+
+---
+
+### Q4. Define blockchain.
+
+Use the full definition:
+
+> Peer-to-peer + distributed ledger + cryptographically secure + append-only + immutable + consensus-based.
+
+---
+
+### Q5. Differentiate blockchain and distributed ledger.
+
+Remember:
+
+> **Blockchain is a type of distributed ledger, but every distributed ledger is not necessarily a blockchain.** 
+
+---
+
+### Q6. What is a Merkle root?
+
+Explain:
+
+```text
+Transactions
+    ↓
+Individual hashes
+    ↓
+Pairwise hashing
+    ↓
+Root hash
+```
+
+---
+
+### Q7. What is a blockchain node?
+
+Mention its possible functions:
+
+* Transaction creation
+* Transaction validation
+* Block validation
+* Mining
+* Consensus
+* Signing
+
+---
+
+# 🔥 27. VERY IMPORTANT 10-MARK QUESTIONS
+
+## Q1. Explain the working of blockchain with a suitable diagram.
+
+**Write in this order:**
+
+1. Introduction
+2. Transaction initiation
+3. Digital signature
+4. Transaction validation
+5. Broadcast
+6. Block formation
+7. Consensus
+8. Block validation
+9. Addition to blockchain
+10. Cryptographic link to next block
+11. Diagram
+
+This can easily make a strong 10-mark answer.
+
+---
+
+## Q2. Explain distributed systems and the Byzantine Generals Problem.
+
+Structure:
+
+```text
+Definition of distributed system
+          ↓
+Nodes
+          ↓
+Types of node behavior
+          ↓
+Challenges
+          ↓
+Byzantine node
+          ↓
+Byzantine Generals Problem
+          ↓
+Need for consensus
+          ↓
+PBFT
+          ↓
+Connection to blockchain
+```
+
+---
+
+## Q3. Explain blockchain architecture.
+
+Draw:
+
+```text
+Applications
+     ↓
+Execution
+     ↓
+Consensus
+     ↓
+P2P Network
+     ↓
+Cryptography
+```
+
+Then explain each layer.
+
+---
+
+## Q4. Explain the structure of a blockchain block.
+
+Draw:
+
+```text
+             BLOCK
+┌─────────────────────────┐
+│       BLOCK HEADER      │
+│                         │
+│ Previous Block Hash     │
+│ Timestamp               │
+│ Nonce                   │
+│ Merkle Root             │
+├─────────────────────────┤
+│       BLOCK BODY        │
+│                         │
+│ Transaction 1           │
+│ Transaction 2           │
+│ Transaction 3           │
+│ ...                     │
+└─────────────────────────┘
+```
+
+This is directly aligned with your PPT. 
+
+---
+
+# ⚠️ EXAM TRAPS
+
+### Trap 1
+
+❌ "Every distributed ledger is blockchain."
+
+✅ **Every blockchain is a distributed ledger, but not every distributed ledger is a blockchain.** 
+
+---
+
+### Trap 2
+
+❌ "Every blockchain node is a miner."
+
+✅ Nodes can have different functions; mining is only one possible role. 
+
+---
+
+### Trap 3
+
+❌ "Blockchain is just a database."
+
+Too simplistic.
+
+✅ Blockchain is a **distributed, cryptographically secured, consensus-based ledger**.
+
+---
+
+### Trap 4
+
+❌ "Consensus means everyone votes and 100% agree."
+
+Don't write that.
+
+Consensus is the process/mechanism through which distributed nodes determine an accepted state. 
+
+---
+
+### Trap 5
+
+❌ "Hash = encryption."
+
+No.
+
+Hashing and encryption are different cryptographic concepts. We'll cover this deeply in Unit 2.
+
+---
+
+# 🧠 MODULE 2 — Final Revision Sheet
+
+Memorize this:
+
+```text
+DISTRIBUTED SYSTEM
+    ↓
+Multiple nodes cooperate
+    ↓
+Problems:
+- coordination
+- failures
+- malicious nodes
+- network partitions
+    ↓
+BYZANTINE PROBLEM
+    ↓
+Need agreement despite faulty/malicious nodes
+    ↓
+CONSENSUS
+    ↓
+BLOCKCHAIN
+    ↓
+P2P distributed ledger
+    ↓
+Transactions
+    ↓
+Blocks
+    ↓
+Block Header:
+- Previous Hash
+- Timestamp
+- Nonce
+- Merkle Root
+    ↓
+Block Body:
+- Transactions
+    ↓
+Consensus
+    ↓
+Block added
+    ↓
+Next block cryptographically linked
+```
+
+And remember the **5-step blockchain working process** from your PPT:
+
+> **Initiate → Validate & Broadcast → Find Block → Block Found → Add Block**. 
+
+---
+
+## 📝 Before we move to Module 3
+
+Module 3 is **CONSENSUS**, and I would consider it one of the **highest-priority topics for your Monday exam**.
+
+We'll go much deeper there into:
+
+**Consensus → requirements → PoW → PoS → DPoS → PoET → PoD → PoI → PBFT → Federated consensus → PoA → PoC → Proof of Storage → comparison of consensus mechanisms.**
+
+Your actual Consensus PPT contains a broad list of these mechanisms. 
+
+Say **“next”** and we'll start **MODULE 3 — CONSENSUS**.

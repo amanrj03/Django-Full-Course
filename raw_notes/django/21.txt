@@ -1,0 +1,1728 @@
+# Module 21 — Django Forms
+
+Now we move from **manual HTML forms** to Django's built-in **Forms framework**.
+
+This is a very important module because Django Forms combine:
+
+```text
+HTML generation
++
+Input handling
++
+Validation
++
+Error handling
++
+Cleaned data
+```
+
+into a structured Python class.
+
+---
+
+# 1. Why Django Forms?
+
+Previously, we created a form manually:
+
+```html id="9m0q83"
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input type="text" name="name">
+
+    <input type="email" name="email">
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Then manually processed:
+
+```python id="4wq1fs"
+name = request.POST.get("name")
+email = request.POST.get("email")
+```
+
+For a small form, that's okay.
+
+But imagine 20 fields.
+
+You would need to manually handle:
+
+* HTML fields
+* validation
+* required fields
+* error messages
+* type conversion
+* redisplaying values
+* security
+* invalid input
+
+Django Forms simplify this.
+
+---
+
+# 2. What Is a Django Form?
+
+A Django Form is a **Python class that describes and processes form fields**.
+
+Example:
+
+```python id="l8c9v7"
+from django import forms
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()
+```
+
+This class describes a form containing:
+
+```text id="qg7a3w"
+name
+age
+email
+```
+
+---
+
+# 3. Where Do We Put Forms?
+
+Django apps commonly have:
+
+```text id="x8b2k1z"
+students/
+├── views.py
+├── models.py
+├── forms.py
+├── urls.py
+└── ...
+```
+
+Django doesn't necessarily create `forms.py` automatically with `startapp`.
+
+You can create it yourself.
+
+---
+
+# 4. Creating `forms.py`
+
+Inside your app:
+
+```text id="f6sk9c"
+students/forms.py
+```
+
+Write:
+
+```python id="v7r9qp"
+from django import forms
+```
+
+Then:
+
+```python id="9x1g7z"
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()
+```
+
+---
+
+# 5. Understanding `forms.Form`
+
+This:
+
+```python id="m4q3w7"
+class StudentForm(forms.Form):
+```
+
+means:
+
+> Create a Django form named `StudentForm`.
+
+It inherits from:
+
+```python id="4s5b6x"
+forms.Form
+```
+
+Django then provides the form-processing functionality.
+
+---
+
+# 6. `CharField`
+
+For text:
+
+```python id="h3y8vn"
+name = forms.CharField()
+```
+
+Example:
+
+```python id="8q0x1a"
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+```
+
+This corresponds conceptually to a text input.
+
+---
+
+# 7. `IntegerField`
+
+For integer values:
+
+```python id="m8z2kp"
+age = forms.IntegerField()
+```
+
+Django can validate that the submitted value can be interpreted as an integer.
+
+---
+
+# 8. `EmailField`
+
+For email:
+
+```python id="j7w2rc"
+email = forms.EmailField()
+```
+
+Django provides email-format validation.
+
+For example:
+
+```text id="j8f5ks"
+aman@example.com
+```
+
+is structurally email-like.
+
+Whereas:
+
+```text id="k2q6mx"
+hello
+```
+
+would normally fail the field's email validation.
+
+---
+
+# 9. Complete Form
+
+```python id="5i0o0w"
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()
+```
+
+This is enough for Django to know that your form has three fields.
+
+---
+
+# 10. Rendering the Form
+
+Now let's display it in a template.
+
+View:
+
+```python id="c6e9so"
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+Template:
+
+```html id="y1p4wc"
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Django generates HTML for the form fields.
+
+---
+
+# 11. What Does `{{ form }}` Do?
+
+When you write:
+
+```html id="s9t1kb"
+{{ form }}
+```
+
+Django renders the form's fields as HTML.
+
+Conceptually, it produces fields corresponding to:
+
+```text id="djw3pd"
+Name
+Age
+Email
+```
+
+You don't have to manually create every `<input>`.
+
+---
+
+# 12. `{{ form.as_p }}`
+
+A common rendering method is:
+
+```html id="g2d7cw"
+{{ form.as_p }}
+```
+
+It renders each field wrapped in a paragraph structure.
+
+Example conceptually:
+
+```html id="r1s0q4"
+<p>
+    <label>Name:</label>
+    <input ...>
+</p>
+
+<p>
+    <label>Age:</label>
+    <input ...>
+</p>
+```
+
+---
+
+# 13. `{{ form.as_table }}`
+
+You can write:
+
+```html id="f0p5h1"
+{{ form.as_table }}
+```
+
+This renders the form as table rows.
+
+Typically you'd place it inside:
+
+```html id="4s2qla"
+<table>
+    {{ form.as_table }}
+</table>
+```
+
+---
+
+# 14. `{{ form.as_ul }}`
+
+Another rendering option:
+
+```html id="x9s7w2"
+{{ form.as_ul }}
+```
+
+It renders the fields as list items.
+
+Typically:
+
+```html id="8t5mna"
+<ul>
+    {{ form.as_ul }}
+</ul>
+```
+
+---
+
+# 15. Comparison
+
+| Syntax                | Typical output structure |
+| --------------------- | ------------------------ |
+| `{{ form }}`          | Default form rendering   |
+| `{{ form.as_p }}`     | Paragraphs               |
+| `{{ form.as_table }}` | Table rows               |
+| `{{ form.as_ul }}`    | List items               |
+
+For exams, know all four.
+
+---
+
+# 16. Important: Rendering Is Not Validation
+
+This is very important.
+
+Creating:
+
+```python id="gq3q7k"
+form = StudentForm()
+```
+
+only creates a form instance.
+
+It doesn't mean submitted data is valid.
+
+For submitted data:
+
+```python id="b5zj8u"
+form = StudentForm(request.POST)
+```
+
+then:
+
+```python id="4p3f8k"
+form.is_valid()
+```
+
+performs validation.
+
+---
+
+# 17. Unbound vs Bound Form
+
+This terminology is important.
+
+### Unbound form
+
+```python id="v0y6nq"
+form = StudentForm()
+```
+
+It has no submitted data.
+
+Used when initially displaying the form.
+
+### Bound form
+
+```python id="f6nq8w"
+form = StudentForm(request.POST)
+```
+
+It contains submitted data and can be validated.
+
+---
+
+# 18. Visualizing This
+
+```text id="f3v8z7"
+StudentForm()
+     ↓
+Unbound form
+     ↓
+Display form
+```
+
+After submission:
+
+```text id="j9k4r1"
+request.POST
+     ↓
+StudentForm(request.POST)
+     ↓
+Bound form
+     ↓
+is_valid()
+     ↓
+Validation
+```
+
+This distinction is very important for viva.
+
+---
+
+# 19. `is_valid()`
+
+The most important Django Forms method:
+
+```python id="2d6f5m"
+form.is_valid()
+```
+
+It validates the submitted data.
+
+Example:
+
+```python id="3a7x8q"
+if form.is_valid():
+    print("Valid")
+else:
+    print("Invalid")
+```
+
+It returns:
+
+```text id="2vl9po"
+True
+```
+
+or:
+
+```text id="y5w3cf"
+False
+```
+
+---
+
+# 20. Complete GET + POST Form View
+
+This is a pattern you should memorize.
+
+```python id="x8n4fk"
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            print("Form is valid")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+Let's understand it carefully.
+
+---
+
+# 21. First Visit — GET
+
+When the user opens:
+
+```text id="4p7v2z"
+/student-form/
+```
+
+the browser sends:
+
+```text id="j4m0nd"
+GET
+```
+
+So:
+
+```python id="7b8k3a"
+if request.method == "POST":
+```
+
+is false.
+
+Django executes:
+
+```python id="9j4yqf"
+form = StudentForm()
+```
+
+An empty/unbound form is displayed.
+
+---
+
+# 22. Submission — POST
+
+User fills:
+
+```text id="w3g4dy"
+Name: Aman
+Age: 21
+Email: aman@example.com
+```
+
+and clicks Submit.
+
+Browser sends:
+
+```text id="z8w1n5"
+POST
+```
+
+Django executes:
+
+```python id="4j7z3v"
+form = StudentForm(request.POST)
+```
+
+Now the form is bound to submitted data.
+
+---
+
+# 23. Validation
+
+Then:
+
+```python id="k9q3sd"
+if form.is_valid():
+```
+
+Django validates:
+
+```text id="j2q6mb"
+name
+age
+email
+```
+
+If everything is valid:
+
+```text id="h7m1as"
+True
+```
+
+Otherwise:
+
+```text id="p4j8zc"
+False
+```
+
+---
+
+# 24. `cleaned_data`
+
+If the form is valid:
+
+```python id="y3x6qk"
+form.cleaned_data
+```
+
+contains the cleaned/validated values.
+
+Example:
+
+```python id="c8k0nw"
+if form.is_valid():
+
+    name = form.cleaned_data["name"]
+    age = form.cleaned_data["age"]
+    email = form.cleaned_data["email"]
+```
+
+This is preferred over directly using:
+
+```python id="8m0k0v"
+request.POST.get("name")
+```
+
+after form validation.
+
+---
+
+# 25. Why `cleaned_data`?
+
+Suppose:
+
+```python id="9v3qkf"
+age = forms.IntegerField()
+```
+
+The browser sends form data as strings.
+
+After validation, Django can convert the valid value into the appropriate Python type.
+
+So:
+
+```python id="3u7m2a"
+form.cleaned_data["age"]
+```
+
+can be an integer.
+
+This is one of the major benefits of Django Forms.
+
+---
+
+# 26. Example
+
+Form:
+
+```python id="j4a9m3"
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+```
+
+Submitted:
+
+```text id="h7o3sa"
+name = "Aman"
+age = "21"
+```
+
+After:
+
+```python id="v5r1mq"
+form.is_valid()
+```
+
+you can access:
+
+```python id="2k3c7n"
+form.cleaned_data["name"]
+```
+
+and:
+
+```python id="y0z6sw"
+form.cleaned_data["age"]
+```
+
+The second value can be an integer rather than the original raw string.
+
+---
+
+# 27. Form Errors
+
+Suppose the user enters:
+
+```text id="x2q5b8"
+Age = abc
+```
+
+but:
+
+```python id="z0n4p7"
+age = forms.IntegerField()
+```
+
+Validation fails.
+
+Then:
+
+```python id="v8m2le"
+form.is_valid()
+```
+
+returns:
+
+```text id="d5w1az"
+False
+```
+
+and Django stores validation errors in the form.
+
+---
+
+# 28. Displaying Errors
+
+If your template contains:
+
+```html id="7o1r5q"
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Django can render the associated field errors along with the form.
+
+You can also access them explicitly.
+
+---
+
+# 29. `form.errors`
+
+In Python:
+
+```python id="6n4c2f"
+form.errors
+```
+
+contains validation errors.
+
+Example:
+
+```python id="2x7q3v"
+if not form.is_valid():
+
+    print(form.errors)
+```
+
+Useful for debugging and understanding validation.
+
+---
+
+# 30. Required Fields
+
+By default, many Django form fields are required.
+
+Example:
+
+```python id="h1k6po"
+name = forms.CharField()
+```
+
+If the user submits it empty, validation generally fails.
+
+---
+
+# 31. `required=False`
+
+You can make a field optional:
+
+```python id="q5y8av"
+phone = forms.CharField(
+    required=False
+)
+```
+
+Now the user can leave it blank.
+
+---
+
+# 32. `label`
+
+You can customize the field label:
+
+```python id="8m4v0d"
+name = forms.CharField(
+    label="Student Name"
+)
+```
+
+Django can use:
+
+```text id="s9j2kc"
+Student Name
+```
+
+instead of deriving the default label from `name`.
+
+---
+
+# 33. `initial`
+
+You can provide an initial/default displayed value:
+
+```python id="q2f8ka"
+name = forms.CharField(
+    initial="Aman"
+)
+```
+
+The form initially displays:
+
+```text id="7j1b3d"
+Aman
+```
+
+The user can modify it unless other restrictions apply.
+
+---
+
+# 34. `help_text`
+
+You can provide additional information:
+
+```python id="n3k7sq"
+name = forms.CharField(
+    help_text="Enter your full name"
+)
+```
+
+This can help explain what the field expects.
+
+---
+
+# 35. `max_length`
+
+For text:
+
+```python id="w0f4zp"
+name = forms.CharField(
+    max_length=100
+)
+```
+
+This limits the accepted string length during form validation and can influence the generated HTML widget.
+
+---
+
+# 36. `min_length`
+
+You can also specify:
+
+```python id="d9x1vm"
+name = forms.CharField(
+    min_length=3
+)
+```
+
+The submitted value must satisfy the minimum length requirement.
+
+---
+
+# 37. `IntegerField` Options
+
+Example:
+
+```python id="2c5m7n"
+age = forms.IntegerField(
+    min_value=18,
+    max_value=100
+)
+```
+
+Now the form expects an integer within that range.
+
+For example:
+
+```text id="3z7k1q"
+21 → valid
+17 → invalid
+101 → invalid
+```
+
+---
+
+# 38. `EmailField`
+
+Example:
+
+```python id="9h3q0s"
+email = forms.EmailField()
+```
+
+Django validates that the value has a valid email-like structure.
+
+---
+
+# 39. `ChoiceField`
+
+For a fixed set of choices:
+
+```python id="1n4q8c"
+course = forms.ChoiceField(
+    choices=[
+        ("cse", "Computer Science"),
+        ("it", "Information Technology"),
+        ("ece", "Electronics")
+    ]
+)
+```
+
+The first element is the submitted value.
+
+The second is the human-readable label.
+
+---
+
+# 40. Understanding Choices
+
+```python id="cse7vl"
+("cse", "Computer Science")
+```
+
+means:
+
+```text id="ps9w2e"
+submitted value → cse
+displayed label → Computer Science
+```
+
+This distinction is very important.
+
+---
+
+# 41. BooleanField
+
+Example:
+
+```python id="7m5n1s"
+agree = forms.BooleanField()
+```
+
+This is useful for things such as:
+
+```text id="v5l9f2"
+I agree to the terms
+```
+
+You can customize whether it is required.
+
+---
+
+# 42. DateField
+
+Example:
+
+```python id="k8v4r2"
+dob = forms.DateField()
+```
+
+Django can validate and convert the submitted date according to the field's configuration.
+
+---
+
+# 43. Multiple Fields
+
+A realistic form:
+
+```python id="s6v2jx"
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        max_length=100
+    )
+
+    age = forms.IntegerField(
+        min_value=16,
+        max_value=100
+    )
+
+    email = forms.EmailField()
+
+    course = forms.ChoiceField(
+        choices=[
+            ("cse", "Computer Science"),
+            ("it", "Information Technology"),
+        ]
+    )
+
+    dob = forms.DateField()
+```
+
+---
+
+# 44. Complete Template
+
+```html id="e8q2cf"
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Form</title>
+</head>
+
+<body>
+
+    <h1>Student Registration</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Submit
+        </button>
+
+    </form>
+
+</body>
+
+</html>
+```
+
+---
+
+# 45. Complete View
+
+```python id="r3y8tk"
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+            course = form.cleaned_data["course"]
+            dob = form.cleaned_data["dob"]
+
+            print(name)
+            print(age)
+            print(email)
+            print(course)
+            print(dob)
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+---
+
+# 46. Complete Flow
+
+Memorize this:
+
+```text id="k6d8ra"
+                User opens page
+                      ↓
+                     GET
+                      ↓
+             StudentForm()
+                      ↓
+               Empty form
+                      ↓
+                  User fills
+                      ↓
+                    POST
+                      ↓
+          StudentForm(request.POST)
+                      ↓
+                 is_valid()
+                /          \
+              Yes           No
+               ↓             ↓
+        cleaned_data      form.errors
+               ↓             ↓
+          Process data    Show errors
+```
+
+This is the core Django Forms workflow.
+
+---
+
+# 47. Why Use `forms.Form` Instead of Manual HTML?
+
+### Manual approach:
+
+```text id="4x2z9m"
+HTML fields
+    ↓
+request.POST
+    ↓
+manual validation
+    ↓
+manual conversion
+    ↓
+manual errors
+```
+
+### Django Form:
+
+```text id="m6y9q1"
+Form class
+    ↓
+request.POST
+    ↓
+is_valid()
+    ↓
+cleaned_data
+    ↓
+errors
+```
+
+Much cleaner.
+
+---
+
+# 48. Form Field vs Model Field
+
+This distinction becomes extremely important later.
+
+### Form field:
+
+```python id="l4v8qs"
+forms.CharField()
+```
+
+Used for:
+
+> User input and validation.
+
+### Model field:
+
+```python id="r7x2md"
+models.CharField(max_length=100)
+```
+
+Used for:
+
+> Defining database structure.
+
+We'll study ModelForms later when we reach Models.
+
+---
+
+# 49. `Form` vs `ModelForm`
+
+You will eventually encounter:
+
+```python id="v8w2jp"
+forms.Form
+```
+
+and:
+
+```python id="x6z0ka"
+forms.ModelForm
+```
+
+### `Form`
+
+You manually define form fields.
+
+```python id="2q4m7k"
+class StudentForm(forms.Form):
+    name = forms.CharField()
+```
+
+### `ModelForm`
+
+Django can generate form fields based on a model.
+
+```python id="h5t1sx"
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = "__all__"
+```
+
+We'll study this later.
+
+---
+
+# 50. Common Mistake — Forgetting `request.POST`
+
+Wrong:
+
+```python id="j4y7z2"
+form = StudentForm()
+```
+
+when processing submitted data.
+
+Correct:
+
+```python id="c3n8w1"
+form = StudentForm(request.POST)
+```
+
+Otherwise Django doesn't have the submitted data to validate.
+
+---
+
+# 51. Common Mistake — Calling `cleaned_data` Before Validation
+
+Wrong:
+
+```python id="f2q7k9"
+form = StudentForm(request.POST)
+
+name = form.cleaned_data["name"]
+```
+
+Correct:
+
+```python id="w6n3p4"
+form = StudentForm(request.POST)
+
+if form.is_valid():
+
+    name = form.cleaned_data["name"]
+```
+
+`cleaned_data` should be used after successful validation.
+
+---
+
+# 52. Common Mistake — Forgetting CSRF
+
+For a POST form:
+
+```html id="u6f0pk"
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+</form>
+```
+
+We'll study CSRF in detail in Module 23.
+
+---
+
+# 53. Common Mistake — Not Returning the Form
+
+Suppose validation fails.
+
+You generally want to render the bound form again:
+
+```python id="9k8s5w"
+return render(
+    request,
+    "student_form.html",
+    {"form": form}
+)
+```
+
+This allows Django to display validation errors and submitted values appropriately.
+
+---
+
+# 54. Viva Questions
+
+### Q1. What is a Django Form?
+
+> A Django Form is a Python class used to define, render, validate, and process user input.
+
+### Q2. Which module provides Django Forms?
+
+```python id="f3j6e8"
+from django import forms
+```
+
+### Q3. What is `forms.Form`?
+
+> It is the base class used to create standard Django forms.
+
+### Q4. What is `forms.CharField`?
+
+> A form field designed primarily for text input and validation.
+
+### Q5. What is `forms.IntegerField`?
+
+> A form field that validates and converts integer input.
+
+---
+
+# 55. Viva — Bound vs Unbound
+
+### Teacher:
+
+> What is an unbound form?
+
+Answer:
+
+> A form created without submitted data, such as `StudentForm()`, generally used to initially display an empty form.
+
+### Teacher:
+
+> What is a bound form?
+
+Answer:
+
+> A form created with submitted data, such as `StudentForm(request.POST)`, which can then be validated.
+
+---
+
+# 56. Viva — `is_valid()`
+
+### Teacher:
+
+> What does `is_valid()` do?
+
+Answer:
+
+> It runs the form's validation process and returns `True` if the submitted data is valid and `False` otherwise.
+
+---
+
+# 57. Viva — `cleaned_data`
+
+### Teacher:
+
+> What is `cleaned_data`?
+
+Answer:
+
+> `cleaned_data` is a dictionary containing the cleaned and validated form values after successful validation.
+
+---
+
+# 58. Viva — Why Not `request.POST`?
+
+### Teacher:
+
+> Why use `cleaned_data` instead of directly processing `request.POST` after validation?
+
+Answer:
+
+> `cleaned_data` contains values after Django has performed the form field's validation and appropriate conversion, making it safer and easier to work with.
+
+---
+
+# 59. Viva — `forms.Form` vs `ModelForm`
+
+Answer:
+
+> `forms.Form` requires fields to be explicitly defined, while `forms.ModelForm` can generate form fields from a Django model and is commonly used when a form corresponds to database data.
+
+---
+
+# 60. Coding Question
+
+Create a form with:
+
+* name
+* age
+* email
+
+### Answer:
+
+```python id="1n6k2v"
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()
+```
+
+---
+
+# 61. Coding Question
+
+Write a view that displays the form on GET and validates it on POST.
+
+### Answer:
+
+```python id="g5y2kr"
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+
+            print(name)
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+---
+
+# 62. Coding Question
+
+Render the form in a template.
+
+### Answer:
+
+```html id="9w5x0d"
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+---
+
+# 63. Coding Question
+
+Create an age field accepting only ages from 18 to 60.
+
+### Answer:
+
+```python id="q1h7cm"
+age = forms.IntegerField(
+    min_value=18,
+    max_value=60
+)
+```
+
+---
+
+# 64. Coding Question
+
+Make phone number optional.
+
+### Answer:
+
+```python id="m3x8pq"
+phone = forms.CharField(
+    required=False
+)
+```
+
+---
+
+# 65. Coding Question
+
+Create a course dropdown.
+
+### Answer:
+
+```python id="r8v2kj"
+course = forms.ChoiceField(
+    choices=[
+        ("cse", "Computer Science"),
+        ("it", "Information Technology"),
+        ("ece", "Electronics")
+    ]
+)
+```
+
+---
+
+# ⭐ 66. The Most Important Code to Memorize
+
+If your teacher asks:
+
+> "Create a Django form and handle GET and POST."
+
+You should be able to immediately write:
+
+### `forms.py`
+
+```python id="6p3w8x"
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+
+    age = forms.IntegerField()
+
+    email = forms.EmailField()
+```
+
+### `views.py`
+
+```python id="2z7v4k"
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+            email = form.cleaned_data["email"]
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+### `student_form.html`
+
+```html id="q5n8vc"
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+This is the **core Django Forms pattern**.
+
+---
+
+# 🧠 Module 21 Cheat Sheet
+
+### Create form:
+
+```python id="q8t2xm"
+class StudentForm(forms.Form):
+```
+
+### Text:
+
+```python id="2j6w9p"
+name = forms.CharField()
+```
+
+### Integer:
+
+```python id="v4k1sd"
+age = forms.IntegerField()
+```
+
+### Email:
+
+```python id="z9r5hf"
+email = forms.EmailField()
+```
+
+### Choices:
+
+```python id="6m3x7q"
+course = forms.ChoiceField(
+    choices=[...]
+)
+```
+
+### Optional:
+
+```python id="n5y8ca"
+required=False
+```
+
+### Bind POST data:
+
+```python id="0s6f2w"
+form = StudentForm(request.POST)
+```
+
+### Validate:
+
+```python id="7c4m1x"
+form.is_valid()
+```
+
+### Get cleaned value:
+
+```python id="f9q2kb"
+form.cleaned_data["name"]
+```
+
+### Render:
+
+```html id="w8p3zm"
+{{ form }}
+{{ form.as_p }}
+{{ form.as_table }}
+{{ form.as_ul }}
+```
+
+### Run flow:
+
+```text id="j1v7qx"
+GET
+ ↓
+StudentForm()
+ ↓
+Display
+
+POST
+ ↓
+StudentForm(request.POST)
+ ↓
+is_valid()
+ ↓
+cleaned_data / errors
+```
+
+---
+
+## Next → Module 22: Form Validation
+
+Here we'll go much deeper into **validation**, including:
+
+* Built-in validation
+* `required`
+* `min_length` / `max_length`
+* `min_value` / `max_value`
+* Email validation
+* `clean_<field>()`
+* `clean()`
+* Custom validation
+* Validation errors
+* `add_error()`
+* Cross-field validation
+* Password confirmation
+* How Django's validation pipeline works
+* Practical coding questions
+* Viva questions.

@@ -1,0 +1,1176 @@
+# Module 23 — CSRF & CSRF Protection in Django
+
+CSRF is a **very important Django security topic** and is commonly asked in viva/interviews.
+
+By the end of this module, you should be able to explain:
+
+* What CSRF means
+* What a CSRF attack is
+* Why Django uses CSRF protection
+* What `{% csrf_token %}` does
+* What `CsrfViewMiddleware` does
+* Why CSRF is mainly relevant to state-changing requests
+* How to fix a CSRF verification error
+* CSRF vs XSS vs authentication
+* How CSRF works with forms and AJAX
+
+---
+
+# 1. What is CSRF?
+
+**CSRF** stands for:
+
+> **Cross-Site Request Forgery**
+
+It is a web security attack where an attacker tricks a user's browser into sending an unwanted request to a website where the user is already authenticated.
+
+The important idea is:
+
+> The request comes from the victim's browser, and the browser may automatically include the user's authentication credentials, such as cookies.
+
+---
+
+# 2. Simple Real-Life Example
+
+Imagine you are logged into:
+
+```text
+bank.com
+```
+
+Your browser has a login/session cookie.
+
+Now you visit an attacker's website:
+
+```text
+evil.com
+```
+
+The attacker tries to make your browser send a request to:
+
+```text
+bank.com/transfer/
+```
+
+If the bank doesn't verify that the request genuinely came from its own form/site, the request could potentially be accepted using your existing authentication.
+
+So:
+
+```text
+Victim logged in
+       ↓
+Browser has authentication cookie
+       ↓
+Victim visits malicious website
+       ↓
+Malicious website causes request
+       ↓
+Browser sends request to target site
+       ↓
+Target site may think request is legitimate
+```
+
+That's the basic CSRF problem.
+
+---
+
+# 3. Why Is CSRF Possible?
+
+The important concept is **automatic browser credentials**.
+
+For example, session authentication commonly uses cookies.
+
+Suppose:
+
+```text
+Browser
+   |
+   | Cookie: sessionid=abc123
+   ↓
+example.com
+```
+
+The browser can automatically send the cookie when making a request to that domain.
+
+The server therefore knows:
+
+> "This request belongs to the logged-in user."
+
+But that doesn't necessarily prove:
+
+> "The user intentionally submitted this particular action."
+
+That's the gap CSRF protection addresses.
+
+---
+
+# 4. What Does Django Do?
+
+Django provides built-in CSRF protection.
+
+You normally see this in a POST form:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+The important line is:
+
+```django
+{% csrf_token %}
+```
+
+---
+
+# 5. What Is `{% csrf_token %}`?
+
+It is a Django template tag that inserts a CSRF token into the HTML form.
+
+Conceptually, the rendered HTML contains something like:
+
+```html
+<input type="hidden"
+       name="csrfmiddlewaretoken"
+       value="some-secret-token">
+```
+
+The exact token value is generated/handled by Django.
+
+So when the form is submitted:
+
+```text
+POST request
+   ↓
+Form data
+   +
+CSRF token
+   ↓
+Django
+   ↓
+CSRF verification
+```
+
+---
+
+# 6. Why Do We Need the Token?
+
+The idea is that an attacker shouldn't be able to obtain the valid CSRF token from the target website's page because of browser security restrictions.
+
+Therefore:
+
+```text
+Legitimate form
+      ↓
+Contains valid CSRF token
+      ↓
+Django accepts request
+```
+
+Whereas an attacker's forged request generally won't contain the valid token:
+
+```text
+Malicious request
+      ↓
+Missing/invalid CSRF token
+      ↓
+Django rejects request
+```
+
+---
+
+# 7. CSRF Token Is NOT a Password
+
+A common misconception is:
+
+> "CSRF token is the user's password."
+
+No.
+
+It is a security value used to verify that a request is coming through an expected interaction with the site.
+
+Think of it as:
+
+```text
+Authentication
+→ Who are you?
+
+CSRF protection
+→ Did this state-changing request come through an expected trusted flow?
+```
+
+These solve different problems.
+
+---
+
+# 8. Django's CSRF Middleware
+
+Django normally enables CSRF protection through middleware.
+
+In `settings.py`, you'll see:
+
+```python
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    ...
+]
+```
+
+The important line is:
+
+```python
+'django.middleware.csrf.CsrfViewMiddleware',
+```
+
+This middleware performs CSRF checks.
+
+---
+
+# 9. Two Things You Must Remember
+
+For a normal Django POST form, remember:
+
+### In the template:
+
+```django
+{% csrf_token %}
+```
+
+### In `settings.py`:
+
+```python
+'django.middleware.csrf.CsrfViewMiddleware',
+```
+
+The middleware is normally included in a newly created Django project.
+
+---
+
+# 10. Complete Example
+
+Suppose we have:
+
+### `forms.py`
+
+```python
+from django import forms
+
+
+class StudentForm(forms.Form):
+    name = forms.CharField()
+    age = forms.IntegerField()
+```
+
+### `views.py`
+
+```python
+from django.shortcuts import render
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+            return render(
+                request,
+                "success.html"
+            )
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+### `student_form.html`
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+This is the standard pattern.
+
+---
+
+# 11. What Happens If We Forget `{% csrf_token %}`?
+
+Suppose we write:
+
+```html
+<form method="POST">
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Notice:
+
+```django
+{% csrf_token %}
+```
+
+is missing.
+
+When the POST request reaches Django, CSRF verification can fail.
+
+You may see an error such as:
+
+```text
+403 Forbidden
+CSRF verification failed. Request aborted.
+```
+
+The exact error page/details depend on Django configuration and environment.
+
+---
+
+# 12. Why 403?
+
+HTTP status:
+
+```text
+403 Forbidden
+```
+
+means:
+
+> The server understood the request but refuses to authorize/process it.
+
+CSRF verification failure is commonly returned as a 403 response.
+
+This is different from:
+
+```text
+404 → resource/URL not found
+500 → server-side error
+400 → bad request
+403 → forbidden
+```
+
+---
+
+# 13. CSRF and GET vs POST
+
+This is important.
+
+CSRF protection is primarily concerned with **unsafe/state-changing HTTP methods**, such as:
+
+```text
+POST
+PUT
+PATCH
+DELETE
+```
+
+A normal GET request should generally be safe and should **not change server state**.
+
+For example:
+
+```text
+GET /products/
+```
+
+should retrieve products.
+
+Whereas:
+
+```text
+POST /delete-account/
+```
+
+changes state.
+
+Therefore, CSRF protection is especially important for the second type.
+
+---
+
+# 14. Should GET Change Data?
+
+Ideally, **no**.
+
+Bad design:
+
+```text
+GET /delete-student/10/
+```
+
+because simply visiting a URL could perform a destructive action.
+
+Better:
+
+```text
+POST /delete-student/10/
+```
+
+with CSRF protection.
+
+General principle:
+
+> GET should be safe/read-only; state-changing operations should use appropriate non-safe methods and CSRF protection where applicable.
+
+---
+
+# 15. CSRF Token in a Form
+
+Consider:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input type="text" name="name">
+
+    <button type="submit">
+        Save
+    </button>
+
+</form>
+```
+
+When Django renders the page:
+
+```text
+{% csrf_token %}
+        ↓
+Django generates/inserts CSRF token
+        ↓
+Browser receives form
+        ↓
+User submits form
+        ↓
+POST + CSRF information
+        ↓
+Django verifies it
+```
+
+---
+
+# 16. CSRF Cookie
+
+Django also uses a CSRF cookie as part of its CSRF protection mechanism.
+
+Conceptually:
+
+```text
+Browser
+   |
+   | CSRF cookie
+   ↓
+Django
+```
+
+The exact mechanics are more sophisticated than simply "put a token in the form."
+
+For a normal HTML form, the practical rule you need to remember is:
+
+```django
+{% csrf_token %}
+```
+
+---
+
+# 17. `csrf_token` vs `csrfmiddlewaretoken`
+
+You may encounter both terms.
+
+### Template tag:
+
+```django
+{% csrf_token %}
+```
+
+This is what **you write in the Django template**.
+
+Django renders a hidden form field containing the token, commonly named:
+
+```text
+csrfmiddlewaretoken
+```
+
+So:
+
+```text
+{% csrf_token %}
+       ↓
+hidden input
+       ↓
+csrfmiddlewaretoken
+```
+
+---
+
+# 18. CSRF with Django Forms
+
+Django Forms do **not** automatically mean that CSRF is handled by the form itself.
+
+You still need:
+
+```django
+{% csrf_token %}
+```
+
+in a POST HTML form.
+
+For example:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Remember:
+
+> `{{ form.as_p }}` renders the form fields, but `{% csrf_token %}` is a separate Django template tag.
+
+---
+
+# 19. Common CSRF Error
+
+You submit your form and see:
+
+```text
+Forbidden (403)
+CSRF verification failed.
+Request aborted.
+```
+
+First check:
+
+### 1. Is the form POST?
+
+```html
+<form method="POST">
+```
+
+### 2. Did you add:
+
+```django
+{% csrf_token %}
+```
+
+### 3. Is CSRF middleware enabled?
+
+```python
+'django.middleware.csrf.CsrfViewMiddleware',
+```
+
+### 4. Are you submitting to the expected URL/domain?
+
+### 5. Is the browser accepting cookies as expected?
+
+---
+
+# 20. Don't Disable CSRF Just to Fix an Error
+
+You might find:
+
+```python
+from django.views.decorators.csrf import csrf_exempt
+```
+
+and:
+
+```python
+@csrf_exempt
+def my_view(request):
+    ...
+```
+
+This disables CSRF checking for that view.
+
+### Important
+
+Do **not** use this as your first solution to:
+
+> "My form gives a CSRF error."
+
+Instead, find out why the legitimate request is failing.
+
+Disabling protection unnecessarily creates a security risk.
+
+---
+
+# 21. What Does `@csrf_exempt` Do?
+
+Example:
+
+```python
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def my_view(request):
+    return HttpResponse("Hello")
+```
+
+It tells Django to exempt this view from normal CSRF protection.
+
+This may be appropriate for certain carefully designed endpoints, but it should be used deliberately.
+
+### Viva question
+
+**Q: What is `csrf_exempt`?**
+
+Answer:
+
+> `csrf_exempt` is a Django decorator that disables CSRF validation for a particular view.
+
+---
+
+# 22. CSRF vs Authentication
+
+These are different.
+
+### Authentication
+
+Answers:
+
+> **Who is the user?**
+
+Example:
+
+```text
+Login username/password
+Session
+Authentication cookie
+```
+
+### CSRF protection
+
+Answers roughly:
+
+> **Is this state-changing request properly authorized by the site's CSRF mechanism?**
+
+So:
+
+```text
+Authentication ≠ CSRF protection
+```
+
+You can be authenticated and still be vulnerable to CSRF if the application doesn't properly protect state-changing requests.
+
+---
+
+# 23. CSRF vs XSS
+
+Another common viva question.
+
+### CSRF
+
+Attacker tricks a victim's browser into making an unwanted request.
+
+```text
+Attacker
+   ↓
+tricks browser
+   ↓
+target website
+```
+
+### XSS
+
+Attacker gets malicious JavaScript/content executed in another user's browser in the context of a vulnerable website.
+
+```text
+Malicious script
+       ↓
+victim's browser
+       ↓
+runs in website context
+```
+
+Simple distinction:
+
+> **CSRF tricks the browser into making a request.**
+
+> **XSS executes malicious script in the victim's browser.**
+
+---
+
+# 24. CSRF vs SQL Injection
+
+These are also completely different.
+
+### CSRF
+
+Targets request authenticity/state-changing actions.
+
+### SQL Injection
+
+Targets database queries by injecting malicious SQL input.
+
+```text
+CSRF → HTTP request security
+
+SQL Injection → Database query security
+```
+
+Django's ORM helps reduce SQL injection risks when used properly, while CSRF middleware addresses CSRF.
+
+---
+
+# 25. CSRF with AJAX
+
+Suppose JavaScript sends:
+
+```javascript
+fetch("/students/", {
+    method: "POST",
+    body: ...
+});
+```
+
+You can't simply assume that because it's AJAX, CSRF doesn't apply.
+
+For Django-protected POST requests, you need to send the CSRF token appropriately.
+
+A common approach is to read the CSRF token from the cookie and send it in the request header.
+
+Conceptually:
+
+```text
+AJAX POST
+   +
+X-CSRFToken header
+   ↓
+Django CSRF validation
+```
+
+For example, using `fetch`:
+
+```javascript
+fetch("/students/", {
+    method: "POST",
+    headers: {
+        "X-CSRFToken": csrftoken,
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+});
+```
+
+The exact implementation of obtaining `csrftoken` depends on how your Django app is configured.
+
+For your syllabus, remember the key concept:
+
+> AJAX POST requests also need CSRF protection when Django's CSRF checks apply.
+
+---
+
+# 26. CSRF with `@ensure_csrf_cookie`
+
+Django provides:
+
+```python
+from django.views.decorators.csrf import ensure_csrf_cookie
+```
+
+and:
+
+```python
+@ensure_csrf_cookie
+def my_view(request):
+    ...
+```
+
+This can be used when you need Django to ensure that a CSRF cookie is sent to the client.
+
+This becomes more relevant in JavaScript/AJAX applications.
+
+For a normal Django HTML form, you usually don't need to manually use it.
+
+---
+
+# 27. CSRF Trusted Origins
+
+Sometimes you may deploy Django across different trusted origins.
+
+Django provides:
+
+```python
+CSRF_TRUSTED_ORIGINS
+```
+
+in `settings.py`.
+
+Example conceptually:
+
+```python
+CSRF_TRUSTED_ORIGINS = [
+    "https://example.com",
+]
+```
+
+This is useful when Django needs to trust requests originating from specific origins.
+
+### Important
+
+Don't randomly add domains to this list.
+
+Only add origins you actually trust.
+
+---
+
+# 28. CSRF Failure View
+
+Django provides a CSRF failure mechanism.
+
+You can configure a custom CSRF failure view using:
+
+```python
+CSRF_FAILURE_VIEW
+```
+
+For example:
+
+```python
+CSRF_FAILURE_VIEW = "students.views.csrf_failure"
+```
+
+and:
+
+```python
+def csrf_failure(request, reason=""):
+    return render(
+        request,
+        "csrf_failure.html"
+    )
+```
+
+This is an advanced concept, but it is useful for viva.
+
+---
+
+# 29. Complete Secure Form Pattern
+
+For almost every basic Django POST form, remember this:
+
+### Template
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+### View
+
+```python
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process valid data
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+This gives you:
+
+```text
+POST
+ +
+Django Form
+ +
+Validation
+ +
+CSRF
+ +
+Redirect
+```
+
+We'll connect these concepts even more in the next module.
+
+---
+
+# 30. Common Mistakes
+
+### Mistake 1 — Forgetting CSRF token
+
+Wrong:
+
+```html
+<form method="POST">
+    {{ form.as_p }}
+</form>
+```
+
+Correct:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+</form>
+```
+
+---
+
+### Mistake 2 — Thinking CSRF is only for login
+
+Wrong.
+
+CSRF protection applies to many state-changing operations:
+
+```text
+Create
+Update
+Delete
+Change password
+Change email
+Transfer money
+Submit data
+```
+
+---
+
+### Mistake 3 — Thinking HTTPS replaces CSRF
+
+HTTPS protects data in transit.
+
+CSRF protection addresses a different threat.
+
+Therefore:
+
+```text
+HTTPS ≠ CSRF protection
+```
+
+A site should generally use HTTPS **and** appropriate CSRF protection.
+
+---
+
+### Mistake 4 — Using `csrf_exempt` everywhere
+
+Don't do this:
+
+```python
+@csrf_exempt
+def every_view(request):
+```
+
+just to make errors disappear.
+
+It removes an important security defense.
+
+---
+
+# 31. Viva Masterclass
+
+### Q1. What is CSRF?
+
+> CSRF stands for Cross-Site Request Forgery. It is an attack in which an attacker tricks a user's browser into sending an unwanted request to a website where the user is authenticated.
+
+---
+
+### Q2. How does Django protect against CSRF?
+
+> Django provides built-in CSRF protection using CSRF tokens and `CsrfViewMiddleware`.
+
+---
+
+### Q3. What is `{% csrf_token %}`?
+
+> It is a Django template tag that inserts CSRF protection information into a form so Django can verify the request.
+
+---
+
+### Q4. Where should `{% csrf_token %}` be used?
+
+For a normal Django POST form:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+</form>
+```
+
+---
+
+### Q5. What happens if CSRF validation fails?
+
+Typically Django returns:
+
+```text
+403 Forbidden
+```
+
+with a CSRF verification failure.
+
+---
+
+### Q6. What is `CsrfViewMiddleware`?
+
+> It is Django middleware that performs CSRF protection checks on applicable requests.
+
+---
+
+### Q7. What is `csrf_exempt`?
+
+> A decorator that exempts a view from Django's normal CSRF protection.
+
+---
+
+### Q8. Is CSRF the same as XSS?
+
+No.
+
+```text
+CSRF → tricks browser into making unwanted requests
+
+XSS → executes malicious script in browser
+```
+
+---
+
+### Q9. Is CSRF the same as authentication?
+
+No.
+
+```text
+Authentication → identifies/authenticates the user
+
+CSRF protection → helps verify legitimate state-changing requests
+```
+
+---
+
+### Q10. Does a POST request automatically become secure?
+
+**No.**
+
+POST does not automatically provide security.
+
+You need appropriate measures such as:
+
+```text
+HTTPS
++
+CSRF protection
++
+validation
++
+authentication/authorization
+```
+
+depending on the application.
+
+---
+
+# 32. Exam Answer: "Explain CSRF in Django"
+
+If your teacher asks this as a 5-mark question, you can write:
+
+> **CSRF (Cross-Site Request Forgery)** is a web security attack in which an attacker tricks an authenticated user's browser into sending an unwanted request to a website. Django provides built-in CSRF protection using a CSRF token and `CsrfViewMiddleware`. In a Django POST form, the `{% csrf_token %}` template tag is added inside the form. Django verifies the CSRF information when the request is submitted. If the verification fails, Django generally returns a 403 Forbidden response. CSRF protection is especially important for state-changing requests such as POST, PUT, PATCH and DELETE. It is different from authentication and XSS protection.
+
+---
+
+# 33. Must Remember
+
+Memorize these:
+
+```text
+CSRF
+↓
+Cross-Site Request Forgery
+```
+
+```django
+{% csrf_token %}
+```
+
+```python
+'django.middleware.csrf.CsrfViewMiddleware',
+```
+
+```python
+@csrf_exempt
+```
+
+And remember:
+
+```text
+CSRF → request forgery
+XSS → malicious script
+Authentication → identity
+HTTPS → encrypted transport
+```
+
+### One-line rule
+
+> **For a normal Django POST form, put `{% csrf_token %}` inside the `<form>` and keep Django's CSRF middleware enabled.**
+
+---
+
+## Module 23 Complete ✅
+
+**Next → Module 24: POST Redirect Pattern**
+
+There we'll learn the important **POST → Redirect → GET (PRG)** pattern, why refreshing a submitted form can cause duplicate submissions, how `redirect()` works, how to redirect using named URLs, and how Django forms, validation, CSRF and redirects fit together in a complete submission flow.

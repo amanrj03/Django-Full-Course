@@ -1,0 +1,1362 @@
+# Module 17 — Template Inheritance in Django
+
+Template inheritance is one of the **most important Django template concepts**.
+
+It solves a very common problem:
+
+> What if every page of our website has the same navbar, footer, CSS, and overall layout?
+
+Instead of copying the same HTML into every file, we create **one base template** and let other templates inherit from it.
+
+---
+
+# 1. The Problem: Repeating HTML
+
+Imagine your website has:
+
+```text
+Home
+About
+Students
+Contact
+```
+
+Every page needs:
+
+```html
+<html>
+<head>
+    ...
+</head>
+
+<body>
+
+    <nav>
+        Home | About | Students | Contact
+    </nav>
+
+    <!-- page-specific content -->
+
+    <footer>
+        Copyright 2026
+    </footer>
+
+</body>
+</html>
+```
+
+Without inheritance, you might copy this entire structure into:
+
+```text
+home.html
+about.html
+students.html
+contact.html
+```
+
+This is bad.
+
+Why?
+
+If you change the navbar, you'd have to change it in **four files**.
+
+---
+
+# 2. Template Inheritance Solution
+
+Create one:
+
+```text
+base.html
+```
+
+It contains the common structure.
+
+Then:
+
+```text
+home.html
+about.html
+students.html
+```
+
+inherit from it.
+
+Conceptually:
+
+```text
+                base.html
+                    │
+       ┌────────────┼────────────┐
+       ↓            ↓            ↓
+   home.html    about.html   students.html
+```
+
+The child templates only provide the content that changes.
+
+---
+
+# 3. `base.html`
+
+Let's create:
+
+```text
+templates/
+└── base.html
+```
+
+Basic example:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Website</title>
+</head>
+
+<body>
+
+    <nav>
+        Home | About | Students
+    </nav>
+
+    <main>
+        <!-- changing content goes here -->
+    </main>
+
+    <footer>
+        Copyright 2026
+    </footer>
+
+</body>
+
+</html>
+```
+
+But how do we tell Django:
+
+> "The content inside `<main>` should be different for every page?"
+
+We use **blocks**.
+
+---
+
+# 4. `{% block %}`
+
+A block defines an area that child templates can replace.
+
+Change the `<main>` section:
+
+```html
+<main>
+
+    {% block content %}
+
+    {% endblock %}
+
+</main>
+```
+
+Complete:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My Website</title>
+</head>
+
+<body>
+
+    <nav>
+        Home | About | Students
+    </nav>
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <footer>
+        Copyright 2026
+    </footer>
+
+</body>
+
+</html>
+```
+
+Now `content` is a **block**.
+
+---
+
+# 5. Creating a Child Template
+
+Suppose we create:
+
+```text
+home.html
+```
+
+At the top:
+
+```html
+{% extends "base.html" %}
+```
+
+This tells Django:
+
+> Use `base.html` as the parent template.
+
+Then we define the content block:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Welcome to Home Page</h1>
+
+<p>This is the home page.</p>
+
+{% endblock %}
+```
+
+That's it.
+
+---
+
+# 6. What Does Django Actually Generate?
+
+You wrote:
+
+### `base.html`
+
+```html
+<nav>
+    Home | About | Students
+</nav>
+
+{% block content %}
+{% endblock %}
+
+<footer>
+    Copyright 2026
+</footer>
+```
+
+### `home.html`
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Welcome</h1>
+
+{% endblock %}
+```
+
+Django conceptually combines them into:
+
+```html
+<nav>
+    Home | About | Students
+</nav>
+
+<h1>Welcome</h1>
+
+<footer>
+    Copyright 2026
+</footer>
+```
+
+So the child template supplies the block content while inheriting the surrounding structure.
+
+---
+
+# 7. Important Syntax
+
+### Parent:
+
+```html
+{% block content %}
+{% endblock %}
+```
+
+### Child:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    Page content
+{% endblock %}
+```
+
+Memorize this pattern.
+
+---
+
+# 8. `extends`
+
+The:
+
+```html
+{% extends "base.html" %}
+```
+
+tag establishes template inheritance.
+
+Usually, it should appear at or near the beginning of the child template.
+
+Example:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>About Us</h1>
+{% endblock %}
+```
+
+---
+
+# 9. Multiple Blocks
+
+You aren't limited to one block.
+
+For example:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+            My Website
+        {% endblock %}
+    </title>
+
+</head>
+
+<body>
+
+    <header>
+        {% block header %}
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        {% block footer %}
+        {% endblock %}
+    </footer>
+
+</body>
+
+</html>
+```
+
+Now the child can customize each block.
+
+---
+
+# 10. Child Template With Multiple Blocks
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    <h1>Welcome to Home</h1>
+    <p>This is the home page.</p>
+
+{% endblock %}
+```
+
+The `header` and `footer` blocks remain unchanged if they have no replacement.
+
+---
+
+# 11. Real Website Structure
+
+A common Django project might look like:
+
+```text
+templates/
+│
+├── base.html
+│
+├── home.html
+│
+├── about.html
+│
+└── students/
+    ├── list.html
+    └── detail.html
+```
+
+`base.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+            College Website
+        {% endblock %}
+    </title>
+
+</head>
+
+<body>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/students/">Students</a>
+    </nav>
+
+    <hr>
+
+    {% block content %}
+    {% endblock %}
+
+    <hr>
+
+    <footer>
+        College Website
+    </footer>
+
+</body>
+
+</html>
+```
+
+---
+
+# 12. Home Page
+
+`home.html`:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    <h1>Welcome</h1>
+
+    <p>Welcome to our college website.</p>
+
+{% endblock %}
+```
+
+---
+
+# 13. About Page
+
+`about.html`:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    About
+{% endblock %}
+
+{% block content %}
+
+    <h1>About Us</h1>
+
+    <p>This is our college website.</p>
+
+{% endblock %}
+```
+
+Notice how we don't repeat:
+
+```html
+<html>
+<head>
+<body>
+<nav>
+<footer>
+```
+
+That's the whole purpose of inheritance.
+
+---
+
+# 14. View Functions
+
+Home:
+
+```python
+from django.shortcuts import render
+
+def home(request):
+    return render(request, "home.html")
+```
+
+About:
+
+```python
+def about(request):
+    return render(request, "about.html")
+```
+
+URLs:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.home, name="home"),
+    path("about/", views.about, name="about"),
+]
+```
+
+---
+
+# 15. Complete Flow
+
+When the user visits:
+
+```text
+/about/
+```
+
+Django:
+
+```text
+URL
+ ↓
+views.about
+ ↓
+render(request, "about.html")
+ ↓
+about.html
+ ↓
+extends base.html
+ ↓
+content block inserted
+ ↓
+final HTML response
+```
+
+---
+
+# 16. Passing Dynamic Data With Inheritance
+
+Inheritance doesn't stop you from passing context.
+
+View:
+
+```python
+def student(request):
+
+    student = {
+        "name": "Aman",
+        "course": "Computer Science"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )
+```
+
+Child:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Student
+{% endblock %}
+
+{% block content %}
+
+    <h1>{{ student.name }}</h1>
+
+    <p>{{ student.course }}</p>
+
+{% endblock %}
+```
+
+So we can combine:
+
+```text
+Inheritance
++
+Variables
++
+Loops
++
+Conditions
++
+Filters
+```
+
+---
+
+# 17. Template Inheritance With a Loop
+
+Suppose the view sends:
+
+```python
+students = [
+    {"name": "Aman", "marks": 85},
+    {"name": "Rahul", "marks": 45},
+]
+```
+
+Child template:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Students
+{% endblock %}
+
+{% block content %}
+
+<h1>Students</h1>
+
+{% for student in students %}
+
+    <h2>{{ student.name }}</h2>
+
+    <p>Marks: {{ student.marks }}</p>
+
+    {% if student.marks >= 50 %}
+        <p>PASS</p>
+    {% else %}
+        <p>FAIL</p>
+    {% endif %}
+
+{% endfor %}
+
+{% endblock %}
+```
+
+This is a very realistic Django pattern.
+
+---
+
+# 18. `{% include %}`
+
+Another important template feature is:
+
+```html
+{% include "navbar.html" %}
+```
+
+`include` allows you to reuse a separate template fragment.
+
+For example:
+
+```text
+templates/
+├── base.html
+├── navbar.html
+└── footer.html
+```
+
+`navbar.html`:
+
+```html
+<nav>
+
+    <a href="/">Home</a>
+    <a href="/about/">About</a>
+    <a href="/students/">Students</a>
+
+</nav>
+```
+
+`footer.html`:
+
+```html
+<footer>
+    Copyright 2026
+</footer>
+```
+
+Then:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<body>
+
+    {% include "navbar.html" %}
+
+    {% block content %}
+    {% endblock %}
+
+    {% include "footer.html" %}
+
+</body>
+
+</html>
+```
+
+---
+
+# 19. `extends` vs `include`
+
+This is a **very common viva question**.
+
+### `{% extends %}`
+
+Used for:
+
+> Template inheritance / parent-child page structure.
+
+Example:
+
+```html
+{% extends "base.html" %}
+```
+
+### `{% include %}`
+
+Used for:
+
+> Reusing a smaller template fragment.
+
+Example:
+
+```html
+{% include "navbar.html" %}
+```
+
+Think:
+
+```text
+extends → entire page layout
+
+include → reusable component/fragment
+```
+
+---
+
+# 20. When Should You Use `include`?
+
+Good examples:
+
+```text
+navbar
+footer
+sidebar
+login form
+alert message
+product card
+student card
+pagination
+```
+
+For example:
+
+```html
+{% include "components/student_card.html" %}
+```
+
+---
+
+# 21. Passing Context to an Include
+
+Suppose:
+
+```html
+{% include "student_card.html" with student=student %}
+```
+
+The included template can use:
+
+```html
+<h2>{{ student.name }}</h2>
+```
+
+This is useful when rendering reusable components with different data.
+
+---
+
+# 22. `only`
+
+You can restrict the context passed to an included template:
+
+```html
+{% include "student_card.html" with student=student only %}
+```
+
+`only` means the included template receives only the explicitly supplied context rather than inheriting the surrounding context.
+
+This is useful for making reusable components more predictable.
+
+---
+
+# 23. `{% block %}` vs `{% include %}`
+
+Don't confuse these.
+
+### Block
+
+Defines an area that a child template can override:
+
+```html
+{% block content %}
+{% endblock %}
+```
+
+### Include
+
+Directly inserts another template fragment:
+
+```html
+{% include "navbar.html" %}
+```
+
+---
+
+# 24. `block.super`
+
+This is a more advanced inheritance concept.
+
+Suppose `base.html` contains:
+
+```html
+{% block content %}
+
+<p>Default content</p>
+
+{% endblock %}
+```
+
+Child:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+{{ block.super }}
+
+<p>Additional content</p>
+
+{% endblock %}
+```
+
+`block.super` means:
+
+> Include the parent's block content here.
+
+So the child gets:
+
+```text
+Default content
+Additional content
+```
+
+instead of completely replacing the parent block.
+
+---
+
+# 25. Why Is Template Inheritance Useful?
+
+### 1. Avoids duplication
+
+You don't repeat navbar/footer.
+
+### 2. Easier maintenance
+
+Change the navbar once.
+
+### 3. Consistent design
+
+All pages use the same layout.
+
+### 4. Cleaner templates
+
+Child templates contain mostly page-specific content.
+
+### 5. Scalable
+
+Works well when a website has many pages.
+
+---
+
+# 26. Common Mistake — Wrong Block Name
+
+Parent:
+
+```html
+{% block content %}
+{% endblock %}
+```
+
+Child:
+
+```html
+{% block body %}
+    Hello
+{% endblock %}
+```
+
+This doesn't override the `content` block.
+
+The names must match:
+
+```html
+{% block content %}
+```
+
+and:
+
+```html
+{% block content %}
+```
+
+---
+
+# 27. Common Mistake — Forgetting `extends`
+
+Wrong:
+
+```html
+{% block content %}
+    Hello
+{% endblock %}
+```
+
+if the intention is to inherit from `base.html`.
+
+Correct:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    Hello
+{% endblock %}
+```
+
+---
+
+# 28. Common Mistake — Wrong Template Path
+
+If:
+
+```text
+templates/
+└── base.html
+```
+
+use:
+
+```html
+{% extends "base.html" %}
+```
+
+If:
+
+```text
+templates/
+└── students/
+    └── base.html
+```
+
+use:
+
+```html
+{% extends "students/base.html" %}
+```
+
+The path is relative to the template search locations.
+
+---
+
+# 29. Common Mistake — Putting Page Content Outside Blocks
+
+Suppose:
+
+```html
+{% extends "base.html" %}
+
+<h1>Hello</h1>
+
+{% block content %}
+    Welcome
+{% endblock %}
+```
+
+The normal pattern is to put child-specific content inside defined blocks.
+
+Better:
+
+```html
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Hello</h1>
+    <p>Welcome</p>
+{% endblock %}
+```
+
+---
+
+# 30. Common Mistake — Thinking `extends` Copies a File Literally
+
+Conceptually, inheritance means Django uses the parent structure and resolves the child's blocks.
+
+It's better to think:
+
+```text
+Parent layout
++
+Child block overrides
+=
+Rendered template
+```
+
+rather than imagining simple text-file copying.
+
+---
+
+# 31. Exam Question
+
+### Question:
+
+Create a `base.html` with:
+
+* title block
+* content block
+* footer
+
+Then create `home.html` using inheritance.
+
+### Answer:
+
+`base.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+            Website
+        {% endblock %}
+    </title>
+
+</head>
+
+<body>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        Copyright 2026
+    </footer>
+
+</body>
+
+</html>
+```
+
+`home.html`:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    <h1>Welcome Home</h1>
+    <p>This is the home page.</p>
+
+{% endblock %}
+```
+
+---
+
+# 32. Viva Questions
+
+### Q1. What is template inheritance?
+
+> Template inheritance allows a child template to reuse a parent template's common structure and override specific blocks.
+
+### Q2. Which tag is used for inheritance?
+
+> `{% extends %}`.
+
+### Q3. Which tag defines replaceable sections?
+
+> `{% block %}`.
+
+### Q4. What is `base.html`?
+
+> A parent template containing common layout elements such as navigation, footer, CSS references, and blocks for page-specific content.
+
+### Q5. What is `{% include %}`?
+
+> It inserts another template into the current template and is commonly used for reusable template fragments.
+
+### Q6. Difference between `extends` and `include`?
+
+> `extends` establishes parent-child template inheritance, while `include` inserts a reusable template fragment.
+
+### Q7. What happens if a child doesn't override a block?
+
+> The parent block's content is used.
+
+### Q8. What is `block.super`?
+
+> It allows a child block to include the content defined by its parent block.
+
+### Q9. Can a base template have multiple blocks?
+
+> Yes.
+
+### Q10. Can dynamic data be used in inherited templates?
+
+> Yes. Context passed by the view is available to the relevant templates and blocks.
+
+---
+
+# 33. ⭐ The Pattern You Must Memorize
+
+### `base.html`
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+
+</head>
+
+<body>
+
+    <nav>
+        Navbar
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer>
+        Footer
+    </footer>
+
+</body>
+
+</html>
+```
+
+### Child:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+
+    <h1>Home Page</h1>
+
+{% endblock %}
+```
+
+If you can write this from memory, you know the core of template inheritance.
+
+---
+
+# 34. 🔥 Combined Real-World Structure
+
+A clean Django template system might look like:
+
+```text
+templates/
+│
+├── base.html
+│
+├── components/
+│   ├── navbar.html
+│   ├── footer.html
+│   └── student_card.html
+│
+├── home.html
+├── about.html
+│
+└── students/
+    ├── list.html
+    └── detail.html
+```
+
+`base.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        {% block title %}
+            College
+        {% endblock %}
+    </title>
+
+</head>
+
+<body>
+
+    {% include "components/navbar.html" %}
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    {% include "components/footer.html" %}
+
+</body>
+
+</html>
+```
+
+Then every page can simply do:
+
+```html
+{% extends "base.html" %}
+
+{% block title %}
+    Students
+{% endblock %}
+
+{% block content %}
+
+    <h1>Student List</h1>
+
+    {% for student in students %}
+
+        {% include "components/student_card.html" %}
+
+    {% endfor %}
+
+{% endblock %}
+```
+
+This is much closer to how a real Django project is organized.
+
+---
+
+# 🧠 Module 17 Summary
+
+Remember these four concepts:
+
+```text
+{% extends %}
+      ↓
+Parent-child relationship
+```
+
+```text
+{% block %}
+      ↓
+Replaceable section
+```
+
+```text
+{% include %}
+      ↓
+Reusable template component
+```
+
+```text
+{{ block.super }}
+      ↓
+Keep parent's block content
+```
+
+The most important architecture is:
+
+```text
+                 base.html
+                /         \
+               /           \
+          home.html      students.html
+                              |
+                              ↓
+                         student_card
+```
+
+### One-line viva answer:
+
+> **Django template inheritance allows multiple child templates to reuse a common base layout while overriding specific blocks, reducing duplication and improving maintainability.**
+
+---
+
+## Next → Module 18: Debugging Django
+
+We'll learn how to **find and fix Django errors systematically**, including:
+
+* Syntax errors
+* URL errors
+* `TemplateDoesNotExist`
+* `NoReverseMatch`
+* `ViewDoesNotExist`
+* `ImportError`
+* `DoesNotExist`
+* `AttributeError`
+* `TypeError`
+* `NameError`
+* `OperationalError`
+* Django debug page
+* Reading tracebacks
+* Finding the exact line causing an error
+* Common beginner mistakes
+* Debugging techniques for viva and coding questions.

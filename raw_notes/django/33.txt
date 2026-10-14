@@ -1,0 +1,1889 @@
+# Module 33 — Django Users, Groups & Permissions
+
+This module is extremely important because it explains **who can access your Django application and what they are allowed to do**.
+
+You already learned Django Admin. Now we'll understand the system behind it:
+
+```text
+Authentication → Who are you?
+Authorization  → What are you allowed to do?
+```
+
+By the end, you should be able to answer common viva questions and write permission-based Django code.
+
+---
+
+# 1. Authentication vs Authorization
+
+This is the **first thing to memorize**.
+
+### Authentication
+
+Authentication answers:
+
+> **Who are you?**
+
+Example:
+
+```text
+Username: Aman
+Password: ********
+```
+
+Django checks whether the credentials are valid.
+
+---
+
+### Authorization
+
+Authorization answers:
+
+> **What are you allowed to do?**
+
+For example:
+
+```text
+Aman
+    ↓
+Can view students
+Can add students
+Cannot delete students
+```
+
+### Memorize:
+
+```text
+Authentication → Identity
+Authorization  → Permissions
+```
+
+---
+
+# 2. Django User System
+
+Django provides a built-in authentication framework.
+
+It includes functionality for:
+
+* Users
+* Passwords
+* Sessions
+* Login/logout
+* Groups
+* Permissions
+* Authentication helpers
+* Password hashing
+* Admin integration
+
+The main model is:
+
+```python
+User
+```
+
+Django provides it through:
+
+```python
+django.contrib.auth
+```
+
+---
+
+# 3. Importing User
+
+A common way to import Django's default User model is:
+
+```python
+from django.contrib.auth.models import User
+```
+
+Then you can work with it using the ORM.
+
+For example:
+
+```python
+User.objects.all()
+```
+
+---
+
+# 4. User Fields
+
+The built-in Django User model contains fields such as:
+
+```text
+username
+first_name
+last_name
+email
+password
+is_staff
+is_active
+is_superuser
+last_login
+date_joined
+```
+
+You don't need to memorize every internal field for basic exams, but these are especially important:
+
+```text
+username
+password
+email
+is_staff
+is_active
+is_superuser
+```
+
+---
+
+# 5. Never Store Passwords as Plain Text
+
+This is very important.
+
+You should **never** do:
+
+```python
+user.password = "123456"
+```
+
+as your normal password-setting approach.
+
+Instead use:
+
+```python
+user.set_password("123456")
+```
+
+Django hashes the password.
+
+---
+
+# 6. Creating a User
+
+You can create a regular user:
+
+```python
+from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+This is the preferred approach.
+
+Django handles password hashing.
+
+---
+
+# 7. Creating a Superuser
+
+You can use:
+
+```bash
+python manage.py createsuperuser
+```
+
+Django asks for:
+
+```text
+Username
+Email
+Password
+```
+
+The resulting user has superuser privileges.
+
+---
+
+# 8. `is_active`
+
+A user has:
+
+```python
+user.is_active
+```
+
+Normally:
+
+```python
+True
+```
+
+An inactive user is generally prevented from authenticating normally.
+
+Example:
+
+```python
+user.is_active = False
+user.save()
+```
+
+This can effectively disable the user's account without deleting the user record.
+
+---
+
+# 9. `is_staff`
+
+```python
+user.is_staff
+```
+
+determines whether the user is allowed to access the Django Admin site, subject to the admin's authentication/permission checks.
+
+Example:
+
+```python
+user.is_staff = True
+user.save()
+```
+
+But remember:
+
+> `is_staff=True` does **not** mean the user has every permission.
+
+---
+
+# 10. `is_superuser`
+
+```python
+user.is_superuser
+```
+
+A superuser has all permissions by default.
+
+For example:
+
+```text
+is_superuser = True
+```
+
+means Django treats the user as having all permissions without requiring each individual permission to be assigned.
+
+---
+
+# 11. Staff vs Superuser
+
+Very common viva question.
+
+| Property       | Meaning               |
+| -------------- | --------------------- |
+| `is_active`    | Account is active     |
+| `is_staff`     | Can access admin site |
+| `is_superuser` | Has all permissions   |
+
+Think:
+
+```text
+is_active
+    ↓
+Can account be used normally?
+
+is_staff
+    ↓
+Can access admin?
+
+is_superuser
+    ↓
+All permissions
+```
+
+A staff user can have limited permissions.
+
+A superuser has all permissions by default.
+
+---
+
+# 12. Django Permissions
+
+Django automatically creates model-level permissions for models.
+
+The standard permissions are:
+
+```text
+add
+change
+delete
+view
+```
+
+For a `Student` model, you may see permissions conceptually like:
+
+```text
+Can add student
+Can change student
+Can delete student
+Can view student
+```
+
+---
+
+# 13. Why Permissions?
+
+Imagine your application has:
+
+```text
+Admin
+Teacher
+Student
+```
+
+You might want:
+
+### Admin
+
+```text
+View
+Add
+Change
+Delete
+```
+
+### Teacher
+
+```text
+View
+Add
+Change
+```
+
+### Student
+
+```text
+View
+```
+
+Permissions allow you to implement this kind of access control.
+
+---
+
+# 14. Permission Object
+
+Django stores permissions as permission records.
+
+You can access them through:
+
+```python
+from django.contrib.auth.models import Permission
+```
+
+For example:
+
+```python
+Permission.objects.all()
+```
+
+You generally don't manually create the standard CRUD permissions because Django creates them as part of its model permission system.
+
+---
+
+# 15. Checking a Permission
+
+Suppose:
+
+```python
+user
+```
+
+is a User object.
+
+You can check:
+
+```python
+user.has_perm("students.view_student")
+```
+
+This returns:
+
+```python
+True
+```
+
+or:
+
+```python
+False
+```
+
+The format is:
+
+```text
+app_label.permission_codename
+```
+
+So:
+
+```text
+students.view_student
+```
+
+means:
+
+```text
+App: students
+Permission: view_student
+```
+
+---
+
+# 16. Permission Naming
+
+For a model called:
+
+```python
+Student
+```
+
+Django's standard permission codenames are generally:
+
+```text
+add_student
+change_student
+delete_student
+view_student
+```
+
+Therefore:
+
+```python
+user.has_perm("students.add_student")
+```
+
+checks whether the user can add students.
+
+---
+
+# 17. Examples of `has_perm()`
+
+### View
+
+```python
+user.has_perm(
+    "students.view_student"
+)
+```
+
+### Add
+
+```python
+user.has_perm(
+    "students.add_student"
+)
+```
+
+### Change
+
+```python
+user.has_perm(
+    "students.change_student"
+)
+```
+
+### Delete
+
+```python
+user.has_perm(
+    "students.delete_student"
+)
+```
+
+---
+
+# 18. Using `has_perm()` in a View
+
+Example:
+
+```python
+def delete_student(request, id):
+
+    if not request.user.has_perm(
+        "students.delete_student"
+    ):
+        return HttpResponseForbidden(
+            "You do not have permission."
+        )
+
+    ...
+```
+
+Conceptually:
+
+```text
+Request
+   ↓
+User
+   ↓
+Check permission
+   ↓
+Allowed?
+ ┌───────┴───────┐
+Yes              No
+ ↓                ↓
+Continue       403
+```
+
+---
+
+# 19. Groups
+
+Suppose you have 100 teachers.
+
+You don't want to individually assign the same permissions to every teacher.
+
+Instead create a group:
+
+```text
+Teachers
+```
+
+and assign permissions to the group.
+
+Then add users to the group.
+
+---
+
+# 20. Group Concept
+
+Think:
+
+```text
+Group
+  ↓
+Permissions
+  ↓
+Users
+```
+
+Example:
+
+```text
+Teachers
+   ├── view_student
+   ├── add_student
+   └── change_student
+```
+
+Then:
+
+```text
+Aman
+Rahul
+Priya
+```
+
+are members of the Teachers group.
+
+They inherit the group's permissions.
+
+---
+
+# 21. Creating a Group
+
+You can use Django Admin, or programmatically:
+
+```python
+from django.contrib.auth.models import Group
+
+teachers = Group.objects.create(
+    name="Teachers"
+)
+```
+
+Then assign permissions.
+
+---
+
+# 22. Adding a Permission to a Group
+
+Suppose we retrieve a permission:
+
+```python
+from django.contrib.auth.models import Permission
+
+permission = Permission.objects.get(
+    codename="view_student"
+)
+```
+
+Then:
+
+```python
+teachers.permissions.add(
+    permission
+)
+```
+
+Now the group has that permission.
+
+---
+
+# 23. Adding a User to a Group
+
+Suppose:
+
+```python
+user = User.objects.get(
+    username="aman"
+)
+```
+
+Then:
+
+```python
+user.groups.add(
+    teachers
+)
+```
+
+Now Aman belongs to the Teachers group.
+
+---
+
+# 24. Removing a User From a Group
+
+```python
+user.groups.remove(
+    teachers
+)
+```
+
+---
+
+# 25. Check User's Groups
+
+```python
+user.groups.all()
+```
+
+This returns the groups the user belongs to.
+
+---
+
+# 26. User Permissions vs Group Permissions
+
+Permissions can effectively come from:
+
+```text
+User
+ ↓
+Direct permissions
+
+OR
+
+Group
+ ↓
+Group permissions
+ ↓
+User
+```
+
+So a user can receive permissions directly or through groups.
+
+---
+
+# 27. `user_permissions`
+
+Django User has a relationship for permissions assigned directly to that user.
+
+Conceptually:
+
+```python
+user.user_permissions.all()
+```
+
+This gives directly assigned permissions.
+
+While:
+
+```python
+user.groups.all()
+```
+
+gives their groups.
+
+---
+
+# 28. Checking Permissions From Groups
+
+Suppose:
+
+```text
+Teachers
+    ↓
+view_student
+```
+
+and:
+
+```text
+Aman
+    ↓
+Teachers
+```
+
+Then:
+
+```python
+user.has_perm(
+    "students.view_student"
+)
+```
+
+can return:
+
+```python
+True
+```
+
+because the permission is inherited through the group.
+
+---
+
+# 29. Custom Permissions
+
+Django can also define permissions beyond the standard four.
+
+In a model:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        permissions = [
+            (
+                "can_publish_student",
+                "Can publish student"
+            ),
+        ]
+```
+
+Now you have a custom permission.
+
+---
+
+# 30. Why Custom Permissions?
+
+Suppose your application has a blog.
+
+Standard permissions:
+
+```text
+view
+add
+change
+delete
+```
+
+But perhaps you need:
+
+```text
+publish_article
+```
+
+or:
+
+```text
+approve_application
+```
+
+or:
+
+```text
+export_student_data
+```
+
+Custom permissions allow application-specific authorization rules.
+
+---
+
+# 31. Checking Custom Permission
+
+If app is:
+
+```text
+blog
+```
+
+and permission codename is:
+
+```text
+can_publish_student
+```
+
+you can check:
+
+```python
+request.user.has_perm(
+    "students.can_publish_student"
+)
+```
+
+The exact app label and codename must match your model's permission definition.
+
+---
+
+# 32. `request.user`
+
+In a Django view:
+
+```python
+def home(request):
+    print(request.user)
+```
+
+Django attaches the current user to the request.
+
+You can access:
+
+```python
+request.user.username
+```
+
+```python
+request.user.email
+```
+
+```python
+request.user.is_authenticated
+```
+
+```python
+request.user.is_staff
+```
+
+```python
+request.user.is_superuser
+```
+
+---
+
+# 33. AnonymousUser
+
+What if the visitor isn't logged in?
+
+Django uses:
+
+```text
+AnonymousUser
+```
+
+for the unauthenticated request.
+
+Therefore:
+
+```python
+request.user
+```
+
+always gives you a user-like object, but it may represent an anonymous visitor.
+
+---
+
+# 34. `is_authenticated`
+
+You can check:
+
+```python
+if request.user.is_authenticated:
+    ...
+```
+
+Meaning:
+
+> Is the current request associated with an authenticated user?
+
+Example:
+
+```python
+def profile(request):
+
+    if request.user.is_authenticated:
+        return HttpResponse(
+            f"Hello {request.user.username}"
+        )
+
+    return HttpResponse(
+        "Please log in."
+    )
+```
+
+---
+
+# 35. Important: `is_authenticated` Is Not a Function
+
+This is a common beginner mistake.
+
+Correct:
+
+```python
+request.user.is_authenticated
+```
+
+Not:
+
+```python
+request.user.is_authenticated()
+```
+
+It's a property-like attribute.
+
+---
+
+# 36. Protecting a View
+
+Suppose you want only logged-in users to access:
+
+```text
+/profile/
+```
+
+You can use:
+
+```python
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def profile(request):
+    return HttpResponse(
+        "Welcome to your profile"
+    )
+```
+
+---
+
+# 37. What Does `login_required` Do?
+
+If the user is authenticated:
+
+```text
+View executes
+```
+
+If the user isn't authenticated:
+
+```text
+Redirect to login page
+```
+
+Conceptually:
+
+```text
+/profile/
+    ↓
+Authenticated?
+   / \
+ Yes  No
+ ↓     ↓
+View  Login
+```
+
+---
+
+# 38. Setting the Login URL
+
+You can configure:
+
+```python
+LOGIN_URL = "/login/"
+```
+
+in `settings.py`.
+
+Then:
+
+```python
+@login_required
+def profile(request):
+    ...
+```
+
+will redirect unauthenticated users to the configured login URL.
+
+---
+
+# 39. Login URL With `next`
+
+Django commonly preserves the original destination using a `next` query parameter.
+
+For example:
+
+```text
+/login/?next=/profile/
+```
+
+After successful authentication, your login flow can use that destination to send the user back to the page they originally requested.
+
+This is an important authentication concept.
+
+---
+
+# 40. Permission-Based View Protection
+
+`login_required` checks:
+
+> Is the user logged in?
+
+It does **not** check whether they have a particular permission.
+
+For permissions, you can use:
+
+```python
+from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.change_student"
+)
+def edit_student(request, id):
+    ...
+```
+
+Now Django checks the required permission.
+
+---
+
+# 41. `permission_required`
+
+General syntax:
+
+```python
+@permission_required(
+    "app_label.permission_codename"
+)
+def my_view(request):
+    ...
+```
+
+Example:
+
+```python
+@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+    ...
+```
+
+---
+
+# 42. `permission_required` and Login
+
+By default, permission checks work together with Django authentication.
+
+For a user who isn't authenticated, Django can redirect them to the login page according to the decorator's configuration.
+
+If an authenticated user lacks the permission, access is denied.
+
+---
+
+# 43. `raise_exception=True`
+
+You can configure the decorator:
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+Now if the authenticated user doesn't have the permission, Django raises a permission-denied condition rather than redirecting them to the login page.
+
+This generally results in a **403 Forbidden** response.
+
+---
+
+# 44. `login_required` vs `permission_required`
+
+Very important:
+
+### `login_required`
+
+```python
+@login_required
+```
+
+asks:
+
+> Is the user authenticated?
+
+### `permission_required`
+
+```python
+@permission_required(
+    "students.change_student"
+)
+```
+
+asks:
+
+> Does the user have this specific permission?
+
+---
+
+# 45. Authentication vs Authorization in Code
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+means:
+
+```text
+Authenticated?
+```
+
+Whereas:
+
+```python
+@permission_required(
+    "students.delete_student"
+)
+def delete_student(request, id):
+    ...
+```
+
+means:
+
+```text
+Authenticated + authorized?
+```
+
+---
+
+# 46. Checking Staff Status
+
+You can also manually check:
+
+```python
+if request.user.is_staff:
+    ...
+```
+
+Example:
+
+```python
+def admin_area(request):
+
+    if not request.user.is_staff:
+        return HttpResponseForbidden(
+            "Staff only"
+        )
+
+    return HttpResponse(
+        "Welcome staff member"
+    )
+```
+
+But for specific permissions, permission checks are usually more precise than simply checking `is_staff`.
+
+---
+
+# 47. Checking Superuser
+
+```python
+if request.user.is_superuser:
+    ...
+```
+
+This checks whether the user is a superuser.
+
+Again, don't use superuser status as a substitute for every authorization rule in a normal application. Specific permissions are usually better when you want least-privilege access.
+
+---
+
+# 48. Template Permission Checks
+
+You can also check permissions in templates.
+
+Example:
+
+```html
+{% if perms.students.add_student %}
+    <a href="{% url 'student_create' %}">
+        Add Student
+    </a>
+{% endif %}
+```
+
+This means:
+
+> Show the Add Student link if the current user has that permission.
+
+---
+
+# 49. Important Security Point
+
+Hiding a button is **not** security.
+
+For example:
+
+```html
+{% if perms.students.delete_student %}
+    <button>Delete</button>
+{% endif %}
+```
+
+only controls whether the button is displayed.
+
+A malicious user could still manually send a request.
+
+Therefore the **view/server must also enforce authorization**.
+
+Think:
+
+```text
+Template check
+      +
+Server-side permission check
+```
+
+The server-side check is essential.
+
+---
+
+# 50. Permission Check in a View
+
+Example:
+
+```python
+from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    student.delete()
+
+    return redirect("student_list")
+```
+
+Now deletion is protected by a permission.
+
+---
+
+# 51. Groups + Permissions Architecture
+
+Imagine:
+
+```text
+                  PERMISSIONS
+                       │
+         ┌─────────────┴─────────────┐
+         ↓                           ↓
+   Direct User Permissions        Groups
+                                      │
+                         ┌────────────┼────────────┐
+                         ↓            ↓            ↓
+                       View          Add         Change
+                                      │
+                                      ↓
+                                    Users
+```
+
+This is how Django's authorization system can be organized.
+
+---
+
+# 52. Practical Example: Teacher Role
+
+Suppose you want:
+
+```text
+Teacher:
+✓ View students
+✓ Add students
+✓ Change students
+✗ Delete students
+```
+
+Create a group:
+
+```text
+Teachers
+```
+
+Give it:
+
+```text
+view_student
+add_student
+change_student
+```
+
+Don't give:
+
+```text
+delete_student
+```
+
+Then add teachers to the group.
+
+Now:
+
+```python
+request.user.has_perm(
+    "students.change_student"
+)
+```
+
+can return:
+
+```python
+True
+```
+
+while:
+
+```python
+request.user.has_perm(
+    "students.delete_student"
+)
+```
+
+returns:
+
+```python
+False
+```
+
+---
+
+# 53. Practical Example: Student Role
+
+Suppose:
+
+```text
+Student:
+✓ View
+✗ Add
+✗ Change
+✗ Delete
+```
+
+Create:
+
+```text
+Students
+```
+
+group.
+
+Give:
+
+```text
+view_student
+```
+
+only.
+
+Now the same permission system controls what the student can do.
+
+---
+
+# 54. Permission Naming Trick
+
+For model:
+
+```python
+Student
+```
+
+App:
+
+```text
+students
+```
+
+standard permissions are:
+
+```text
+students.add_student
+students.change_student
+students.delete_student
+students.view_student
+```
+
+Remember the pattern:
+
+```text
+app_label.permission_codename
+```
+
+---
+
+# 55. Django User Workflow
+
+A typical authentication/authorization flow:
+
+```text
+User
+ ↓
+Login
+ ↓
+Authentication
+ ↓
+request.user
+ ↓
+is_authenticated
+ ↓
+Groups / Permissions
+ ↓
+Authorization
+ ↓
+Allowed?
+ ├── Yes → View
+ └── No  → 403 / denied
+```
+
+---
+
+# 56. Important Security Distinction
+
+### Authentication
+
+```text
+"Are you Aman?"
+```
+
+### Authorization
+
+```text
+"Can Aman delete this student?"
+```
+
+### CSRF
+
+```text
+"Did this state-changing request come through a trusted interaction?"
+```
+
+These are different security concepts.
+
+---
+
+# 57. Practical Coding Questions
+
+## Q1. Create a normal user
+
+```python
+from django.contrib.auth.models import User
+
+user = User.objects.create_user(
+    username="aman",
+    password="StrongPassword123"
+)
+```
+
+---
+
+## Q2. Check whether user is authenticated
+
+```python
+if request.user.is_authenticated:
+    ...
+```
+
+---
+
+## Q3. Check whether user is staff
+
+```python
+if request.user.is_staff:
+    ...
+```
+
+---
+
+## Q4. Check whether user is superuser
+
+```python
+if request.user.is_superuser:
+    ...
+```
+
+---
+
+## Q5. Check permission
+
+```python
+if request.user.has_perm(
+    "students.delete_student"
+):
+    ...
+```
+
+---
+
+## Q6. Protect view for logged-in users
+
+```python
+from django.contrib.auth.decorators import login_required
+
+
+@login_required
+def dashboard(request):
+    ...
+```
+
+---
+
+## Q7. Protect view using a permission
+
+```python
+from django.contrib.auth.decorators import permission_required
+
+
+@permission_required(
+    "students.change_student"
+)
+def edit_student(request, id):
+    ...
+```
+
+---
+
+## Q8. Add user to a group
+
+```python
+user.groups.add(
+    teachers
+)
+```
+
+---
+
+## Q9. Remove user from group
+
+```python
+user.groups.remove(
+    teachers
+)
+```
+
+---
+
+## Q10. Get user's groups
+
+```python
+user.groups.all()
+```
+
+---
+
+# 58. Viva Masterclass
+
+### Q1. What is authentication?
+
+> Authentication is the process of verifying the identity of a user.
+
+### Q2. What is authorization?
+
+> Authorization determines what an authenticated user is allowed to access or perform.
+
+### Q3. What is Django's built-in User model?
+
+> It is the default user model provided by Django's authentication framework for managing users and authentication-related information.
+
+### Q4. What is `is_staff`?
+
+> It indicates whether a user is allowed to access the Django Admin site, subject to the relevant access checks and permissions.
+
+### Q5. What is `is_superuser`?
+
+> It indicates that the user has all permissions by default.
+
+### Q6. What is `is_active`?
+
+> It indicates whether the user account is active.
+
+### Q7. What are Django's default model permissions?
+
+> Add, change, delete, and view.
+
+### Q8. What is a Group?
+
+> A group is a collection of users to which permissions can be assigned collectively.
+
+### Q9. Why use groups?
+
+> Groups simplify permission management when multiple users need the same set of permissions.
+
+### Q10. How do you check a permission?
+
+```python
+user.has_perm(
+    "students.view_student"
+)
+```
+
+### Q11. What does `login_required` do?
+
+> It restricts a view to authenticated users and redirects unauthenticated users to the login flow.
+
+### Q12. What does `permission_required` do?
+
+> It restricts a view based on a specified Django permission.
+
+### Q13. Difference between `is_staff` and `is_superuser`?
+
+> `is_staff` allows admin access, while `is_superuser` gives all permissions by default.
+
+### Q14. Can a staff user have limited permissions?
+
+> Yes. Staff status does not automatically mean the user has every model permission.
+
+### Q15. Why isn't hiding a delete button enough?
+
+> Because client-side/template visibility is not an authorization mechanism. The server-side view must enforce the permission.
+
+---
+
+# 59. One Very Important Interview Scenario
+
+### Interviewer:
+
+> "I have 100 teachers. All teachers should be able to view and edit students, but not delete them. How would you implement this?"
+
+A strong answer:
+
+> "I would create a Teachers group, assign the `view_student` and `change_student` permissions to that group, and add all teacher users to it. I would not assign the `delete_student` permission. The relevant views would also enforce permissions using Django's authorization mechanisms."
+
+That demonstrates you understand:
+
+```text
+Groups
++
+Permissions
++
+Server-side authorization
+```
+
+---
+
+# 60. Another Interview Scenario
+
+### Question:
+
+> "What is the difference between `login_required` and `permission_required`?"
+
+Answer:
+
+> "`login_required` checks whether the user is authenticated, while `permission_required` checks whether the user has a specific permission. A user can be authenticated but still lack the permission required for an operation."
+
+Excellent viva answer.
+
+---
+
+# 61. Another Important Scenario
+
+### Question:
+
+> "Can I use `is_staff` to determine whether someone can delete students?"
+
+Technically you could write such a check, but it is usually **not the right authorization design**.
+
+Better:
+
+```python
+@permission_required(
+    "students.delete_student"
+)
+```
+
+Why?
+
+Because:
+
+```text
+is_staff
+   ↓
+Broad admin access
+
+delete_student permission
+   ↓
+Specific capability
+```
+
+Permissions provide finer-grained authorization.
+
+---
+
+# 62. Final Cheat Sheet
+
+### User
+
+```python
+request.user
+```
+
+### Authentication
+
+```python
+request.user.is_authenticated
+```
+
+### Staff
+
+```python
+request.user.is_staff
+```
+
+### Superuser
+
+```python
+request.user.is_superuser
+```
+
+### Permission
+
+```python
+request.user.has_perm(
+    "students.view_student"
+)
+```
+
+### Login protection
+
+```python
+@login_required
+```
+
+### Permission protection
+
+```python
+@permission_required(
+    "students.change_student"
+)
+```
+
+### Groups
+
+```python
+user.groups.add(group)
+user.groups.remove(group)
+user.groups.all()
+```
+
+### Direct user permissions
+
+```python
+user.user_permissions.all()
+```
+
+---
+
+# 63. Complete Mental Map
+
+```text
+                         DJANGO AUTHORIZATION
+                                  │
+                 ┌────────────────┴────────────────┐
+                 ↓                                 ↓
+          AUTHENTICATION                     AUTHORIZATION
+          "Who are you?"                    "What can you do?"
+                 │                                 │
+                 ↓                                 ↓
+              User                          Permissions
+                 │                                 │
+        ┌────────┼────────┐                  ┌─────┴─────┐
+        ↓        ↓        ↓                  ↓           ↓
+    is_active is_staff is_superuser       User        Group
+                                                       │
+                                                       ↓
+                                                  Permissions
+                                                       │
+                                                       ↓
+                                                  has_perm()
+                                                       │
+                                                       ↓
+                                                     View
+```
+
+And the most important distinction:
+
+```text
+is_authenticated
+       ↓
+"Are you logged in?"
+
+has_perm(...)
+       ↓
+"Are you allowed to perform this action?"
+```
+
+---
+
+## What you should be able to write from memory
+
+```python
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required
+```
+
+```python
+@login_required
+def dashboard(request):
+    return HttpResponse("Dashboard")
+```
+
+```python
+@permission_required(
+    "students.delete_student",
+    raise_exception=True
+)
+def delete_student(request, id):
+    ...
+```
+
+```python
+if request.user.has_perm(
+    "students.change_student"
+):
+    ...
+```
+
+```python
+if request.user.is_staff:
+    ...
+```
+
+```python
+if request.user.is_superuser:
+    ...
+```
+
+```python
+if request.user.is_authenticated:
+    ...
+```
+
+```python
+user.groups.add(teachers)
+```
+
+```python
+user.groups.remove(teachers)
+```
+
+---
+
+**Next → Module 34: Database Configuration & Connection**
+
+We'll learn how Django connects to **SQLite, MySQL, PostgreSQL**, understand the `DATABASES` setting, database drivers, connection configuration, environment variables, migrations with different databases, and common database connection errors.

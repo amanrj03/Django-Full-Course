@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Consensus Protocols — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 3 of 13: Consensus Protocols.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['$$', '$$']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain_guide.html" class="nav-action-pill" title="Read all modules in single document">📖 Full Guide</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 3 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Consensus Protocols</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<span class="nav-item current">3. Consensus Protocols</span>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<h1 id="h-146-module-3-consensus-protocols">MODULE 3 — CONSENSUS PROTOCOLS ⭐⭐⭐⭐⭐</h1>
+<p>This is one of the <strong>most important modules for your Monday exam</strong>.</p>
+<p>If a <strong>10-mark question</strong> comes from Unit I, <strong>Consensus</strong> is one of the strongest possibilities.</p>
+<p>Your PPT defines consensus as achieving agreement between <strong>distrusting nodes on the final state of data</strong>. A consensus mechanism is the set of steps used by nodes to agree on a proposed state/value and determine which transactions are valid.</p>
+<hr>
+<h1 id="h-147-1-why-do-we-need-consensus">1. Why Do We Need Consensus?</h1>
+<p>Let's start from the fundamental problem.</p>
+<p>Suppose there are 5 blockchain nodes:</p>
+<pre>       N1
+      /  \
+    N2    N3
+     \    /
+      N4
+       |
+      N5</pre>
+<p>Alice sends:</p>
+<blockquote>"Send ₹100 to Bob."</blockquote>
+<p>All nodes need to eventually agree:</p>
+<pre>Is this transaction valid?
+        ↓
+YES or NO
+        ↓
+What is the final state of the ledger?</pre>
+<p>But these nodes:</p>
+<ul>
+<li>Don't necessarily trust each other.</li>
+<li>May receive messages at different times.</li>
+<li>May fail.</li>
+<li>May be malicious.</li>
+<li>May receive conflicting transactions.</li>
+</ul>
+<p>Therefore, simply saying:</p>
+<blockquote>"Everyone, please agree"</blockquote>
+<p>doesn't work.</p>
+<p>We need a <strong>consensus mechanism</strong>.</p>
+<hr>
+<h1 id="h-148-2-definition-of-consensus">2. Definition of Consensus ⭐</h1>
+<h3 id="h-149-exam-definition">Exam definition</h3>
+<blockquote><strong>Consensus is the process of achieving agreement among distrusting nodes on the final state of data in a distributed system.</strong></blockquote>
+<p>This is essentially the definition used in your PPT.</p>
+<h3 id="h-150-consensus-mechanism">Consensus mechanism</h3>
+<blockquote>A <strong>consensus mechanism</strong> is a set of steps followed by nodes in a blockchain to agree on a proposed state or value and determine which transactions are valid.</blockquote>
+<h3 id="h-151-simple-meaning">Simple meaning</h3>
+<pre>Many computers
+      ↓
+Different views / proposals
+      ↓
+Consensus mechanism
+      ↓
+ONE accepted state</pre>
+<hr>
+<h1 id="h-152-3-why-is-consensus-difficult">3. Why Is Consensus Difficult?</h1>
+<p>With two computers:</p>
+<pre>A ↔ B</pre>
+<p>agreement is relatively easy.</p>
+<p>But imagine:</p>
+<pre>N1
+N2
+N3
+N4
+N5
+...
+N10,000</pre>
+<p>They need to agree on the same state.</p>
+<p>Some could be faulty or malicious.</p>
+<p>Your PPT specifically says that reaching agreement becomes challenging when multiple nodes participate in a distributed system.</p>
+<hr>
+<h1 id="h-153-4-requirements-of-consensus">4. Requirements of Consensus ⭐⭐⭐⭐⭐</h1>
+<p>This is a <strong>very likely 5-mark question</strong>.</p>
+<p>Your PPT gives <strong>five requirements</strong>:</p>
+<ol>
+<li>Agreement</li>
+<li>Integrity</li>
+<li>Validity</li>
+<li>Fault tolerance</li>
+<li>Termination</li>
+</ol>
+<p>Let's understand each.</p>
+<hr>
+<h2 id="h-154-4-1-agreement">4.1 Agreement</h2>
+<p>All honest nodes should decide on the <strong>same value</strong>.</p>
+<p>Example:</p>
+<pre>N1 → ACCEPT
+N2 → ACCEPT
+N3 → ACCEPT
+N4 → ACCEPT</pre>
+<p>They shouldn't have:</p>
+<pre>N1 → ACCEPT
+N2 → REJECT
+N3 → ACCEPT
+N4 → REJECT</pre>
+<h3 id="h-155-exam-line">Exam line:</h3>
+<blockquote>Agreement ensures that all honest nodes reach the same decision.</blockquote>
+<hr>
+<h1 id="h-156-4-2-integrity">4.2 Integrity</h1>
+<p>A node shouldn't make the decision more than once during a single consensus cycle.</p>
+<p>For example:</p>
+<pre>N1 → ACCEPT</pre>
+<p>It shouldn't later change its decision within that same cycle to:</p>
+<pre>N1 → REJECT</pre>
+<p>Your PPT describes integrity as the requirement that no node makes the decision more than once in a single consensus cycle.</p>
+<hr>
+<h1 id="h-157-4-3-validity">4.3 Validity</h1>
+<p>The agreed value should be based on a value initially proposed by at least one honest node.</p>
+<p>In simple terms:</p>
+<blockquote>Consensus shouldn't magically produce an unrelated value.</blockquote>
+<hr>
+<h1 id="h-158-4-4-fault-tolerance">4.4 Fault Tolerance</h1>
+<p>The system should continue working correctly even if some nodes are:</p>
+<ul>
+<li>Faulty</li>
+<li>Malicious</li>
+<li>Byzantine</li>
+</ul>
+<p>Your PPT specifically includes Byzantine nodes in this requirement.</p>
+<hr>
+<h1 id="h-159-4-5-termination">4.5 Termination</h1>
+<p>Eventually, honest nodes must finish the consensus process and reach a decision.</p>
+<p>It shouldn't continue forever:</p>
+<pre>Vote → Vote → Vote → Vote → ...</pre>
+<p>Instead:</p>
+<pre>Proposal
+   ↓
+Consensus process
+   ↓
+Decision
+   ↓
+STOP</pre>
+<p>Your PPT explicitly includes termination as a consensus requirement.</p>
+<hr>
+<h1 id="h-160-memorize-this">⭐ Memorize This</h1>
+<p>For the exam:</p>
+<blockquote><strong>A-I-V-F-T</strong></blockquote>
+<pre>A → Agreement
+I → Integrity
+V → Validity
+F → Fault tolerance
+T → Termination</pre>
+<p>If asked:</p>
+<blockquote>"What are the requirements of consensus?"</blockquote>
+<p>Immediately write:</p>
+<p><strong>Agreement, Integrity, Validity, Fault tolerance, Termination.</strong></p>
+<hr>
+<h1 id="h-161-5-types-of-faults">5. Types of Faults</h1>
+<p>Your Consensus PPT divides faults into two important categories:</p>
+<h3 id="h-162-1-fail-stop-faults">1. Fail-stop faults</h3>
+<h3 id="h-163-2-byzantine-faults">2. Byzantine faults</h3>
+<hr>
+<h1 id="h-164-6-fail-stop-fault">6. Fail-Stop Fault</h1>
+<p>A fail-stop fault means the node simply stops functioning.</p>
+<p>Example:</p>
+<pre>N1 → Working
+N2 → Working
+N3 → CRASH ❌
+N4 → Working</pre>
+<p>The node doesn't necessarily behave maliciously.</p>
+<p>It simply stops.</p>
+<h3 id="h-165-example">Example</h3>
+<p>Computer crashes.</p>
+<hr>
+<h3 id="h-166-solutions-mentioned-in-your-ppt">Solutions mentioned in your PPT:</h3>
+<ul>
+<li>Paxos</li>
+<li>RAFT</li>
+</ul>
+<p>Don't worry about Paxos/RAFT deeply for this syllabus unless your teacher specifically asks them.</p>
+<hr>
+<h1 id="h-167-7-byzantine-fault">7. Byzantine Fault ⭐⭐⭐⭐⭐</h1>
+<p>This is much more dangerous.</p>
+<p>A Byzantine node can behave maliciously/arbitrarily.</p>
+<p>Example:</p>
+<pre>N1 → "Transaction valid"
+N2 → "Transaction valid"
+N3 → "Transaction INVALID"
+N4 → "Transaction valid"</pre>
+<p>Or even:</p>
+<pre>To N1: ACCEPT
+To N2: REJECT</pre>
+<p>That's why Byzantine faults are much harder.</p>
+<p>Your PPT associates Byzantine faults with malicious behavior, software bugs and data corruption.</p>
+<hr>
+<h1 id="h-168-8-fail-stop-vs-byzantine">8. Fail-Stop vs Byzantine</h1>
+<h3 id="h-169-very-useful-5-mark-comparison">Very useful 5-mark comparison</h3>
+<table>
+<tr>
+<th>Fail-stop fault</th>
+<th>Byzantine fault</th>
+</tr>
+<tr>
+<td>Node stops/crashes</td>
+<td>Node behaves arbitrarily/maliciously</td>
+</tr>
+<tr>
+<td>Easier to handle</td>
+<td>More difficult</td>
+</tr>
+<tr>
+<td>Node generally stops responding</td>
+<td>May send false/conflicting information</td>
+</tr>
+<tr>
+<td>Paxos/RAFT can address fail-stop settings</td>
+<td>PBFT addresses Byzantine settings</td>
+</tr>
+<tr>
+<td>Example: computer crash</td>
+<td>Example: malicious node sends conflicting messages</td>
+</tr>
+</table>
+<p>Your PPT explicitly associates fail-stop faults with Paxos/RAFT and Byzantine faults with PBFT/SMR protocols.</p>
+<hr>
+<h1 id="h-170-9-consensus-in-blockchain">9. Consensus in Blockchain</h1>
+<p>Now connect this to blockchain.</p>
+<p>A blockchain is a distributed ledger.</p>
+<p>Multiple nodes maintain/participate in the network.</p>
+<p>Therefore, they need to agree on:</p>
+<ul>
+<li>Which transactions are valid</li>
+<li>Which block is accepted</li>
+<li>What the current ledger state is</li>
+</ul>
+<p>Conceptually:</p>
+<pre>Transaction
+     ↓
+Validation
+     ↓
+Proposal
+     ↓
+CONSENSUS
+     ↓
+Accepted block/state
+     ↓
+Blockchain updated</pre>
+<p>Your PPT describes consensus as the process through which network peers determine which blockchain transactions are valid and which aren't.</p>
+<hr>
+<h1 id="h-171-10-two-major-categories-of-consensus">10. Two Major Categories of Consensus</h1>
+<p>Your PPT divides consensus mechanisms into two major categories:</p>
+<h3 id="h-172-category-1-proof-based-leader-election-lottery-bas">Category 1 — Proof-based / leader-election / lottery-based</h3>
+<p>Also called <strong>Nakamoto consensus</strong> in the PPT.</p>
+<h3 id="h-173-category-2-byzantine-fault-tolerance-bft-based">Category 2 — Byzantine Fault Tolerance (BFT)-based</h3>
+<hr>
+<h1 id="h-174-11-proof-based-leader-election-consensus">11. Proof-Based / Leader-Election Consensus</h1>
+<p>The basic idea:</p>
+<blockquote>A mechanism determines which participant gets the right to propose the next block.</blockquote>
+<p>The PPT describes proof-based mechanisms as using proof of work, possession of authority, or tokens/stake to obtain the right to propose the next block.</p>
+<p>Examples include:</p>
+<ul>
+<li>Proof of Work</li>
+<li>Proof of Stake</li>
+<li>DPoS</li>
+<li>PoET</li>
+<li>PoD</li>
+<li>PoI</li>
+<li>PoC</li>
+<li>PoA</li>
+</ul>
+<hr>
+<h1 id="h-175-12-bft-based-consensus">12. BFT-Based Consensus</h1>
+<p>This is a more traditional distributed-systems approach.</p>
+<p>Instead of massive computational work, nodes:</p>
+<pre>Exchange messages
+       ↓
+Multiple rounds/phases
+       ↓
+Receive sufficient messages
+       ↓
+Agreement</pre>
+<p>Your PPT describes BFT-based approaches as relying on rounds of votes/messages rather than compute-intensive operations such as Bitcoin's partial hash inversion.</p>
+<p>Examples:</p>
+<ul>
+<li>PBFT</li>
+<li>Federated Byzantine consensus</li>
+<li>FBA</li>
+</ul>
+<hr>
+<h1 id="h-176-13-pow-vs-bft">13. PoW vs BFT</h1>
+<p>Your PPT gives an important comparison:</p>
+<table>
+<tr>
+<th>Proof/lottery based</th>
+<th>BFT based</th>
+</tr>
+<tr>
+<td>Suitable for permissionless systems</td>
+<td>Often associated with permissioned/consortium systems</td>
+</tr>
+<tr>
+<td>Leader selection through proof/lottery</td>
+<td>Rounds of voting/messages</td>
+</tr>
+<tr>
+<td>Can scale to many nodes</td>
+<td>Performs well with limited number of nodes</td>
+</tr>
+<tr>
+<td>PoW is slower</td>
+<td>BFT can provide faster agreement in appropriate settings</td>
+</tr>
+<tr>
+<td>Bitcoin uses PoW</td>
+<td>PBFT is an example</td>
+</tr>
+</table>
+<p>The PPT notes that BFT mechanisms perform well with a limited number of nodes, while lottery-based PoW consensus can scale well but can be slow.</p>
+<hr>
+<h1 id="h-177-14-proof-of-work-pow">14. PROOF OF WORK — PoW ⭐⭐⭐⭐⭐</h1>
+<p>This is probably the <strong>most important consensus mechanism</strong> for your exam.</p>
+<p>Bitcoin uses PoW.</p>
+<p>Your PPT describes PoW as relying on proof that adequate computational resources have been spent before a value/block is accepted by the network.</p>
+<hr>
+<h1 id="h-178-15-why-pow">15. Why PoW?</h1>
+<p>Imagine anyone can join Bitcoin.</p>
+<p>How do we decide who gets to propose the next block?</p>
+<p>We can't simply say:</p>
+<blockquote>"Everyone gets one vote."</blockquote>
+<p>Because someone could create:</p>
+<pre>1 computer
+10 computers
+100 computers
+1,000,000 fake identities</pre>
+<p>This is called a <strong>Sybil attack</strong>.</p>
+<p>PoW makes participation costly in terms of computation.</p>
+<hr>
+<h1 id="h-179-16-basic-pow-idea">16. Basic PoW Idea</h1>
+<p>A miner constructs a candidate block and repeatedly changes a nonce until the resulting hash satisfies the network's difficulty requirement.</p>
+<p>Simplified:</p>
+<pre>Block data + Nonce
+        ↓
+      Hash
+        ↓
+Does hash satisfy target?
+      ↙       ↘
+    NO         YES
+     ↓          ↓
+Change nonce   Block proposed
+     ↓
+ Try again</pre>
+<p>For example:</p>
+<pre>Nonce = 100 → Hash ❌
+Nonce = 101 → Hash ❌
+Nonce = 102 → Hash ❌
+Nonce = 103 → Hash ❌
+...
+Nonce = 98273 → Hash ✅</pre>
+<p>The exact PoW target/difficulty details will become clearer when we study Bitcoin, but this is the concept you need now.</p>
+<hr>
+<h1 id="h-180-17-what-does-the-miner-actually-prove">17. What Does the Miner Actually Prove?</h1>
+<p>The miner proves:</p>
+<blockquote><strong>"I have spent computational resources to produce a valid solution."</strong></blockquote>
+<p>That's why it's called:</p>
+<p><strong>Proof of Work</strong></p>
+<p>Not:</p>
+<blockquote>Proof that the miner worked hard manually 😂</blockquote>
+<p>It is a cryptographic/computational proof.</p>
+<p>Your PPT explicitly describes PoW as proof that adequate computational resources have been spent.</p>
+<hr>
+<h1 id="h-181-18-pow-and-sybil-attacks">18. PoW and Sybil Attacks</h1>
+<p>A Sybil attacker creates many fake identities.</p>
+<p>Without a cost:</p>
+<pre>Attacker
+ ↓
+N1 N2 N3 N4 N5 N6 N7 ...</pre>
+<p>With PoW:</p>
+<p>Each attempt requires computational resources.</p>
+<p>Therefore, simply creating more identities doesn't automatically give unlimited influence.</p>
+<p>Your PPT specifically mentions PoW as successful against collusion attacks such as Sybil attacks.</p>
+<hr>
+<h1 id="h-182-19-pow-advantages">19. PoW Advantages</h1>
+<h3 id="h-183-1-open-participation">1. Open participation</h3>
+<p>Useful in permissionless blockchains.</p>
+<h3 id="h-184-2-sybil-resistance">2. Sybil resistance</h3>
+<p>Computational cost makes fake identities less useful.</p>
+<h3 id="h-185-3-security">3. Security</h3>
+<p>An attacker needs substantial computational power to consistently control the chain.</p>
+<h3 id="h-186-4-proven-model">4. Proven model</h3>
+<p>Bitcoin successfully uses PoW.</p>
+<hr>
+<h1 id="h-187-20-pow-disadvantages">20. PoW Disadvantages</h1>
+<p>The major issue:</p>
+<h3 id="h-188-high-computational-energy-requirement">High computational/energy requirement</h3>
+<p>Miners perform large numbers of calculations.</p>
+<p>Therefore:</p>
+<pre>More computation
+       ↓
+More electricity/resources
+       ↓
+Higher cost</pre>
+<p>This is one reason alternative consensus mechanisms were developed.</p>
+<hr>
+<h1 id="h-189-21-proof-of-stake-pos">21. PROOF OF STAKE — PoS ⭐⭐⭐⭐⭐</h1>
+<p>Instead of asking:</p>
+<blockquote>"Who has done the most computational work?"</blockquote>
+<p>PoS asks:</p>
+<blockquote><strong>"Who has a stake in the system?"</strong></blockquote>
+<p>Your PPT describes PoS as selecting validators based on their stake.</p>
+<hr>
+<h1 id="h-190-22-basic-pos-idea">22. Basic PoS Idea</h1>
+<p>Suppose:</p>
+<pre>Validator A → 100 coins
+Validator B → 500 coins
+Validator C → 1,000 coins</pre>
+<p>The protocol uses stake-related rules to select who can validate/propose the next block.</p>
+<p>The exact selection mechanism differs between implementations.</p>
+<p>Your PPT describes the historical version in terms of <strong>coin age</strong>, where the probability of proposing/signing increases with the amount of coins and how long they have remained unspent.</p>
+<hr>
+<h1 id="h-191-23-pow-vs-pos">23. PoW vs PoS</h1>
+<table>
+<tr>
+<th>PoW</th>
+<th>PoS</th>
+</tr>
+<tr>
+<td>Based on computational work</td>
+<td>Based on stake</td>
+</tr>
+<tr>
+<td>Uses computational resources</td>
+<td>Does not require PoW-style computation</td>
+</tr>
+<tr>
+<td>Miners</td>
+<td>Validators</td>
+</tr>
+<tr>
+<td>High energy use</td>
+<td>Lower energy requirement</td>
+</tr>
+<tr>
+<td>Mining competition</td>
+<td>Stake-based selection</td>
+</tr>
+<tr>
+<td>Bitcoin uses PoW</td>
+<td>PoS is used by various blockchain systems</td>
+</tr>
+</table>
+<h3 id="h-192-memory">Memory:</h3>
+<blockquote><strong>PoW = Work</strong></blockquote>
+<blockquote><strong>PoS = Stake</strong></blockquote>
+<hr>
+<h1 id="h-193-24-delegated-proof-of-stake-dpos">24. Delegated Proof of Stake — DPoS</h1>
+<p>DPoS introduces delegation.</p>
+<p>Imagine:</p>
+<pre>1000 token holders
+       ↓
+Vote
+       ↓
+Select delegates
+       ↓
+Delegates validate/propose blocks</pre>
+<p>Your PPT defines DPoS as allowing nodes with stake to delegate transaction validation to other nodes through voting. It gives <strong>BitShares</strong> as an example.</p>
+<h3 id="h-194-simple-difference">Simple difference:</h3>
+<pre>PoS:
+Stake → validator selection
+
+DPoS:
+Stakeholders → vote → delegates → validation</pre>
+<hr>
+<h1 id="h-195-25-proof-of-elapsed-time-poet">25. Proof of Elapsed Time — PoET</h1>
+<p>PoET uses <strong>time</strong> rather than computational competition.</p>
+<p>Your PPT states that PoET was introduced by Intel in 2016 and uses a <strong>Trusted Execution Environment (TEE)</strong> to provide randomness and safety in leader election through guaranteed wait times.</p>
+<p>It requires Intel SGX for its security guarantee.</p>
+<h3 id="h-196-concept">Concept</h3>
+<pre>Node A → waits 5 seconds
+Node B → waits 8 seconds
+Node C → waits 3 seconds
+             ↓
+       C wins</pre>
+<p>The actual protocol uses a trusted execution environment to ensure the waiting process is trustworthy.</p>
+<hr>
+<h1 id="h-197-26-proof-of-deposit-pod">26. Proof of Deposit — PoD</h1>
+<p>Simple idea:</p>
+<blockquote>Participants must make a security deposit before they can participate in mining/proposing blocks.</blockquote>
+<p>Your PPT states exactly this and gives <strong>Tendermint</strong> as an example.</p>
+<p>Think:</p>
+<pre>Deposit money
+      ↓
+Get participation rights
+      ↓
+Misbehave?
+      ↓
+Risk deposit</pre>
+<hr>
+<h1 id="h-198-27-proof-of-importance-poi">27. Proof of Importance — PoI</h1>
+<p>PoI considers the user's importance/activity rather than simply their balance.</p>
+<p>Your PPT states that PoI monitors token usage and movement to establish a level of trust/importance.</p>
+<p>Factors mentioned include:</p>
+<ul>
+<li>Number of transactions</li>
+<li>Size of transactions</li>
+<li>Vested currency</li>
+<li>Network activity</li>
+</ul>
+<p>The protocol assigns an <strong>importance score</strong>, and a higher score increases the probability of being selected to harvest a block.</p>
+<p>Example associated with your PPT:</p>
+<blockquote><strong>NEM</strong></blockquote>
+<hr>
+<h1 id="h-199-28-federated-consensus-federated-byzantine-consens">28. Federated Consensus / Federated Byzantine Consensus</h1>
+<p>Here, nodes maintain a group of <strong>publicly trusted peers</strong>.</p>
+<p>They propagate transactions validated by the majority of those trusted nodes.</p>
+<p>Your PPT describes this mechanism in those terms.</p>
+<p>Simple model:</p>
+<pre>Node
+ ↓
+Trusted peers
+ ↓
+Majority validation
+ ↓
+Accept transaction</pre>
+<p>This differs from completely open participation.</p>
+<hr>
+<h1 id="h-200-29-reputation-based-consensus">29. Reputation-Based Consensus</h1>
+<p>This uses reputation.</p>
+<p>Your PPT describes a leader being elected based on the reputation built over time, with votes from other members.</p>
+<p>Concept:</p>
+<pre>Good behavior
+      ↓
+Reputation increases
+      ↓
+More chance of leadership</pre>
+<hr>
+<h1 id="h-201-30-pbft-practical-byzantine-fault-tolerance">30. PBFT — Practical Byzantine Fault Tolerance ⭐⭐⭐⭐⭐</h1>
+<p>This is extremely important because it connects directly to the <strong>Byzantine Generals Problem</strong> from Module 2.</p>
+<p>Your PPT states that PBFT achieves <strong>State Machine Replication (SMR)</strong> and provides tolerance against Byzantine nodes.</p>
+<hr>
+<h1 id="h-202-31-basic-pbft-idea">31. Basic PBFT Idea</h1>
+<p>Suppose we have several nodes:</p>
+<pre>N1
+N2
+N3
+N4</pre>
+<p>One node proposes something.</p>
+<p>The nodes communicate through phases/rounds.</p>
+<p>Conceptually:</p>
+<pre>Proposal
+   ↓
+Nodes exchange messages
+   ↓
+Verification / voting
+   ↓
+Sufficient agreement
+   ↓
+Commit</pre>
+<p>The key point is:</p>
+<blockquote>Even if some nodes are Byzantine, the honest nodes can still reach a consistent state, provided the protocol's assumptions are satisfied.</blockquote>
+<hr>
+<h1 id="h-203-32-pbft-vs-pow">32. PBFT vs PoW</h1>
+<p>This is a <strong>very good comparison question</strong>.</p>
+<table>
+<tr>
+<th>PBFT</th>
+<th>PoW</th>
+</tr>
+<tr>
+<td>BFT-based</td>
+<td>Proof-based</td>
+</tr>
+<tr>
+<td>Uses communication/voting</td>
+<td>Uses computational work</td>
+</tr>
+<tr>
+<td>Designed for Byzantine faults</td>
+<td>Provides consensus through computational competition</td>
+</tr>
+<tr>
+<td>Generally suitable for known/limited participants</td>
+<td>Suitable for permissionless networks</td>
+</tr>
+<tr>
+<td>No PoW-style mining computation</td>
+<td>Computationally intensive</td>
+</tr>
+<tr>
+<td>Faster final agreement in suitable settings</td>
+<td>Can be slower</td>
+</tr>
+</table>
+<p>Your PPT categorizes BFT consensus as more traditional/permissioned and PoW as lottery-based/permissionless.</p>
+<hr>
+<h1 id="h-204-33-proof-of-activity-poa">33. Proof of Activity — PoA</h1>
+<p>⚠️ Don't confuse this with <strong>Proof of Authority</strong>, which is also abbreviated PoA in your PPT.</p>
+<h3 id="h-205-proof-of-activity">Proof of Activity</h3>
+<p>It combines:</p>
+<blockquote><strong>PoW + PoS</strong></blockquote>
+<p>Your PPT says:</p>
+<pre>First stage → PoW
+       ↓
+Then → PoS</pre>
+<p>and notes that the PoW stage is used only initially, after which the mechanism switches to PoS with negligible energy consumption relative to PoW.</p>
+<hr>
+<h1 id="h-206-34-proof-of-capacity-poc">34. Proof of Capacity — PoC</h1>
+<p>Instead of computational power:</p>
+<blockquote><strong>Hard disk space becomes the resource.</strong></blockquote>
+<p>Your PPT calls this <strong>hard drive mining</strong>.</p>
+<p>Basic idea:</p>
+<pre>Hard disk space
+       ↓
+Precompute/store hashes
+       ↓
+Use them during mining
+       ↓
+Participate in block creation</pre>
+<p>The PPT associates the introduction of this concept with <strong>BurstCoin</strong>.</p>
+<hr>
+<h1 id="h-207-35-proof-of-storage">35. Proof of Storage</h1>
+<p>The name gives you the basic idea:</p>
+<blockquote>Consensus/participation is based on demonstrating storage resources.</blockquote>
+<p>For your exam, if asked about the list of consensus mechanisms, remember this as a storage-oriented approach.</p>
+<p>Your PPT lists <strong>Proof of Storage</strong> among the blockchain consensus mechanisms.</p>
+<hr>
+<h1 id="h-208-36-proof-of-authority-poa">36. Proof of Authority — PoA ⭐⭐⭐⭐</h1>
+<p>Again:</p>
+<blockquote><strong>PoA = Proof of Authority</strong></blockquote>
+<p>Not Proof of Activity.</p>
+<p>Here, known validators have authority to propose/validate blocks.</p>
+<p>Your PPT says PoA uses the <strong>identity of participants as the stake</strong>.</p>
+<p>Conceptually:</p>
+<pre>Known validators
+      ↓
+Identity + reputation
+      ↓
+Validate transactions
+      ↓
+Propose blocks</pre>
+<p>The PPT states that PoA is commonly used in private/consortium blockchains and mentions <strong>Clique</strong> and <strong>Aura</strong> as common PoA algorithms.</p>
+<hr>
+<h1 id="h-209-37-all-consensus-mechanisms-memorize-this-table">37. All Consensus Mechanisms — Memorize This Table</h1>
+<p>This is your <strong>last-minute table</strong>.</p>
+<table>
+<tr>
+<th>Mechanism</th>
+<th>Main basis</th>
+<th>Key idea</th>
+</tr>
+<tr>
+<td><strong>PoW</strong></td>
+<td>Computational work</td>
+<td>Spend computation to propose block</td>
+</tr>
+<tr>
+<td><strong>PoS</strong></td>
+<td>Stake</td>
+<td>Stake determines validator selection</td>
+</tr>
+<tr>
+<td><strong>DPoS</strong></td>
+<td>Voting/delegation</td>
+<td>Stakeholders elect delegates</td>
+</tr>
+<tr>
+<td><strong>PoET</strong></td>
+<td>Elapsed time</td>
+<td>Trusted waiting time selects leader</td>
+</tr>
+<tr>
+<td><strong>PoD</strong></td>
+<td>Deposit</td>
+<td>Security deposit required</td>
+</tr>
+<tr>
+<td><strong>PoI</strong></td>
+<td>Importance/activity</td>
+<td>Importance score affects selection</td>
+</tr>
+<tr>
+<td><strong>Federated consensus</strong></td>
+<td>Trusted peers</td>
+<td>Majority of trusted peers</td>
+</tr>
+<tr>
+<td><strong>Reputation</strong></td>
+<td>Reputation</td>
+<td>Reputation-based leader selection</td>
+</tr>
+<tr>
+<td><strong>PBFT</strong></td>
+<td>Byzantine fault tolerance</td>
+<td>Multi-phase message agreement</td>
+</tr>
+<tr>
+<td><strong>Proof of Activity</strong></td>
+<td>PoW + PoS</td>
+<td>Combines both mechanisms</td>
+</tr>
+<tr>
+<td><strong>PoC</strong></td>
+<td>Disk capacity</td>
+<td>Hard-drive resources</td>
+</tr>
+<tr>
+<td><strong>Proof of Storage</strong></td>
+<td>Storage</td>
+<td>Demonstrated storage resources</td>
+</tr>
+<tr>
+<td><strong>PoA</strong></td>
+<td>Authority/identity</td>
+<td>Known validators</td>
+</tr>
+</table>
+<p>These are the mechanisms explicitly listed in your Consensus PPT.</p>
+<hr>
+<h1 id="h-210-38-the-most-important-comparison">🔥 38. The Most Important Comparison</h1>
+<p>If you have limited time, memorize this:</p>
+<h3 id="h-211-pow-vs-pos-vs-pbft-vs-poa">PoW vs PoS vs PBFT vs PoA</h3>
+<table>
+<tr>
+<th>Feature</th>
+<th>PoW</th>
+<th>PoS</th>
+<th>PBFT</th>
+<th>PoA</th>
+</tr>
+<tr>
+<td>Main resource</td>
+<td>Computation</td>
+<td>Stake</td>
+<td>Voting/messages</td>
+<td>Identity/authority</td>
+</tr>
+<tr>
+<td>Participants</td>
+<td>Open/permissionless</td>
+<td>Can be permissionless</td>
+<td>Usually known/limited</td>
+<td>Known validators</td>
+</tr>
+<tr>
+<td>Mining</td>
+<td>Yes</td>
+<td>No PoW mining</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Energy use</td>
+<td>High</td>
+<td>Lower than PoW</td>
+<td>Low computationally</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Leader selection</td>
+<td>Computational competition</td>
+<td>Stake-based</td>
+<td>Protocol rounds</td>
+<td>Authorized validators</td>
+</tr>
+<tr>
+<td>Main strength</td>
+<td>Sybil resistance</td>
+<td>Energy efficiency</td>
+<td>Byzantine fault tolerance</td>
+<td>Fast controlled validation</td>
+</tr>
+<tr>
+<td>Example/context</td>
+<td>Bitcoin</td>
+<td>Stake-based blockchains</td>
+<td>Permissioned/BFT systems</td>
+<td>Private/consortium systems</td>
+</tr>
+</table>
+<p>The broad distinction between proof/lottery-based and BFT-based mechanisms is explicitly made in your PPT.</p>
+<hr>
+<h1 id="h-212-39-why-consensus-is-the-heart-of-blockchain">39. Why Consensus Is the Heart of Blockchain</h1>
+<p>Think about what happens if there is <strong>no consensus</strong>.</p>
+<pre>Node A:
+Alice has ₹500
+
+Node B:
+Alice has ₹800
+
+Node C:
+Alice has ₹200</pre>
+<p>Now the distributed ledger isn't useful.</p>
+<p>Consensus provides a way to converge on an accepted state:</p>
+<pre>N1 ─┐
+N2 ─┤
+N3 ─┼──→ CONSENSUS ──→ Accepted State
+N4 ─┤
+N5 ─┘</pre>
+<p>That's why your PPT calls consensus a crucial part of blockchain architecture.</p>
+<hr>
+<h1 id="h-213-40-10-mark-answer-explain-consensus-in-blockchain">⭐ 40. 10-MARK ANSWER — "Explain Consensus in Blockchain"</h1>
+<p>If this appears in your exam, use this structure.</p>
+<h2 id="h-214-introduction">Introduction</h2>
+<blockquote>Consensus is the process of achieving agreement among distrusting nodes on the final state of data in a distributed system.</blockquote>
+<h2 id="h-215-need">Need</h2>
+<p>Blockchain consists of distributed nodes that need to agree on valid transactions and the accepted ledger state.</p>
+<h2 id="h-216-requirements">Requirements</h2>
+<ol>
+<li>Agreement</li>
+<li>Integrity</li>
+<li>Validity</li>
+<li>Fault tolerance</li>
+<li>Termination</li>
+</ol>
+<h2 id="h-217-types">Types</h2>
+<h3 id="h-218-a-proof-lottery-based">A. Proof/lottery-based</h3>
+<ul>
+<li>PoW</li>
+<li>PoS</li>
+<li>DPoS</li>
+<li>PoET</li>
+<li>etc.</li>
+</ul>
+<h3 id="h-219-b-bft-based">B. BFT-based</h3>
+<ul>
+<li>PBFT</li>
+<li>Federated Byzantine consensus</li>
+<li>FBA</li>
+</ul>
+<h2 id="h-220-explain-pow">Explain PoW</h2>
+<pre>Transactions
+     ↓
+Candidate Block
+     ↓
+Mining / Computational Work
+     ↓
+Valid PoW
+     ↓
+Block Proposed
+     ↓
+Network Validation
+     ↓
+Blockchain</pre>
+<h2 id="h-221-explain-bft">Explain BFT</h2>
+<pre>Proposal
+    ↓
+Message exchange
+    ↓
+Voting / multiple rounds
+    ↓
+Agreement
+    ↓
+Commit</pre>
+<h2 id="h-222-conclusion">Conclusion</h2>
+<blockquote>Consensus allows distributed blockchain nodes to maintain a consistent state despite the absence of a central authority and, depending on the mechanism, despite faulty or malicious participants.</blockquote>
+<hr>
+<h1 id="h-223-41-5-mark-questions-you-should-prepare">⭐ 41. 5-MARK QUESTIONS YOU SHOULD PREPARE</h1>
+<h3 id="h-224-q1-define-consensus-and-explain-its-requirements">Q1. Define consensus and explain its requirements.</h3>
+<p><strong>Must write:</strong></p>
+<blockquote>Agreement + Integrity + Validity + Fault tolerance + Termination.</blockquote>
+<hr>
+<h3 id="h-225-q2-what-is-proof-of-work">Q2. What is Proof of Work?</h3>
+<p>Include:</p>
+<ul>
+<li>Computational resource</li>
+<li>Mining</li>
+<li>Nonce/search</li>
+<li>Valid block</li>
+<li>Bitcoin</li>
+<li>Sybil resistance</li>
+</ul>
+<hr>
+<h3 id="h-226-q3-what-is-proof-of-stake">Q3. What is Proof of Stake?</h3>
+<p>Include:</p>
+<ul>
+<li>Stake</li>
+<li>Validator</li>
+<li>Block proposal/validation</li>
+<li>Lower computational requirement than PoW</li>
+</ul>
+<hr>
+<h3 id="h-227-q4-differentiate-pow-and-pos">Q4. Differentiate PoW and PoS.</h3>
+<p>Use a table.</p>
+<hr>
+<h3 id="h-228-q5-what-is-pbft">Q5. What is PBFT?</h3>
+<p>Include:</p>
+<ul>
+<li>Byzantine fault tolerance</li>
+<li>State Machine Replication</li>
+<li>Message exchange</li>
+<li>Voting/phases</li>
+<li>Suitable for known/limited participants</li>
+</ul>
+<hr>
+<h3 id="h-229-q6-what-is-dpos">Q6. What is DPoS?</h3>
+<blockquote>Stakeholders vote to delegate validation/block-production responsibilities to selected nodes.</blockquote>
+<p>Your PPT specifically describes this delegation-by-voting model.</p>
+<hr>
+<h3 id="h-230-q7-explain-poet">Q7. Explain PoET.</h3>
+<p>Mention:</p>
+<ul>
+<li>Intel</li>
+<li>2016</li>
+<li>TEE</li>
+<li>Guaranteed wait time</li>
+<li>Intel SGX</li>
+</ul>
+<hr>
+<h3 id="h-231-q8-explain-proof-of-authority">Q8. Explain Proof of Authority.</h3>
+<p>Mention:</p>
+<ul>
+<li>Known validators</li>
+<li>Identity</li>
+<li>Reputation</li>
+<li>Authority to propose/validate blocks</li>
+<li>Private/consortium blockchain</li>
+</ul>
+<hr>
+<h1 id="h-232-42-very-important-exam-traps">⚠️ 42. VERY IMPORTANT EXAM TRAPS</h1>
+<h3 id="h-233-trap-1-poa-has-two-meanings-in-your-ppt">Trap 1 — PoA has two meanings in your PPT</h3>
+<p>Your PPT contains:</p>
+<p><strong>Proof of Activity → PoA</strong></p>
+<p>and</p>
+<p><strong>Proof of Authority → PoA</strong></p>
+<p>So if the question says <strong>PoA</strong>, look at the context.</p>
+<pre>PoA
+├── Proof of Activity
+│      → PoW + PoS
+│
+└── Proof of Authority
+       → Identity + known validators</pre>
+<hr>
+<h3 id="h-234-trap-2-pow-isn-t-simply-finding-a-hash">Trap 2 — PoW isn't simply "finding a hash"</h3>
+<p>The important point is:</p>
+<blockquote>The miner demonstrates that computational resources have been spent to satisfy the network's PoW condition.</blockquote>
+<hr>
+<h3 id="h-235-trap-3-pos-simply-richest-person-always-wins">Trap 3 — PoS ≠ simply "richest person always wins"</h3>
+<p>Don't write that.</p>
+<p>Say:</p>
+<blockquote>Validator selection is based on stake according to the protocol's selection mechanism.</blockquote>
+<p>Your PPT describes stake-based selection and, in its historical explanation, coin age.</p>
+<hr>
+<h3 id="h-236-trap-4-consensus-encryption">Trap 4 — Consensus ≠ encryption</h3>
+<p>Consensus answers:</p>
+<blockquote><strong>"Which state/transactions does the network accept?"</strong></blockquote>
+<p>Cryptography answers things such as:</p>
+<blockquote><strong>"How do we secure/authenticate/integrity-protect information?"</strong></blockquote>
+<p>They work together but are different concepts.</p>
+<hr>
+<h1 id="h-237-43-final-memory-map">🧠 43. FINAL MEMORY MAP</h1>
+<p>If you remember nothing else before the exam, remember this:</p>
+<pre>                    CONSENSUS
+                        │
+             Agreement among nodes
+                        │
+        ┌───────────────┴───────────────┐
+        │                               │
+   PROOF/LOTTERY                       BFT
+        │                               │
+   ┌────┼────┐                    ┌─────┼─────┐
+   │    │    │                    │     │     │
+  PoW  PoS  DPoS                 PBFT Federated
+   │    │    │
+ Work Stake Vote
+        │
+   Other mechanisms
+        │
+ ┌──────┼────────┬─────────┐
+ PoET   PoD       PoI      PoC
+ Time  Deposit  Importance Capacity
+
+                  + PoA
+                    │
+             Known authority</pre>
+<p>And the <strong>five requirements</strong>:</p>
+<pre>A → Agreement
+I → Integrity
+V → Validity
+F → Fault tolerance
+T → Termination</pre>
+<h3 id="h-238-the-one-sentence-to-remember">🔥 The one sentence to remember:</h3>
+<blockquote><strong>Blockchain consensus enables distrusting distributed nodes to agree on a common valid state without relying on a single central authority.</strong></blockquote>
+<p>Your PPT's core framing is exactly around agreement between distrusting nodes and determining the final state of blockchain data.</p>
+<hr>
+<h2 id="h-239-module-3-exam-priority">🎯 Module 3 exam priority</h2>
+<p>If you're short on time, study in this order:</p>
+<p><strong>1. ⭐⭐⭐⭐⭐ Consensus definition + requirements</strong></p>
+<p><strong>2. ⭐⭐⭐⭐⭐ PoW — working, advantages, limitations</strong></p>
+<p><strong>3. ⭐⭐⭐⭐⭐ PoS + PoW vs PoS</strong></p>
+<p><strong>4. ⭐⭐⭐⭐⭐ PBFT + Byzantine faults</strong></p>
+<p><strong>5. ⭐⭐⭐⭐ Proof-based vs BFT-based</strong></p>
+<p><strong>6. ⭐⭐⭐⭐ DPoS</strong></p>
+<p><strong>7. ⭐⭐⭐ PoET / PoD / PoI</strong></p>
+<p><strong>8. ⭐⭐⭐ PoA / PoC / Federated / Activity</strong></p>
+<p>Once these are clear, you are well prepared for the consensus portion of Unit I.</p>
+
+
+
+<div class="module-separator" id="module-4">
+    <div class="module-badge">Module 4</div>
+</div>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-2.html">&larr; Module 2</a>
+        <a class="pn-reader" href="blockchain_guide.html">📖 Single-Page Reader View</a>
+        <a class="pn-btn" href="blockchain-module-4.html">Module 4 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

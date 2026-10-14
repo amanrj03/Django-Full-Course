@@ -1,0 +1,1096 @@
+# Module 4 — Django Project Structure
+
+Now we're going to **open the Django project and understand every important file**.
+
+This module is extremely important because teachers love asking:
+
+> "What is the purpose of `settings.py`?"
+
+> "What does `manage.py` do?"
+
+> "What is `urls.py`?"
+
+> "Why are there two `__init__.py` files?"
+
+> "What is WSGI?"
+
+> "What is ASGI?"
+
+By the end, you should be able to look at a Django project and understand **what every file is doing**.
+
+---
+
+# 1. Our Django Project
+
+Suppose we created:
+
+```bash
+python -m django startproject College
+```
+
+The structure is:
+
+```text
+College/
+│
+├── manage.py
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+Let's understand it one file at a time.
+
+---
+
+# 2. Outer `College` Folder
+
+The outer folder:
+
+```text
+College/
+```
+
+is simply the directory containing your Django project.
+
+It contains:
+
+```text
+manage.py
+College/
+```
+
+Think of it as the **container for your project**.
+
+---
+
+# 3. `manage.py`
+
+We've already seen this.
+
+```text
+College/
+│
+├── manage.py
+```
+
+`manage.py` is a command-line utility for interacting with your particular Django project.
+
+For example:
+
+```bash
+python manage.py runserver
+```
+
+```bash
+python manage.py startapp students
+```
+
+```bash
+python manage.py migrate
+```
+
+```bash
+python manage.py makemigrations
+```
+
+```bash
+python manage.py createsuperuser
+```
+
+So:
+
+> **`manage.py` provides a convenient way to execute Django management commands for a specific project.**
+
+---
+
+# 4. Inner `College` Folder
+
+Now:
+
+```text
+College/
+│
+└── College/
+```
+
+This inner folder is the **Python package containing the project's configuration**.
+
+It contains:
+
+```text
+__init__.py
+settings.py
+urls.py
+asgi.py
+wsgi.py
+```
+
+This is where the main Django project configuration lives.
+
+---
+
+# 5. `__init__.py`
+
+You'll see:
+
+```text
+__init__.py
+```
+
+This is a Python package file.
+
+Its presence historically tells Python that the directory should be treated as a package. In modern Python, namespace packages can exist without it, but Django's generated project structure includes it.
+
+For your Django course, the important point is:
+
+> **`__init__.py` marks/helps define the directory as a Python package and allows package-related Python imports.**
+
+Usually, you don't need to modify it.
+
+---
+
+# 6. `settings.py`
+
+This is one of the **most important files in Django**.
+
+It contains the configuration of your Django project.
+
+For example:
+
+```python
+DEBUG = True
+```
+
+```python
+INSTALLED_APPS = [
+    ...
+]
+```
+
+```python
+MIDDLEWARE = [
+    ...
+]
+```
+
+```python
+ROOT_URLCONF = 'College.urls'
+```
+
+```python
+DATABASES = {
+    ...
+}
+```
+
+We'll study these settings throughout the course.
+
+Think:
+
+> **`settings.py` = project configuration**
+
+---
+
+# 7. What Kind of Things Are Configured in `settings.py`?
+
+Many things.
+
+### Installed applications
+
+```python
+INSTALLED_APPS = [
+    ...
+]
+```
+
+### Middleware
+
+```python
+MIDDLEWARE = [
+    ...
+]
+```
+
+### Templates
+
+```python
+TEMPLATES = [
+    ...
+]
+```
+
+### Database
+
+```python
+DATABASES = {
+    ...
+}
+```
+
+### Static files
+
+```python
+STATIC_URL = 'static/'
+```
+
+### Time zone
+
+```python
+TIME_ZONE = 'UTC'
+```
+
+### Debug mode
+
+```python
+DEBUG = True
+```
+
+And many other settings.
+
+---
+
+# 8. `DEBUG`
+
+You'll see:
+
+```python
+DEBUG = True
+```
+
+during development.
+
+When something goes wrong, Django can show detailed debugging information.
+
+For example:
+
+```text
+Traceback
+File
+Line number
+Error message
+```
+
+This is useful while developing.
+
+But:
+
+> **You should not run a production deployment with `DEBUG = True`.**
+
+Why?
+
+Because detailed error pages can expose sensitive information.
+
+We'll discuss this more when we reach debugging and deployment concepts.
+
+---
+
+# 9. `INSTALLED_APPS`
+
+Another extremely important setting:
+
+```python
+INSTALLED_APPS = [
+    ...
+]
+```
+
+It tells Django which applications are installed/enabled in the project.
+
+Later, when we create an app:
+
+```bash
+python manage.py startapp students
+```
+
+we'll need to make Django aware of the app, commonly by adding its configuration to `INSTALLED_APPS`.
+
+We'll cover this carefully in Module 5.
+
+---
+
+# 10. `DATABASES`
+
+You will find something similar to:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+```
+
+This configures the database.
+
+The default Django project uses:
+
+> **SQLite**
+
+for development.
+
+Later, your syllabus has an entire topic on:
+
+> Database configuration
+
+We'll study:
+
+```text
+SQLite
+MySQL
+PostgreSQL
+```
+
+later.
+
+---
+
+# 11. `TEMPLATES`
+
+`settings.py` also contains template configuration.
+
+Conceptually:
+
+```text
+Django
+  ↓
+Template configuration
+  ↓
+HTML templates
+```
+
+Later, when we create HTML templates, this setting becomes important.
+
+---
+
+# 12. `urls.py`
+
+Now we come to another extremely important file.
+
+```text
+College/
+└── College/
+    └── urls.py
+```
+
+This file contains the project's **URL configuration**.
+
+For example, conceptually:
+
+```python
+urlpatterns = [
+    ...
+]
+```
+
+Django uses URL patterns to determine what should happen when a user visits a URL.
+
+For example:
+
+```text
+/about/
+```
+
+could be connected to:
+
+```text
+about()
+```
+
+and:
+
+```text
+/students/
+```
+
+could be connected to:
+
+```text
+students()
+```
+
+We'll learn this in detail in **Unit II**.
+
+---
+
+# 13. Why Is `urls.py` Important?
+
+Suppose the browser requests:
+
+```text
+/students/
+```
+
+Django needs to determine:
+
+> "Which code should handle `/students/`?"
+
+The URL configuration helps answer that question.
+
+Conceptually:
+
+```text
+/students/
+     ↓
+urls.py
+     ↓
+students view
+```
+
+---
+
+# 14. `ROOT_URLCONF`
+
+Inside `settings.py`, you'll see something similar to:
+
+```python
+ROOT_URLCONF = 'College.urls'
+```
+
+This tells Django where the **root URL configuration** is located.
+
+In this case:
+
+```text
+College.urls
+```
+
+means:
+
+```text
+College package
+     ↓
+urls.py
+```
+
+So Django knows where to start looking for URL patterns.
+
+---
+
+# 15. `wsgi.py`
+
+Now we have:
+
+```text
+wsgi.py
+```
+
+WSGI stands for:
+
+> **Web Server Gateway Interface**
+
+It is a standard interface between Python web applications/frameworks and web servers.
+
+You don't need to master deployment yet.
+
+For your current level, remember:
+
+> **WSGI provides a standard interface for running Python web applications with WSGI-compatible web servers.**
+
+You'll often see:
+
+```python
+application = get_wsgi_application()
+```
+
+inside the file.
+
+---
+
+# 16. `asgi.py`
+
+ASGI stands for:
+
+> **Asynchronous Server Gateway Interface**
+
+It is a newer interface designed to support asynchronous Python web applications and broader communication patterns.
+
+Django provides an ASGI application through:
+
+```text
+asgi.py
+```
+
+You'll see something conceptually like:
+
+```python
+application = get_asgi_application()
+```
+
+For now:
+
+```text
+WSGI → traditional synchronous Python web deployment
+
+ASGI → supports asynchronous capabilities
+```
+
+Don't worry about deployment details yet.
+
+---
+
+# 17. WSGI vs ASGI
+
+This can be a viva question.
+
+| WSGI                                           | ASGI                                           |
+| ---------------------------------------------- | ---------------------------------------------- |
+| Web Server Gateway Interface                   | Asynchronous Server Gateway Interface          |
+| Traditionally synchronous                      | Supports asynchronous applications             |
+| Older Python web interface                     | Newer interface                                |
+| Suitable for traditional request-response apps | Supports async and broader connection patterns |
+
+### Viva answer
+
+> WSGI is a standard interface for deploying Python web applications, traditionally focused on synchronous request handling, while ASGI extends this model to support asynchronous applications and communication.
+
+---
+
+# 18. Complete Project Structure
+
+Now put everything together:
+
+```text
+College/
+│
+├── manage.py
+│
+└── College/
+    │
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+Remember:
+
+```text
+manage.py
+   ↓
+Commands
+
+settings.py
+   ↓
+Configuration
+
+urls.py
+   ↓
+URL routing
+
+__init__.py
+   ↓
+Python package
+
+wsgi.py
+   ↓
+WSGI deployment interface
+
+asgi.py
+   ↓
+ASGI deployment interface
+```
+
+---
+
+# 19. Where Is the Database?
+
+After you run migrations, you may see:
+
+```text
+db.sqlite3
+```
+
+So eventually your project can look like:
+
+```text
+College/
+│
+├── manage.py
+├── db.sqlite3
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+`db.sqlite3` is the SQLite database file used by the default development configuration.
+
+---
+
+# 20. Where Are Apps?
+
+After creating an app:
+
+```bash
+python manage.py startapp students
+```
+
+you'll get:
+
+```text
+College/
+│
+├── manage.py
+│
+├── College/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+└── students/
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── models.py
+    ├── tests.py
+    ├── views.py
+    └── migrations/
+        └── __init__.py
+```
+
+We'll create and understand this in **Module 5**.
+
+---
+
+# 21. Project Structure — Big Picture
+
+Eventually, think of it like this:
+
+```text
+                   Django Project
+                        |
+        +---------------+---------------+
+        |                               |
+ Project Configuration              Apps
+        |                               |
+   +----+----+                    +-----+-----+
+   |    |    |                    |     |     |
+settings urls  ...              views models templates
+```
+
+The project controls the overall configuration.
+
+Apps contain specific functionality.
+
+---
+
+# 22. Very Important: Don't Confuse These
+
+### `settings.py`
+
+Configuration.
+
+### `urls.py`
+
+URL routing.
+
+### `views.py`
+
+Application/request logic.
+
+### `models.py`
+
+Database/data representation.
+
+### `templates/`
+
+HTML/presentation.
+
+This gives us:
+
+```text
+URL
+ ↓
+View
+ ↓
+Model
+ ↓
+Template
+ ↓
+Response
+```
+
+We'll build this architecture step-by-step.
+
+---
+
+# 23. How Does Django Know Which Settings to Use?
+
+When you run:
+
+```bash
+python manage.py runserver
+```
+
+Django needs to know which settings module belongs to your project.
+
+`manage.py` sets the appropriate environment configuration for the project.
+
+The project settings are then loaded.
+
+This is one reason `manage.py` is more than just a random Python file—it is specifically generated for your project.
+
+---
+
+# 24. What Does `manage.py` Actually Contain?
+
+You'll see something roughly like:
+
+```python
+import os
+import sys
+
+def main():
+    os.environ.setdefault(
+        'DJANGO_SETTINGS_MODULE',
+        'College.settings'
+    )
+
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)
+
+if __name__ == '__main__':
+    main()
+```
+
+**Don't memorize this code.**
+
+Understand the important idea:
+
+```text
+manage.py
+   ↓
+Sets Django settings module
+   ↓
+Loads Django management system
+   ↓
+Executes the command you typed
+```
+
+For example:
+
+```bash
+python manage.py runserver
+```
+
+The command is passed to Django's management system.
+
+---
+
+# 25. Why Do We Need `DJANGO_SETTINGS_MODULE`?
+
+This environment variable tells Django:
+
+> "Which settings module should I use?"
+
+For our project:
+
+```text
+College.settings
+```
+
+means:
+
+```text
+College/
+   ↓
+settings.py
+```
+
+So conceptually:
+
+```text
+DJANGO_SETTINGS_MODULE
+          ↓
+College.settings
+          ↓
+settings.py
+```
+
+This is a more advanced detail, but knowing it can impress in a viva.
+
+---
+
+# 26. Viva Questions — Project Structure
+
+### Q1. What is `manage.py`?
+
+> It is a project-specific command-line utility used to execute Django management commands.
+
+---
+
+### Q2. What is `settings.py`?
+
+> It contains the configuration settings of a Django project.
+
+---
+
+### Q3. What is `urls.py`?
+
+> It contains the URL configuration used to map URL patterns to views or other URL configurations.
+
+---
+
+### Q4. What is `__init__.py`?
+
+> It is a Python package initialization file. Django includes it in project and app packages.
+
+---
+
+### Q5. What is WSGI?
+
+> WSGI stands for Web Server Gateway Interface and provides a standard interface between Python web applications and compatible web servers.
+
+---
+
+### Q6. What is ASGI?
+
+> ASGI stands for Asynchronous Server Gateway Interface and provides an interface supporting asynchronous Python web applications and communication patterns.
+
+---
+
+### Q7. What is `DEBUG`?
+
+> `DEBUG` controls whether Django runs in debug mode and provides detailed debugging information. It should not be enabled in production.
+
+---
+
+### Q8. What is `INSTALLED_APPS`?
+
+> It is a setting containing the applications enabled in a Django project.
+
+---
+
+### Q9. What is `DATABASES`?
+
+> It is the Django setting used to configure database connections.
+
+---
+
+### Q10. What is `ROOT_URLCONF`?
+
+> It specifies the Python module containing the root URL configuration of the Django project.
+
+---
+
+# 27. Viva Tricky Question ⚠️
+
+### Teacher:
+
+> "Where do we write database queries?"
+
+A beginner might say:
+
+> `settings.py`
+
+❌ Not normally.
+
+`settings.py` **configures the database connection**.
+
+Database interaction is typically performed through:
+
+```text
+models
+   +
+Django ORM
+```
+
+So:
+
+> `settings.py` tells Django **which database/how to connect**, while models and the ORM are used to **work with the data**.
+
+---
+
+# 28. Another Tricky Question ⚠️
+
+### Teacher:
+
+> "Where do we write HTML?"
+
+The basic answer:
+
+> In templates.
+
+For example:
+
+```text
+templates/
+   home.html
+```
+
+We'll study templates extensively in Unit III.
+
+---
+
+# 29. Another Tricky Question
+
+### Teacher:
+
+> "Does `urls.py` contain the HTML page?"
+
+No.
+
+`urls.py` defines **URL routing**.
+
+It can connect a URL to a view:
+
+```text
+URL
+ ↓
+View
+```
+
+The view can then render a template:
+
+```text
+View
+ ↓
+Template
+```
+
+---
+
+# 30. Practical Task
+
+Open your Django project in VS Code.
+
+You should be able to identify:
+
+```text
+College/
+│
+├── manage.py
+│
+└── College/
+    ├── __init__.py
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+Then answer:
+
+### Which file would you modify for...
+
+**A. Database configuration?**
+
+→ `settings.py`
+
+**B. URL routing?**
+
+→ `urls.py`
+
+**C. Project configuration?**
+
+→ `settings.py`
+
+**D. WSGI deployment interface?**
+
+→ `wsgi.py`
+
+**E. ASGI deployment interface?**
+
+→ `asgi.py`
+
+**F. Running Django management commands?**
+
+→ `manage.py`
+
+---
+
+# 🧠 Module 4 — Final Mental Model
+
+Memorize this table:
+
+| File          | Main Purpose                        |
+| ------------- | ----------------------------------- |
+| `manage.py`   | Execute project management commands |
+| `settings.py` | Project configuration               |
+| `urls.py`     | URL routing                         |
+| `__init__.py` | Python package initialization       |
+| `wsgi.py`     | WSGI application interface          |
+| `asgi.py`     | ASGI application interface          |
+
+And remember the hierarchy:
+
+```text
+PROJECT
+│
+├── Configuration
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── wsgi.py
+│
+├── manage.py
+│
+└── APPS
+    ├── views
+    ├── models
+    ├── templates
+    └── ...
+```
+
+---
+
+# 🎯 Module 4 Challenge
+
+Try these before moving on:
+
+### Viva
+
+1. Why does Django have `manage.py`?
+2. What is the purpose of `settings.py`?
+3. What is the purpose of `urls.py`?
+4. What is `ROOT_URLCONF`?
+5. What is `INSTALLED_APPS`?
+6. What is `DATABASES`?
+7. What is WSGI?
+8. What is ASGI?
+9. Difference between WSGI and ASGI?
+10. Why shouldn't `DEBUG = True` be used in production?
+11. Why are there two `College` directories after `startproject College`?
+12. What is the difference between project configuration and an app?
+
+### Coding/Practical
+
+If you are given this structure:
+
+```text
+College/
+├── manage.py
+└── College/
+    ├── settings.py
+    ├── urls.py
+    ├── asgi.py
+    └── wsgi.py
+```
+
+Tell me **which file you would modify** to:
+
+1. Change the database.
+2. Add an installed app.
+3. Add a URL.
+4. Change debug mode.
+5. Configure templates.
+6. Configure WSGI.
+7. Configure ASGI.
+
+Once you're ready, say **“next”**.
+
+## Module 5 — Creating a Django App
+
+This is where we'll start writing our **first actual Django application code**. We'll create an app, understand `views.py`, `models.py`, `admin.py`, `apps.py`, `tests.py`, the `migrations` folder, register the app, and then connect our first app to the project.

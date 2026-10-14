@@ -1,0 +1,1595 @@
+# Module 13 — Django Template Language (DTL)
+
+Now we move into the **core of Django templates**.
+
+You already know how to create an HTML template and pass data from a view. Now we need to learn **how Django actually works with that data inside the HTML file**.
+
+This is called **Django Template Language (DTL)**.
+
+---
+
+# 1. What Is DTL?
+
+**DTL = Django Template Language**
+
+It is Django's template syntax used to:
+
+* Display data
+* Work with variables
+* Use conditions
+* Use loops
+* Apply filters
+* Include/reuse templates
+* Generate dynamic HTML
+
+For example:
+
+```html
+<h1>Hello {{ name }}</h1>
+```
+
+If the view sends:
+
+```python
+{'name': 'Aman'}
+```
+
+Django renders:
+
+```html
+<h1>Hello Aman</h1>
+```
+
+---
+
+# 2. DTL Is Not Python
+
+This is extremely important for viva.
+
+DTL is designed for templates and presentation. It is **not simply Python embedded inside HTML**.
+
+For example, you cannot normally write arbitrary Python code such as:
+
+```python
+for i in range(10):
+```
+
+inside a Django template.
+
+Instead, DTL provides its own syntax:
+
+```html
+{% for i in numbers %}
+{% endfor %}
+```
+
+---
+
+# 3. Three Main DTL Syntaxes
+
+You should memorize these three.
+
+## 1. Variable
+
+```html
+{{ variable }}
+```
+
+Used to display data.
+
+---
+
+## 2. Tag
+
+```html
+{% tag %}
+```
+
+Used for template operations.
+
+Examples:
+
+```html
+{% if %}
+{% for %}
+{% url %}
+{% block %}
+```
+
+---
+
+## 3. Comment
+
+```html
+{# comment #}
+```
+
+Used for comments.
+
+---
+
+# 4. DTL Variable
+
+Suppose your view is:
+
+```python
+from django.shortcuts import render
+
+def home(request):
+    return render(
+        request,
+        'home.html',
+        {'name': 'Aman'}
+    )
+```
+
+Template:
+
+```html
+<h1>Hello {{ name }}</h1>
+```
+
+Output:
+
+```text
+Hello Aman
+```
+
+---
+
+# 5. How Does Django Find `name`?
+
+The context is:
+
+```python
+{
+    'name': 'Aman'
+}
+```
+
+Therefore Django creates a template context containing:
+
+```text
+name → Aman
+```
+
+When the template encounters:
+
+```text
+{{ name }}
+```
+
+it resolves the variable and outputs:
+
+```text
+Aman
+```
+
+---
+
+# 6. Multiple Variables
+
+View:
+
+```python
+def home(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21,
+        'course': 'CSE'
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )
+```
+
+Template:
+
+```html
+<h1>{{ name }}</h1>
+<p>Age: {{ age }}</p>
+<p>Course: {{ course }}</p>
+```
+
+Output:
+
+```text
+Aman
+Age: 21
+Course: CSE
+```
+
+---
+
+# 7. Variable Names Are Case-Sensitive
+
+Suppose context contains:
+
+```python
+{
+    'name': 'Aman'
+}
+```
+
+Then:
+
+```html
+{{ name }}
+```
+
+works.
+
+But:
+
+```html
+{{ Name }}
+```
+
+does not refer to the same context variable.
+
+So be careful with spelling and capitalization.
+
+---
+
+# 8. Dictionary Data
+
+Suppose your view contains:
+
+```python
+student = {
+    'name': 'Aman',
+    'age': 21,
+    'course': 'CSE'
+}
+
+return render(
+    request,
+    'student.html',
+    {'student': student}
+)
+```
+
+You can access dictionary values using dot notation:
+
+```html
+<h1>{{ student.name }}</h1>
+<p>{{ student.age }}</p>
+<p>{{ student.course }}</p>
+```
+
+Output:
+
+```text
+Aman
+21
+CSE
+```
+
+---
+
+# 9. Important: Dot Notation
+
+Django template syntax uses:
+
+```text
+{{ object.attribute }}
+```
+
+It can resolve different types of things, including dictionary lookups and attributes.
+
+For example:
+
+```html
+{{ student.name }}
+```
+
+can resolve the `name` value from the context object.
+
+This becomes extremely useful when we start using Django Models.
+
+---
+
+# 10. Nested Data
+
+Suppose:
+
+```python
+student = {
+    'name': 'Aman',
+    'address': {
+        'city': 'Phagwara',
+        'state': 'Punjab'
+    }
+}
+```
+
+Pass:
+
+```python
+{
+    'student': student
+}
+```
+
+Template:
+
+```html
+<p>Name: {{ student.name }}</p>
+<p>City: {{ student.address.city }}</p>
+<p>State: {{ student.address.state }}</p>
+```
+
+Django can traverse the nested structure using dot notation.
+
+---
+
+# 11. Lists
+
+Suppose:
+
+```python
+students = [
+    'Aman',
+    'Rahul',
+    'Rohit'
+]
+```
+
+Pass:
+
+```python
+return render(
+    request,
+    'students.html',
+    {'students': students}
+)
+```
+
+A loop can later display the values:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% endfor %}
+```
+
+We'll study loops in depth in a later module.
+
+---
+
+# 12. Accessing List Elements
+
+Django templates can resolve numeric indexes using dot notation.
+
+Suppose:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+Then:
+
+```html
+{{ students.0 }}
+```
+
+gives:
+
+```text
+Aman
+```
+
+And:
+
+```html
+{{ students.1 }}
+```
+
+gives:
+
+```text
+Rahul
+```
+
+This is useful to know for viva questions.
+
+---
+
+# 13. What If a Variable Doesn't Exist?
+
+Suppose your context is:
+
+```python
+{
+    'name': 'Aman'
+}
+```
+
+but template contains:
+
+```html
+{{ age }}
+```
+
+Since `age` isn't available, Django generally renders an empty string.
+
+So you may see:
+
+```text
+[blank]
+```
+
+rather than a Python `NameError`.
+
+---
+
+# 14. DTL Comments
+
+Single-line comment:
+
+```html
+{# This is a comment #}
+```
+
+It won't be rendered as visible HTML.
+
+For multiple lines:
+
+```html
+{% comment %}
+This is a
+multi-line comment.
+{% endcomment %}
+```
+
+---
+
+# 15. DTL Tags
+
+Tags are written using:
+
+```html
+{% ... %}
+```
+
+Some important tags are:
+
+```html
+{% if %}
+{% else %}
+{% elif %}
+{% endif %}
+
+{% for %}
+{% endfor %}
+
+{% url %}
+
+{% extends %}
+{% block %}
+
+{% include %}
+```
+
+We'll learn each of these throughout the next modules.
+
+---
+
+# 16. Variable vs Tag
+
+This is a common viva question.
+
+### Variable:
+
+```html
+{{ name }}
+```
+
+Purpose:
+
+> Display/resolve a value.
+
+### Tag:
+
+```html
+{% if age >= 18 %}
+```
+
+Purpose:
+
+> Perform a template operation.
+
+Remember:
+
+```text
+{{ }} → value
+{% %} → operation
+```
+
+---
+
+# 17. Filters
+
+DTL also provides **filters**.
+
+Filters modify or process values before displaying them.
+
+Syntax:
+
+```html
+{{ variable|filter }}
+```
+
+For example:
+
+```html
+{{ name|upper }}
+```
+
+If:
+
+```text
+name = Aman
+```
+
+output:
+
+```text
+AMAN
+```
+
+The pipe:
+
+```text
+|
+```
+
+means:
+
+> Apply this filter to the value.
+
+---
+
+# 18. `upper` Filter
+
+Example:
+
+```html
+{{ name|upper }}
+```
+
+If:
+
+```text
+name = Aman
+```
+
+output:
+
+```text
+AMAN
+```
+
+---
+
+# 19. `lower` Filter
+
+```html
+{{ name|lower }}
+```
+
+If:
+
+```text
+name = AMAN
+```
+
+output:
+
+```text
+aman
+```
+
+---
+
+# 20. `title` Filter
+
+```html
+{{ name|title }}
+```
+
+For example:
+
+```text
+hello django world
+```
+
+becomes approximately:
+
+```text
+Hello Django World
+```
+
+---
+
+# 21. `length` Filter
+
+You can determine the length of a value.
+
+```html
+{{ name|length }}
+```
+
+If:
+
+```text
+name = Aman
+```
+
+output:
+
+```text
+4
+```
+
+For a list:
+
+```html
+{{ students|length }}
+```
+
+it gives the number of items.
+
+---
+
+# 22. `default` Filter
+
+Suppose:
+
+```python
+name = ''
+```
+
+You can write:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+If `name` is empty, the output is:
+
+```text
+Guest
+```
+
+This is very useful.
+
+---
+
+# 23. Filter Chaining
+
+You can apply multiple filters.
+
+Example:
+
+```html
+{{ name|upper|length }}
+```
+
+If:
+
+```text
+name = aman
+```
+
+First:
+
+```text
+aman
+ ↓ upper
+AMAN
+ ↓ length
+4
+```
+
+Output:
+
+```text
+4
+```
+
+---
+
+# 24. `safe` Filter
+
+Django templates automatically escape potentially unsafe HTML in many normal variable-rendering situations.
+
+Suppose context contains:
+
+```python
+{
+    'message': '<b>Hello</b>'
+}
+```
+
+Template:
+
+```html
+{{ message }}
+```
+
+Django will normally escape the HTML rather than interpret it as markup.
+
+This helps protect against certain XSS attacks.
+
+---
+
+# 25. What Does `safe` Do?
+
+If you intentionally trust the content and write:
+
+```html
+{{ message|safe }}
+```
+
+Django treats the value as safe HTML for rendering.
+
+For example:
+
+```html
+{{ message|safe }}
+```
+
+can render:
+
+```html
+<b>Hello</b>
+```
+
+as bold text.
+
+### Important security rule:
+
+Never blindly use:
+
+```html
+{{ user_input|safe }}
+```
+
+on untrusted user input.
+
+That can introduce **Cross-Site Scripting (XSS)** vulnerabilities.
+
+---
+
+# 26. Autoescaping
+
+Django templates generally use **automatic HTML escaping**.
+
+Suppose:
+
+```python
+message = '<script>alert("Hello")</script>'
+```
+
+and template:
+
+```html
+{{ message }}
+```
+
+Django escapes the HTML so the browser doesn't simply execute the supplied markup as HTML.
+
+This is one of Django's built-in security features.
+
+---
+
+# 27. Important Viva Question
+
+### What is autoescaping?
+
+Strong answer:
+
+> Autoescaping is a Django template feature that automatically escapes potentially unsafe HTML characters when rendering variables, helping protect against XSS attacks.
+
+---
+
+# 28. Filter vs Tag
+
+Another common viva question.
+
+### Filter:
+
+```html
+{{ name|upper }}
+```
+
+Changes/processes a value.
+
+### Tag:
+
+```html
+{% if user %}
+```
+
+Controls template behavior.
+
+Therefore:
+
+```text
+Filter → modifies a value
+Tag    → performs template operation
+```
+
+---
+
+# 29. Built-in Filters You Should Know
+
+For your exam, know at least:
+
+```text
+upper
+lower
+title
+length
+default
+safe
+```
+
+Some other useful filters:
+
+```text
+truncatechars
+join
+date
+add
+floatformat
+cut
+```
+
+We'll encounter many of them later.
+
+---
+
+# 30. `truncatechars`
+
+Suppose:
+
+```text
+description =
+"This is a very long description of a Django project."
+```
+
+You can write:
+
+```html
+{{ description|truncatechars:20 }}
+```
+
+to display a shortened version.
+
+The exact output depends on the value and truncation rules.
+
+---
+
+# 31. `join`
+
+Suppose:
+
+```python
+subjects = ['Python', 'Django', 'SQL']
+```
+
+Template:
+
+```html
+{{ subjects|join:", " }}
+```
+
+Output:
+
+```text
+Python, Django, SQL
+```
+
+---
+
+# 32. `add`
+
+Example:
+
+```html
+{{ age|add:"1" }}
+```
+
+If:
+
+```text
+age = 21
+```
+
+it can produce:
+
+```text
+22
+```
+
+Be aware that Django's `add` filter uses Python-like addition behavior where possible and can also concatenate compatible values.
+
+---
+
+# 33. `date`
+
+If a context variable is a Python date/datetime object:
+
+```html
+{{ date|date:"d-m-Y" }}
+```
+
+could display:
+
+```text
+12-09-2026
+```
+
+Date formatting becomes particularly useful when working with models.
+
+---
+
+# 34. Filters Use a Colon for Arguments
+
+Some filters accept arguments.
+
+Example:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+Here:
+
+```text
+default
+```
+
+is the filter and:
+
+```text
+"Guest"
+```
+
+is its argument.
+
+Another example:
+
+```html
+{{ description|truncatechars:20 }}
+```
+
+---
+
+# 35. Complete Example
+
+### View:
+
+```python
+from django.shortcuts import render
+
+def home(request):
+
+    context = {
+        'name': 'aman',
+        'course': 'django',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )
+```
+
+### Template:
+
+```html
+<h1>Hello {{ name|title }}</h1>
+
+<p>Course: {{ course|upper }}</p>
+
+<p>Age: {{ age }}</p>
+
+<p>Name length: {{ name|length }}</p>
+```
+
+Output approximately:
+
+```text
+Hello Aman
+Course: DJANGO
+Age: 21
+Name length: 4
+```
+
+---
+
+# 36. Chained Filter Example
+
+View:
+
+```python
+context = {
+    'name': 'aman'
+}
+```
+
+Template:
+
+```html
+{{ name|upper|length }}
+```
+
+Processing:
+
+```text
+aman
+ ↓
+upper
+ ↓
+AMAN
+ ↓
+length
+ ↓
+4
+```
+
+Output:
+
+```text
+4
+```
+
+---
+
+# 37. Template Syntax Error
+
+Suppose you write:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+```
+
+but forget:
+
+```html
+{% endif %}
+```
+
+Django will report a template parsing error.
+
+Correct:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+{% endif %}
+```
+
+We'll study conditions much more in Module 14.
+
+---
+
+# 38. DTL and Security
+
+Django templates provide several security protections, but you still have to use them correctly.
+
+Important things to remember:
+
+* Don't blindly mark user input as `safe`
+* Don't put passwords into templates unnecessarily
+* Don't disable escaping without understanding why
+* Validate data in appropriate application layers
+* Use CSRF protection for forms
+
+We'll study CSRF later in the Forms unit.
+
+---
+
+# 39. A Very Important Concept: Template Context
+
+Suppose your view:
+
+```python
+def home(request):
+
+    context = {
+        'username': 'Aman',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'home.html',
+        context
+    )
+```
+
+Think of context as a bridge:
+
+```text
+Python View
+     |
+     | context
+     ↓
+Template
+```
+
+The template can access:
+
+```html
+{{ username }}
+{{ age }}
+```
+
+---
+
+# 40. What If You Change the Context?
+
+Suppose you change:
+
+```python
+'name': 'Aman'
+```
+
+to:
+
+```python
+'name': 'Rahul'
+```
+
+without changing the template:
+
+```html
+<h1>Hello {{ name }}</h1>
+```
+
+the output automatically becomes:
+
+```text
+Hello Rahul
+```
+
+This is the main idea behind **dynamic templates**.
+
+---
+
+# 41. Real-World Example
+
+Imagine an e-commerce website.
+
+The view gets:
+
+```python
+product = {
+    'name': 'Laptop',
+    'price': 55000,
+    'stock': 10
+}
+```
+
+The template can display:
+
+```html
+<h1>{{ product.name }}</h1>
+<p>₹{{ product.price }}</p>
+<p>Stock: {{ product.stock }}</p>
+```
+
+The HTML structure remains the same while the data changes.
+
+That's what makes Django templates powerful.
+
+---
+
+# 42. Important Viva Questions
+
+### Q1. What is DTL?
+
+> DTL stands for Django Template Language. It is Django's template syntax for displaying dynamic data and controlling template presentation.
+
+### Q2. Is DTL Python?
+
+> No. DTL is Django's own template language and does not allow arbitrary Python code in templates.
+
+### Q3. What does `{{ }}` mean?
+
+> It is used to resolve and display template variables.
+
+### Q4. What does `{% %}` mean?
+
+> It represents template tags used for operations such as conditions, loops, URL generation, and template inheritance.
+
+### Q5. What does `|` mean in a template?
+
+> It applies a template filter to a value.
+
+---
+
+# 43. Viva — Filters
+
+### Q: What is a template filter?
+
+Answer:
+
+> A template filter modifies or processes a value before it is displayed in a template.
+
+Example:
+
+```html
+{{ name|upper }}
+```
+
+---
+
+### Q: What does `upper` do?
+
+> Converts text to uppercase.
+
+### Q: What does `lower` do?
+
+> Converts text to lowercase.
+
+### Q: What does `length` do?
+
+> Returns the length of a value when applicable.
+
+### Q: What does `default` do?
+
+> Provides a fallback value when the variable is empty or otherwise evaluates as false according to the filter's behavior.
+
+---
+
+# 44. Important Security Viva
+
+### Teacher:
+
+> Why does Django escape HTML in templates?
+
+Answer:
+
+> Django's automatic escaping helps prevent malicious HTML or JavaScript from being interpreted as markup, reducing the risk of Cross-Site Scripting attacks.
+
+---
+
+### Teacher:
+
+> What does `safe` do?
+
+Answer:
+
+> The `safe` filter marks a value as safe HTML for template rendering, so it should only be used when the content is trusted or has been properly sanitized.
+
+---
+
+# 45. Coding Question
+
+### Question:
+
+Pass student information from a view and display it in a template.
+
+### View:
+
+```python
+from django.shortcuts import render
+
+def student(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21,
+        'course': 'CSE'
+    }
+
+    return render(
+        request,
+        'student.html',
+        context
+    )
+```
+
+### Template:
+
+```html
+<h1>{{ name }}</h1>
+<p>Age: {{ age }}</p>
+<p>Course: {{ course }}</p>
+```
+
+---
+
+# 46. Coding Question — Filters
+
+Given:
+
+```python
+context = {
+    'name': 'aman'
+}
+```
+
+Write template code that:
+
+1. Converts name to uppercase
+2. Displays its length
+
+Answer:
+
+```html
+<p>{{ name|upper }}</p>
+<p>{{ name|length }}</p>
+```
+
+---
+
+# 47. Coding Question — Nested Dictionary
+
+Given:
+
+```python
+student = {
+    'name': 'Aman',
+    'address': {
+        'city': 'Phagwara'
+    }
+}
+```
+
+Template:
+
+```html
+<p>Name: {{ student.name }}</p>
+<p>City: {{ student.address.city }}</p>
+```
+
+---
+
+# 48. Predict the Output
+
+Given:
+
+```python
+context = {
+    'name': 'django'
+}
+```
+
+Template:
+
+```html
+{{ name|upper }}
+```
+
+Answer:
+
+```text
+DJANGO
+```
+
+---
+
+### Question:
+
+```html
+{{ name|upper|length }}
+```
+
+Answer:
+
+```text
+6
+```
+
+because:
+
+```text
+django
+ ↓
+DJANGO
+ ↓
+6
+```
+
+---
+
+# 49. Predict the Output
+
+Given:
+
+```python
+context = {
+    'name': ''
+}
+```
+
+Template:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+Output:
+
+```text
+Guest
+```
+
+---
+
+# 50. One Important Correction to Remember
+
+DTL's dot lookup is more powerful than simply saying:
+
+> "Dot notation only accesses object attributes."
+
+Django resolves dot lookups through several mechanisms, including dictionary lookup, attribute lookup, list-index lookup, and callable handling according to its template rules.
+
+For beginner coding, you'll most commonly encounter:
+
+```html
+{{ student.name }}
+{{ student.address.city }}
+{{ students.0 }}
+```
+
+---
+
+# ⭐ Module 13 Cheat Sheet
+
+### Variable:
+
+```html
+{{ name }}
+```
+
+### Tag:
+
+```html
+{% if condition %}
+```
+
+### Comment:
+
+```html
+{# comment #}
+```
+
+### Filter:
+
+```html
+{{ name|upper }}
+```
+
+### Filter with argument:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+### Multiple filters:
+
+```html
+{{ name|upper|length }}
+```
+
+### Dictionary/object access:
+
+```html
+{{ student.name }}
+```
+
+### Nested access:
+
+```html
+{{ student.address.city }}
+```
+
+### List index:
+
+```html
+{{ students.0 }}
+```
+
+### Multi-line comment:
+
+```html
+{% comment %}
+comment
+{% endcomment %}
+```
+
+---
+
+# 🧠 The Most Important Mental Model
+
+Whenever you see:
+
+```html
+{{ something }}
+```
+
+ask:
+
+> **What did my view put into the context under the name `something`?**
+
+For example:
+
+```python
+context = {
+    'student': {
+        'name': 'Aman'
+    }
+}
+```
+
+Then:
+
+```html
+{{ student.name }}
+```
+
+means:
+
+```text
+context
+   ↓
+student
+   ↓
+name
+   ↓
+Aman
+```
+
+This way of thinking will make the upcoming **loops, conditions, dynamic pages, and database templates** much easier.
+
+---
+
+## Next → Module 14: Template Tags — `if`, `else`, `elif`, and `for`
+
+We'll learn how to make templates actually **make decisions and repeat HTML**:
+
+```html
+{% if age >= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}
+```
+
+and:
+
+```html
+{% for student in students %}
+    {{ student.name }}
+{% endfor %}
+```
+
+We'll cover:
+
+* `if`
+* `elif`
+* `else`
+* comparison operators
+* `and`, `or`, `not`
+* `for`
+* `empty`
+* `forloop.counter`
+* `forloop.first`
+* `forloop.last`
+* nested loops
+* real database-style examples
+* coding questions and tricky viva questions.

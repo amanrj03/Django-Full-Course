@@ -1,0 +1,1792 @@
+# Module 20 — HTML Forms & HTTP in Django
+
+We are now starting **Unit IV — Forms**.
+
+Before learning Django's built-in `Form` class, you need to understand **HTML forms and how browsers send data to Django**.
+
+This is extremely important because later:
+
+```text
+HTML Form
+   ↓
+HTTP GET/POST
+   ↓
+Django View
+   ↓
+request.GET / request.POST
+   ↓
+Validation
+   ↓
+Database
+```
+
+will become the foundation of login forms, registration, CRUD applications, search forms, etc.
+
+---
+
+# 1. What Is a Form?
+
+A **form** is an HTML mechanism used to collect information from a user.
+
+Examples:
+
+* Login
+* Registration
+* Search
+* Contact form
+* Student registration
+* Product creation
+* Feedback
+
+A simple form:
+
+```html
+<form>
+    <input type="text">
+    <button type="submit">Submit</button>
+</form>
+```
+
+The user enters information and submits it.
+
+---
+
+# 2. Basic HTML Form Structure
+
+The general syntax is:
+
+```html
+<form method="POST" action="/students/">
+
+    <input type="text" name="name">
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+There are three important concepts here:
+
+```text
+form
+ ├── method
+ ├── action
+ └── form fields
+```
+
+---
+
+# 3. The `method` Attribute
+
+The `method` determines **how the browser sends the form data**.
+
+Most commonly:
+
+```html
+method="GET"
+```
+
+or:
+
+```html
+method="POST"
+```
+
+Example:
+
+```html
+<form method="GET">
+```
+
+or:
+
+```html
+<form method="POST">
+```
+
+---
+
+# 4. The `action` Attribute
+
+`action` specifies **where the form data should be sent**.
+
+Example:
+
+```html
+<form action="/students/" method="POST">
+```
+
+This means:
+
+> When submitted, send the form data to `/students/`.
+
+You can also use Django URL reversing:
+
+```html
+<form action="{% url 'students' %}" method="POST">
+```
+
+This is generally preferable to hardcoding URLs.
+
+---
+
+# 5. What Is `<input>`?
+
+`input` creates a field where users can enter/select data.
+
+Example:
+
+```html
+<input type="text" name="name">
+```
+
+Common input types:
+
+```text
+text
+password
+email
+number
+date
+checkbox
+radio
+file
+submit
+```
+
+---
+
+# 6. The `name` Attribute ⭐
+
+This is **very important**.
+
+Consider:
+
+```html
+<input type="text" name="username">
+```
+
+The:
+
+```text
+name="username"
+```
+
+becomes the key that Django receives.
+
+If the user enters:
+
+```text
+Aman
+```
+
+Django can access:
+
+```python
+request.POST.get("username")
+```
+
+So:
+
+```text
+HTML
+ ↓
+name="username"
+ ↓
+request.POST["username"]
+```
+
+---
+
+# 7. `id` vs `name`
+
+Beginners often confuse these.
+
+Example:
+
+```html
+<input
+    type="text"
+    id="username"
+    name="username"
+>
+```
+
+### `id`
+
+Primarily identifies the HTML element in the page and is commonly used by:
+
+* CSS
+* JavaScript
+* `<label for="...">`
+
+### `name`
+
+Identifies the form field when form data is submitted.
+
+For Django form processing, `name` is crucial.
+
+---
+
+# 8. `<label>`
+
+A label describes a form field.
+
+```html
+<label for="username">
+    Username:
+</label>
+
+<input
+    type="text"
+    id="username"
+    name="username"
+>
+```
+
+The:
+
+```html
+for="username"
+```
+
+matches:
+
+```html
+id="username"
+```
+
+---
+
+# 9. Complete GET Form
+
+Let's create a search form.
+
+```html
+<form method="GET">
+
+    <label for="query">
+        Search:
+    </label>
+
+    <input
+        type="text"
+        id="query"
+        name="query"
+    >
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+```
+
+Suppose the user enters:
+
+```text
+Django
+```
+
+The browser may navigate to:
+
+```text
+/search/?query=Django
+```
+
+The data appears in the URL.
+
+---
+
+# 10. Why Does GET Put Data in the URL?
+
+GET requests commonly use the **query string**.
+
+For example:
+
+```text
+/search/?query=Django
+```
+
+Break it down:
+
+```text
+/search/
+   ↓
+path
+
+?
+   ↓
+start of query string
+
+query=Django
+   ↓
+key=value
+```
+
+---
+
+# 11. Multiple GET Parameters
+
+Suppose:
+
+```html
+<input type="text" name="name">
+
+<input type="number" name="age">
+```
+
+User enters:
+
+```text
+name = Aman
+age = 21
+```
+
+The URL can become:
+
+```text
+/search/?name=Aman&age=21
+```
+
+`&` separates parameters.
+
+---
+
+# 12. Receiving GET Data in Django
+
+View:
+
+```python
+from django.http import HttpResponse
+
+def search(request):
+
+    query = request.GET.get("query")
+
+    return HttpResponse(
+        f"You searched for: {query}"
+    )
+```
+
+Suppose the browser requests:
+
+```text
+/search/?query=Django
+```
+
+Then:
+
+```python
+request.GET.get("query")
+```
+
+returns:
+
+```text
+Django
+```
+
+---
+
+# 13. Why Use `.get()`?
+
+You learned this earlier.
+
+Instead of:
+
+```python
+query = request.GET["query"]
+```
+
+prefer:
+
+```python
+query = request.GET.get("query")
+```
+
+when the parameter may be missing.
+
+If missing:
+
+```python
+request.GET.get("query")
+```
+
+normally returns:
+
+```python
+None
+```
+
+while direct indexing can raise a `KeyError`.
+
+You can also provide a default:
+
+```python
+query = request.GET.get(
+    "query",
+    ""
+)
+```
+
+---
+
+# 14. GET Form Flow
+
+Understand this completely:
+
+```text
+User enters Django
+       ↓
+Clicks Search
+       ↓
+Browser creates GET request
+       ↓
+/search/?query=Django
+       ↓
+Django URL routing
+       ↓
+search(request)
+       ↓
+request.GET
+       ↓
+query = "Django"
+       ↓
+Response
+```
+
+---
+
+# 15. POST Form
+
+Now:
+
+```html
+<form method="POST">
+```
+
+POST sends the form data in the HTTP request body rather than putting ordinary form fields into the URL query string.
+
+Example:
+
+```html
+<form method="POST">
+
+    <input
+        type="text"
+        name="username"
+    >
+
+    <input
+        type="password"
+        name="password"
+    >
+
+    <button type="submit">
+        Login
+    </button>
+
+</form>
+```
+
+---
+
+# 16. Receiving POST Data
+
+Django provides:
+
+```python
+request.POST
+```
+
+Example:
+
+```python
+def login(request):
+
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+
+    return HttpResponse(
+        f"Username: {username}"
+    )
+```
+
+---
+
+# 17. GET vs POST
+
+This is a **must-know viva question**.
+
+| GET                                            | POST                                                   |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| Commonly used to retrieve/search data          | Commonly used to submit/change data                    |
+| Data commonly appears in URL query string      | Form data is sent in request body                      |
+| Can be bookmarked/shared as a URL              | Usually not represented by the form data in the URL    |
+| Suitable for search/filtering                  | Suitable for create/update/login operations            |
+| Should not be relied on for sensitive data     | Better suited for sensitive/state-changing submissions |
+| Parameters commonly accessed via `request.GET` | Parameters commonly accessed via `request.POST`        |
+
+---
+
+# 18. Important Security Point
+
+A common misconception is:
+
+> "POST is automatically secure."
+
+**False.**
+
+POST does not encrypt data.
+
+If you need confidentiality in transit, use:
+
+```text
+HTTPS
+```
+
+So:
+
+```text
+POST + HTTP
+```
+
+is not automatically secure.
+
+Whereas:
+
+```text
+POST + HTTPS
+```
+
+encrypts the network connection.
+
+---
+
+# 19. GET Is Usually Used for Retrieval
+
+Examples:
+
+```text
+Search
+Filter
+Sort
+Pagination
+Viewing resources
+```
+
+Example:
+
+```text
+/products/?category=laptops
+```
+
+The request is asking:
+
+> Give me products matching this criterion.
+
+---
+
+# 20. POST Is Usually Used for State Changes
+
+Examples:
+
+```text
+Create student
+Submit feedback
+Register user
+Login
+Create order
+Update data through a form
+```
+
+The key idea is:
+
+> GET is generally safe/read-oriented; POST is generally used when submitting data that can cause a state change.
+
+---
+
+# 21. Important: HTML Form Needs `name`
+
+Consider:
+
+```html
+<input
+    type="text"
+    id="username"
+>
+```
+
+There is no:
+
+```text
+name="username"
+```
+
+When submitted, Django won't receive a normal form field under `"username"`.
+
+Correct:
+
+```html
+<input
+    type="text"
+    id="username"
+    name="username"
+>
+```
+
+---
+
+# 22. Submit Button
+
+You can write:
+
+```html
+<button type="submit">
+    Submit
+</button>
+```
+
+or:
+
+```html
+<input type="submit" value="Submit">
+```
+
+Both can submit a form.
+
+---
+
+# 23. Text Input
+
+```html
+<input
+    type="text"
+    name="name"
+>
+```
+
+---
+
+# 24. Email Input
+
+```html
+<input
+    type="email"
+    name="email"
+>
+```
+
+The browser may perform basic client-side validation.
+
+But **never rely only on browser validation**.
+
+Server-side validation is still required.
+
+We'll cover this in depth later.
+
+---
+
+# 25. Password Input
+
+```html
+<input
+    type="password"
+    name="password"
+>
+```
+
+The browser visually masks the entered characters.
+
+But again:
+
+> `type="password"` does not encrypt network traffic.
+
+Use HTTPS.
+
+---
+
+# 26. Number Input
+
+```html
+<input
+    type="number"
+    name="age"
+>
+```
+
+The browser can provide numeric input controls.
+
+But Django still receives form values through the request and validation/conversion must be handled appropriately.
+
+---
+
+# 27. Date Input
+
+```html
+<input
+    type="date"
+    name="dob"
+>
+```
+
+---
+
+# 28. Textarea
+
+For larger text:
+
+```html
+<textarea
+    name="message"
+></textarea>
+```
+
+Example:
+
+```html
+<label for="message">
+    Message:
+</label>
+
+<textarea
+    id="message"
+    name="message"
+    rows="5"
+    cols="30"
+></textarea>
+```
+
+---
+
+# 29. Select Dropdown
+
+```html
+<select name="course">
+
+    <option value="cse">
+        Computer Science
+    </option>
+
+    <option value="it">
+        Information Technology
+    </option>
+
+</select>
+```
+
+If the user chooses Computer Science, Django receives:
+
+```text
+course=cse
+```
+
+not necessarily:
+
+```text
+course=Computer Science
+```
+
+because the submitted value comes from the `value` attribute.
+
+---
+
+# 30. Checkbox
+
+```html
+<input
+    type="checkbox"
+    name="agree"
+    value="yes"
+>
+```
+
+If checked, the browser submits the field.
+
+If unchecked, the field is generally absent from the submitted form data.
+
+So:
+
+```python
+agree = request.POST.get("agree")
+```
+
+might return:
+
+```text
+yes
+```
+
+when checked and `None` when absent.
+
+---
+
+# 31. Radio Buttons
+
+Example:
+
+```html
+<input
+    type="radio"
+    name="gender"
+    value="male"
+>
+
+<input
+    type="radio"
+    name="gender"
+    value="female"
+>
+```
+
+Both use the same:
+
+```text
+name="gender"
+```
+
+but different values.
+
+Only the selected option is submitted.
+
+---
+
+# 32. Complete Student Form
+
+Let's build a manual HTML form.
+
+```html
+<form method="POST">
+
+    <label for="name">
+        Name:
+    </label>
+
+    <input
+        type="text"
+        id="name"
+        name="name"
+    >
+
+    <br><br>
+
+    <label for="age">
+        Age:
+    </label>
+
+    <input
+        type="number"
+        id="age"
+        name="age"
+    >
+
+    <br><br>
+
+    <label for="course">
+        Course:
+    </label>
+
+    <select
+        id="course"
+        name="course"
+    >
+
+        <option value="cse">
+            Computer Science
+        </option>
+
+        <option value="it">
+            Information Technology
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+---
+
+# 33. Processing the Form
+
+View:
+
+```python
+from django.http import HttpResponse
+
+def student_create(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        age = request.POST.get("age")
+        course = request.POST.get("course")
+
+        return HttpResponse(
+            f"Name: {name}, Age: {age}, Course: {course}"
+        )
+
+    return render(
+        request,
+        "student_form.html"
+    )
+```
+
+Notice:
+
+```python
+if request.method == "POST":
+```
+
+We only process submitted data when the request is POST.
+
+---
+
+# 34. GET and POST in the Same View
+
+This pattern is extremely common.
+
+```python
+def student_create(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student: {name}"
+        )
+
+    return render(
+        request,
+        "student_form.html"
+    )
+```
+
+Meaning:
+
+```text
+GET
+ ↓
+Display form
+
+POST
+ ↓
+Process submitted form
+```
+
+---
+
+# 35. Why Is This Pattern Useful?
+
+When the user first opens:
+
+```text
+/students/create/
+```
+
+the browser sends:
+
+```text
+GET
+```
+
+Django displays the form.
+
+After clicking Submit:
+
+```text
+POST
+```
+
+Django processes the submitted data.
+
+So one URL can handle both stages.
+
+---
+
+# 36. Form With `action`
+
+You can explicitly specify:
+
+```html
+<form
+    action="{% url 'student_create' %}"
+    method="POST"
+>
+```
+
+This is usually better than:
+
+```html
+<form action="/students/create/" method="POST">
+```
+
+because URL names make templates less dependent on hardcoded paths.
+
+---
+
+# 37. The `action` Can Be Empty
+
+You may also see:
+
+```html
+<form method="POST">
+```
+
+This submits to the current URL.
+
+For example, if you're on:
+
+```text
+/students/create/
+```
+
+the form submits to that URL unless another action is specified.
+
+---
+
+# 38. GET Form With Search
+
+Let's build a complete search page.
+
+### Template:
+
+```html
+<form method="GET">
+
+    <input
+        type="text"
+        name="query"
+        placeholder="Search students"
+    >
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+```
+
+### View:
+
+```python
+def search(request):
+
+    query = request.GET.get(
+        "query",
+        ""
+    )
+
+    return render(
+        request,
+        "search.html",
+        {
+            "query": query
+        }
+    )
+```
+
+### Template:
+
+```html
+{% if query %}
+
+    <p>You searched for: {{ query }}</p>
+
+{% endif %}
+```
+
+---
+
+# 39. POST Form With Data
+
+### Template:
+
+```html
+<form method="POST">
+
+    <input
+        type="text"
+        name="name"
+    >
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+### View:
+
+```python
+def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student name: {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )
+```
+
+---
+
+# 40. One Important Problem
+
+Our POST form currently lacks:
+
+```html
+{% csrf_token %}
+```
+
+In Django, POST forms should normally include CSRF protection.
+
+So a proper Django POST form is:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="text"
+        name="name"
+    >
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+Don't worry about the detailed mechanics yet.
+
+**CSRF is the next important Forms topic**, and we'll study it properly in Module 23.
+
+---
+
+# 41. Why Does Django Require CSRF?
+
+CSRF stands for:
+
+> **Cross-Site Request Forgery**
+
+It's a security attack where a malicious site attempts to cause a user's browser to send an unwanted request to a site where the user is authenticated.
+
+Django provides CSRF protection for state-changing requests such as POST.
+
+We'll go deeply into:
+
+```text
+CSRF token
+middleware
+{% csrf_token %}
+403 errors
+CSRF_COOKIE
+```
+
+later.
+
+---
+
+# 42. GET Does Not Usually Need CSRF Token
+
+You normally don't write:
+
+```html
+<form method="GET">
+    {% csrf_token %}
+```
+
+for a normal GET form.
+
+CSRF protection is primarily relevant to unsafe/state-changing HTTP methods such as POST.
+
+---
+
+# 43. Important Form Flow
+
+For a POST form:
+
+```text
+Browser
+   │
+   │ GET /students/create/
+   ▼
+Django View
+   │
+   ▼
+Render Form
+   │
+   ▼
+Browser
+   │
+   │ User fills form
+   │
+   │ POST /students/create/
+   ▼
+Django
+   │
+   ├── CSRF check
+   │
+   ├── Read request.POST
+   │
+   ├── Validate data
+   │
+   └── Process data
+```
+
+This is the foundation for everything we'll do with Django Forms.
+
+---
+
+# 44. Client-Side vs Server-Side Validation
+
+Suppose:
+
+```html
+<input
+    type="email"
+    name="email"
+    required
+>
+```
+
+The browser can check some conditions.
+
+That's **client-side validation**.
+
+But a malicious user can bypass browser checks.
+
+Therefore Django must perform:
+
+> **Server-side validation**
+
+Never trust client-side validation alone.
+
+---
+
+# 45. `required`
+
+HTML:
+
+```html
+<input
+    type="text"
+    name="name"
+    required
+>
+```
+
+The browser can prevent normal submission if the field is empty.
+
+But Django should still validate the submitted value.
+
+---
+
+# 46. Why Django Forms Exist
+
+At this point you might think:
+
+> "Why don't we just create HTML forms manually?"
+
+We can.
+
+But large applications quickly become difficult.
+
+Suppose you have:
+
+```text
+Name
+Email
+Age
+Password
+Phone
+Date of birth
+Address
+Course
+```
+
+You need to manage:
+
+* HTML generation
+* validation
+* error messages
+* cleaning data
+* security
+* redisplaying invalid input
+* field types
+* widgets
+
+Django's **Forms framework** helps manage these tasks.
+
+That's what we'll learn next.
+
+---
+
+# 47. HTML Forms vs Django Forms
+
+### HTML Form
+
+You manually write:
+
+```html
+<input type="text" name="name">
+```
+
+and manually process:
+
+```python
+request.POST.get("name")
+```
+
+### Django Form
+
+You define fields in Python:
+
+```python
+class StudentForm(forms.Form):
+
+    name = forms.CharField()
+    age = forms.IntegerField()
+```
+
+Django can then help with:
+
+* rendering
+* validation
+* cleaned data
+* errors
+
+---
+
+# 48. Important Distinction
+
+Don't confuse:
+
+```text
+HTML Form
+```
+
+with:
+
+```text
+Django Form
+```
+
+HTML forms are a browser/web standard.
+
+Django Forms are a Python framework provided by Django to make form handling easier and safer.
+
+---
+
+# 49. Common Mistakes
+
+### Mistake 1 — Forgetting `name`
+
+Wrong:
+
+```html
+<input type="text" id="name">
+```
+
+Correct:
+
+```html
+<input
+    type="text"
+    id="name"
+    name="name"
+>
+```
+
+---
+
+### Mistake 2 — Reading POST data from `request.GET`
+
+Wrong:
+
+```python
+name = request.GET.get("name")
+```
+
+for a POST submission.
+
+Correct:
+
+```python
+name = request.POST.get("name")
+```
+
+---
+
+### Mistake 3 — Reading GET data from `request.POST`
+
+Wrong:
+
+```python
+query = request.POST.get("query")
+```
+
+for a GET search form.
+
+Correct:
+
+```python
+query = request.GET.get("query")
+```
+
+---
+
+### Mistake 4 — Forgetting CSRF
+
+For a normal Django POST form:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+```
+
+---
+
+### Mistake 5 — Thinking POST Encrypts Data
+
+It doesn't.
+
+Use HTTPS for encryption in transit.
+
+---
+
+### Mistake 6 — Trusting Browser Validation
+
+HTML validation can be bypassed.
+
+Always validate on the server.
+
+---
+
+# 50. ⭐ Viva Questions
+
+### Q1. What is an HTML form?
+
+> An HTML form is a mechanism for collecting user input and submitting it to a server.
+
+### Q2. What are the common HTTP methods used with forms?
+
+> GET and POST.
+
+### Q3. What is the purpose of the `method` attribute?
+
+> It specifies the HTTP method used when submitting the form.
+
+### Q4. What is the purpose of `action`?
+
+> It specifies the URL to which the form data is submitted.
+
+### Q5. What is the purpose of the `name` attribute?
+
+> It identifies the form field's key in the submitted form data.
+
+---
+
+# 51. Viva — GET
+
+### Teacher:
+
+> Where is GET form data commonly visible?
+
+Answer:
+
+> In the URL query string.
+
+Example:
+
+```text
+/search/?query=Django
+```
+
+---
+
+# 52. Viva — POST
+
+### Teacher:
+
+> Where is POST form data sent?
+
+Answer:
+
+> It is sent in the HTTP request body rather than as the normal query string in the URL.
+
+---
+
+# 53. Viva — GET vs POST
+
+### Teacher:
+
+> Which one should you use for login?
+
+Answer:
+
+> POST should generally be used because login is a form submission involving credentials and represents a stateful/authentication operation. HTTPS must also be used because POST itself does not encrypt data.
+
+---
+
+# 54. Viva — `request.POST`
+
+### Teacher:
+
+> What is `request.POST`?
+
+Answer:
+
+> `request.POST` is a Django `QueryDict` containing form data submitted using POST.
+
+---
+
+# 55. Viva — `request.GET`
+
+### Teacher:
+
+> What is `request.GET`?
+
+Answer:
+
+> `request.GET` is a Django `QueryDict` containing query parameters submitted through the URL, commonly by GET requests.
+
+---
+
+# 56. Viva — `name` vs `id`
+
+### Teacher:
+
+> Why is `name` important in a form?
+
+Answer:
+
+> The `name` attribute identifies the field in the submitted form data, while `id` primarily identifies the HTML element for the document, CSS, JavaScript, and labels.
+
+---
+
+# 57. Coding Question
+
+Create a GET search form and process its data in Django.
+
+### Template:
+
+```html
+<form method="GET">
+
+    <input
+        type="text"
+        name="query"
+    >
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+```
+
+### View:
+
+```python
+def search(request):
+
+    query = request.GET.get(
+        "query",
+        ""
+    )
+
+    return HttpResponse(
+        f"Search: {query}"
+    )
+```
+
+---
+
+# 58. Coding Question
+
+Create a POST form for entering a student's name.
+
+### Template:
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="text"
+        name="name"
+    >
+
+    <button type="submit">
+        Submit
+    </button>
+
+</form>
+```
+
+### View:
+
+```python
+def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Student: {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )
+```
+
+---
+
+# 59. Coding Question — GET + POST
+
+Write a view that:
+
+* displays a form on GET
+* processes the name on POST
+
+### Answer:
+
+```python
+def student(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+
+        return HttpResponse(
+            f"Hello {name}"
+        )
+
+    return render(
+        request,
+        "student.html"
+    )
+```
+
+This pattern is extremely important.
+
+---
+
+# 🧠 Module 20 Cheat Sheet
+
+### HTML form:
+
+```html
+<form method="POST" action="/students/">
+```
+
+### Text:
+
+```html
+<input
+    type="text"
+    name="name"
+>
+```
+
+### GET:
+
+```python
+request.GET.get("name")
+```
+
+### POST:
+
+```python
+request.POST.get("name")
+```
+
+### CSRF:
+
+```html
+{% csrf_token %}
+```
+
+### Form submission:
+
+```text
+HTML form
+   ↓
+HTTP GET/POST
+   ↓
+Django request
+   ↓
+request.GET / request.POST
+   ↓
+View logic
+```
+
+### Most important rule:
+
+> **The HTML `name` attribute determines the key used to retrieve submitted form data.**
+
+---
+
+# 🎯 What You Should Be Able to Code Now
+
+Without looking at notes, you should be able to create:
+
+```text
+1. A GET search form
+2. A POST student form
+3. A Django view that processes request.POST
+4. A view that handles GET and POST differently
+5. A form with text/email/number/select fields
+6. A template containing {% csrf_token %}
+```
+
+---
+
+## Next → Module 21: Django Forms
+
+Now we'll move from **manual HTML forms** to Django's powerful **Forms framework**.
+
+We'll learn:
+
+* `forms.Form`
+* `forms.py`
+* `CharField`
+* `IntegerField`
+* `EmailField`
+* `ChoiceField`
+* `BooleanField`
+* Form rendering
+* `{{ form }}`
+* `{{ form.as_p }}`
+* `{{ form.as_table }}`
+* `{{ form.as_ul }}`
+* `is_valid()`
+* `cleaned_data`
+* Form errors
+* GET/POST with Django Forms
+* Complete form project
+* Viva + coding questions.

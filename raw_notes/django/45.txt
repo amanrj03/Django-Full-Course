@@ -1,0 +1,811 @@
+If you mean **all important Django imports you should remember for your syllabus/exams**, here is a compact cheat sheet.
+
+## 1. Basic Django Imports
+
+```python
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import path, include, reverse, re_path
+```
+
+| Import | Used for |
+| ------------------- | ------------------------------------- |
+| `HttpResponse` | Return plain/text HTTP response |
+| `render` | Return HTML template with context |
+| `redirect` | Redirect to another URL |
+| `get_object_or_404` | Get object or automatically raise 404 |
+| `path` | Define URL patterns |
+| `include` | Include app URLs |
+| `reverse` | Generate URL from URL name |
+| `re_path` | Regex-based URL |
+
+---
+
+## 2. Views
+
+```python
+from django.http import HttpResponse, JsonResponse, Http404
+from django.shortcuts import render, redirect, get_object_or_404
+```
+
+### JSON response
+
+```python
+from django.http import JsonResponse
+```
+
+```python
+return JsonResponse({"name": "Aman"})
+```
+
+### Raise 404
+
+```python
+from django.http import Http404
+```
+
+```python
+raise Http404("Student not found")
+```
+
+---
+
+## 3. URLs
+
+```python
+from django.urls import path, include, reverse, re_path
+```
+
+Typical:
+
+```python
+from django.urls import path
+from . import views
+```
+
+With regex:
+
+```python
+from django.urls import re_path
+```
+
+---
+
+# 4. Models
+
+```python
+from django.db import models
+```
+
+Example:
+
+```python
+class Student(models.Model):
+name = models.CharField(max_length=100)
+age = models.IntegerField()
+```
+
+### Important field-related imports
+
+Usually you **don't import individual fields**.
+
+❌ Don't do:
+
+```python
+from django.db.models import CharField
+```
+
+Instead:
+
+```python
+from django.db import models
+```
+
+and use:
+
+```python
+models.CharField()
+models.IntegerField()
+models.ForeignKey()
+```
+
+---
+
+# 5. ORM — Querying
+
+Basic model import:
+
+```python
+from .models import Student
+```
+
+or from another app:
+
+```python
+from students.models import Student
+```
+
+### Q objects
+
+```python
+from django.db.models import Q
+```
+
+```python
+Student.objects.filter(
+Q(course="CSE") | Q(course="ECE")
+)
+```
+
+### F expressions
+
+```python
+from django.db.models import F
+```
+
+```python
+Student.objects.update(
+marks=F("marks") + 5
+)
+```
+
+### Aggregation
+
+```python
+from django.db.models import Count, Sum, Avg, Max, Min
+```
+
+Example:
+
+```python
+Student.objects.aggregate(
+Avg("marks")
+)
+```
+
+### Common combined import
+
+```python
+from django.db.models import Q, F, Count, Sum, Avg, Max, Min
+```
+
+---
+
+# 6. Forms
+
+```python
+from django import forms
+```
+
+Example:
+
+```python
+class StudentForm(forms.Form):
+name = forms.CharField()
+age = forms.IntegerField()
+```
+
+### Validation
+
+```python
+from django import forms
+```
+
+Then:
+
+```python
+raise forms.ValidationError("Invalid marks")
+```
+
+---
+
+# 7. ModelForm
+
+```python
+from django import forms
+from .models import Student
+```
+
+```python
+class StudentForm(forms.ModelForm):
+class Meta:
+model = Student
+fields = ["name", "email", "marks"]
+```
+
+---
+
+# 8. Authentication
+
+These are **extremely important**:
+
+```python
+from django.contrib.auth import authenticate, login, logout
+```
+
+### `authenticate()`
+
+```python
+user = authenticate(
+request,
+username=username,
+password=password
+)
+```
+
+### `login()`
+
+```python
+login(request, user)
+```
+
+### `logout()`
+
+```python
+logout(request)
+```
+
+---
+
+# 9. Django User Model
+
+```python
+from django.contrib.auth.models import User
+```
+
+Create user:
+
+```python
+user = User.objects.create_user(
+username="aman",
+password="password123"
+)
+```
+
+---
+
+# 10. UserCreationForm
+
+```python
+from django.contrib.auth.forms import UserCreationForm
+```
+
+Usually combined with:
+
+```python
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+```
+
+Example:
+
+```python
+class RegisterForm(UserCreationForm):
+email = forms.EmailField(required=True)
+
+class Meta:
+model = User
+fields = ["username", "email", "password1", "password2"]
+```
+
+---
+
+# 11. Login Protection
+
+### `login_required`
+
+```python
+from django.contrib.auth.decorators import login_required
+```
+
+```python
+@login_required
+def dashboard(request):
+...
+```
+
+### Permission checking
+
+```python
+from django.contrib.auth.decorators import permission_required
+```
+
+```python
+@permission_required(
+"students.delete_student",
+raise_exception=True
+)
+def delete_student(request, id):
+...
+```
+
+### User test
+
+```python
+from django.contrib.auth.decorators import user_passes_test
+```
+
+---
+
+# 12. Groups & Permissions
+
+```python
+from django.contrib.auth.models import User, Group
+```
+
+Example:
+
+```python
+group = Group.objects.create(name="Teachers")
+```
+
+Permission-related imports can include:
+
+```python
+from django.contrib.auth.models import Permission
+```
+
+---
+
+# 13. Admin
+
+```python
+from django.contrib import admin
+```
+
+Import your model:
+
+```python
+from .models import Student
+```
+
+Then:
+
+```python
+admin.site.register(Student)
+```
+
+Customized admin:
+
+```python
+from django.contrib import admin
+from .models import Student
+```
+
+---
+
+# 14. Cookies
+
+**Cookies usually don't require a special import.**
+
+Use:
+
+```python
+request.COOKIES
+```
+
+and:
+
+```python
+response.set_cookie()
+response.delete_cookie()
+```
+
+Example:
+
+```python
+from django.http import HttpResponse
+
+def set_cookie(request):
+response = HttpResponse("Cookie set")
+response.set_cookie("username", "Aman")
+return response
+```
+
+---
+
+# 15. Sessions
+
+Sessions also generally don't require a special import.
+
+```python
+request.session["username"] = "Aman"
+```
+
+```python
+request.session.get("username")
+```
+
+For authentication logout, use:
+
+```python
+from django.contrib.auth import logout
+```
+
+---
+
+# 16. CSRF
+
+### Template
+
+No Python import needed:
+
+```html
+{% csrf_token %}
+```
+
+### CSRF decorator
+
+```python
+from django.views.decorators.csrf import csrf_exempt
+```
+
+Then:
+
+```python
+@csrf_exempt
+def my_view(request):
+...
+```
+
+⚠️ `csrf_exempt` disables CSRF protection, so don't use it casually.
+
+Other useful imports:
+
+```python
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_protect
+```
+
+---
+
+# 17. Testing
+
+```python
+from django.test import TestCase
+```
+
+Example:
+
+```python
+class StudentTest(TestCase):
+def test_home(self):
+response = self.client.get("/students/")
+self.assertEqual(response.status_code, 200)
+```
+
+You can also import models:
+
+```python
+from .models import Student
+```
+
+---
+
+# 18. Class-Based Views
+
+Important imports:
+
+```python
+from django.views import View
+```
+
+Generic views:
+
+```python
+from django.views.generic import (
+ListView,
+DetailView,
+CreateView,
+UpdateView,
+DeleteView
+)
+```
+
+Authentication mixins:
+
+```python
+from django.contrib.auth.mixins import (
+LoginRequiredMixin,
+PermissionRequiredMixin,
+UserPassesTestMixin
+)
+```
+
+---
+
+# 19. Generic Authentication Views
+
+```python
+from django.contrib.auth.views import (
+LoginView,
+LogoutView
+)
+```
+
+---
+
+# 20. Messages Framework
+
+Very useful in real Django projects:
+
+```python
+from django.contrib import messages
+```
+
+Example:
+
+```python
+messages.success(request, "Student created successfully.")
+messages.error(request, "Something went wrong.")
+messages.warning(request, "Please check your data.")
+messages.info(request, "Information")
+```
+
+---
+
+# 21. Static Files
+
+```python
+from django.templatetags.static import static
+```
+
+Example:
+
+```python
+image_url = static("images/logo.png")
+```
+
+Usually in templates:
+
+```html
+{% load static %}
+```
+
+---
+
+# 22. File Uploads
+
+No special import is needed for basic uploaded files.
+
+```python
+request.FILES
+```
+
+For models:
+
+```python
+from django.db import models
+```
+
+```python
+image = models.ImageField(upload_to="images/")
+file = models.FileField(upload_to="files/")
+```
+
+---
+
+# 23. Time/Date
+
+```python
+from django.utils import timezone
+```
+
+Example:
+
+```python
+now = timezone.now()
+```
+
+---
+
+# 24. Transactions
+
+For database transactions:
+
+```python
+from django.db import transaction
+```
+
+Example:
+
+```python
+with transaction.atomic():
+...
+```
+
+---
+
+# 25. Exceptions
+
+Useful ORM exceptions:
+
+```python
+from django.core.exceptions import (
+ValidationError,
+ObjectDoesNotExist
+)
+```
+
+More specifically:
+
+```python
+from django.core.exceptions import ValidationError
+```
+
+For model-specific exceptions:
+
+```python
+Student.DoesNotExist
+Student.MultipleObjectsReturned
+```
+
+---
+
+# 26. Password Hashing
+
+Normally you should use the User methods:
+
+```python
+user.set_password("password")
+user.check_password("password")
+```
+
+For lower-level password utilities:
+
+```python
+from django.contrib.auth.hashers import (
+make_password,
+check_password
+)
+```
+
+---
+
+# 27. Email
+
+```python
+from django.core.mail import send_mail
+```
+
+Example:
+
+```python
+send_mail(
+"Subject",
+"Message",
+"from@example.com",
+["to@example.com"]
+)
+```
+
+---
+
+# 28. Pagination
+
+```python
+from django.core.paginator import Paginator
+```
+
+Example:
+
+```python
+paginator = Paginator(students, 10)
+```
+
+---
+
+# 29. File Storage
+
+```python
+from django.core.files.storage import default_storage
+```
+
+---
+
+# 30. Signals
+
+Important if your syllabus goes deeper:
+
+```python
+from django.db.models.signals import (
+pre_save,
+post_save,
+pre_delete,
+post_delete
+)
+```
+
+And:
+
+```python
+from django.dispatch import receiver
+```
+
+Example:
+
+```python
+@receiver(post_save, sender=Student)
+def student_created(sender, instance, created, **kwargs):
+...
+```
+
+---
+
+# ⭐ Most Important Imports for Your Exam
+
+If your goal is **Django college exam + viva + coding questions**, memorize these first:
+
+```python
+# HTTP / Views
+from django.http import HttpResponse, JsonResponse, Http404
+
+# Shortcuts
+from django.shortcuts import render, redirect, get_object_or_404
+
+# URLs
+from django.urls import path, include, reverse, re_path
+
+# Models
+from django.db import models
+
+# ORM
+from django.db.models import Q, F, Count, Sum, Avg, Max, Min
+
+# Forms
+from django import forms
+
+# Authentication
+from django.contrib.auth import authenticate, login, logout
+
+# User
+from django.contrib.auth.models import User, Group
+
+# Authentication decorators
+from django.contrib.auth.decorators import login_required, permission_required
+
+# User registration
+from django.contrib.auth.forms import UserCreationForm
+
+# Admin
+from django.contrib import admin
+
+# Testing
+from django.test import TestCase
+
+# CSRF
+from django.views.decorators.csrf import csrf_exempt
+
+# Timezone
+from django.utils import timezone
+
+# Messages
+from django.contrib import messages
+
+# Transactions
+from django.db import transaction
+
+# Exceptions
+from django.core.exceptions import ValidationError
+```
+
+### 🧠 One-line memory map
+
+```text
+Views → django.http / django.shortcuts
+URLs → django.urls
+Models → django.db.models
+ORM → django.db.models (Q, F, Avg, Count...)
+Forms → django
+Auth → django.contrib.auth
+Users → django.contrib.auth.models
+Admin → django.contrib.admin
+Testing → django.test
+CSRF → django.views.decorators.csrf
+Messages → django.contrib.messages
+Timezone → django.utils.timezone
+```
+
+This covers the **important imports across essentially all 44 modules we studied**, rather than trying to list every
+internal Django module.

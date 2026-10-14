@@ -1,0 +1,1542 @@
+# Module 27 — Django Migrations in Depth
+
+Migrations are one of the **most important database concepts in Django**.
+
+You already know:
+
+```text
+models.py
+    ↓
+makemigrations
+    ↓
+migration files
+    ↓
+migrate
+    ↓
+database
+```
+
+Now we're going to understand **exactly what happens at each step**, what migration files contain, how Django tracks applied migrations, and what to do when migrations go wrong.
+
+---
+
+# 1. What Problem Do Migrations Solve?
+
+Suppose your application starts with:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Django needs a database table corresponding to this model.
+
+Later you change the model:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+```
+
+The database must also change.
+
+Originally:
+
+```text
+Student
+----------------
+id
+name
+```
+
+After adding `age`:
+
+```text
+Student
+----------------
+id
+name
+age
+```
+
+How does Django know what changed?
+
+# Migrations.
+
+---
+
+# 2. What Is a Migration?
+
+A migration is a **Python file that describes changes to your database schema**.
+
+For example:
+
+```text
+students/
+└── migrations/
+    ├── __init__.py
+    └── 0001_initial.py
+```
+
+The migration records operations such as:
+
+```text
+Create table
+Add field
+Remove field
+Alter field
+Rename field
+```
+
+Think of a migration as a **version-controlled history of your database structure**.
+
+---
+
+# 3. Model vs Migration vs Database
+
+This distinction is extremely important.
+
+### Model
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Describes what your application wants.
+
+### Migration
+
+Describes:
+
+> What database changes are needed to reach that structure?
+
+### Database
+
+Actually contains the tables and data.
+
+So:
+
+```text
+models.py
+    ↓
+Desired structure
+    ↓
+makemigrations
+    ↓
+Migration
+    ↓
+migrate
+    ↓
+Actual database structure
+```
+
+---
+
+# 4. What Does `makemigrations` Do?
+
+Command:
+
+```bash
+python manage.py makemigrations
+```
+
+It looks at your models and detects changes that haven't yet been represented in migration files.
+
+Then it generates migration files.
+
+Conceptually:
+
+```text
+models.py changed
+       ↓
+makemigrations
+       ↓
+Django detects changes
+       ↓
+creates migration file
+```
+
+---
+
+# 5. What Does `migrate` Do?
+
+Command:
+
+```bash
+python manage.py migrate
+```
+
+This applies migrations to the database.
+
+Conceptually:
+
+```text
+Migration file
+      ↓
+migrate
+      ↓
+Database schema changes
+```
+
+So memorize:
+
+> **`makemigrations` creates migration files.**
+
+> **`migrate` applies migration files to the database.**
+
+---
+
+# 6. Example From Scratch
+
+Suppose:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Django may output something similar to:
+
+```text
+Migrations for 'students':
+  students/migrations/0001_initial.py
+    + Create model Student
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+The table is created in the database.
+
+---
+
+# 7. What's Inside `0001_initial.py`?
+
+A migration file contains Python code.
+
+It will conceptually look something like:
+
+```python
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = []
+
+    operations = [
+        migrations.CreateModel(
+            name="Student",
+            fields=[
+                ...
+            ],
+        ),
+    ]
+```
+
+You normally **shouldn't manually edit migration files** unless you have a specific advanced reason.
+
+---
+
+# 8. `operations`
+
+The migration contains operations.
+
+For example:
+
+```python
+operations = [
+    migrations.CreateModel(...)
+]
+```
+
+Other operations include:
+
+```text
+CreateModel
+AddField
+RemoveField
+AlterField
+RenameField
+DeleteModel
+RunPython
+RunSQL
+```
+
+These tell Django what needs to happen to the database schema/data.
+
+---
+
+# 9. Migration Numbering
+
+Suppose we make changes over time.
+
+You might get:
+
+```text
+0001_initial.py
+0002_student_age.py
+0003_student_email.py
+0004_student_course.py
+```
+
+This creates a migration history.
+
+Conceptually:
+
+```text
+0001
+ ↓
+0002
+ ↓
+0003
+ ↓
+0004
+```
+
+Each migration builds on previous migrations.
+
+---
+
+# 10. Example: Adding a Field
+
+Initially:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+You get:
+
+```text
+0001_initial.py
+```
+
+Now add:
+
+```python
+age = models.IntegerField()
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Django might create:
+
+```text
+0002_student_age.py
+```
+
+The new migration describes:
+
+```text
+Add age to Student
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+updates the database.
+
+---
+
+# 11. Why Not Just Modify `0001_initial.py`?
+
+Suppose you already applied:
+
+```text
+0001_initial.py
+```
+
+and then you add a field.
+
+You generally **don't go back and rewrite the already-applied migration**.
+
+Instead:
+
+```text
+0001 → original database structure
+0002 → new change
+```
+
+This preserves the history of schema evolution.
+
+---
+
+# 12. Migration History
+
+Django keeps track of migrations that have been applied.
+
+You can see them with:
+
+```bash
+python manage.py showmigrations
+```
+
+Example output might look like:
+
+```text
+admin
+ [X] 0001_initial
+ [X] 0002_logentry_remove_auto_add
+ [X] 0003_logentry_add_action_flag_choices
+
+auth
+ [X] 0001_initial
+ [X] 0002_alter_permission_name_max_length
+
+students
+ [X] 0001_initial
+ [X] 0002_student_age
+```
+
+`[X]` means the migration has been applied.
+
+---
+
+# 13. What Does Unapplied Mean?
+
+Suppose:
+
+```text
+students
+ [X] 0001_initial
+ [ ] 0002_student_age
+```
+
+Then:
+
+```text
+[X] → applied
+[ ] → not applied
+```
+
+Run:
+
+```bash
+python manage.py migrate
+```
+
+and Django applies the pending migration.
+
+---
+
+# 14. `showmigrations`
+
+This command is very useful when debugging.
+
+```bash
+python manage.py showmigrations
+```
+
+It tells you:
+
+> Which migrations exist and which have been applied?
+
+Remember this for practical troubleshooting.
+
+---
+
+# 15. `sqlmigrate`
+
+Another useful command:
+
+```bash
+python manage.py sqlmigrate students 0001
+```
+
+It shows the SQL Django would use for that migration.
+
+For example, conceptually:
+
+```sql
+CREATE TABLE ...
+```
+
+This is useful when you want to understand what Django is doing at the SQL level.
+
+Important:
+
+> `sqlmigrate` displays the SQL; it does not itself apply the migration.
+
+---
+
+# 16. Migration Dependencies
+
+Migration files can depend on earlier migrations.
+
+For example:
+
+```text
+0001
+ ↓
+0002
+ ↓
+0003
+```
+
+Inside a migration you may see:
+
+```python
+dependencies = [
+    ("students", "0001_initial"),
+]
+```
+
+This means:
+
+> This migration depends on `0001_initial`.
+
+Django uses these dependencies to determine the correct order in which migrations must be applied.
+
+---
+
+# 17. Migration Graph
+
+Django internally represents migrations as a dependency graph.
+
+For simple projects:
+
+```text
+0001 → 0002 → 0003
+```
+
+But in larger projects, dependencies can branch:
+
+```text
+          0002
+         ↗
+0001
+         ↘
+          0003
+```
+
+Django determines the required order from dependencies.
+
+This is an advanced viva concept.
+
+---
+
+# 18. What Happens If You Run `migrate` Without `makemigrations`?
+
+Suppose you change:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+```
+
+but haven't created a migration.
+
+If there is no migration describing the change, simply running:
+
+```bash
+python manage.py migrate
+```
+
+doesn't automatically turn that model change into a new migration.
+
+Normally you should do:
+
+```bash
+python manage.py makemigrations
+```
+
+then:
+
+```bash
+python manage.py migrate
+```
+
+---
+
+# 19. The Correct Development Workflow
+
+Whenever you change models:
+
+```text
+1. Edit models.py
+        ↓
+2. python manage.py makemigrations
+        ↓
+3. Check migration generated
+        ↓
+4. python manage.py migrate
+        ↓
+5. Test application
+```
+
+Memorize this.
+
+---
+
+# 20. What If `makemigrations` Says "No Changes Detected"?
+
+You might run:
+
+```bash
+python manage.py makemigrations
+```
+
+and see:
+
+```text
+No changes detected
+```
+
+Possible reasons include:
+
+### 1. You didn't actually change the model
+
+### 2. Wrong app
+
+### 3. App isn't in `INSTALLED_APPS`
+
+### 4. You're editing a different project/file than the one you're running
+
+### 5. The change was already captured by an existing migration
+
+Check:
+
+```python
+INSTALLED_APPS
+```
+
+and:
+
+```bash
+python manage.py showmigrations
+```
+
+---
+
+# 21. App Must Be Installed
+
+Suppose you created:
+
+```text
+students/
+```
+
+but forgot:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "students",
+]
+```
+
+Django may not detect the app's models as expected.
+
+So always remember:
+
+```text
+Create app
+ ↓
+Add app to INSTALLED_APPS
+ ↓
+Define models
+ ↓
+makemigrations
+ ↓
+migrate
+```
+
+---
+
+# 22. What Happens If You Add a Required Field?
+
+This is an important practical situation.
+
+Suppose your existing table contains:
+
+| id | name  |
+| -: | ----- |
+|  1 | Aman  |
+|  2 | Rahul |
+
+Now you add:
+
+```python
+age = models.IntegerField()
+```
+
+Existing rows don't have an age.
+
+Django may ask you how to populate the new non-nullable field for existing records when generating the migration.
+
+You might provide a one-time default or modify the model appropriately.
+
+For example:
+
+```python
+age = models.IntegerField(
+    default=18
+)
+```
+
+Then existing records can receive a value during migration.
+
+---
+
+# 23. Why Does Django Ask for a Default?
+
+Suppose:
+
+```python
+age = models.IntegerField()
+```
+
+means:
+
+```text
+age cannot be NULL
+```
+
+But existing rows have no `age`.
+
+Django needs to know:
+
+> What value should existing rows receive?
+
+That's why migration generation may ask for a default.
+
+---
+
+# 24. `null=True` Can Change the Situation
+
+If you define:
+
+```python
+age = models.IntegerField(
+    null=True
+)
+```
+
+then the database can store `NULL`.
+
+Therefore existing records can potentially have:
+
+```text
+age = NULL
+```
+
+instead of requiring a concrete value.
+
+But whether `null=True` is appropriate depends on the application's data model.
+
+---
+
+# 25. Migration Files Should Usually Be Committed to Git
+
+This is important in real development.
+
+Suppose you work on a team.
+
+You create:
+
+```text
+0002_student_age.py
+```
+
+and commit it.
+
+Another developer pulls your code.
+
+They can run:
+
+```bash
+python manage.py migrate
+```
+
+and get the corresponding database schema change.
+
+Therefore migration files are generally treated as **version-controlled project files**.
+
+---
+
+# 26. Migrations Are Not the Same as Database Backups
+
+Don't confuse:
+
+```text
+Migration
+```
+
+with:
+
+```text
+Backup
+```
+
+### Migration
+
+Describes **schema/data changes**.
+
+### Backup
+
+A copy of database data/state for recovery.
+
+So:
+
+```text
+Migration ≠ Backup
+```
+
+---
+
+# 27. Migrations vs SQL
+
+You can modify databases using SQL directly.
+
+For example:
+
+```sql
+ALTER TABLE student ADD COLUMN age INTEGER;
+```
+
+But Django migrations allow the schema changes to be represented in a Django-managed, versioned way.
+
+Instead of manually writing database-specific SQL every time:
+
+```text
+models.py
+   ↓
+makemigrations
+   ↓
+migration
+   ↓
+Django database backend
+   ↓
+SQL
+```
+
+This is one of the benefits of Django's migration system.
+
+---
+
+# 28. `migrate` With an App
+
+You can run migrations for a specific app:
+
+```bash
+python manage.py migrate students
+```
+
+This can be useful when you want to focus on a particular app's migrations.
+
+---
+
+# 29. Migrating to a Specific Migration
+
+You can specify a migration target:
+
+```bash
+python manage.py migrate students 0002
+```
+
+This tells Django to migrate the `students` app to that migration state, subject to its dependency graph.
+
+You can also migrate an app back to an earlier migration state:
+
+```bash
+python manage.py migrate students 0001
+```
+
+This causes later migrations to be unapplied for that app, assuming dependencies allow it.
+
+This is called **migration rollback**.
+
+---
+
+# 30. Migration Rollback
+
+Suppose:
+
+```text
+0001
+ ↓
+0002
+ ↓
+0003
+```
+
+and all are applied.
+
+If you run:
+
+```bash
+python manage.py migrate students 0001
+```
+
+Django will unapply migrations after `0001` as appropriate.
+
+Conceptually:
+
+```text
+Before:
+
+0001 ✓
+0002 ✓
+0003 ✓
+
+After:
+
+0001 ✓
+0002 ✗
+0003 ✗
+```
+
+Be careful: reversing migrations can affect database schema and, depending on the migration, data.
+
+---
+
+# 31. `migrate zero`
+
+You can migrate an app back to zero:
+
+```bash
+python manage.py migrate students zero
+```
+
+Conceptually:
+
+```text
+0001
+ ↓
+0002
+ ↓
+0003
+```
+
+becomes:
+
+```text
+no students migrations applied
+```
+
+This can remove the schema changes introduced by those migrations.
+
+**Do not casually use this on a production database.**
+
+---
+
+# 32. Data Migrations
+
+Migrations aren't limited to changing tables.
+
+Django can also perform data transformations using:
+
+```python
+migrations.RunPython
+```
+
+For example:
+
+```text
+Old data
+   ↓
+Migration
+   ↓
+Transform data
+   ↓
+New data
+```
+
+This is called a **data migration**.
+
+We'll only introduce it here; it's an advanced topic.
+
+---
+
+# 33. Schema Migration vs Data Migration
+
+### Schema migration
+
+Changes database structure:
+
+```text
+Add column
+Remove column
+Create table
+Rename field
+Change field
+```
+
+### Data migration
+
+Changes existing data:
+
+```text
+Convert old values
+Populate new fields
+Move data
+```
+
+So:
+
+```text
+Schema → structure
+Data → contents
+```
+
+---
+
+# 34. Common Migration Error
+
+You may see:
+
+```text
+django.db.utils.OperationalError
+```
+
+with a message indicating that a table or column doesn't exist.
+
+A common cause is:
+
+```text
+models.py changed
+        ↓
+migration wasn't created/applied
+        ↓
+database schema doesn't match model expectations
+```
+
+Check:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+and:
+
+```bash
+python manage.py showmigrations
+```
+
+---
+
+# 35. Another Common Problem: Migration Conflicts
+
+In team development, two developers might create migrations from the same base migration.
+
+For example:
+
+```text
+0001
+ ├── 0002_add_age
+ └── 0002_add_email
+```
+
+Django may detect conflicting migration branches.
+
+You can inspect the situation and, where appropriate, use:
+
+```bash
+python manage.py makemigrations --merge
+```
+
+This creates a merge migration when Django can safely merge the migration branches.
+
+Don't use it blindly; understand what each branch changed.
+
+---
+
+# 36. Don't Delete Migrations Randomly
+
+Beginners often try:
+
+```text
+"Migration error → delete migrations folder"
+```
+
+This can make things worse, especially if the database already contains applied migrations.
+
+Migration files are part of your project's schema history.
+
+Don't delete them casually.
+
+For a throwaway local development database, resetting everything can sometimes be reasonable, but that is very different from doing it on a real/shared/production database.
+
+---
+
+# 37. `--fake`
+
+Django also has:
+
+```bash
+python manage.py migrate --fake
+```
+
+This tells Django to mark migrations as applied/unapplied without actually running their database operations.
+
+This is an **advanced operation**.
+
+It can be useful when Django's migration history needs to be synchronized with a database whose schema already matches the expected state.
+
+But using `--fake` incorrectly can make migration history disagree with the actual database.
+
+So:
+
+> Don't use `--fake` just because a migration failed.
+
+---
+
+# 38. `--fake-initial`
+
+You may also encounter:
+
+```bash
+python manage.py migrate --fake-initial
+```
+
+This can help Django recognize that an initial migration's tables already exist and mark the initial migration as applied when the existing schema matches appropriately.
+
+Again, this is an advanced troubleshooting tool.
+
+---
+
+# 39. Migration Commands You Should Know
+
+### Create migrations
+
+```bash
+python manage.py makemigrations
+```
+
+### Apply migrations
+
+```bash
+python manage.py migrate
+```
+
+### Show migrations
+
+```bash
+python manage.py showmigrations
+```
+
+### Show SQL for migration
+
+```bash
+python manage.py sqlmigrate students 0001
+```
+
+### Migrate app to specific migration
+
+```bash
+python manage.py migrate students 0001
+```
+
+### Roll back app migrations to zero
+
+```bash
+python manage.py migrate students zero
+```
+
+---
+
+# 40. Important Concept: Migration State
+
+Django doesn't simply compare:
+
+```text
+models.py
+```
+
+directly with the current database every time.
+
+Migrations form a historical representation of how Django expects the schema to evolve.
+
+Conceptually:
+
+```text
+Migration 0001
+      ↓
+Migration 0002
+      ↓
+Migration 0003
+      ↓
+Current migration state
+```
+
+Django uses this migration state when generating future migrations.
+
+---
+
+# 41. `makemigrations` Doesn't Execute SQL
+
+This is a common trap.
+
+### `makemigrations`
+
+Creates Python migration files.
+
+It doesn't normally change the database.
+
+### `migrate`
+
+Executes the migration operations against the database.
+
+So:
+
+```text
+makemigrations → files
+migrate → database
+```
+
+---
+
+# 42. Practical Example
+
+Start with:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Result:
+
+```text
+0001_initial.py
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Database:
+
+```text
+Student
+--------
+id
+name
+```
+
+Now change model:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField(default=18)
+```
+
+Run:
+
+```bash
+python manage.py makemigrations
+```
+
+Result:
+
+```text
+0002_student_age.py
+```
+
+Then:
+
+```bash
+python manage.py migrate
+```
+
+Database becomes:
+
+```text
+Student
+--------
+id
+name
+age
+```
+
+---
+
+# 43. Full Migration Lifecycle
+
+Memorize this:
+
+```text
+       models.py
+           ↓
+     Change model
+           ↓
+   python manage.py
+      makemigrations
+           ↓
+   Migration file
+           ↓
+   Review migration
+           ↓
+   python manage.py
+        migrate
+           ↓
+      Database
+           ↓
+     Updated schema
+```
+
+---
+
+# 44. Viva Masterclass
+
+### Q1. What is a migration?
+
+> A migration is a versioned file describing changes to a Django project's database schema or data.
+
+---
+
+### Q2. Why are migrations needed?
+
+> They allow Django to keep the database schema synchronized with changes made to models in a controlled and versioned way.
+
+---
+
+### Q3. Difference between `makemigrations` and `migrate`?
+
+> `makemigrations` creates migration files from model changes, while `migrate` applies those migrations to the database.
+
+---
+
+### Q4. Does `makemigrations` change the database?
+
+> Normally, no. It creates migration files.
+
+---
+
+### Q5. Does `migrate` create migration files?
+
+> No. It applies existing migrations.
+
+---
+
+### Q6. What is `showmigrations`?
+
+> It displays migrations and indicates which ones have been applied.
+
+---
+
+### Q7. What does `[X]` mean in `showmigrations`?
+
+> The migration has been applied.
+
+---
+
+### Q8. What does `sqlmigrate` do?
+
+> It displays the SQL statements that a particular migration would execute for the configured database backend.
+
+---
+
+### Q9. What is migration rollback?
+
+> It means moving the database schema back to an earlier migration state by unapplying later migrations.
+
+---
+
+### Q10. Should migration files be committed to Git?
+
+> Yes. Migration files are generally part of the project's version-controlled source code.
+
+---
+
+### Q11. What is a data migration?
+
+> A migration that performs controlled changes to existing database data rather than only changing the database schema.
+
+---
+
+### Q12. What is `RunPython`?
+
+> `RunPython` is a migration operation used to execute Python code as part of a migration, commonly for data transformations.
+
+---
+
+# 45. Coding/Practical Question
+
+### Question:
+
+You add this field:
+
+```python
+phone = models.CharField(max_length=15)
+```
+
+What commands do you run?
+
+### Answer:
+
+```bash
+python manage.py makemigrations
+```
+
+then:
+
+```bash
+python manage.py migrate
+```
+
+---
+
+# 46. Practical Debugging Question
+
+### Question:
+
+You added a field to `models.py`, but the database doesn't contain the corresponding column. What do you check?
+
+Answer:
+
+```text
+1. Is the app in INSTALLED_APPS?
+2. Did I run makemigrations?
+3. Was a migration generated?
+4. Did I run migrate?
+5. Does showmigrations show the migration as applied?
+```
+
+Commands:
+
+```bash
+python manage.py makemigrations
+python manage.py showmigrations
+python manage.py migrate
+```
+
+---
+
+# 47. Exam Question
+
+### "Explain Django migration process."
+
+A strong answer:
+
+> Django migrations are used to keep the database schema synchronized with changes made to Django models. When a model is created or modified, `python manage.py makemigrations` detects the changes and creates migration files. These files describe operations such as creating models, adding fields, or altering fields. The command `python manage.py migrate` applies these migration operations to the database. Django maintains migration history so that changes can be applied in the correct order. Commands such as `showmigrations` can be used to view migration status and `sqlmigrate` can be used to inspect the SQL generated for a migration.
+
+---
+
+# 48. Must-Memorize Commands
+
+```bash
+python manage.py makemigrations
+```
+
+↓
+
+```bash
+python manage.py migrate
+```
+
+Check status:
+
+```bash
+python manage.py showmigrations
+```
+
+Inspect SQL:
+
+```bash
+python manage.py sqlmigrate students 0001
+```
+
+Rollback:
+
+```bash
+python manage.py migrate students 0001
+```
+
+---
+
+# Module 27 Summary
+
+The single most important distinction:
+
+```text
+models.py
+   ↓
+makemigrations
+   ↓
+Migration files
+   ↓
+migrate
+   ↓
+Database
+```
+
+Remember:
+
+```text
+makemigrations → "What changed?"
+migrate        → "Apply those changes."
+showmigrations → "What's applied?"
+sqlmigrate     → "What SQL would this migration run?"
+```
+
+And:
+
+```text
+Migration ≠ Database
+Migration ≠ Backup
+Migration ≠ Model
+```
+
+Instead:
+
+```text
+Model      → desired data structure
+Migration  → versioned description of changes
+Database   → actual stored structure/data
+```
+
+---
+
+## Next → Module 28: Django ORM in Depth
+
+This is another **very important module**. We'll learn how to query the database using Python:
+
+```python
+Student.objects.all()
+Student.objects.get()
+Student.objects.filter()
+Student.objects.exclude()
+Student.objects.create()
+```
+
+and understand **QuerySets, managers, lookups, filtering, ordering, counting, existence checks, and how Django ORM translates your Python code into SQL**.

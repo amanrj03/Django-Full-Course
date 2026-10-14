@@ -1,0 +1,904 @@
+# MODULE 7 — DIGITAL SIGNATURES + CRYPTOGRAPHIC CONSTRUCTS
+
+### Final part of Unit II 🔐
+
+We have covered the basic public-key cryptography, RSA and ECC. Your PPT then goes deeper into **different types of digital signatures, commitment schemes, encoding schemes, and applications of cryptographic hash functions**. These are still part of the material you shared, so they are worth preparing because a **5-mark or 10-mark theory question** can be formed from them. 
+
+---
+
+# 1. Digital Signature ⭐⭐⭐⭐⭐
+
+First make this absolutely clear:
+
+> A **digital signature** is a cryptographic mechanism that allows a signer to prove that a message was signed using their private key and allows others to verify it using the corresponding public key.
+
+Your PPT states:
+
+> **Signer → private key**
+
+> **Verifier → signer's public key** 
+
+### Basic process
+
+```text id="5g1x7d"
+                 MESSAGE
+                    │
+                    ↓
+                  HASH
+                    │
+                    ↓
+             MESSAGE DIGEST
+                    │
+                    ↓
+          Sign with PRIVATE KEY
+                    │
+                    ↓
+           DIGITAL SIGNATURE
+                    │
+          ┌─────────┴─────────┐
+          ↓                   ↓
+       Message             Signature
+          │                   │
+          └─────────┬─────────┘
+                    ↓
+                VERIFIER
+                    │
+             PUBLIC KEY
+                    ↓
+              Verification
+```
+
+---
+
+# 2. Why Hash the Message Before Signing?
+
+Suppose the message is extremely large:
+
+```text
+10 MB message
+```
+
+Instead of directly signing the entire message, we can:
+
+```text
+10 MB message
+      ↓
+    HASH
+      ↓
+Fixed-size digest
+      ↓
+    SIGN
+```
+
+This makes the signing operation more efficient.
+
+Your PPT specifically includes **RSA signature on the message digest**. 
+
+---
+
+# 3. What Does a Digital Signature Provide?
+
+The major properties you should remember are:
+
+### 1. Authentication
+
+Helps establish who signed the message.
+
+### 2. Integrity
+
+If the message is modified, signature verification should fail.
+
+### 3. Non-repudiation
+
+Provides evidence that can help prevent the signer from credibly denying the signing action.
+
+### Easy memory:
+
+> **A-I-N**
+
+**A**uthentication
+**I**ntegrity
+**N**on-repudiation
+
+---
+
+# 4. Digital Signature vs Encryption
+
+This is an extremely common exam question.
+
+| Digital Signature                       | Encryption                            |
+| --------------------------------------- | ------------------------------------- |
+| Provides authentication/integrity       | Provides confidentiality              |
+| Sign with private key                   | Encrypt using receiver's public key   |
+| Verify with public key                  | Decrypt using receiver's private key  |
+| Proves/signifies origin of message      | Hides message contents                |
+| Used heavily in blockchain transactions | Used when confidentiality is required |
+
+### Remember:
+
+```text id="0vqh4k"
+SIGNATURE:
+Private → Sign
+Public  → Verify
+
+ENCRYPTION:
+Public  → Encrypt
+Private → Decrypt
+```
+
+---
+
+# 5. Types of Digital Signatures ⭐⭐⭐⭐⭐
+
+Your PPT specifically lists four types:
+
+1. **Blind signatures**
+2. **Multisignatures**
+3. **Threshold signatures**
+4. **Aggregate signatures**
+
+
+
+These are important.
+
+---
+
+# 6. Blind Signature ⭐⭐⭐⭐⭐
+
+The idea is very interesting:
+
+> The signer signs a message **without actually seeing the message**.
+
+Your PPT says the message is first disguised/blinded before signing. 
+
+Conceptually:
+
+```text id="qj7j1d"
+Original Message
+       ↓
+    BLINDING
+       ↓
+Blinded Message
+       ↓
+     SIGN
+       ↓
+Blind Signature
+       ↓
+    UNBLIND
+       ↓
+Signature on original message
+```
+
+The signer never learns the original content.
+
+---
+
+# 7. Why Blind Signatures?
+
+One important application mentioned in your PPT:
+
+> **Digital cash**
+
+Blind signatures can allow someone to obtain a valid signature without revealing the underlying message/value to the signer.
+
+Your PPT also mentions Blindcoin/Mixcoin-related use for hiding addresses from a mixing service. 
+
+### Exam definition:
+
+> **A blind signature allows a signer to sign a message without learning the message itself.**
+
+---
+
+# 8. Multisignature — Multi-Sig ⭐⭐⭐⭐⭐
+
+A multisignature scheme allows:
+
+> **Multiple users to sign one message/transaction.**
+
+Your PPT says multiple unique keys held by different owners can be used to sign a single message. 
+
+Example:
+
+```text id="w4xj4m"
+Alice ──┐
+Bob   ──┼──→ Transaction
+Charlie ─┘
+          ↓
+     Multiple signatures
+          ↓
+       Authorized
+```
+
+---
+
+# 9. Real-World Example of Multisig
+
+Suppose a company wants **2 out of 3 directors** to approve a transaction.
+
+```text id="k9e2qy"
+Alice
+Bob
+Charlie
+
+2 signatures required
+
+Alice + Bob       → ACCEPT
+Alice + Charlie   → ACCEPT
+Bob + Charlie     → ACCEPT
+
+Alice only        → REJECT
+```
+
+This increases security because one compromised key may not be enough.
+
+Your PPT notes that multisignatures can set a required number of signatures to authorize transactions and have been implemented in Bitcoin. 
+
+---
+
+# 10. Threshold Signatures ⭐⭐⭐⭐⭐
+
+Threshold signatures are related to secret sharing.
+
+The basic concept is:
+
+```text id="t6b3gy"
+Private Key
+     ↓
+Split into shares
+     ↓
+┌────┬────┬────┬────┐
+A    B    C    D
+```
+
+A required number of participants use their shares to participate in signing.
+
+Your PPT emphasizes that threshold signatures split the private key into multiple parts, with each signer holding a share. 
+
+---
+
+# 11. Threshold vs Multisignature
+
+This distinction can earn marks.
+
+### Multisignature
+
+```text id="fzr3yn"
+Different users
+     ↓
+Different private keys
+     ↓
+Multiple signatures
+```
+
+### Threshold signature
+
+```text id="8jrxzt"
+One distributed private key
+        ↓
+Key shares
+        ↓
+Participants cooperate
+        ↓
+One resulting signature
+```
+
+Your PPT specifically says threshold signatures can produce **one digital signature** verified with **one public key**, resulting in smaller transactions and faster verification. 
+
+---
+
+# 12. Aggregate Signatures ⭐⭐⭐⭐⭐
+
+Aggregate signatures combine multiple signatures into:
+
+> **A single compact signature.**
+
+Your PPT explains that the purpose is to reduce signature size when multiple signatures are used. 
+
+Example:
+
+```text id="s5w7lq"
+Signature A ─┐
+Signature B ─┼──→ AGGREGATION → One signature
+Signature C ─┘
+```
+
+The verifier can use the aggregate signature to verify that the relevant users signed their messages.
+
+---
+
+# 13. Aggregate Signature Example
+
+Suppose:
+
+```text id="0m3qwb"
+Message A → Signature A
+Message B → Signature B
+Message C → Signature C
+```
+
+Without aggregation:
+
+```text
+A + B + C = 3 signatures
+```
+
+With aggregation:
+
+```text
+A + B + C
+    ↓
+One aggregate signature
+```
+
+This reduces communication/storage overhead.
+
+Your PPT gives **Boneh–Lynn–Shacham (BLS)** aggregate signatures as a popular example and notes their use in blockchains, including Ethereum 2.0. 
+
+---
+
+# 14. Multisignature vs Threshold vs Aggregate
+
+🔥 **Memorize this table.**
+
+| Type               | Main idea                                                  |
+| ------------------ | ---------------------------------------------------------- |
+| **Blind**          | Sign without seeing the message                            |
+| **Multisignature** | Multiple users sign one message                            |
+| **Threshold**      | Key divided into shares; sufficient participants cooperate |
+| **Aggregate**      | Multiple signatures combined into one compact signature    |
+
+---
+
+# 15. Commitment Schemes ⭐⭐⭐⭐⭐
+
+Your PPT describes commitment schemes as the cryptographic equivalent of a **sealed envelope**. 
+
+Imagine:
+
+```text id="b8u4m5"
+Alice chooses a secret value
+          ↓
+     Put it in sealed
+       envelope
+          ↓
+      COMMIT
+          ↓
+Later...
+          ↓
+       OPEN
+          ↓
+      Reveal value
+```
+
+The commitment itself should not reveal the actual value.
+
+---
+
+# 16. Two Phases of Commitment
+
+Your PPT explicitly identifies:
+
+### 1. Commit phase
+
+The sender commits to the value.
+
+### 2. Open phase
+
+The sender reveals the value and information needed for verification.
+
+
+
+### Easy memory:
+
+> **Commit → Hide**
+
+> **Open → Reveal**
+
+---
+
+# 17. Properties of Commitment Schemes
+
+The two important conceptual properties are:
+
+### Hiding
+
+The commitment doesn't reveal the committed value.
+
+### Binding
+
+After committing, the sender should not be able to change the value.
+
+Think:
+
+```text id="xsk8jw"
+COMMIT
+  ↓
+"I choose X"
+  ↓
+Cannot secretly change X → Y
+```
+
+---
+
+# 18. Encoding Schemes ⭐⭐⭐⭐
+
+⚠️ Very important:
+
+> **Encoding is NOT encryption.**
+
+Encoding changes representation; it is not intended to provide confidentiality.
+
+Your PPT covers:
+
+* Base64
+* Base58
+
+
+
+---
+
+# 19. Base64
+
+Base64 converts binary data into printable characters.
+
+Your PPT states:
+
+> Base64 is used to encode binary data into printable characters. 
+
+Conceptually:
+
+```text id="a7i3ka"
+Binary data
+    ↓
+ Base64
+    ↓
+Printable characters
+```
+
+### Important:
+
+Base64 **doesn't provide secrecy**.
+
+Anyone can decode Base64.
+
+---
+
+# 20. Base58 ⭐⭐⭐⭐⭐
+
+Base58 is particularly relevant to Bitcoin.
+
+Your PPT says Base58 was first introduced with Bitcoin and is used to encode integers into alphanumeric strings. 
+
+Why?
+
+It avoids confusing characters.
+
+For example:
+
+```text id="9h6d5n"
+0  O
+1  I
+l
+```
+
+Characters that can easily be confused are avoided.
+
+This is useful for Bitcoin addresses because confusing characters could result in sending funds to an incorrect address. 
+
+---
+
+# 21. Base64 vs Base58
+
+| Base64                 | Base58                                       |
+| ---------------------- | -------------------------------------------- |
+| Encodes binary data    | Used for compact alphanumeric representation |
+| Printable characters   | Avoids visually confusing characters         |
+| Common in many systems | Strongly associated with Bitcoin addresses   |
+| Not encryption         | Not encryption                               |
+
+---
+
+# 22. Applications of Cryptographic Hash Functions ⭐⭐⭐⭐⭐
+
+Your PPT specifically lists:
+
+1. **Merkle Trees**
+2. **Patricia Trees**
+3. **Distributed Hash Tables**
+
+
+
+These are important blockchain-related applications.
+
+---
+
+# 23. Merkle Tree ⭐⭐⭐⭐⭐
+
+A Merkle tree is a tree structure where hashes are used to summarize data.
+
+Suppose we have four transactions:
+
+```text id="s4v2bb"
+T1     T2     T3     T4
+│      │      │      │
+Hash   Hash   Hash   Hash
+ \      /       \     /
+  H12             H34
+      \           /
+        ROOT
+```
+
+The root is called the:
+
+> **Merkle Root**
+
+---
+
+# 24. Why Merkle Trees?
+
+They allow efficient verification of whether a particular transaction belongs to a set of transactions.
+
+Instead of sending every transaction:
+
+```text id="h9k2g1"
+T1 T2 T3 T4 T5 T6 T7 T8
+```
+
+you can provide a relatively small set of hashes forming a **Merkle proof**.
+
+This is particularly useful for blockchain data structures.
+
+---
+
+# 25. Patricia Tree
+
+Your PPT lists **Patricia Tree** as another application of cryptographic hash functions. 
+
+For your exam, remember:
+
+> **Patricia trees are trie-based data structures used to efficiently store and retrieve key-value information.**
+
+They are especially important in blockchain systems such as Ethereum.
+
+---
+
+# 26. Distributed Hash Table — DHT
+
+You already encountered this in the decentralization module.
+
+A DHT distributes key-value information across nodes in a peer-to-peer network.
+
+Conceptually:
+
+```text id="6pj7d0"
+Key
+ ↓
+Hash
+ ↓
+Determine responsible node
+ ↓
+Store / retrieve data
+```
+
+Your PPT lists DHT as an application of cryptographic hash functions. 
+
+---
+
+# 🔥 27. BIG PICTURE — ALL CRYPTOGRAPHIC CONSTRUCTS
+
+This is what you should reproduce if asked:
+
+### "Explain cryptographic constructs used in blockchain."
+
+```text id="f9m8e7"
+             CRYPTOGRAPHIC CONSTRUCTS
+                       │
+      ┌────────────────┼────────────────┐
+      ↓                ↓                ↓
+   Encryption       Signatures         Hash
+      │                │                │
+      ↓                ↓                ↓
+ Confidentiality   Authentication    Integrity
+                   Non-repudiation
+                       │
+       ┌───────────────┼───────────────┐
+       ↓               ↓               ↓
+     Blind         Multisig        Threshold
+   Signature       Signature       Signature
+                       │
+                       ↓
+                  Aggregate
+                   Signature
+
+       Other Constructs
+             │
+     ┌───────┼──────────┐
+     ↓       ↓          ↓
+ Homomorphic Signcryption Secret
+ Encryption             Sharing
+     │
+     └──────────┬─────────────┐
+                ↓             ↓
+          Commitment          ZKP
+            Scheme
+```
+
+Your PPT explicitly groups these constructs together. 
+
+---
+
+# 🎯 28. VERY LIKELY 5-MARK QUESTIONS
+
+Prepare these word-for-word in concept:
+
+### Q1. What is a digital signature?
+
+> A cryptographic mechanism in which the signer uses a private key to create a signature and the verifier uses the signer's public key to verify it.
+
+
+
+---
+
+### Q2. Explain blind signatures.
+
+**Key points:**
+
+* Based on public-key signatures
+* Message is blinded
+* Signer doesn't see actual message
+* Signature can later be verified against original message
+* Used in digital cash
+
+
+
+---
+
+### Q3. What is multisignature?
+
+> Multiple users use their own keys to sign a single message/transaction.
+
+Mention:
+
+> Bitcoin supports multisignature transactions.
+
+
+
+---
+
+### Q4. What is threshold signature?
+
+Mention:
+
+* Private key split into shares
+* Participants hold shares
+* Sufficient participants cooperate
+* One resulting signature
+* One public key for verification
+* Smaller transaction/quicker verification
+
+
+
+---
+
+### Q5. What is aggregate signature?
+
+> Multiple signatures are combined into one compact signature.
+
+Mention **BLS**.
+
+
+
+---
+
+### Q6. What is a commitment scheme?
+
+> Cryptographic equivalent of a sealed envelope with Commit and Open phases.
+
+
+
+---
+
+### Q7. Differentiate Base64 and Base58.
+
+Remember:
+
+> **Base64 → binary → printable characters**
+
+> **Base58 → Bitcoin/alphanumeric representation → avoids confusing characters**
+
+
+
+---
+
+### Q8. Explain applications of cryptographic hash functions.
+
+Write:
+
+* Merkle Tree
+* Patricia Tree
+* Distributed Hash Table
+
+
+
+---
+
+# 🔥 29. VERY LIKELY 10-MARK QUESTIONS
+
+## Question 1 — Digital Signatures
+
+### "Explain digital signatures and their different types."
+
+Answer structure:
+
+```text
+Definition
+ ↓
+Need for public/private keys
+ ↓
+Signing process
+ ↓
+Verification process
+ ↓
+Authentication
+ ↓
+Integrity
+ ↓
+Non-repudiation
+ ↓
+Types:
+   Blind
+   Multisignature
+   Threshold
+   Aggregate
+ ↓
+Blockchain applications
+```
+
+---
+
+# Question 2 — Cryptographic Constructs
+
+### "Explain various cryptographic constructs used in blockchain."
+
+Write:
+
+### 1. Homomorphic encryption
+
+Operations on encrypted data.
+
+### 2. Signcryption
+
+Encryption + signature.
+
+### 3. Secret sharing
+
+Split secret among participants.
+
+### 4. Commitment
+
+Commit now, reveal later.
+
+### 5. Zero-knowledge proof
+
+Prove knowledge without revealing the secret.
+
+### 6. Digital signatures
+
+Authentication + integrity + non-repudiation.
+
+### 7. Advanced signature schemes
+
+Blind, multisignature, threshold, aggregate.
+
+---
+
+# Question 3 — Digital Signature Types
+
+This is a particularly good 10-marker:
+
+```text id="zj9xra"
+Digital Signatures
+       │
+ ┌─────┼─────┬──────┐
+ ↓     ↓     ↓      ↓
+Blind Multi Threshold Aggregate
+```
+
+Explain each with an example/application.
+
+---
+
+# 🧠 30. FINAL UNIT-II MASTER MAP
+
+You have now covered the entire syllabus:
+
+```text id="y5f3nw"
+                    UNIT II
+                       │
+        ┌──────────────┴──────────────┐
+        ↓                             ↓
+ SYMMETRIC CRYPTO              PUBLIC KEY CRYPTO
+        │                             │
+   ┌────┴────┐                 ┌──────┼──────┐
+   ↓         ↓                 ↓      ↓      ↓
+ Stream    Block              RSA     ECC  Signatures
+   │         │
+  RC4       AES
+             │
+      ┌──────┼───────┐
+      ↓      ↓       ↓
+  SubBytes ShiftRows MixColumns
+                     ↓
+                AddRoundKey
+                     │
+                     ↓
+                  AES
+                     │
+                     ↓
+               OpenSSL AES
+                     
+PUBLIC KEY
+    │
+    ├── RSA
+    ├── ECC
+    ├── Digital Signatures
+    │     ├── Blind
+    │     ├── Multisignature
+    │     ├── Threshold
+    │     └── Aggregate
+    │
+    └── Cryptographic Constructs
+          ├── Homomorphic Encryption
+          ├── Signcryption
+          ├── Secret Sharing
+          ├── Commitment
+          └── Zero-Knowledge Proofs
+
+ENCODING
+   ├── Base64
+   └── Base58
+
+HASH APPLICATIONS
+   ├── Merkle Tree
+   ├── Patricia Tree
+   └── DHT
+```
+
+---
+
+# 🚨 Your Exam Priority Now
+
+Since you've gone through all the modules, **don't keep endlessly reading theory**. The next best step is **active recall + answer writing**.
+
+### 🔴 Must be able to write a 10-mark answer from memory:
+
+1. **AES algorithm**
+2. **RSA cryptosystem**
+3. **Digital signatures**
+4. **Consensus protocols**
+5. **Decentralization using blockchain**
+6. **Cryptographic constructs**
+7. **DApps / decentralization ecosystem**
+
+### 🟠 Must know for 5 marks:
+
+* PoW vs PoS
+* PBFT
+* Byzantine vs fail-stop
+* DPoS
+* Ethereum
+* Stream vs block cipher
+* AES parameters
+* ECC
+* Homomorphic encryption
+* Signcryption
+* Secret sharing
+* Commitment scheme
+* ZKP
+* Blind/multisig/threshold/aggregate signatures
+* Base64 vs Base58
+* Merkle tree
+* Patricia tree
+* DHT
+
+**At this point, the syllabus content is covered.** The smartest next step is for me to put you through a **mock university exam**: I'll give you 5-mark and 10-mark questions one at a time, you answer without looking, and I'll **mark/correct your answer exactly like an examiner**.

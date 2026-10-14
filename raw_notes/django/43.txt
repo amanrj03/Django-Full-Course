@@ -1,0 +1,1564 @@
+# Module 43 — Django Viva Masterclass 🎯
+
+This module is focused entirely on **viva/interview questions**.
+
+I'll give you the kind of questions a teacher can ask after seeing your Django project, along with answers that are **short enough to speak in a viva but technically correct**.
+
+---
+
+# PART 1 — Django Basics
+
+## Q1. What is Django?
+
+**Answer:**
+
+> Django is a high-level, open-source Python web framework used to develop secure, scalable and maintainable web applications quickly.
+
+---
+
+## Q2. Why is Django called a framework?
+
+> Django provides a predefined structure, libraries, tools and components for developing web applications, so developers don't have to build everything from scratch.
+
+---
+
+## Q3. What are the major features of Django?
+
+Important features:
+
+```text
+ORM
+URL routing
+Templates
+Forms
+Authentication
+Admin interface
+Security
+Testing
+Middleware
+Internationalization
+```
+
+---
+
+## Q4. What does "batteries included" mean in Django?
+
+> It means Django provides many commonly required features such as authentication, ORM, forms, admin, URL routing and security mechanisms as part of the framework.
+
+---
+
+## Q5. What language is Django written in?
+
+> Django is written in Python.
+
+---
+
+# PART 2 — MVT
+
+## Q6. What is MVT?
+
+> MVT stands for Model, View and Template. Model handles data, View handles request and application logic, and Template handles presentation.
+
+---
+
+## Q7. What does Model do?
+
+> A Model represents the application's data structure and provides an interface for interacting with the database through the ORM.
+
+---
+
+## Q8. What does View do?
+
+> A View receives a request, performs application logic, interacts with models if required, and returns a response.
+
+---
+
+## Q9. What does Template do?
+
+> A Template defines the presentation layer, usually HTML combined with Django Template Language.
+
+---
+
+## Q10. Does every Django view need a model?
+
+**No.**
+
+Example:
+
+```python
+def hello(request):
+    return HttpResponse("Hello")
+```
+
+This doesn't use a model.
+
+### Viva answer:
+
+> No. A view can return a response without interacting with a database or model.
+
+---
+
+## Q11. Does every Django view need a template?
+
+**No.**
+
+For example:
+
+```python
+return HttpResponse("Hello")
+```
+
+or:
+
+```python
+return JsonResponse({
+    "status": "success"
+})
+```
+
+---
+
+# PART 3 — Project and App
+
+## Q12. Difference between project and app?
+
+> A project is the complete Django application and its configuration, while an app is a modular component responsible for a specific functionality.
+
+Example:
+
+```text
+College
+│
+├── students
+├── accounts
+└── courses
+```
+
+---
+
+## Q13. Does creating an app automatically add it to the project?
+
+> No. We need to add the app to `INSTALLED_APPS`.
+
+---
+
+## Q14. Why divide a project into apps?
+
+> To improve modularity, maintainability, separation of concerns and code organization.
+
+---
+
+# PART 4 — `manage.py`
+
+## Q15. What is `manage.py`?
+
+> `manage.py` is a project-specific command-line utility used to perform Django administrative tasks such as running the server, creating migrations, applying migrations, creating a superuser and running tests.
+
+---
+
+## Q16. Difference between `django-admin` and `manage.py`?
+
+> `django-admin` is Django's general command-line utility, while `manage.py` is project-specific and automatically sets the project's Django settings module.
+
+---
+
+# PART 5 — Settings
+
+## Q17. What is `settings.py`?
+
+> It contains the configuration of a Django project.
+
+Examples:
+
+```text
+INSTALLED_APPS
+DATABASES
+MIDDLEWARE
+TEMPLATES
+DEBUG
+STATIC_URL
+ROOT_URLCONF
+```
+
+---
+
+## Q18. What is `INSTALLED_APPS`?
+
+> It is the list of Django applications enabled in the project.
+
+---
+
+## Q19. What happens if we don't add our app to `INSTALLED_APPS`?
+
+> Django may not properly discover the app's models, templates and other application configuration, and migrations for its models won't work correctly.
+
+---
+
+# PART 6 — URLs
+
+## Q20. What is URL routing?
+
+> URL routing maps an incoming URL pattern to a view.
+
+---
+
+## Q21. What is `urlpatterns`?
+
+> It is the list of URL patterns Django checks to determine which view should handle a request.
+
+---
+
+## Q22. What does `path()` do?
+
+Example:
+
+```python
+path(
+    "students/",
+    views.student_list
+)
+```
+
+> `path()` defines a URL pattern and maps it to a view.
+
+---
+
+## Q23. What is `include()`?
+
+```python
+path(
+    "students/",
+    include("students.urls")
+)
+```
+
+> `include()` delegates URL matching to another URL configuration, commonly an app's `urls.py`.
+
+---
+
+## Q24. Why use app-level URLs?
+
+> It keeps URL configurations modular and prevents the project's main `urls.py` from becoming unnecessarily large.
+
+---
+
+# PART 7 — URL Parameters
+
+## Q25. How do you pass an integer through a URL?
+
+```python
+path(
+    "student/<int:id>/",
+    views.student
+)
+```
+
+---
+
+## Q26. How does Django pass `id` to the view?
+
+If URL is:
+
+```text
+/student/25/
+```
+
+Django calls approximately:
+
+```python
+views.student(
+    request,
+    id=25
+)
+```
+
+---
+
+## Q27. What happens if the parameter name doesn't match?
+
+For example:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student
+)
+```
+
+but:
+
+```python
+def student(request, student_id):
+```
+
+This causes an argument mismatch error because Django passes the keyword argument `id`.
+
+---
+
+# PART 8 — HTTP
+
+## Q28. What is HTTP?
+
+> HTTP is an application-layer protocol used for communication between clients and servers on the web.
+
+---
+
+## Q29. Difference between GET and POST?
+
+> GET is generally used to retrieve data, while POST is generally used to submit data or perform state-changing operations.
+
+---
+
+## Q30. Is POST secure?
+
+**Not by itself.**
+
+> POST hides submitted data from the URL, but it does not encrypt the communication. HTTPS is required for encryption.
+
+---
+
+## Q31. What is `request.GET`?
+
+> `request.GET` contains query-string parameters submitted with a GET request.
+
+Example:
+
+```text
+/search/?q=django
+```
+
+```python
+request.GET.get("q")
+```
+
+---
+
+## Q32. What is `request.POST`?
+
+> It contains form data submitted through a POST request.
+
+---
+
+# PART 9 — Templates
+
+## Q33. Why do we use templates?
+
+> Templates separate presentation from application logic and allow dynamic data to be rendered into HTML.
+
+---
+
+## Q34. What is DTL?
+
+> DTL stands for Django Template Language. It is Django's template language used for variables, tags, filters and template inheritance.
+
+---
+
+## Q35. Difference between `{{ }}` and `{% %}`?
+
+```text
+{{ }} → variables
+{% %} → template tags
+```
+
+Example:
+
+```django
+{{ name }}
+
+{% if age >= 18 %}
+```
+
+---
+
+## Q36. What is a template filter?
+
+> A filter transforms or formats a template value.
+
+Example:
+
+```django
+{{ name|upper }}
+```
+
+---
+
+## Q37. What is template inheritance?
+
+> Template inheritance allows child templates to reuse a common parent layout instead of repeating HTML.
+
+Example:
+
+```django
+{% extends "base.html" %}
+```
+
+---
+
+## Q38. Difference between `extends` and `include`?
+
+> `extends` is used for inheriting a page layout, while `include` is used for inserting a reusable template fragment.
+
+---
+
+# PART 10 — Forms
+
+## Q39. Why use Django Forms?
+
+> Django Forms simplify HTML form creation, input processing, validation and error handling.
+
+---
+
+## Q40. What is `forms.Form`?
+
+> It is the base class used to create forms whose fields are defined independently of a model.
+
+---
+
+## Q41. What is `ModelForm`?
+
+> `ModelForm` is a Django form that is generated from a model and can create or update model instances.
+
+---
+
+## Q42. Difference between `Form` and `ModelForm`?
+
+| Form                              | ModelForm                          |
+| --------------------------------- | ---------------------------------- |
+| Independent of model              | Based on model                     |
+| Fields manually defined           | Fields can be generated from model |
+| Doesn't automatically save model  | Can save model                     |
+| Useful for custom/non-model input | Useful for CRUD                    |
+
+---
+
+## Q43. What does `is_valid()` do?
+
+```python
+form.is_valid()
+```
+
+> It runs the form's validation process and returns `True` if the submitted data is valid, otherwise `False`.
+
+---
+
+## Q44. What is `cleaned_data`?
+
+> `cleaned_data` contains validated and converted form data after successful validation.
+
+---
+
+## Q45. Can you access `cleaned_data` before `is_valid()`?
+
+> No. You should access it only after successful validation.
+
+---
+
+# PART 11 — CSRF
+
+## Q46. What is CSRF?
+
+> CSRF stands for Cross-Site Request Forgery. It is an attack where an attacker tricks a user's browser into making an unwanted state-changing request to a site where the user is authenticated.
+
+---
+
+## Q47. How does Django protect against CSRF?
+
+In a normal HTML POST form:
+
+```django
+{% csrf_token %}
+```
+
+Django's CSRF middleware then validates the token.
+
+---
+
+## Q48. What happens if CSRF validation fails?
+
+> Django commonly returns HTTP 403 Forbidden.
+
+---
+
+## Q49. Is CSRF token a password?
+
+> No. It is a security token used to verify that a state-changing request originated from an expected context.
+
+---
+
+# PART 12 — Models
+
+## Q50. What is a Django Model?
+
+> A Django Model is a Python class that represents the structure and behavior of data stored in the database.
+
+---
+
+## Q51. How does a model map to a database?
+
+```text
+Model class → Table
+Model field → Column
+Model instance → Row
+```
+
+---
+
+## Q52. What is a primary key?
+
+> A primary key uniquely identifies a record in a database table.
+
+---
+
+## Q53. What happens if you don't define a primary key?
+
+> Django automatically adds a primary key field.
+
+---
+
+# PART 13 — Migrations
+
+## Q54. What is a migration?
+
+> A migration is a version-controlled description of changes to the database schema based on model changes.
+
+---
+
+## Q55. Difference between `makemigrations` and `migrate`?
+
+This is **extremely important**.
+
+> `makemigrations` creates migration files from model changes, while `migrate` applies those migrations to the database.
+
+---
+
+## Q56. Does changing `models.py` immediately change the database?
+
+> No. Normally we need to create and apply migrations.
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+---
+
+## Q57. Are migrations a database backup?
+
+> No. Migrations describe schema/data changes; they are not a substitute for database backups.
+
+---
+
+# PART 14 — ORM
+
+## Q58. What is ORM?
+
+> ORM stands for Object-Relational Mapping. Django ORM allows developers to interact with database records using Python objects and QuerySets instead of writing SQL for every operation.
+
+---
+
+## Q59. What is a QuerySet?
+
+> A QuerySet represents a collection of database queries/results and is generally evaluated lazily.
+
+---
+
+## Q60. What is lazy evaluation?
+
+> A QuerySet usually doesn't execute its database query immediately when it is constructed. The database is queried when the results are actually needed.
+
+Example:
+
+```python
+students = Student.objects.filter(
+    marks__gte=80
+)
+```
+
+The query may not execute until you iterate over it, convert it, or otherwise evaluate it.
+
+---
+
+# PART 15 — `filter()` vs `get()`
+
+## Q61. Difference between `filter()` and `get()`?
+
+### `filter()`
+
+```python
+Student.objects.filter(
+    marks__gte=80
+)
+```
+
+Returns:
+
+```text
+QuerySet
+```
+
+Can contain zero, one or many objects.
+
+### `get()`
+
+```python
+Student.objects.get(
+    id=1
+)
+```
+
+Must return exactly one object.
+
+Otherwise:
+
+```text
+DoesNotExist
+MultipleObjectsReturned
+```
+
+---
+
+# PART 16 — Advanced ORM
+
+## Q62. What is a `Q` object?
+
+> `Q` objects are used to construct complex database queries involving conditions such as OR, AND and NOT.
+
+```python
+Q(course="CSE") |
+Q(course="ECE")
+```
+
+---
+
+## Q63. What is an `F` expression?
+
+> An `F` expression allows database-side operations using model field values.
+
+Example:
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+---
+
+## Q64. Difference between `aggregate()` and `annotate()`?
+
+> `aggregate()` produces an overall summary, while `annotate()` adds calculated values to individual objects or groups in a QuerySet.
+
+---
+
+# PART 17 — Relationships
+
+## Q65. What is a ForeignKey?
+
+> A ForeignKey represents a many-to-one relationship between two models.
+
+Example:
+
+```text
+Department
+   ↑
+   │
+many Students
+```
+
+---
+
+## Q66. What does `on_delete=models.CASCADE` mean?
+
+> If the referenced object is deleted, related objects using CASCADE are also deleted.
+
+---
+
+## Q67. What is OneToOneField?
+
+> It represents a one-to-one relationship between two models.
+
+Example:
+
+```text
+Student → StudentProfile
+```
+
+---
+
+## Q68. What is ManyToManyField?
+
+> It represents a many-to-many relationship where multiple objects on each side can be related.
+
+Example:
+
+```text
+Students ↔ Courses
+```
+
+---
+
+# PART 18 — `select_related()` vs `prefetch_related()`
+
+## Q69. Why do we use `select_related()`?
+
+> It optimizes queries involving ForeignKey and OneToOne relationships, generally using SQL joins.
+
+---
+
+## Q70. Why use `prefetch_related()`?
+
+> It optimizes many-to-many and reverse relationships by fetching related objects efficiently using additional queries and combining the results in Python.
+
+---
+
+# PART 19 — CRUD
+
+## Q71. What is CRUD?
+
+```text
+C → Create
+R → Read
+U → Update
+D → Delete
+```
+
+---
+
+## Q72. How do you create an object?
+
+```python
+Student.objects.create(
+    name="Aman",
+    age=21
+)
+```
+
+---
+
+## Q73. How do you update an object?
+
+```python
+student.marks = 95
+student.save()
+```
+
+---
+
+## Q74. How do you delete an object?
+
+```python
+student.delete()
+```
+
+---
+
+# PART 20 — The `instance` Question
+
+## Q75. Why use `instance` in a ModelForm?
+
+Example:
+
+```python
+form = StudentForm(
+    request.POST,
+    instance=student
+)
+```
+
+> `instance` tells the ModelForm to update an existing model object instead of creating a new one.
+
+This is one of the **most important practical Django questions**.
+
+---
+
+# PART 21 — Admin
+
+## Q76. What is Django Admin?
+
+> Django Admin is a built-in web-based interface for managing registered models and database records.
+
+---
+
+## Q77. How do you create a superuser?
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+## Q78. How do you register a model?
+
+```python
+from django.contrib import admin
+from .models import Student
+
+admin.site.register(Student)
+```
+
+---
+
+## Q79. What is `list_display`?
+
+```python
+list_display = (
+    "id",
+    "name",
+    "email",
+)
+```
+
+> It specifies which model fields or display methods should appear as columns in the Django admin list page.
+
+---
+
+# PART 22 — Authentication
+
+## Q80. What is authentication?
+
+> Authentication verifies the identity of a user.
+
+---
+
+## Q81. What is authorization?
+
+> Authorization determines what an authenticated user is allowed to do.
+
+---
+
+## Q82. Difference?
+
+```text
+Authentication
+→ Who are you?
+
+Authorization
+→ What can you do?
+```
+
+---
+
+# PART 23 — Login
+
+## Q83. What does `authenticate()` do?
+
+```python
+user = authenticate(
+    request,
+    username=username,
+    password=password
+)
+```
+
+> It verifies the supplied credentials and returns a User object if authentication succeeds, otherwise `None`.
+
+---
+
+## Q84. What does `login()` do?
+
+```python
+login(request, user)
+```
+
+> It establishes the authenticated user's session.
+
+---
+
+## Q85. What does `logout()` do?
+
+```python
+logout(request)
+```
+
+> It logs the user out and clears the authenticated session state.
+
+---
+
+## Q86. Why are `authenticate()` and `login()` separate?
+
+> `authenticate()` verifies credentials, while `login()` establishes the authenticated session.
+
+**Very important answer.**
+
+---
+
+# PART 24 — `request.user`
+
+## Q87. What is `request.user`?
+
+> It represents the user associated with the current request.
+
+Authenticated:
+
+```python
+request.user.is_authenticated
+```
+
+Anonymous:
+
+```text
+AnonymousUser
+```
+
+---
+
+## Q88. Is `is_authenticated` a function?
+
+No.
+
+Correct:
+
+```python
+request.user.is_authenticated
+```
+
+Wrong:
+
+```python
+request.user.is_authenticated()
+```
+
+---
+
+# PART 25 — `login_required`
+
+## Q89. What does `@login_required` do?
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+> It restricts access to authenticated users and redirects unauthenticated users to the configured login URL.
+
+---
+
+## Q90. Does `login_required` check permissions?
+
+**No.**
+
+It checks authentication.
+
+For permissions:
+
+```python
+@permission_required(...)
+```
+
+---
+
+# PART 26 — Permissions
+
+## Q91. How do you check a permission?
+
+```python
+user.has_perm(
+    "students.change_student"
+)
+```
+
+---
+
+## Q92. What is a Group?
+
+> A Group is a collection of users that can share permissions.
+
+Example:
+
+```text
+Teachers
+   ↓
+Users
+   ↓
+Shared permissions
+```
+
+---
+
+# PART 27 — Cookies
+
+## Q93. What is a cookie?
+
+> A cookie is a small piece of data stored by the browser and sent with subsequent matching requests.
+
+---
+
+## Q94. How do you set a cookie?
+
+```python
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+---
+
+## Q95. How do you read a cookie?
+
+```python
+request.COOKIES.get(
+    "username"
+)
+```
+
+---
+
+# PART 28 — Sessions
+
+## Q96. What is a session?
+
+> A session is a mechanism for maintaining user-specific state across multiple HTTP requests.
+
+---
+
+## Q97. How do you store data in a Django session?
+
+```python
+request.session[
+    "username"
+] = "Aman"
+```
+
+---
+
+## Q98. Cookie vs Session?
+
+> A cookie is data associated with the browser, while a session provides server-managed user state across requests; Django commonly uses a session ID cookie to identify server-side session data.
+
+---
+
+# PART 29 — Debugging
+
+## Q99. What is debugging?
+
+> Debugging is the process of finding, understanding, fixing and retesting errors in software.
+
+---
+
+## Q100. What does `DEBUG=True` do?
+
+> It enables detailed debugging information during development.
+
+Never use:
+
+```python
+DEBUG = True
+```
+
+in production.
+
+---
+
+# PART 30 — Testing
+
+## Q101. How do you run Django tests?
+
+```bash
+python manage.py test
+```
+
+---
+
+## Q102. What is Django's test client?
+
+```python
+self.client
+```
+
+> It allows tests to simulate HTTP requests to Django views without requiring a real browser.
+
+---
+
+## Q103. What is `setUp()`?
+
+> `setUp()` prepares common test data or state before each test method.
+
+---
+
+# PART 31 — Tricky Viva Questions 🔥
+
+These are the questions teachers often use to see whether you actually understand Django.
+
+---
+
+## Q104. Can a Django project work without a database?
+
+**Yes.**
+
+For example:
+
+```python
+def home(request):
+    return HttpResponse(
+        "Hello World"
+    )
+```
+
+No database is required for that view.
+
+---
+
+## Q105. Can Django return JSON instead of HTML?
+
+**Yes.**
+
+```python
+return JsonResponse({
+    "message": "Success"
+})
+```
+
+---
+
+## Q106. Can Django use databases other than SQLite?
+
+Yes.
+
+Common choices:
+
+```text
+PostgreSQL
+MySQL
+MariaDB
+Oracle
+SQLite
+```
+
+---
+
+## Q107. Does Django ORM eliminate SQL completely?
+
+**No.**
+
+> ORM abstracts most database operations, but developers can still use raw SQL when necessary.
+
+---
+
+## Q108. Is Django only for frontend development?
+
+**No.**
+
+Django is primarily a backend web framework that can render HTML templates and also provide APIs/responses.
+
+---
+
+## Q109. Is Django the same as React?
+
+**No.**
+
+Django is a Python web framework, while React is a JavaScript library primarily used for building user interfaces.
+
+They can be used together.
+
+---
+
+# PART 32 — Code-Based Viva 🔥
+
+Teacher may show you code and ask:
+
+> "What will this do?"
+
+### Q110.
+
+```python
+students = Student.objects.filter(
+    marks__gte=80
+)
+```
+
+Answer:
+
+> It retrieves students whose marks are greater than or equal to 80.
+
+---
+
+### Q111.
+
+```python
+students = Student.objects.filter(
+    course="CSE"
+).order_by("-marks")
+```
+
+Answer:
+
+> It retrieves CSE students and sorts them by marks in descending order.
+
+---
+
+### Q112.
+
+```python
+Student.objects.update(
+    marks=F("marks") + 5
+)
+```
+
+Answer:
+
+> It increases the marks of every selected record by 5 using a database-side field expression.
+
+---
+
+### Q113.
+
+```python
+student = get_object_or_404(
+    Student,
+    id=5
+)
+```
+
+Answer:
+
+> It retrieves the student with ID 5 and returns a 404 response if the object doesn't exist.
+
+---
+
+### Q114.
+
+```python
+@login_required
+def dashboard(request):
+    ...
+```
+
+Answer:
+
+> Only authenticated users can access this view.
+
+---
+
+### Q115.
+
+```python
+if user is not None:
+    login(request, user)
+```
+
+Answer:
+
+> If authentication succeeds, Django establishes the user's authenticated session.
+
+---
+
+# PART 33 — "Explain Your Project" Viva
+
+If your teacher says:
+
+> **"Explain your Django project."**
+
+Don't start randomly explaining files.
+
+Use this structure:
+
+### Step 1 — Project purpose
+
+> "My project is a Student Management System built using Django."
+
+### Step 2 — Architecture
+
+> "I used Django's MVT architecture."
+
+### Step 3 — Model
+
+> "The Student model stores information such as name, email, course, age and marks."
+
+### Step 4 — Database
+
+> "I used Django ORM to interact with the database."
+
+### Step 5 — CRUD
+
+> "The application supports creating, viewing, updating and deleting students."
+
+### Step 6 — Forms
+
+> "I used ModelForm for handling student input and validation."
+
+### Step 7 — Authentication
+
+> "I implemented user registration, login, logout and protected views."
+
+### Step 8 — Security
+
+> "POST forms use CSRF protection, passwords are handled by Django's authentication system, and authorization is enforced server-side."
+
+### Step 9 — Admin
+
+> "I registered the model with Django Admin for administrative management."
+
+That's a **very strong project explanation**.
+
+---
+
+# PART 34 — Rapid Fire Round ⚡
+
+Try answering these mentally before looking at the answer.
+
+### 1. Django language?
+
+> Python.
+
+### 2. Architecture?
+
+> MVT.
+
+### 3. Database abstraction?
+
+> ORM.
+
+### 4. Project configuration?
+
+> `settings.py`.
+
+### 5. URL configuration?
+
+> `urls.py`.
+
+### 6. Database models?
+
+> `models.py`.
+
+### 7. Request logic?
+
+> `views.py`.
+
+### 8. HTML presentation?
+
+> Templates.
+
+### 9. Form validation?
+
+> `is_valid()`.
+
+### 10. CSRF protection?
+
+> `{% csrf_token %}`.
+
+### 11. Create migrations?
+
+> `makemigrations`.
+
+### 12. Apply migrations?
+
+> `migrate`.
+
+### 13. Database query?
+
+> ORM / QuerySet.
+
+### 14. Create user?
+
+> `create_user()`.
+
+### 15. Verify credentials?
+
+> `authenticate()`.
+
+### 16. Start authenticated session?
+
+> `login()`.
+
+### 17. End authentication?
+
+> `logout()`.
+
+### 18. Current user?
+
+> `request.user`.
+
+### 19. Protect authenticated view?
+
+> `@login_required`.
+
+### 20. Check permission?
+
+> `has_perm()`.
+
+### 21. Admin user?
+
+> Superuser.
+
+### 22. Cookie?
+
+> Browser-side stored data.
+
+### 23. Session?
+
+> User-specific state across requests.
+
+### 24. 404?
+
+> Not Found.
+
+### 25. 403?
+
+> Forbidden.
+
+---
+
+# PART 35 — 10 "Trap" Questions
+
+These are worth memorizing.
+
+### Trap 1
+
+**Is `authenticate()` enough to log someone in?**
+
+> No. It verifies credentials; `login()` establishes the authenticated session.
+
+---
+
+### Trap 2
+
+**Does `@login_required` check permissions?**
+
+> No. It checks whether the user is authenticated.
+
+---
+
+### Trap 3
+
+**Does POST automatically encrypt data?**
+
+> No. HTTPS provides encryption.
+
+---
+
+### Trap 4
+
+**Does `makemigrations` change the database?**
+
+> No. It creates migration files. `migrate` applies them.
+
+---
+
+### Trap 5
+
+**Does `filter()` return one object?**
+
+> No. It returns a QuerySet.
+
+---
+
+### Trap 6
+
+**Does `get()` return a QuerySet?**
+
+> No. It returns a single model object if exactly one match exists.
+
+---
+
+### Trap 7
+
+**Is CSRF protection the same as authentication?**
+
+> No. CSRF protects against forged requests; authentication identifies users.
+
+---
+
+### Trap 8
+
+**Is hiding a delete button authorization?**
+
+> No. The backend must enforce authorization.
+
+---
+
+### Trap 9
+
+**Does `startapp` automatically register the app?**
+
+> No.
+
+---
+
+### Trap 10
+
+**Are migrations database backups?**
+
+> No.
+
+---
+
+# PART 36 — Your Final Viva Memory Map
+
+If you forget everything during viva, rebuild Django from this:
+
+```text id="wqfjdn"
+DJANGO
+│
+├── Project
+│   ├── settings.py
+│   └── urls.py
+│
+├── App
+│   ├── views.py
+│   ├── models.py
+│   ├── forms.py
+│   ├── admin.py
+│   └── tests.py
+│
+├── URL
+│   ↓
+│  View
+│   ↓
+│  Model / Form
+│   ↓
+│  Database
+│   ↓
+│  Template
+│   ↓
+│  Response
+│
+├── Database
+│   ├── Model
+│   ├── Migration
+│   └── ORM
+│
+├── Security
+│   ├── CSRF
+│   ├── Authentication
+│   └── Authorization
+│
+└── State
+    ├── Cookies
+    └── Sessions
+```
+
+---
+
+# Module 43 Complete ✅
+
+You now have a strong set of **conceptual + tricky + code-based viva answers**.
+
+The final module is the most practical one:
+
+# Module 44 — Django Coding Question Masterclass 💻
+
+We'll practice coding questions from **easy → medium → advanced**, including questions such as:
+
+```text
+1. Create a Django view
+2. Map a URL
+3. Pass URL parameters
+4. Create dynamic templates
+5. Build a form
+6. Validate form data
+7. Create a model
+8. Write ORM queries
+9. Implement CRUD
+10. Create ForeignKey relationships
+11. Customize Admin
+12. Implement registration
+13. Implement login/logout
+14. Protect views
+15. Implement permissions
+16. Use sessions/cookies
+17. Build a complete Django application
+```
+
+This will be the **final coding preparation module**.

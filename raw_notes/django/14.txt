@@ -1,0 +1,1653 @@
+# Module 14 — Template Tags: `if`, `else`, `elif`, and `for`
+
+Now we learn one of the **most important parts of DTL**.
+
+So far, you've learned how to display:
+
+```html
+{{ name }}
+```
+
+and apply filters:
+
+```html
+{{ name|upper }}
+```
+
+But real websites need to **make decisions** and **repeat content**.
+
+For example:
+
+> If the student is 18 or older, display "Adult".
+
+Or:
+
+> For every student, display their name.
+
+Django Template Language provides **template tags** for this.
+
+---
+
+# 1. What Is a Template Tag?
+
+Template tags use:
+
+```html
+{% ... %}
+```
+
+They allow you to perform operations inside templates.
+
+Examples:
+
+```html
+{% if %}
+{% for %}
+{% url %}
+{% extends %}
+{% block %}
+```
+
+In this module, we'll focus on:
+
+```html
+{% if %}
+{% elif %}
+{% else %}
+{% for %}
+```
+
+---
+
+# 2. `if` Tag
+
+Basic syntax:
+
+```html
+{% if condition %}
+    ...
+{% endif %}
+```
+
+Example:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+{% endif %}
+```
+
+If:
+
+```text
+age = 21
+```
+
+output:
+
+```text
+Adult
+```
+
+If:
+
+```text
+age = 15
+```
+
+nothing inside the `if` block is displayed.
+
+---
+
+# 3. Complete Example
+
+### View
+
+```python
+from django.shortcuts import render
+
+def student(request):
+
+    context = {
+        'name': 'Aman',
+        'age': 21
+    }
+
+    return render(
+        request,
+        'student.html',
+        context
+    )
+```
+
+### Template
+
+```html
+<h1>{{ name }}</h1>
+
+{% if age >= 18 %}
+    <p>Adult</p>
+{% endif %}
+```
+
+Output:
+
+```text
+Aman
+Adult
+```
+
+---
+
+# 4. `else`
+
+If you want another result when the condition is false:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+{% else %}
+    <p>Minor</p>
+{% endif %}
+```
+
+For:
+
+```text
+age = 21
+```
+
+output:
+
+```text
+Adult
+```
+
+For:
+
+```text
+age = 15
+```
+
+output:
+
+```text
+Minor
+```
+
+---
+
+# 5. `elif`
+
+You can check multiple conditions.
+
+```html
+{% if marks >= 90 %}
+    <p>Grade A+</p>
+{% elif marks >= 80 %}
+    <p>Grade A</p>
+{% elif marks >= 70 %}
+    <p>Grade B</p>
+{% else %}
+    <p>Needs improvement</p>
+{% endif %}
+```
+
+If:
+
+```text
+marks = 85
+```
+
+output:
+
+```text
+Grade A
+```
+
+---
+
+# 6. How `if-elif-else` Works
+
+Django checks from top to bottom:
+
+```text
+marks >= 90?
+     ↓
+   No
+     ↓
+marks >= 80?
+     ↓
+   Yes
+     ↓
+Grade A
+     ↓
+STOP
+```
+
+Once one condition is true, the remaining conditions aren't evaluated for that chain.
+
+---
+
+# 7. Comparison Operators
+
+DTL supports common comparisons.
+
+You should know:
+
+```text
+==    equal
+!=    not equal
+>     greater than
+<     less than
+>=    greater than or equal
+<=    less than or equal
+```
+
+Examples:
+
+```html
+{% if age == 18 %}
+{% if age != 18 %}
+{% if age > 18 %}
+{% if age < 18 %}
+{% if age >= 18 %}
+{% if age <= 18 %}
+```
+
+---
+
+# 8. Equality
+
+```html
+{% if name == "Aman" %}
+    <p>Welcome Aman</p>
+{% endif %}
+```
+
+If:
+
+```text
+name = Aman
+```
+
+the message appears.
+
+---
+
+# 9. Not Equal
+
+```html
+{% if name != "Aman" %}
+    <p>You are not Aman.</p>
+{% endif %}
+```
+
+---
+
+# 10. `and`
+
+You can combine conditions.
+
+```html
+{% if age >= 18 and age <= 25 %}
+    <p>Young adult</p>
+{% endif %}
+```
+
+This requires **both conditions** to be true.
+
+---
+
+# 11. `or`
+
+```html
+{% if course == "CSE" or course == "IT" %}
+    <p>Computer-related course</p>
+{% endif %}
+```
+
+Only one condition needs to be true.
+
+---
+
+# 12. `not`
+
+You can negate a condition:
+
+```html
+{% if not logged_in %}
+    <p>Please login.</p>
+{% endif %}
+```
+
+We'll use this extensively when we study authentication.
+
+---
+
+# 13. Combining Conditions
+
+Example:
+
+```html
+{% if age >= 18 and course == "CSE" %}
+    <p>Eligible</p>
+{% else %}
+    <p>Not eligible</p>
+{% endif %}
+```
+
+Suppose:
+
+```text
+age = 21
+course = CSE
+```
+
+Output:
+
+```text
+Eligible
+```
+
+---
+
+# 14. Important: Don't Write Python Syntax
+
+A common mistake is trying:
+
+```html
+{% if age >= 18: %}
+```
+
+Don't add the Python colon.
+
+Correct:
+
+```html
+{% if age >= 18 %}
+```
+
+Similarly, don't write:
+
+```html
+{% for student in students: %}
+```
+
+Correct:
+
+```html
+{% for student in students %}
+```
+
+DTL has its own syntax.
+
+---
+
+# 15. `for` Loop
+
+Now let's learn loops.
+
+Basic syntax:
+
+```html
+{% for item in items %}
+    ...
+{% endfor %}
+```
+
+Example:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% endfor %}
+```
+
+---
+
+# 16. Complete Loop Example
+
+### View
+
+```python
+def students(request):
+
+    students = [
+        'Aman',
+        'Rahul',
+        'Rohit'
+    ]
+
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )
+```
+
+### Template
+
+```html
+<h1>Students</h1>
+
+{% for student in students %}
+    <p>{{ student }}</p>
+{% endfor %}
+```
+
+Output:
+
+```text
+Students
+
+Aman
+Rahul
+Rohit
+```
+
+---
+
+# 17. How the Loop Works
+
+Django takes:
+
+```python
+students = [
+    'Aman',
+    'Rahul',
+    'Rohit'
+]
+```
+
+and effectively does:
+
+```text
+student = Aman
+    ↓
+<p>Aman</p>
+
+student = Rahul
+    ↓
+<p>Rahul</p>
+
+student = Rohit
+    ↓
+<p>Rohit</p>
+```
+
+The HTML inside the loop is rendered once for every item.
+
+---
+
+# 18. Looping Through Dictionaries
+
+Suppose:
+
+```python
+student = {
+    'name': 'Aman',
+    'age': 21
+}
+```
+
+You can loop through dictionary items using:
+
+```html
+{% for key, value in student.items %}
+    <p>{{ key }}: {{ value }}</p>
+{% endfor %}
+```
+
+Output:
+
+```text
+name: Aman
+age: 21
+```
+
+---
+
+# 19. Looping Through Model-Like Objects
+
+Suppose later your view retrieves:
+
+```python
+students = Student.objects.all()
+```
+
+Then:
+
+```html
+{% for student in students %}
+    <p>{{ student.name }}</p>
+{% endfor %}
+```
+
+can display every student's name.
+
+This is how templates become connected to databases.
+
+---
+
+# 20. `forloop.counter`
+
+Django provides special variables inside a `for` loop.
+
+One of the most important is:
+
+```text
+forloop.counter
+```
+
+It starts at **1**.
+
+Example:
+
+```html
+{% for student in students %}
+    <p>{{ forloop.counter }}. {{ student }}</p>
+{% endfor %}
+```
+
+Output:
+
+```text
+1. Aman
+2. Rahul
+3. Rohit
+```
+
+---
+
+# 21. `forloop.counter0`
+
+This starts at **0**.
+
+```html
+{% for student in students %}
+    <p>{{ forloop.counter0 }} - {{ student }}</p>
+{% endfor %}
+```
+
+Output:
+
+```text
+0 - Aman
+1 - Rahul
+2 - Rohit
+```
+
+---
+
+# 22. `forloop.revcounter`
+
+This counts backwards starting from the total number of items.
+
+For:
+
+```text
+Aman
+Rahul
+Rohit
+```
+
+you get:
+
+```text
+3
+2
+1
+```
+
+Example:
+
+```html
+{% for student in students %}
+    {{ forloop.revcounter }} - {{ student }}
+{% endfor %}
+```
+
+---
+
+# 23. `forloop.revcounter0`
+
+This starts at:
+
+```text
+length - 1
+```
+
+For three items:
+
+```text
+2
+1
+0
+```
+
+---
+
+# 24. `forloop.first`
+
+This tells you whether the current iteration is the first one.
+
+Example:
+
+```html
+{% for student in students %}
+    {% if forloop.first %}
+        <strong>First Student: {{ student }}</strong>
+    {% else %}
+        <p>{{ student }}</p>
+    {% endif %}
+{% endfor %}
+```
+
+Only the first student gets the special formatting.
+
+---
+
+# 25. `forloop.last`
+
+Similarly:
+
+```html
+{% if forloop.last %}
+```
+
+is true during the final iteration.
+
+Example:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+
+    {% if not forloop.last %}
+        <hr>
+    {% endif %}
+{% endfor %}
+```
+
+This displays a separator between items but not after the last one.
+
+---
+
+# 26. `forloop.parentloop`
+
+This is useful with nested loops.
+
+Suppose:
+
+```html
+{% for course in courses %}
+    {% for student in course.students %}
+        ...
+    {% endfor %}
+{% endfor %}
+```
+
+Inside the inner loop:
+
+```text
+forloop
+```
+
+refers to the inner loop.
+
+To access the outer loop's loop information, Django provides:
+
+```text
+forloop.parentloop
+```
+
+This is an advanced concept, but useful for difficult viva questions.
+
+---
+
+# 27. `empty`
+
+Suppose the list is empty:
+
+```python
+students = []
+```
+
+Instead of writing a separate `if`, Django provides:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% empty %}
+    <p>No students found.</p>
+{% endfor %}
+```
+
+If the list contains students, they are displayed.
+
+If it is empty:
+
+```text
+No students found.
+```
+
+---
+
+# 28. Why Is `{% empty %}` Useful?
+
+Without `empty`, you might write:
+
+```html
+{% if students %}
+    {% for student in students %}
+        <p>{{ student }}</p>
+    {% endfor %}
+{% else %}
+    <p>No students found.</p>
+{% endif %}
+```
+
+This works.
+
+But:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% empty %}
+    <p>No students found.</p>
+{% endfor %}
+```
+
+is cleaner for this particular situation.
+
+---
+
+# 29. Loop With Objects
+
+Suppose the view sends:
+
+```python
+students = [
+    {
+        'name': 'Aman',
+        'age': 21
+    },
+    {
+        'name': 'Rahul',
+        'age': 22
+    }
+]
+```
+
+Template:
+
+```html
+{% for student in students %}
+    <h3>{{ student.name }}</h3>
+    <p>Age: {{ student.age }}</p>
+{% endfor %}
+```
+
+Output:
+
+```text
+Aman
+Age: 21
+
+Rahul
+Age: 22
+```
+
+---
+
+# 30. Combining `for` and `if`
+
+This is extremely common.
+
+```html
+{% for student in students %}
+    {% if student.age >= 18 %}
+        <p>{{ student.name }} is an adult.</p>
+    {% endif %}
+{% endfor %}
+```
+
+This means:
+
+```text
+For every student:
+    if age >= 18:
+        display student
+```
+
+---
+
+# 31. Example — Display Only CSE Students
+
+View:
+
+```python
+students = [
+    {'name': 'Aman', 'course': 'CSE'},
+    {'name': 'Rahul', 'course': 'ECE'},
+    {'name': 'Rohit', 'course': 'CSE'}
+]
+```
+
+Template:
+
+```html
+{% for student in students %}
+    {% if student.course == "CSE" %}
+        <p>{{ student.name }}</p>
+    {% endif %}
+{% endfor %}
+```
+
+Output:
+
+```text
+Aman
+Rohit
+```
+
+---
+
+# 32. Example — Numbered Student List
+
+```html
+<ol>
+{% for student in students %}
+    <li>
+        {{ forloop.counter }}. {{ student.name }}
+    </li>
+{% endfor %}
+</ol>
+```
+
+Output conceptually:
+
+```text
+1. Aman
+2. Rahul
+3. Rohit
+```
+
+---
+
+# 33. Nested Loops
+
+Suppose:
+
+```python
+departments = [
+    {
+        'name': 'CSE',
+        'students': ['Aman', 'Rahul']
+    },
+    {
+        'name': 'ECE',
+        'students': ['Rohit', 'Raj']
+    }
+]
+```
+
+Template:
+
+```html
+{% for department in departments %}
+
+    <h2>{{ department.name }}</h2>
+
+    {% for student in department.students %}
+        <p>{{ student }}</p>
+    {% endfor %}
+
+{% endfor %}
+```
+
+Output:
+
+```text
+CSE
+Aman
+Rahul
+
+ECE
+Rohit
+Raj
+```
+
+---
+
+# 34. Nested Loop Mental Model
+
+Think:
+
+```text
+CSE
+ ├── Aman
+ └── Rahul
+
+ECE
+ ├── Rohit
+ └── Raj
+```
+
+Outer loop:
+
+```html
+{% for department in departments %}
+```
+
+Inner loop:
+
+```html
+{% for student in department.students %}
+```
+
+---
+
+# 35. `forloop.counter` in Nested Loops
+
+Be careful.
+
+Inside:
+
+```html
+{% for department in departments %}
+    {% for student in department.students %}
+        {{ forloop.counter }}
+    {% endfor %}
+{% endfor %}
+```
+
+`forloop.counter` refers to the **inner loop's counter**.
+
+If you need the outer loop counter:
+
+```html
+{{ forloop.parentloop.counter }}
+```
+
+---
+
+# 36. Example
+
+```html
+{% for department in departments %}
+
+    <h2>
+        Department {{ forloop.counter }}:
+        {{ department.name }}
+    </h2>
+
+    {% for student in department.students %}
+        <p>
+            {{ forloop.parentloop.counter }}.
+            {{ forloop.counter }}.
+            {{ student }}
+        </p>
+    {% endfor %}
+
+{% endfor %}
+```
+
+The outer and inner counters are separate.
+
+---
+
+# 37. Important DTL Truthiness
+
+Conditions can evaluate values as true/false.
+
+For example:
+
+```html
+{% if students %}
+```
+
+can be useful for checking whether a collection contains data.
+
+Similarly:
+
+```html
+{% if name %}
+```
+
+can check whether `name` has a usable non-empty value.
+
+This is commonly used in templates.
+
+---
+
+# 38. Example — Login Message
+
+Later, when you learn authentication, you'll see code like:
+
+```html
+{% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}</p>
+{% else %}
+    <p>Please login.</p>
+{% endif %}
+```
+
+This is a real-world use of `if`.
+
+---
+
+# 39. `and`, `or`, `not`
+
+Remember:
+
+```html
+{% if condition1 and condition2 %}
+```
+
+```html
+{% if condition1 or condition2 %}
+```
+
+```html
+{% if not condition %}
+```
+
+Example:
+
+```html
+{% if age >= 18 and has_id %}
+    <p>Allowed</p>
+{% endif %}
+```
+
+---
+
+# 40. Important DTL Limitation
+
+Don't assume you can perform arbitrary complex Python expressions inside an `if`.
+
+For example, don't treat:
+
+```html
+{% if complex_python_expression %}
+```
+
+as if it were a normal Python environment.
+
+The template language intentionally provides a restricted set of operations.
+
+If complex business logic is required, prepare the result in the view and send it through context.
+
+---
+
+# 41. Better Design
+
+Instead of making the template perform complicated logic:
+
+```text
+Template
+   ↓
+Huge business logic
+```
+
+prefer:
+
+```text
+View
+   ↓
+Calculate/prepare data
+   ↓
+Context
+   ↓
+Template
+   ↓
+Display
+```
+
+Example:
+
+### View:
+
+```python
+is_eligible = age >= 18 and marks >= 50
+
+return render(
+    request,
+    'result.html',
+    {'is_eligible': is_eligible}
+)
+```
+
+### Template:
+
+```html
+{% if is_eligible %}
+    <p>Eligible</p>
+{% else %}
+    <p>Not eligible</p>
+{% endif %}
+```
+
+This keeps the template simple.
+
+---
+
+# 42. Common Mistake — Missing `endif`
+
+Wrong:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+```
+
+Correct:
+
+```html
+{% if age >= 18 %}
+    <p>Adult</p>
+{% endif %}
+```
+
+---
+
+# 43. Common Mistake — Missing `endfor`
+
+Wrong:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+```
+
+Correct:
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% endfor %}
+```
+
+---
+
+# 44. Common Mistake — Using `{{ }}` for Conditions
+
+Wrong:
+
+```html
+{{ if age >= 18 }}
+```
+
+Correct:
+
+```html
+{% if age >= 18 %}
+```
+
+Remember:
+
+```text
+{{ }} → variable
+{% %} → tag
+```
+
+---
+
+# 45. Common Mistake — Python Colon
+
+Wrong:
+
+```html
+{% if age >= 18: %}
+```
+
+Correct:
+
+```html
+{% if age >= 18 %}
+```
+
+Wrong:
+
+```html
+{% for student in students: %}
+```
+
+Correct:
+
+```html
+{% for student in students %}
+```
+
+---
+
+# 46. Common Mistake — Wrong End Tag
+
+Wrong:
+
+```html
+{% if age >= 18 %}
+    Adult
+{% endfor %}
+```
+
+`if` must end with:
+
+```html
+{% endif %}
+```
+
+A `for` must end with:
+
+```html
+{% endfor %}
+```
+
+---
+
+# 47. Viva Questions
+
+### Q1. What is a template tag?
+
+> A template tag is Django Template Language syntax used to perform operations or control template rendering.
+
+### Q2. What is the syntax of an `if` tag?
+
+```html
+{% if condition %}
+    ...
+{% endif %}
+```
+
+### Q3. What is the syntax of a `for` loop?
+
+```html
+{% for item in items %}
+    ...
+{% endfor %}
+```
+
+### Q4. What does `forloop.counter` do?
+
+> It provides the current loop iteration number starting from 1.
+
+### Q5. What does `forloop.counter0` do?
+
+> It provides the current iteration number starting from 0.
+
+---
+
+# 48. Viva — `forloop.first` and `last`
+
+### Q:
+
+What is `forloop.first`?
+
+> It is true during the first iteration of a Django template `for` loop.
+
+### Q:
+
+What is `forloop.last`?
+
+> It is true during the last iteration.
+
+---
+
+# 49. Viva — `{% empty %}`
+
+### Q:
+
+What does `{% empty %}` do?
+
+Answer:
+
+> It provides alternative template content when a Django `for` loop has no items to iterate over.
+
+Example:
+
+```html
+{% for student in students %}
+    {{ student }}
+{% empty %}
+    No students found.
+{% endfor %}
+```
+
+---
+
+# 50. Coding Question
+
+### Requirement:
+
+Display "Adult" if age is 18 or more, otherwise display "Minor".
+
+Answer:
+
+```html
+{% if age >= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}
+```
+
+---
+
+# 51. Coding Question
+
+### Requirement:
+
+Display every student's name.
+
+```html
+{% for student in students %}
+    <p>{{ student.name }}</p>
+{% endfor %}
+```
+
+---
+
+# 52. Coding Question
+
+### Requirement:
+
+Display:
+
+```text
+1. Aman
+2. Rahul
+3. Rohit
+```
+
+Answer:
+
+```html
+{% for student in students %}
+    <p>
+        {{ forloop.counter }}. {{ student }}
+    </p>
+{% endfor %}
+```
+
+---
+
+# 53. Coding Question
+
+### Requirement:
+
+Display "No students found" if the list is empty.
+
+```html
+{% for student in students %}
+    <p>{{ student }}</p>
+{% empty %}
+    <p>No students found.</p>
+{% endfor %}
+```
+
+---
+
+# 54. Coding Question — Conditional Loop
+
+Display only students who are 18 or older.
+
+```html
+{% for student in students %}
+    {% if student.age >= 18 %}
+        <p>{{ student.name }}</p>
+    {% endif %}
+{% endfor %}
+```
+
+---
+
+# 55. Predict the Output
+
+Context:
+
+```python
+{
+    'age': 20
+}
+```
+
+Template:
+
+```html
+{% if age >= 18 %}
+    Adult
+{% else %}
+    Minor
+{% endif %}
+```
+
+Output:
+
+```text
+Adult
+```
+
+---
+
+# 56. Predict the Output
+
+Context:
+
+```python
+{
+    'students': ['Aman', 'Rahul', 'Rohit']
+}
+```
+
+Template:
+
+```html
+{% for student in students %}
+    {{ forloop.counter }} - {{ student }}
+{% endfor %}
+```
+
+Output:
+
+```text
+1 - Aman
+2 - Rahul
+3 - Rohit
+```
+
+---
+
+# 57. Predict the Output
+
+Context:
+
+```python
+{
+    'students': []
+}
+```
+
+Template:
+
+```html
+{% for student in students %}
+    {{ student }}
+{% empty %}
+    No students
+{% endfor %}
+```
+
+Output:
+
+```text
+No students
+```
+
+---
+
+# ⭐ Module 14 Cheat Sheet
+
+### If:
+
+```html
+{% if condition %}
+{% endif %}
+```
+
+### If/else:
+
+```html
+{% if condition %}
+{% else %}
+{% endif %}
+```
+
+### Multiple conditions:
+
+```html
+{% if condition1 %}
+{% elif condition2 %}
+{% else %}
+{% endif %}
+```
+
+### Loop:
+
+```html
+{% for item in items %}
+{% endfor %}
+```
+
+### Empty loop:
+
+```html
+{% for item in items %}
+{% empty %}
+{% endfor %}
+```
+
+### Loop information:
+
+```text
+forloop.counter       → 1, 2, 3...
+forloop.counter0      → 0, 1, 2...
+forloop.revcounter    → n, ..., 1
+forloop.revcounter0   → n-1, ..., 0
+forloop.first         → True on first iteration
+forloop.last          → True on last iteration
+```
+
+### Nested loops:
+
+```text
+forloop.parentloop
+```
+
+### Operators:
+
+```text
+==  !=  >  <  >=  <=
+and  or  not
+```
+
+---
+
+# 🧠 The Core Pattern You Must Memorize
+
+When displaying **one value**:
+
+```html
+{{ name }}
+```
+
+When making a **decision**:
+
+```html
+{% if condition %}
+{% endif %}
+```
+
+When **repeating something**:
+
+```html
+{% for item in items %}
+{% endfor %}
+```
+
+Think:
+
+```text
+{{ }} → DATA
+{% %} → LOGIC
+```
+
+---
+
+# 🎯 Module 14 Exam-Level Challenge
+
+Given this view:
+
+```python
+def students(request):
+
+    students = [
+        {
+            'name': 'Aman',
+            'age': 21,
+            'course': 'CSE'
+        },
+        {
+            'name': 'Rahul',
+            'age': 17,
+            'course': 'ECE'
+        },
+        {
+            'name': 'Rohit',
+            'age': 22,
+            'course': 'CSE'
+        }
+    ]
+
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )
+```
+
+Write a template that:
+
+1. Displays every student's number.
+2. Displays their name and course.
+3. Displays **"Adult"** if age ≥ 18, otherwise **"Minor"**.
+4. Displays **"CSE Student"** only for CSE students.
+5. Displays `"No students found"` if the list is empty.
+
+A correct solution would combine **`for` + `forloop.counter` + `if/else` + `empty`**.
+
+Once you can solve that, you are ready for the next level.
+
+---
+
+## Next → Module 15: Template Filters in Depth
+
+We'll properly master filters such as:
+
+```text
+upper
+lower
+title
+length
+default
+truncatechars
+join
+date
+add
+floatformat
+cut
+```
+
+and learn **how to combine filters, pass filter arguments, format dates/numbers, and solve filter-based coding/viva questions**.

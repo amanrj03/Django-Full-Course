@@ -1,0 +1,1312 @@
+# MODULE 3 — CONSENSUS PROTOCOLS ⭐⭐⭐⭐⭐
+
+This is one of the **most important modules for your Monday exam**.
+
+If a **10-mark question** comes from Unit I, **Consensus** is one of the strongest possibilities.
+
+Your PPT defines consensus as achieving agreement between **distrusting nodes on the final state of data**. A consensus mechanism is the set of steps used by nodes to agree on a proposed state/value and determine which transactions are valid. 
+
+---
+
+# 1. Why Do We Need Consensus?
+
+Let's start from the fundamental problem.
+
+Suppose there are 5 blockchain nodes:
+
+```text
+       N1
+      /  \
+    N2    N3
+     \    /
+      N4
+       |
+      N5
+```
+
+Alice sends:
+
+> "Send ₹100 to Bob."
+
+All nodes need to eventually agree:
+
+```text
+Is this transaction valid?
+        ↓
+YES or NO
+        ↓
+What is the final state of the ledger?
+```
+
+But these nodes:
+
+* Don't necessarily trust each other.
+* May receive messages at different times.
+* May fail.
+* May be malicious.
+* May receive conflicting transactions.
+
+Therefore, simply saying:
+
+> "Everyone, please agree"
+
+doesn't work.
+
+We need a **consensus mechanism**.
+
+---
+
+# 2. Definition of Consensus ⭐
+
+### Exam definition
+
+> **Consensus is the process of achieving agreement among distrusting nodes on the final state of data in a distributed system.**
+
+This is essentially the definition used in your PPT. 
+
+### Consensus mechanism
+
+> A **consensus mechanism** is a set of steps followed by nodes in a blockchain to agree on a proposed state or value and determine which transactions are valid.
+
+
+
+### Simple meaning
+
+```text
+Many computers
+      ↓
+Different views / proposals
+      ↓
+Consensus mechanism
+      ↓
+ONE accepted state
+```
+
+---
+
+# 3. Why Is Consensus Difficult?
+
+With two computers:
+
+```text
+A ↔ B
+```
+
+agreement is relatively easy.
+
+But imagine:
+
+```text
+N1
+N2
+N3
+N4
+N5
+...
+N10,000
+```
+
+They need to agree on the same state.
+
+Some could be faulty or malicious.
+
+Your PPT specifically says that reaching agreement becomes challenging when multiple nodes participate in a distributed system. 
+
+---
+
+# 4. Requirements of Consensus ⭐⭐⭐⭐⭐
+
+This is a **very likely 5-mark question**.
+
+Your PPT gives **five requirements**:
+
+1. Agreement
+2. Integrity
+3. Validity
+4. Fault tolerance
+5. Termination
+
+
+
+Let's understand each.
+
+---
+
+## 4.1 Agreement
+
+All honest nodes should decide on the **same value**.
+
+Example:
+
+```text
+N1 → ACCEPT
+N2 → ACCEPT
+N3 → ACCEPT
+N4 → ACCEPT
+```
+
+They shouldn't have:
+
+```text
+N1 → ACCEPT
+N2 → REJECT
+N3 → ACCEPT
+N4 → REJECT
+```
+
+### Exam line:
+
+> Agreement ensures that all honest nodes reach the same decision.
+
+
+
+---
+
+# 4.2 Integrity
+
+A node shouldn't make the decision more than once during a single consensus cycle.
+
+For example:
+
+```text
+N1 → ACCEPT
+```
+
+It shouldn't later change its decision within that same cycle to:
+
+```text
+N1 → REJECT
+```
+
+Your PPT describes integrity as the requirement that no node makes the decision more than once in a single consensus cycle. 
+
+---
+
+# 4.3 Validity
+
+The agreed value should be based on a value initially proposed by at least one honest node.
+
+In simple terms:
+
+> Consensus shouldn't magically produce an unrelated value.
+
+---
+
+# 4.4 Fault Tolerance
+
+The system should continue working correctly even if some nodes are:
+
+* Faulty
+* Malicious
+* Byzantine
+
+Your PPT specifically includes Byzantine nodes in this requirement. 
+
+---
+
+# 4.5 Termination
+
+Eventually, honest nodes must finish the consensus process and reach a decision.
+
+It shouldn't continue forever:
+
+```text
+Vote → Vote → Vote → Vote → ...
+```
+
+Instead:
+
+```text
+Proposal
+   ↓
+Consensus process
+   ↓
+Decision
+   ↓
+STOP
+```
+
+Your PPT explicitly includes termination as a consensus requirement. 
+
+---
+
+# ⭐ Memorize This
+
+For the exam:
+
+> **A-I-V-F-T**
+
+```text
+A → Agreement
+I → Integrity
+V → Validity
+F → Fault tolerance
+T → Termination
+```
+
+If asked:
+
+> "What are the requirements of consensus?"
+
+Immediately write:
+
+**Agreement, Integrity, Validity, Fault tolerance, Termination.**
+
+---
+
+# 5. Types of Faults
+
+Your Consensus PPT divides faults into two important categories:
+
+### 1. Fail-stop faults
+
+### 2. Byzantine faults
+
+
+
+---
+
+# 6. Fail-Stop Fault
+
+A fail-stop fault means the node simply stops functioning.
+
+Example:
+
+```text
+N1 → Working
+N2 → Working
+N3 → CRASH ❌
+N4 → Working
+```
+
+The node doesn't necessarily behave maliciously.
+
+It simply stops.
+
+### Example
+
+Computer crashes.
+
+---
+
+### Solutions mentioned in your PPT:
+
+* Paxos
+* RAFT
+
+
+
+Don't worry about Paxos/RAFT deeply for this syllabus unless your teacher specifically asks them.
+
+---
+
+# 7. Byzantine Fault ⭐⭐⭐⭐⭐
+
+This is much more dangerous.
+
+A Byzantine node can behave maliciously/arbitrarily.
+
+Example:
+
+```text
+N1 → "Transaction valid"
+N2 → "Transaction valid"
+N3 → "Transaction INVALID"
+N4 → "Transaction valid"
+```
+
+Or even:
+
+```text
+To N1: ACCEPT
+To N2: REJECT
+```
+
+That's why Byzantine faults are much harder.
+
+Your PPT associates Byzantine faults with malicious behavior, software bugs and data corruption. 
+
+---
+
+# 8. Fail-Stop vs Byzantine
+
+### Very useful 5-mark comparison
+
+| Fail-stop fault                           | Byzantine fault                                    |
+| ----------------------------------------- | -------------------------------------------------- |
+| Node stops/crashes                        | Node behaves arbitrarily/maliciously               |
+| Easier to handle                          | More difficult                                     |
+| Node generally stops responding           | May send false/conflicting information             |
+| Paxos/RAFT can address fail-stop settings | PBFT addresses Byzantine settings                  |
+| Example: computer crash                   | Example: malicious node sends conflicting messages |
+
+Your PPT explicitly associates fail-stop faults with Paxos/RAFT and Byzantine faults with PBFT/SMR protocols. 
+
+---
+
+# 9. Consensus in Blockchain
+
+Now connect this to blockchain.
+
+A blockchain is a distributed ledger.
+
+Multiple nodes maintain/participate in the network.
+
+Therefore, they need to agree on:
+
+* Which transactions are valid
+* Which block is accepted
+* What the current ledger state is
+
+Conceptually:
+
+```text
+Transaction
+     ↓
+Validation
+     ↓
+Proposal
+     ↓
+CONSENSUS
+     ↓
+Accepted block/state
+     ↓
+Blockchain updated
+```
+
+Your PPT describes consensus as the process through which network peers determine which blockchain transactions are valid and which aren't. 
+
+---
+
+# 10. Two Major Categories of Consensus
+
+Your PPT divides consensus mechanisms into two major categories:
+
+### Category 1 — Proof-based / leader-election / lottery-based
+
+Also called **Nakamoto consensus** in the PPT.
+
+### Category 2 — Byzantine Fault Tolerance (BFT)-based
+
+
+
+---
+
+# 11. Proof-Based / Leader-Election Consensus
+
+The basic idea:
+
+> A mechanism determines which participant gets the right to propose the next block.
+
+The PPT describes proof-based mechanisms as using proof of work, possession of authority, or tokens/stake to obtain the right to propose the next block. 
+
+Examples include:
+
+* Proof of Work
+* Proof of Stake
+* DPoS
+* PoET
+* PoD
+* PoI
+* PoC
+* PoA
+
+---
+
+# 12. BFT-Based Consensus
+
+This is a more traditional distributed-systems approach.
+
+Instead of massive computational work, nodes:
+
+```text
+Exchange messages
+       ↓
+Multiple rounds/phases
+       ↓
+Receive sufficient messages
+       ↓
+Agreement
+```
+
+Your PPT describes BFT-based approaches as relying on rounds of votes/messages rather than compute-intensive operations such as Bitcoin's partial hash inversion. 
+
+Examples:
+
+* PBFT
+* Federated Byzantine consensus
+* FBA
+
+---
+
+# 13. PoW vs BFT
+
+Your PPT gives an important comparison:
+
+| Proof/lottery based                    | BFT based                                                |
+| -------------------------------------- | -------------------------------------------------------- |
+| Suitable for permissionless systems    | Often associated with permissioned/consortium systems    |
+| Leader selection through proof/lottery | Rounds of voting/messages                                |
+| Can scale to many nodes                | Performs well with limited number of nodes               |
+| PoW is slower                          | BFT can provide faster agreement in appropriate settings |
+| Bitcoin uses PoW                       | PBFT is an example                                       |
+
+The PPT notes that BFT mechanisms perform well with a limited number of nodes, while lottery-based PoW consensus can scale well but can be slow. 
+
+---
+
+# 14. PROOF OF WORK — PoW ⭐⭐⭐⭐⭐
+
+This is probably the **most important consensus mechanism** for your exam.
+
+Bitcoin uses PoW.
+
+Your PPT describes PoW as relying on proof that adequate computational resources have been spent before a value/block is accepted by the network. 
+
+---
+
+# 15. Why PoW?
+
+Imagine anyone can join Bitcoin.
+
+How do we decide who gets to propose the next block?
+
+We can't simply say:
+
+> "Everyone gets one vote."
+
+Because someone could create:
+
+```text
+1 computer
+10 computers
+100 computers
+1,000,000 fake identities
+```
+
+This is called a **Sybil attack**.
+
+PoW makes participation costly in terms of computation.
+
+---
+
+# 16. Basic PoW Idea
+
+A miner constructs a candidate block and repeatedly changes a nonce until the resulting hash satisfies the network's difficulty requirement.
+
+Simplified:
+
+```text
+Block data + Nonce
+        ↓
+      Hash
+        ↓
+Does hash satisfy target?
+      ↙       ↘
+    NO         YES
+     ↓          ↓
+Change nonce   Block proposed
+     ↓
+ Try again
+```
+
+For example:
+
+```text
+Nonce = 100 → Hash ❌
+Nonce = 101 → Hash ❌
+Nonce = 102 → Hash ❌
+Nonce = 103 → Hash ❌
+...
+Nonce = 98273 → Hash ✅
+```
+
+The exact PoW target/difficulty details will become clearer when we study Bitcoin, but this is the concept you need now.
+
+---
+
+# 17. What Does the Miner Actually Prove?
+
+The miner proves:
+
+> **"I have spent computational resources to produce a valid solution."**
+
+That's why it's called:
+
+**Proof of Work**
+
+Not:
+
+> Proof that the miner worked hard manually 😂
+
+It is a cryptographic/computational proof.
+
+Your PPT explicitly describes PoW as proof that adequate computational resources have been spent. 
+
+---
+
+# 18. PoW and Sybil Attacks
+
+A Sybil attacker creates many fake identities.
+
+Without a cost:
+
+```text
+Attacker
+ ↓
+N1 N2 N3 N4 N5 N6 N7 ...
+```
+
+With PoW:
+
+Each attempt requires computational resources.
+
+Therefore, simply creating more identities doesn't automatically give unlimited influence.
+
+Your PPT specifically mentions PoW as successful against collusion attacks such as Sybil attacks. 
+
+---
+
+# 19. PoW Advantages
+
+### 1. Open participation
+
+Useful in permissionless blockchains.
+
+### 2. Sybil resistance
+
+Computational cost makes fake identities less useful.
+
+### 3. Security
+
+An attacker needs substantial computational power to consistently control the chain.
+
+### 4. Proven model
+
+Bitcoin successfully uses PoW.
+
+---
+
+# 20. PoW Disadvantages
+
+The major issue:
+
+### High computational/energy requirement
+
+Miners perform large numbers of calculations.
+
+Therefore:
+
+```text
+More computation
+       ↓
+More electricity/resources
+       ↓
+Higher cost
+```
+
+This is one reason alternative consensus mechanisms were developed.
+
+---
+
+# 21. PROOF OF STAKE — PoS ⭐⭐⭐⭐⭐
+
+Instead of asking:
+
+> "Who has done the most computational work?"
+
+PoS asks:
+
+> **"Who has a stake in the system?"**
+
+Your PPT describes PoS as selecting validators based on their stake. 
+
+---
+
+# 22. Basic PoS Idea
+
+Suppose:
+
+```text
+Validator A → 100 coins
+Validator B → 500 coins
+Validator C → 1,000 coins
+```
+
+The protocol uses stake-related rules to select who can validate/propose the next block.
+
+The exact selection mechanism differs between implementations.
+
+Your PPT describes the historical version in terms of **coin age**, where the probability of proposing/signing increases with the amount of coins and how long they have remained unspent. 
+
+---
+
+# 23. PoW vs PoS
+
+| PoW                          | PoS                                       |
+| ---------------------------- | ----------------------------------------- |
+| Based on computational work  | Based on stake                            |
+| Uses computational resources | Does not require PoW-style computation    |
+| Miners                       | Validators                                |
+| High energy use              | Lower energy requirement                  |
+| Mining competition           | Stake-based selection                     |
+| Bitcoin uses PoW             | PoS is used by various blockchain systems |
+
+### Memory:
+
+> **PoW = Work**
+
+> **PoS = Stake**
+
+---
+
+# 24. Delegated Proof of Stake — DPoS
+
+DPoS introduces delegation.
+
+Imagine:
+
+```text
+1000 token holders
+       ↓
+Vote
+       ↓
+Select delegates
+       ↓
+Delegates validate/propose blocks
+```
+
+Your PPT defines DPoS as allowing nodes with stake to delegate transaction validation to other nodes through voting. It gives **BitShares** as an example. 
+
+### Simple difference:
+
+```text
+PoS:
+Stake → validator selection
+
+DPoS:
+Stakeholders → vote → delegates → validation
+```
+
+---
+
+# 25. Proof of Elapsed Time — PoET
+
+PoET uses **time** rather than computational competition.
+
+Your PPT states that PoET was introduced by Intel in 2016 and uses a **Trusted Execution Environment (TEE)** to provide randomness and safety in leader election through guaranteed wait times.
+
+It requires Intel SGX for its security guarantee. 
+
+### Concept
+
+```text
+Node A → waits 5 seconds
+Node B → waits 8 seconds
+Node C → waits 3 seconds
+             ↓
+       C wins
+```
+
+The actual protocol uses a trusted execution environment to ensure the waiting process is trustworthy.
+
+---
+
+# 26. Proof of Deposit — PoD
+
+Simple idea:
+
+> Participants must make a security deposit before they can participate in mining/proposing blocks.
+
+Your PPT states exactly this and gives **Tendermint** as an example. 
+
+Think:
+
+```text
+Deposit money
+      ↓
+Get participation rights
+      ↓
+Misbehave?
+      ↓
+Risk deposit
+```
+
+---
+
+# 27. Proof of Importance — PoI
+
+PoI considers the user's importance/activity rather than simply their balance.
+
+Your PPT states that PoI monitors token usage and movement to establish a level of trust/importance. 
+
+Factors mentioned include:
+
+* Number of transactions
+* Size of transactions
+* Vested currency
+* Network activity
+
+The protocol assigns an **importance score**, and a higher score increases the probability of being selected to harvest a block. 
+
+Example associated with your PPT:
+
+> **NEM**
+
+---
+
+# 28. Federated Consensus / Federated Byzantine Consensus
+
+Here, nodes maintain a group of **publicly trusted peers**.
+
+They propagate transactions validated by the majority of those trusted nodes.
+
+Your PPT describes this mechanism in those terms. 
+
+Simple model:
+
+```text
+Node
+ ↓
+Trusted peers
+ ↓
+Majority validation
+ ↓
+Accept transaction
+```
+
+This differs from completely open participation.
+
+---
+
+# 29. Reputation-Based Consensus
+
+This uses reputation.
+
+Your PPT describes a leader being elected based on the reputation built over time, with votes from other members. 
+
+Concept:
+
+```text
+Good behavior
+      ↓
+Reputation increases
+      ↓
+More chance of leadership
+```
+
+---
+
+# 30. PBFT — Practical Byzantine Fault Tolerance ⭐⭐⭐⭐⭐
+
+This is extremely important because it connects directly to the **Byzantine Generals Problem** from Module 2.
+
+Your PPT states that PBFT achieves **State Machine Replication (SMR)** and provides tolerance against Byzantine nodes. 
+
+---
+
+# 31. Basic PBFT Idea
+
+Suppose we have several nodes:
+
+```text
+N1
+N2
+N3
+N4
+```
+
+One node proposes something.
+
+The nodes communicate through phases/rounds.
+
+Conceptually:
+
+```text
+Proposal
+   ↓
+Nodes exchange messages
+   ↓
+Verification / voting
+   ↓
+Sufficient agreement
+   ↓
+Commit
+```
+
+The key point is:
+
+> Even if some nodes are Byzantine, the honest nodes can still reach a consistent state, provided the protocol's assumptions are satisfied.
+
+---
+
+# 32. PBFT vs PoW
+
+This is a **very good comparison question**.
+
+| PBFT                                              | PoW                                                  |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| BFT-based                                         | Proof-based                                          |
+| Uses communication/voting                         | Uses computational work                              |
+| Designed for Byzantine faults                     | Provides consensus through computational competition |
+| Generally suitable for known/limited participants | Suitable for permissionless networks                 |
+| No PoW-style mining computation                   | Computationally intensive                            |
+| Faster final agreement in suitable settings       | Can be slower                                        |
+
+Your PPT categorizes BFT consensus as more traditional/permissioned and PoW as lottery-based/permissionless. 
+
+---
+
+# 33. Proof of Activity — PoA
+
+⚠️ Don't confuse this with **Proof of Authority**, which is also abbreviated PoA in your PPT.
+
+### Proof of Activity
+
+It combines:
+
+> **PoW + PoS**
+
+Your PPT says:
+
+```text
+First stage → PoW
+       ↓
+Then → PoS
+```
+
+and notes that the PoW stage is used only initially, after which the mechanism switches to PoS with negligible energy consumption relative to PoW. 
+
+---
+
+# 34. Proof of Capacity — PoC
+
+Instead of computational power:
+
+> **Hard disk space becomes the resource.**
+
+Your PPT calls this **hard drive mining**. 
+
+Basic idea:
+
+```text
+Hard disk space
+       ↓
+Precompute/store hashes
+       ↓
+Use them during mining
+       ↓
+Participate in block creation
+```
+
+The PPT associates the introduction of this concept with **BurstCoin**. 
+
+---
+
+# 35. Proof of Storage
+
+The name gives you the basic idea:
+
+> Consensus/participation is based on demonstrating storage resources.
+
+For your exam, if asked about the list of consensus mechanisms, remember this as a storage-oriented approach.
+
+Your PPT lists **Proof of Storage** among the blockchain consensus mechanisms. 
+
+---
+
+# 36. Proof of Authority — PoA ⭐⭐⭐⭐
+
+Again:
+
+> **PoA = Proof of Authority**
+
+Not Proof of Activity.
+
+Here, known validators have authority to propose/validate blocks.
+
+Your PPT says PoA uses the **identity of participants as the stake**. 
+
+Conceptually:
+
+```text
+Known validators
+      ↓
+Identity + reputation
+      ↓
+Validate transactions
+      ↓
+Propose blocks
+```
+
+The PPT states that PoA is commonly used in private/consortium blockchains and mentions **Clique** and **Aura** as common PoA algorithms. 
+
+---
+
+# 37. All Consensus Mechanisms — Memorize This Table
+
+This is your **last-minute table**.
+
+| Mechanism               | Main basis                | Key idea                             |
+| ----------------------- | ------------------------- | ------------------------------------ |
+| **PoW**                 | Computational work        | Spend computation to propose block   |
+| **PoS**                 | Stake                     | Stake determines validator selection |
+| **DPoS**                | Voting/delegation         | Stakeholders elect delegates         |
+| **PoET**                | Elapsed time              | Trusted waiting time selects leader  |
+| **PoD**                 | Deposit                   | Security deposit required            |
+| **PoI**                 | Importance/activity       | Importance score affects selection   |
+| **Federated consensus** | Trusted peers             | Majority of trusted peers            |
+| **Reputation**          | Reputation                | Reputation-based leader selection    |
+| **PBFT**                | Byzantine fault tolerance | Multi-phase message agreement        |
+| **Proof of Activity**   | PoW + PoS                 | Combines both mechanisms             |
+| **PoC**                 | Disk capacity             | Hard-drive resources                 |
+| **Proof of Storage**    | Storage                   | Demonstrated storage resources       |
+| **PoA**                 | Authority/identity        | Known validators                     |
+
+These are the mechanisms explicitly listed in your Consensus PPT. 
+
+---
+
+# 🔥 38. The Most Important Comparison
+
+If you have limited time, memorize this:
+
+### PoW vs PoS vs PBFT vs PoA
+
+| Feature          | PoW                       | PoS                     | PBFT                      | PoA                        |
+| ---------------- | ------------------------- | ----------------------- | ------------------------- | -------------------------- |
+| Main resource    | Computation               | Stake                   | Voting/messages           | Identity/authority         |
+| Participants     | Open/permissionless       | Can be permissionless   | Usually known/limited     | Known validators           |
+| Mining           | Yes                       | No PoW mining           | No                        | No                         |
+| Energy use       | High                      | Lower than PoW          | Low computationally       | Low                        |
+| Leader selection | Computational competition | Stake-based             | Protocol rounds           | Authorized validators      |
+| Main strength    | Sybil resistance          | Energy efficiency       | Byzantine fault tolerance | Fast controlled validation |
+| Example/context  | Bitcoin                   | Stake-based blockchains | Permissioned/BFT systems  | Private/consortium systems |
+
+The broad distinction between proof/lottery-based and BFT-based mechanisms is explicitly made in your PPT. 
+
+---
+
+# 39. Why Consensus Is the Heart of Blockchain
+
+Think about what happens if there is **no consensus**.
+
+```text
+Node A:
+Alice has ₹500
+
+Node B:
+Alice has ₹800
+
+Node C:
+Alice has ₹200
+```
+
+Now the distributed ledger isn't useful.
+
+Consensus provides a way to converge on an accepted state:
+
+```text
+N1 ─┐
+N2 ─┤
+N3 ─┼──→ CONSENSUS ──→ Accepted State
+N4 ─┤
+N5 ─┘
+```
+
+That's why your PPT calls consensus a crucial part of blockchain architecture. 
+
+---
+
+# ⭐ 40. 10-MARK ANSWER — "Explain Consensus in Blockchain"
+
+If this appears in your exam, use this structure.
+
+## Introduction
+
+> Consensus is the process of achieving agreement among distrusting nodes on the final state of data in a distributed system.
+
+## Need
+
+Blockchain consists of distributed nodes that need to agree on valid transactions and the accepted ledger state.
+
+## Requirements
+
+1. Agreement
+2. Integrity
+3. Validity
+4. Fault tolerance
+5. Termination
+
+## Types
+
+### A. Proof/lottery-based
+
+* PoW
+* PoS
+* DPoS
+* PoET
+* etc.
+
+### B. BFT-based
+
+* PBFT
+* Federated Byzantine consensus
+* FBA
+
+## Explain PoW
+
+```text
+Transactions
+     ↓
+Candidate Block
+     ↓
+Mining / Computational Work
+     ↓
+Valid PoW
+     ↓
+Block Proposed
+     ↓
+Network Validation
+     ↓
+Blockchain
+```
+
+## Explain BFT
+
+```text
+Proposal
+    ↓
+Message exchange
+    ↓
+Voting / multiple rounds
+    ↓
+Agreement
+    ↓
+Commit
+```
+
+## Conclusion
+
+> Consensus allows distributed blockchain nodes to maintain a consistent state despite the absence of a central authority and, depending on the mechanism, despite faulty or malicious participants.
+
+---
+
+# ⭐ 41. 5-MARK QUESTIONS YOU SHOULD PREPARE
+
+### Q1. Define consensus and explain its requirements.
+
+**Must write:**
+
+> Agreement + Integrity + Validity + Fault tolerance + Termination.
+
+---
+
+### Q2. What is Proof of Work?
+
+Include:
+
+* Computational resource
+* Mining
+* Nonce/search
+* Valid block
+* Bitcoin
+* Sybil resistance
+
+---
+
+### Q3. What is Proof of Stake?
+
+Include:
+
+* Stake
+* Validator
+* Block proposal/validation
+* Lower computational requirement than PoW
+
+---
+
+### Q4. Differentiate PoW and PoS.
+
+Use a table.
+
+---
+
+### Q5. What is PBFT?
+
+Include:
+
+* Byzantine fault tolerance
+* State Machine Replication
+* Message exchange
+* Voting/phases
+* Suitable for known/limited participants
+
+---
+
+### Q6. What is DPoS?
+
+> Stakeholders vote to delegate validation/block-production responsibilities to selected nodes.
+
+Your PPT specifically describes this delegation-by-voting model. 
+
+---
+
+### Q7. Explain PoET.
+
+Mention:
+
+* Intel
+* 2016
+* TEE
+* Guaranteed wait time
+* Intel SGX
+
+
+
+---
+
+### Q8. Explain Proof of Authority.
+
+Mention:
+
+* Known validators
+* Identity
+* Reputation
+* Authority to propose/validate blocks
+* Private/consortium blockchain
+
+
+
+---
+
+# ⚠️ 42. VERY IMPORTANT EXAM TRAPS
+
+### Trap 1 — PoA has two meanings in your PPT
+
+Your PPT contains:
+
+**Proof of Activity → PoA**
+
+and
+
+**Proof of Authority → PoA**
+
+So if the question says **PoA**, look at the context.
+
+```text
+PoA
+├── Proof of Activity
+│      → PoW + PoS
+│
+└── Proof of Authority
+       → Identity + known validators
+```
+
+---
+
+### Trap 2 — PoW isn't simply "finding a hash"
+
+The important point is:
+
+> The miner demonstrates that computational resources have been spent to satisfy the network's PoW condition.
+
+---
+
+### Trap 3 — PoS ≠ simply "richest person always wins"
+
+Don't write that.
+
+Say:
+
+> Validator selection is based on stake according to the protocol's selection mechanism.
+
+Your PPT describes stake-based selection and, in its historical explanation, coin age. 
+
+---
+
+### Trap 4 — Consensus ≠ encryption
+
+Consensus answers:
+
+> **"Which state/transactions does the network accept?"**
+
+Cryptography answers things such as:
+
+> **"How do we secure/authenticate/integrity-protect information?"**
+
+They work together but are different concepts.
+
+---
+
+# 🧠 43. FINAL MEMORY MAP
+
+If you remember nothing else before the exam, remember this:
+
+```text
+                    CONSENSUS
+                        │
+             Agreement among nodes
+                        │
+        ┌───────────────┴───────────────┐
+        │                               │
+   PROOF/LOTTERY                       BFT
+        │                               │
+   ┌────┼────┐                    ┌─────┼─────┐
+   │    │    │                    │     │     │
+  PoW  PoS  DPoS                 PBFT Federated
+   │    │    │
+ Work Stake Vote
+        │
+   Other mechanisms
+        │
+ ┌──────┼────────┬─────────┐
+ PoET   PoD       PoI      PoC
+ Time  Deposit  Importance Capacity
+
+                  + PoA
+                    │
+             Known authority
+```
+
+And the **five requirements**:
+
+```text
+A → Agreement
+I → Integrity
+V → Validity
+F → Fault tolerance
+T → Termination
+```
+
+### 🔥 The one sentence to remember:
+
+> **Blockchain consensus enables distrusting distributed nodes to agree on a common valid state without relying on a single central authority.**
+
+Your PPT's core framing is exactly around agreement between distrusting nodes and determining the final state of blockchain data. 
+
+---
+
+## 🎯 Module 3 exam priority
+
+If you're short on time, study in this order:
+
+**1. ⭐⭐⭐⭐⭐ Consensus definition + requirements**
+
+**2. ⭐⭐⭐⭐⭐ PoW — working, advantages, limitations**
+
+**3. ⭐⭐⭐⭐⭐ PoS + PoW vs PoS**
+
+**4. ⭐⭐⭐⭐⭐ PBFT + Byzantine faults**
+
+**5. ⭐⭐⭐⭐ Proof-based vs BFT-based**
+
+**6. ⭐⭐⭐⭐ DPoS**
+
+**7. ⭐⭐⭐ PoET / PoD / PoI**
+
+**8. ⭐⭐⭐ PoA / PoC / Federated / Activity**
+
+Once these are clear, you are well prepared for the consensus portion of Unit I.
+
+Say **“next”** when you're ready for **MODULE 4 — Decentralization: decentralization using blockchain, methods of decentralization, routes to decentralization, and the full ecosystem**.

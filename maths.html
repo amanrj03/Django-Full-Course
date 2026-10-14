@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics for Computer Science &amp; Engineering — Study Portal</title>
+    <meta name="description" content="Mathematics study hub covering Discrete Mathematics, Linear Algebra, Calculus, and Probability for Computer Science students.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for rendering equations -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)'], ['$', '$']],
+            displayMath: [['$$', '$$']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-body);
+    margin: 0; padding: 0;
+}
+
+.hub-hero {
+    background: linear-gradient(135deg, #451a03 0%, #b45309 50%, #f59e0b 100%);
+    color: white;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hub-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.hub-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+.hub-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 16px;
+}
+
+.hub-hero-desc {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 760px;
+    opacity: 0.95;
+    margin-bottom: 28px;
+}
+
+.hub-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #451a03;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: background 0.2s;
+}
+.btn-hero-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Status Alert */
+.status-card {
+    max-width: 1200px;
+    margin: -24px auto 35px;
+    padding: 24px 28px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-left: 6px solid #f59e0b;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.status-icon {
+    font-size: 32px;
+    background: rgba(245, 158, 11, 0.12);
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.status-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0 0 6px;
+}
+
+.status-desc {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Units Container */
+.units-container {
+    max-width: 1200px;
+    margin: 0 auto 50px;
+    padding: 0 24px;
+}
+
+.units-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+.unit-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.unit-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: #d97706;
+}
+
+.unit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.unit-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+}
+
+.unit-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin: 0 0 10px;
+}
+
+.unit-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 18px;
+}
+
+.unit-topics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+}
+.unit-topics-list li {
+    font-size: 13.5px;
+    color: var(--text-body);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.unit-topics-list li::before {
+    content: "•";
+    color: #d97706;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.formula-preview {
+    background: var(--bg-subtle);
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--text-heading);
+    margin-bottom: 18px;
+    overflow-x: auto;
+}
+
+.unit-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.badge-ready {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #d97706;
+    font-weight: 600;
+}
+
+/* Integration Guide */
+.guide-section {
+    max-width: 1200px;
+    margin: 0 auto 60px;
+    padding: 0 24px;
+}
+
+.guide-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--shadow-sm);
+}
+
+.guide-box h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    color: var(--text-heading);
+    margin: 0 0 12px;
+}
+
+.guide-box p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 16px;
+}
+
+.guide-code {
+    background: var(--bg-code-block);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .hub-hero-title { font-size: 30px; }
+    .status-card { margin-top: 15px; flex-direction: column; }
+    .units-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <a href="django.html" class="nav-link"><span class="icon">🐍</span> Django Course (45)</a>
+            <a href="blockchain.html" class="nav-link"><span class="icon">⛓️</span> Blockchain (8)</a>
+            <a href="maths.html" class="nav-link active"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="index.html" class="nav-action-pill" style="background: linear-gradient(135deg, #d97706, #b45309);" title="Back to main portal">🏠 Main Portal</a>
+        </div>
+    </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hub-hero">
+    <div class="hub-hero-container">
+        <div class="hub-badge">📐 Core Computer Science &amp; Engineering</div>
+        <h1 class="hub-hero-title">Engineering Mathematics</h1>
+        <p class="hub-hero-desc">Theoretical foundations powering algorithms, cryptography, artificial intelligence, and distributed network state machines. This subject hub is initialized and primed to house notes, formulas, and exercise problems.</p>
+        <div class="hub-hero-actions">
+            <a href="#syllabus" class="btn-hero-primary">Explore Planned Syllabus &rarr;</a>
+            <a href="#integration" class="btn-hero-secondary">📝 How to Add Maths Notes</a>
+            <a href="blockchain.html" class="btn-hero-secondary">⛓️ Blockchain Cryptography Math</a>
+        </div>
+    </div>
+</section>
+
+<!-- STATUS CARD -->
+<div class="status-card" id="syllabus">
+    <div class="status-icon">⏳</div>
+    <div>
+        <h3 class="status-title">Course Shell Initialized — Ready for Notes Drop-in</h3>
+        <p class="status-desc">This section has been pre-configured with the full visual framework, LaTeX MathJax formula rendering pipeline, and modern responsive UI. As soon as you provide your Mathematics lecture notes or text files, they will immediately be converted into modular interactive pages just like the Django and Blockchain courses!</p>
+    </div>
+</div>
+
+<!-- UNITS GRID -->
+<div class="units-container">
+    <div class="units-grid">
+
+        <!-- Unit 1 -->
+        <div class="unit-card">
+            <div>
+                <div class="unit-header">
+                    <span class="unit-tag">Unit 01</span>
+                    <span class="badge-ready">Structure Ready &check;</span>
+                </div>
+                <h3 class="unit-title">Discrete Mathematics &amp; Structures</h3>
+                <p class="unit-desc">Logic, sets, relations, graph theory, and proof techniques forming the core backbone of algorithms and protocol verification.</p>
+                <div class="formula-preview">
+                    $$P \implies Q \equiv \neg P \lor Q \quad | \quad \sum_{v \in V} \deg(v) = 2|E|$$
+                </div>
+                <ul class="unit-topics-list">
+                    <li>Propositional &amp; First-Order Predicate Logic</li>
+                    <li>Sets, Relations &amp; Partially Ordered Sets (Posets)</li>
+                    <li>Graph Theory: Trees, Cycles, Hamiltonian Paths</li>
+                    <li>Recurrence Relations &amp; Generating Functions</li>
+                </ul>
+            </div>
+            <div class="unit-footer">
+                <span>4 Modules Planned</span>
+                <span>Awaiting Content</span>
+            </div>
+        </div>
+
+        <!-- Unit 2 -->
+        <div class="unit-card">
+            <div>
+                <div class="unit-header">
+                    <span class="unit-tag">Unit 02</span>
+                    <span class="badge-ready">Structure Ready &check;</span>
+                </div>
+                <h3 class="unit-title">Linear Algebra &amp; Matrix Computing</h3>
+                <p class="unit-desc">Vector spaces, linear transformations, eigenvalues, and decompositions essential for cryptographic lattices, 3D graphics, and machine learning.</p>
+                <div class="formula-preview">
+                    $$A \mathbf{v} = \lambda \mathbf{v} \quad \iff \quad \det(A - \lambda I) = 0$$
+                </div>
+                <ul class="unit-topics-list">
+                    <li>Vector Spaces, Linear Independence &amp; Basis</li>
+                    <li>Matrix Operations, Rank, Nullity &amp; Determinants</li>
+                    <li>Eigenvalues, Eigenvectors &amp; Diagonalization</li>
+                    <li>Singular Value Decomposition (SVD)</li>
+                </ul>
+            </div>
+            <div class="unit-footer">
+                <span>4 Modules Planned</span>
+                <span>Awaiting Content</span>
+            </div>
+        </div>
+
+        <!-- Unit 3 -->
+        <div class="unit-card">
+            <div>
+                <div class="unit-header">
+                    <span class="unit-tag">Unit 03</span>
+                    <span class="badge-ready">Structure Ready &check;</span>
+                </div>
+                <h3 class="unit-title">Calculus &amp; Optimization</h3>
+                <p class="unit-desc">Differential and integral calculus, multivariable gradients, and numerical optimization used in network flow and machine learning backpropagation.</p>
+                <div class="formula-preview">
+                    $$\nabla f(\mathbf{x}) = \left[ \frac{\partial f}{\partial x_1}, \dots, \frac{\partial f}{\partial x_n} \right]^T$$
+                </div>
+                <ul class="unit-topics-list">
+                    <li>Limits, Continuity &amp; Taylor Series Expansions</li>
+                    <li>Multivariable Derivatives, Jacobians &amp; Hessians</li>
+                    <li>Gradient Descent &amp; Convex Optimization</li>
+                    <li>Definite Integrals &amp; Volume Computations</li>
+                </ul>
+            </div>
+            <div class="unit-footer">
+                <span>4 Modules Planned</span>
+                <span>Awaiting Content</span>
+            </div>
+        </div>
+
+        <!-- Unit 4 -->
+        <div class="unit-card">
+            <div>
+                <div class="unit-header">
+                    <span class="unit-tag">Unit 04</span>
+                    <span class="badge-ready">Structure Ready &check;</span>
+                </div>
+                <h3 class="unit-title">Probability &amp; Statistics</h3>
+                <p class="unit-desc">Probabilistic models, random variables, Bayes' rule, and distributions underpinning consensus safety, hashing entropy, and data science.</p>
+                <div class="formula-preview">
+                    $$P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}$$
+                </div>
+                <ul class="unit-topics-list">
+                    <li>Conditional Probability, Independence &amp; Bayes' Theorem</li>
+                    <li>Discrete Distributions: Binomial, Poisson, Geometric</li>
+                    <li>Continuous Distributions: Normal, Exponential</li>
+                    <li>Markov Chains &amp; Stochastic Processes</li>
+                </ul>
+            </div>
+            <div class="unit-footer">
+                <span>4 Modules Planned</span>
+                <span>Awaiting Content</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- INTEGRATION GUIDE -->
+<div class="guide-section" id="integration">
+    <div class="guide-box">
+        <h2>💡 How to Drop in Your Mathematics Notes</h2>
+        <p>When you're ready to share your Maths study material, you can simply drop your text notes or markdown files into the repository. The portal will automatically integrate them into individual, beautifully styled module pages with interactive formula rendering.</p>
+        <div class="guide-code">
+# Suggested layout when adding your notes in this Git repository:
+raw_notes/
+  └── maths/
+       ├── 1.txt  # Discrete Mathematics
+       ├── 2.txt  # Linear Algebra
+       ├── 3.txt  # Calculus & Optimization
+       └── 4.txt  # Probability & Statistics
+
+# LaTeX equations will render automatically:
+Inline math: \( ax^2 + bx + c = 0 \) or $x \in \mathbb{R}$
+Block equations: $$ \int_{0}^{\infty} e^{-x^2} dx = \frac{\sqrt{\pi}}{2} $$
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="portal-footer">
+    <div class="portal-footer-container">
+        <div class="footer-col">
+            <h4>OmniCourse Hub</h4>
+            <p>A unified, interactive study and revision platform built for Computer Science &amp; Engineering students.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Courses</h4>
+            <ul>
+                <li><a href="django.html">Django Full Course (45 Modules)</a></li>
+                <li><a href="blockchain.html">Blockchain &amp; Cryptography (8 Modules)</a></li>
+                <li><a href="maths.html">Engineering Mathematics (Upcoming)</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Special Guides</h4>
+            <ul>
+                <li><a href="django_guide.html">Django Full Reader</a></li>
+                <li><a href="blockchain_guide.html">Blockchain Full Reader</a></li>
+                <li><a href="module-45.html">Django Cheat Sheet</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Repository</h4>
+            <ul>
+                <li><a href="https://github.com/amanrj03/Django-Full-Course.git" target="_blank" rel="noopener">GitHub Project</a></li>
+                <li><a href="index.html">Master Portal Home</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div>&copy; 2026 OmniCourse Hub. Open Source &amp; Free for All Learners.</div>
+        <div>Connected via Git Repository</div>
+    </div>
+</footer>
+
+<script src="shared.js"></script>
+</body>
+</html>

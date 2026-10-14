@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Distributed Systems & Blockchain — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 2 of 13: Distributed Systems & Blockchain.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['$$', '$$']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Crypto</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Crypto</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain_guide.html" class="nav-action-pill" title="Read all modules in single document">📖 Full Guide</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 2 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Distributed Systems & Blockchain</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<span class="nav-item current">2. Distributed Systems & Blockchain</span>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<a class="nav-item" href="blockchain-module-12.html">12. Bitcoin Architecture, Keys & Transactions</a>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<h1 id="h-67-module-2-distributed-systems-blockchain">MODULE 2 — Distributed Systems &amp; Blockchain</h1>
+<p>This module is <strong>very important</strong> because it connects everything from Module 1 to the actual working of blockchain.</p>
+<p>Your syllabus says:</p>
+<blockquote><strong>Distributed systems, blockchain, consensus</strong></blockquote>
+<p>We'll focus here on <strong>distributed systems + blockchain fundamentals/architecture/working</strong>. We'll handle consensus in much greater depth in Module 3.</p>
+<hr>
+<h1 id="h-68-1-first-what-is-a-distributed-system">1. First: What is a Distributed System?</h1>
+<p>Your PPT defines a distributed system as a computing paradigm where:</p>
+<blockquote><strong>Two or more nodes work with each other in a coordinated fashion to achieve a common outcome.</strong></blockquote>
+<h3 id="h-69-simple-meaning">Simple meaning</h3>
+<p>Imagine 5 computers:</p>
+<pre>       N1
+      /  \
+    N2 -- N3
+     \    /
+      N4
+       |
+      N5</pre>
+<p>Instead of one computer doing everything, multiple computers cooperate.</p>
+<p>Each computer is called a <strong>node</strong>.</p>
+<p>They communicate with each other and try to maintain a common result/state.</p>
+<hr>
+<h1 id="h-70-2-centralized-vs-distributed-system">2. Centralized vs Distributed System</h1>
+<p>This distinction is extremely important.</p>
+<h3 id="h-71-centralized">Centralized</h3>
+<pre>              SERVER
+             /  |  \
+            /   |   \
+          N1    N2    N3</pre>
+<p>One central system controls the data/process.</p>
+<p>If the central server fails, the system may be seriously affected.</p>
+<h3 id="h-72-distributed">Distributed</h3>
+<pre>       N1 -------- N2
+       | \         |
+       |  \        |
+       |   \       |
+       N3 -------- N4
+          \       /
+             N5</pre>
+<p>Multiple nodes cooperate.</p>
+<p>There isn't necessarily one single machine that performs all functions.</p>
+<hr>
+<h1 id="h-73-3-what-is-a-node">3. What is a Node?</h1>
+<p>A <strong>node</strong> is a participant/computer in a distributed network.</p>
+<p>Your PPT notes that nodes have processing and memory resources and can behave as:</p>
+<ul>
+<li>Honest</li>
+<li>Faulty</li>
+<li>Malicious</li>
+<li>Byzantine</li>
+</ul>
+<p>Don't confuse these.</p>
+<h3 id="h-74-honest-node">Honest node</h3>
+<p>Follows the protocol correctly.</p>
+<h3 id="h-75-faulty-node">Faulty node</h3>
+<p>May malfunction because of hardware/software/network problems.</p>
+<p>Example:</p>
+<pre>Node crashes</pre>
+<h3 id="h-76-malicious-node">Malicious node</h3>
+<p>Intentionally attempts to violate the protocol or harm the system.</p>
+<h3 id="h-77-byzantine-node">Byzantine node</h3>
+<p>A node that can behave arbitrarily/unpredictably, potentially sending conflicting or irrational information to other nodes.</p>
+<p>Your PPT specifically describes a Byzantine node as one that can perform irrational behavior.</p>
+<hr>
+<h1 id="h-78-4-why-are-distributed-systems-difficult">4. Why are Distributed Systems Difficult?</h1>
+<p>Suppose we have:</p>
+<pre>N1 ↔ N2 ↔ N3 ↔ N4 ↔ N5</pre>
+<p>All nodes need to agree about something.</p>
+<p>But what if:</p>
+<ul>
+<li>N4 is malicious?</li>
+<li>N2 crashes?</li>
+<li>Network connection between N2 and N3 breaks?</li>
+<li>Messages arrive late?</li>
+<li>Different nodes receive different information?</li>
+</ul>
+<p>Then the nodes may have different views of reality.</p>
+<p>Your PPT identifies two major challenges:</p>
+<h3 id="h-79-1-coordination-between-nodes">1. Coordination between nodes</h3>
+<p>Nodes must communicate and cooperate.</p>
+<h3 id="h-80-2-fault-tolerance">2. Fault tolerance</h3>
+<p>The system should continue functioning even when some components fail.</p>
+<hr>
+<h1 id="h-81-5-byzantine-generals-problem">5. Byzantine Generals Problem ⭐⭐⭐⭐⭐</h1>
+<p>This is a <strong>very important theory topic</strong>.</p>
+<p>You should absolutely prepare it for a 5-mark question and potentially a 10-mark question.</p>
+<h2 id="h-82-the-story">The story</h2>
+<p>Imagine several generals surrounding an enemy city.</p>
+<p>They need to decide:</p>
+<blockquote><strong>Attack or Retreat?</strong></blockquote>
+<p>They can communicate with each other.</p>
+<p>But some generals may be traitors.</p>
+<p>The problem is:</p>
+<pre>General A → ATTACK
+General B → ATTACK
+General C → RETREAT
+General D → ATTACK</pre>
+<p>How can the honest generals reach the same decision when some participants may deliberately send false information?</p>
+<p>That's the basic idea behind the:</p>
+<blockquote><strong>Byzantine Generals Problem (BGP)</strong></blockquote>
+<hr>
+<h1 id="h-83-6-why-is-byzantine-problem-important-to-blockchain">6. Why is Byzantine Problem Important to Blockchain?</h1>
+<p>This is the connection you need to understand.</p>
+<p>Blockchain has many nodes:</p>
+<pre>N1   N2   N3   N4   N5   N6
+ \    |    |    |    |   /
+       Distributed Network</pre>
+<p>They don't necessarily trust each other.</p>
+<p>Some nodes could:</p>
+<ul>
+<li>lie</li>
+<li>send incorrect information</li>
+<li>behave maliciously</li>
+<li>stop responding</li>
+</ul>
+<p>Yet the network needs to maintain a <strong>consistent ledger state</strong>.</p>
+<p>So blockchain needs mechanisms that allow honest nodes to agree despite potentially faulty/malicious nodes.</p>
+<p>That brings us to <strong>consensus</strong>.</p>
+<p>We'll study consensus properly in Module 3.</p>
+<hr>
+<h1 id="h-84-7-network-partition">7. Network Partition</h1>
+<p>Your PPT gives an example:</p>
+<blockquote><strong>N4 is a Byzantine node and L2 is a broken or slow network link.</strong></blockquote>
+<p>A broken/slow link can cause a <strong>network partition</strong>.</p>
+<p>Imagine:</p>
+<pre>Group A                  Group B
+
+N1 ---- N2        X       N3 ---- N4
+                        
+
+       broken link</pre>
+<p>The two sides may temporarily have different information.</p>
+<p>Therefore:</p>
+<pre>Network problem
+      ↓
+Nodes cannot communicate properly
+      ↓
+Different views of system state
+      ↓
+Consistency problem</pre>
+<p>This is one of the reasons distributed systems need fault-tolerance and consensus mechanisms.</p>
+<hr>
+<h1 id="h-85-8-pbft">8. PBFT</h1>
+<p>Your PPT mentions that the Byzantine Generals Problem was addressed by <strong>Practical Byzantine Fault Tolerance (PBFT)</strong>, presented by Castro and Liskov in 1999.</p>
+<p>For now, remember:</p>
+<blockquote><strong>PBFT is a Byzantine fault-tolerant consensus algorithm designed to allow a distributed system to operate correctly even when some nodes behave maliciously.</strong></blockquote>
+<p>We'll study PBFT properly in Module 3.</p>
+<hr>
+<h1 id="h-86-9-now-connect-distributed-systems-to-blockchain">9. Now Connect Distributed Systems to Blockchain</h1>
+<p>Here's the key concept:</p>
+<blockquote><strong>Blockchain is a distributed system at its core.</strong></blockquote>
+<p>Your PPT explicitly states this.</p>
+<p>A blockchain network contains multiple nodes.</p>
+<p>Each node participates in maintaining the blockchain according to the rules of the particular blockchain.</p>
+<p>Conceptually:</p>
+<pre>                  Blockchain Network
+
+       N1 -------- N2 -------- N3
+       |          /  \          |
+       |         /    \         |
+       N4 ------ N5 ----------- N6</pre>
+<p>The nodes communicate over a peer-to-peer network.</p>
+<hr>
+<h1 id="h-87-10-what-is-a-blockchain">10. What is a Blockchain?</h1>
+<p>Your PPT's technical definition is:</p>
+<blockquote>A blockchain is a <strong>peer-to-peer, distributed ledger that is cryptographically secure, append-only, immutable, and updateable through consensus/agreement among peers.</strong></blockquote>
+<p>This definition is <strong>very important</strong>.</p>
+<p>Break it into 6 parts.</p>
+<hr>
+<h2 id="h-88-a-peer-to-peer">A. Peer-to-Peer</h2>
+<p>Nodes communicate directly with other nodes.</p>
+<p>There isn't necessarily a central server controlling every transaction.</p>
+<hr>
+<h2 id="h-89-b-distributed-ledger">B. Distributed Ledger</h2>
+<p>A ledger is basically a record of transactions.</p>
+<p>For example:</p>
+<pre>Alice → Bob       ₹100
+Bob → Charlie     ₹50
+Charlie → David   ₹20</pre>
+<p>In a distributed ledger, copies/state of the ledger are maintained across participating nodes.</p>
+<hr>
+<h2 id="h-90-c-cryptographically-secure">C. Cryptographically Secure</h2>
+<p>Blockchain uses cryptographic mechanisms such as:</p>
+<ul>
+<li>Hash functions</li>
+<li>Digital signatures</li>
+<li>Public-key cryptography</li>
+</ul>
+<p>Your architecture PPT specifically identifies public-key cryptography, digital signatures and cryptographic hash functions as important cryptographic components.</p>
+<hr>
+<h2 id="h-91-d-append-only">D. Append-only</h2>
+<p>New information is added rather than casually replacing old information.</p>
+<p>Think:</p>
+<pre>Block 1
+   ↓
+Block 2
+   ↓
+Block 3
+   ↓
+Block 4</pre>
+<hr>
+<h2 id="h-92-e-immutable">E. Immutable</h2>
+<p>Historical information is extremely difficult to alter without detection or without overcoming the network's security/consensus assumptions.</p>
+<p>Why?</p>
+<p>Because blocks are cryptographically connected.</p>
+<p>We'll see this in detail in the cryptography module.</p>
+<hr>
+<h2 id="h-93-f-consensus-based">F. Consensus-based</h2>
+<p>Nodes must follow the blockchain's consensus mechanism to determine the accepted state.</p>
+<pre>Transaction
+     ↓
+Validation
+     ↓
+Consensus
+     ↓
+Accepted
+     ↓
+Blockchain</pre>
+<hr>
+<h1 id="h-94-11-distributed-ledger-vs-blockchain">11. Distributed Ledger vs Blockchain ⭐⭐⭐⭐</h1>
+<p>This is a <strong>common exam trap</strong>.</p>
+<h3 id="h-95-distributed-ledger">Distributed Ledger</h3>
+<p>A distributed ledger is a ledger maintained across multiple participants/nodes.</p>
+<h3 id="h-96-blockchain">Blockchain</h3>
+<p>Blockchain is a particular type of distributed ledger that organizes records into blocks linked cryptographically and uses a consensus mechanism to maintain the accepted state.</p>
+<p>Your Consensus PPT makes an important statement:</p>
+<blockquote><strong>All blockchains are fundamentally distributed ledgers, but all distributed ledgers are not necessarily blockchains.</strong></blockquote>
+<h3 id="h-97-remember">Remember:</h3>
+<pre>Distributed Ledger
+       ↓
+   broader concept
+
+Blockchain
+       ↓
+one type of distributed ledger</pre>
+<hr>
+<h1 id="h-98-12-permissionless-vs-permissioned">12. Permissionless vs Permissioned</h1>
+<p>This appears in your Unit 1 material and is useful for understanding blockchain networks.</p>
+<h2 id="h-99-permissionless">Permissionless</h2>
+<p>Anyone can participate according to the network's rules.</p>
+<p>Examples given in your material:</p>
+<ul>
+<li>Bitcoin</li>
+<li>Ethereum</li>
+</ul>
+<p>Participants can maintain ledger copies and use distributed consensus.</p>
+<p>Conceptually:</p>
+<pre>Anyone
+  ↓
+Join network
+  ↓
+Become participant/node</pre>
+<hr>
+<h2 id="h-100-permissioned">Permissioned</h2>
+<p>Participants are already known/authorized.</p>
+<p>Your PPT defines a permissioned blockchain as one where participants are known and trusted, with verification handled through an agreement protocol and typically without the need for mining.</p>
+<p>Conceptually:</p>
+<pre>Organization
+     ↓
+Authorizes participants
+     ↓
+Selected nodes
+     ↓
+Blockchain</pre>
+<p>Examples listed in your material include <strong>Hyperledger Fabric and Quorum</strong>.</p>
+<hr>
+<h1 id="h-101-13-structure-of-a-blockchain">13. Structure of a Blockchain</h1>
+<p>Now we reach a <strong>very important 10-mark topic</strong>.</p>
+<p>A blockchain is basically:</p>
+<pre>┌───────────────┐
+│    BLOCK 1    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 2    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 3    │
+└───────┬───────┘
+        ↓
+┌───────────────┐
+│    BLOCK 4    │
+└───────────────┘</pre>
+<p>Each block contains transactions.</p>
+<p>Your PPT explicitly describes a block as containing transactions in the block body.</p>
+<hr>
+<h1 id="h-102-14-block-structure">14. Block Structure</h1>
+<p>A simplified block:</p>
+<pre>┌───────────────────────────────────┐
+│           BLOCK HEADER             │
+│                                   │
+│ Previous Block Hash               │
+│ Timestamp                         │
+│ Nonce                             │
+│ Merkle Root                       │
+│                                   │
+├───────────────────────────────────┤
+│           BLOCK BODY               │
+│                                   │
+│ Transaction 1                     │
+│ Transaction 2                     │
+│ Transaction 3                     │
+│ Transaction 4                     │
+│ ...                               │
+└───────────────────────────────────┘</pre>
+<p>Your PPT explicitly states that the block header consists of:</p>
+<ul>
+<li>Hash of previous block's header</li>
+<li>Timestamp</li>
+<li>Nonce</li>
+<li>Merkle root</li>
+</ul>
+<p>and the block body contains transactions.</p>
+<hr>
+<h1 id="h-103-15-what-is-the-previous-block-hash">15. What is the Previous Block Hash?</h1>
+<p>Suppose:</p>
+<pre>Block 1
+Hash = ABC123</pre>
+<p>Then Block 2 contains:</p>
+<pre>Previous Hash = ABC123</pre>
+<p>So:</p>
+<pre>Block 1
+Hash = ABC123
+      ↓
+Block 2
+Previous Hash = ABC123
+Hash = XYZ789
+      ↓
+Block 3
+Previous Hash = XYZ789</pre>
+<p>This creates the chain.</p>
+<p>This is why changing an old block affects the cryptographic links afterward.</p>
+<p>Later, when we study <strong>hash functions</strong>, you'll understand exactly why.</p>
+<hr>
+<h1 id="h-104-16-what-is-a-merkle-root">16. What is a Merkle Root?</h1>
+<p>Suppose Block 1 contains four transactions:</p>
+<pre>T1
+T2
+T3
+T4</pre>
+<p>Hash each:</p>
+<pre>H(T1) = H1
+H(T2) = H2
+H(T3) = H3
+H(T4) = H4</pre>
+<p>Then combine them:</p>
+<pre>H(H1 + H2) = H12
+H(H3 + H4) = H34</pre>
+<p>Then:</p>
+<pre>H(H12 + H34) = MERKLE ROOT</pre>
+<p>Your Unit 2 PPT illustrates exactly this hierarchical hash structure.</p>
+<p>So:</p>
+<blockquote><strong>Merkle root is a single hash representing the transactions in a block.</strong></blockquote>
+<p>This is important because it allows efficient verification of transaction inclusion.</p>
+<p>We'll study Merkle trees much more deeply in the cryptography module.</p>
+<hr>
+<h1 id="h-105-17-what-is-a-nonce">17. What is a Nonce?</h1>
+<p>A nonce is a value used in the block creation/mining process.</p>
+<p>In Proof of Work systems, miners repeatedly change the nonce to search for a block hash satisfying the required condition.</p>
+<p>Simplified:</p>
+<pre>Block data + Nonce 1 → Hash ❌
+Block data + Nonce 2 → Hash ❌
+Block data + Nonce 3 → Hash ❌
+...
+Block data + Nonce N → Hash ✅</pre>
+<p>Then the block can satisfy the PoW requirement.</p>
+<p>⚠️ Don't confuse this with the <strong>nonce in encryption protocols</strong>. Your Unit 2 PPT uses nonce more generally as a value that can be used once in a cryptographic protocol.</p>
+<p>In blockchain/Bitcoin context, the nonce is particularly associated with the mining/PoW search.</p>
+<hr>
+<h1 id="h-106-18-state-machine">18. State Machine</h1>
+<p>This is another term in your PPT.</p>
+<p>A blockchain can be viewed as a <strong>state transition mechanism</strong>.</p>
+<p>Suppose initial state:</p>
+<pre>Alice = ₹1000
+Bob   = ₹500</pre>
+<p>Transaction:</p>
+<pre>Alice → Bob ₹200</pre>
+<p>New state:</p>
+<pre>Alice = ₹800
+Bob   = ₹700</pre>
+<p>So:</p>
+<pre>State₀
+  ↓
+Transaction
+  ↓
+Execution
+  ↓
+State₁</pre>
+<p>Your PPT describes blockchain as a state transition mechanism where transaction execution changes the state from one form to the next.</p>
+<hr>
+<h1 id="h-107-19-smart-contracts">19. Smart Contracts</h1>
+<p>A smart contract is a program running on top of a blockchain that contains business logic and executes when specified conditions are met.</p>
+<p>Your PPT describes smart contracts as programs that encapsulate business logic and can be automatically executed/enforced.</p>
+<p>Example:</p>
+<pre>IF
+Alice sends ₹100
+
+THEN
+Transfer digital asset to Alice</pre>
+<p>Smart contracts are used for things such as:</p>
+<ul>
+<li>Identity management</li>
+<li>Capital markets</li>
+<li>Trade finance</li>
+<li>Record management</li>
+<li>Insurance</li>
+<li>E-governance</li>
+</ul>
+<p>according to your PPT.</p>
+<hr>
+<h1 id="h-108-20-virtual-machine">20. Virtual Machine</h1>
+<p>Your PPT mentions a virtual machine such as:</p>
+<blockquote><strong>Ethereum Virtual Machine (EVM)</strong></blockquote>
+<p>A virtual machine provides an execution environment for smart contracts.</p>
+<p>The distinction in your PPT is:</p>
+<pre>Transaction Script
+       ↓
+Limited operations
+
+Virtual Machine
+       ↓
+Can execute more general/Turing-complete code</pre>
+<p>The PPT uses Ethereum's EVM as the example.</p>
+<hr>
+<h1 id="h-109-21-what-is-a-blockchain-node">21. What is a Blockchain Node?</h1>
+<p>A blockchain node can perform different functions depending on its role.</p>
+<p>It may:</p>
+<ul>
+<li>Propose transactions</li>
+<li>Validate transactions</li>
+<li>Perform mining</li>
+<li>Facilitate consensus</li>
+<li>Validate blocks</li>
+<li>Sign transactions</li>
+<li>Maintain blockchain data</li>
+</ul>
+<p>Your PPT explicitly describes these roles.</p>
+<p>So don't think:</p>
+<blockquote>Node = only miner.</blockquote>
+<p>That's incorrect.</p>
+<p>A blockchain can have different types/roles of nodes.</p>
+<hr>
+<h1 id="h-110-22-how-blockchain-works">22. HOW BLOCKCHAIN WORKS ⭐⭐⭐⭐⭐</h1>
+<p>This is <strong>one of the most important things in this entire module</strong>.</p>
+<p>Your PPT gives the exact sequence:</p>
+<pre>1. Transaction is initiated
+          ↓
+2. Transaction is validated and broadcast
+          ↓
+3. Find new block
+          ↓
+4. New block found
+          ↓
+5. Add new block to blockchain</pre>
+<p>Now understand every step.</p>
+<hr>
+<h2 id="h-111-step-1-transaction-is-initiated">STEP 1 — Transaction is initiated</h2>
+<p>Suppose Alice wants to send Bob some cryptocurrency.</p>
+<p>Alice creates a transaction.</p>
+<p>The transaction contains information such as:</p>
+<pre>Sender
+Receiver
+Amount
+Other validation information</pre>
+<p>The transaction is digitally signed using Alice's private key.</p>
+<p>Your PPT explicitly describes transaction creation and signing using the private key.</p>
+<hr>
+<h2 id="h-112-step-2-transaction-is-validated-and-broadcast">STEP 2 — Transaction is validated and broadcast</h2>
+<p>The transaction is propagated to other nodes.</p>
+<p>Your PPT mentions data-dissemination mechanisms such as the <strong>Gossip protocol</strong>.</p>
+<p>Nodes receive the transaction and check it against validity criteria.</p>
+<p>Conceptually:</p>
+<pre>Alice
+  ↓
+Transaction
+  ↓
+Node
+  ↓
+Broadcast
+ ↙ ↓ ↘
+N1 N2 N3</pre>
+<hr>
+<h2 id="h-113-step-3-find-new-block">STEP 3 — Find New Block</h2>
+<p>Validated transactions are included in a block.</p>
+<p>In PoW-based blockchains such as Bitcoin, miners work on finding/finalizing the block.</p>
+<p>Your PPT describes miners racing to finalize their blocks through mining.</p>
+<hr>
+<h2 id="h-114-step-4-new-block-found">STEP 4 — New Block Found</h2>
+<p>The miner/participant satisfies the requirements of the consensus mechanism.</p>
+<p>In Bitcoin's PoW case, this involves solving the required mathematical puzzle.</p>
+<p>The block is then considered found/finalized, and the transaction is considered confirmed.</p>
+<hr>
+<h2 id="h-115-step-5-add-block-to-blockchain">STEP 5 — Add Block to Blockchain</h2>
+<p>The newly created block is:</p>
+<ol>
+<li>Validated</li>
+<li>Transactions/smart contracts executed</li>
+<li>Propagated to peers</li>
+<li>Validated by peers</li>
+<li>Added to the ledger</li>
+</ol>
+<p>Then the next block cryptographically links back to it using a hash pointer.</p>
+<hr>
+<h1 id="h-116-23-complete-blockchain-working-diagram">23. Complete Blockchain Working Diagram</h1>
+<p><strong>Memorize this diagram.</strong></p>
+<pre>             USER
+               │
+               ↓
+       Create Transaction
+               │
+               ↓
+       Digital Signature
+               │
+               ↓
+       Transaction Broadcast
+               │
+               ↓
+      ┌─────────────────┐
+      │ Network Nodes   │
+      │ Validate Tx     │
+      └────────┬────────┘
+               │
+               ↓
+       Valid Transactions
+               │
+               ↓
+        Block Formation
+               │
+               ↓
+          CONSENSUS
+               │
+               ↓
+          Block Found
+               │
+               ↓
+       Block Validation
+               │
+               ↓
+      Add to Blockchain
+               │
+               ↓
+     Next Block links to it</pre>
+<p>This follows the transaction lifecycle presented in your Unit 1 material.</p>
+<hr>
+<h1 id="h-117-24-blockchain-architecture">24. Blockchain Architecture</h1>
+<p>Your PPT presents blockchain as a layer over a distributed peer-to-peer network.</p>
+<p>It also identifies cryptographic protocols as important for:</p>
+<ul>
+<li>Integrity</li>
+<li>Secure information dissemination</li>
+<li>Consensus</li>
+</ul>
+<p>and identifies public-key cryptography, digital signatures and cryptographic hashes as components.</p>
+<p>The architecture includes these important layers/concepts:</p>
+<pre>┌─────────────────────────────┐
+│       APPLICATIONS          │
+│ DApps, DAOs, smart contracts│
+├─────────────────────────────┤
+│         EXECUTION           │
+│ VM, transactions, blocks    │
+│ smart contract execution   │
+├─────────────────────────────┤
+│          CONSENSUS          │
+│ PoW / PoS / BFT etc.       │
+├─────────────────────────────┤
+│       NETWORK / P2P         │
+│       Communication         │
+├─────────────────────────────┤
+│       CRYPTOGRAPHY          │
+│ Hashes / signatures / keys │
+└─────────────────────────────┘</pre>
+<p>Your PPT specifically describes the <strong>Consensus</strong>, <strong>Execution</strong>, and <strong>Applications</strong> layers and their roles.</p>
+<hr>
+<h1 id="h-118-25-blockchain-architecture-explain-each-layer">25. Blockchain Architecture — Explain Each Layer</h1>
+<h3 id="h-119-1-network-p2p-layer">1. Network/P2P layer</h3>
+<p>Responsible for communication between participating nodes.</p>
+<pre>N1 ↔ N2 ↔ N3 ↔ N4</pre>
+<hr>
+<h3 id="h-120-2-cryptographic-layer">2. Cryptographic layer</h3>
+<p>Provides security using mechanisms such as:</p>
+<ul>
+<li>Hash functions</li>
+<li>Digital signatures</li>
+<li>Public/private keys</li>
+</ul>
+<hr>
+<h3 id="h-121-3-consensus-layer">3. Consensus layer</h3>
+<p>Allows participants to agree on the accepted blockchain state.</p>
+<p>Examples include:</p>
+<ul>
+<li>Proof of Work</li>
+<li>Proof of Stake</li>
+<li>Byzantine fault-tolerant protocols</li>
+</ul>
+<p>Your PPT explicitly identifies SMR, proof-based consensus and Byzantine fault-tolerant protocols here.</p>
+<hr>
+<h3 id="h-122-4-execution-layer">4. Execution layer</h3>
+<p>Handles:</p>
+<ul>
+<li>Transactions</li>
+<li>Blocks</li>
+<li>Smart contracts</li>
+<li>Value transfer</li>
+<li>Block generation</li>
+<li>Virtual-machine execution</li>
+</ul>
+<hr>
+<h3 id="h-123-5-application-layer">5. Application layer</h3>
+<p>Contains user-facing blockchain applications such as:</p>
+<ul>
+<li>Smart contracts</li>
+<li>DApps</li>
+<li>DAOs</li>
+<li>Autonomous agents</li>
+</ul>
+<p>Users interact with blockchain through applications.</p>
+<hr>
+<h1 id="h-124-26-the-most-important-conceptual-connection">⭐ 26. The Most Important Conceptual Connection</h1>
+<p>You should now understand this:</p>
+<pre>DISTRIBUTED SYSTEM
+       ↓
+Many nodes
+       ↓
+Nodes may fail / behave maliciously
+       ↓
+Need agreement
+       ↓
+CONSENSUS
+       ↓
+Accepted state
+       ↓
+BLOCKCHAIN
+       ↓
+Transactions organized into blocks
+       ↓
+Cryptographically linked
+       ↓
+Distributed ledger</pre>
+<p>This is the <strong>core idea of Unit I</strong>.</p>
+<hr>
+<h1 id="h-125-5-mark-questions-module-2">🎯 5-MARK QUESTIONS — MODULE 2</h1>
+<p>Prepare these very well.</p>
+<h3 id="h-126-q1-define-a-distributed-system">Q1. Define a distributed system.</h3>
+<p>Include:</p>
+<ul>
+<li>Multiple nodes</li>
+<li>Coordination</li>
+<li>Common outcome</li>
+<li>Communication</li>
+<li>Distributed computation</li>
+</ul>
+<hr>
+<h3 id="h-127-q2-what-is-a-byzantine-node">Q2. What is a Byzantine node?</h3>
+<p>Mention:</p>
+<ul>
+<li>Arbitrary/malicious behavior</li>
+<li>Can send incorrect/conflicting information</li>
+<li>Creates consistency problems</li>
+<li>Requires Byzantine fault tolerance</li>
+</ul>
+<hr>
+<h3 id="h-128-q3-explain-the-byzantine-generals-problem">Q3. Explain the Byzantine Generals Problem.</h3>
+<p>Mention:</p>
+<ul>
+<li>Multiple participants</li>
+<li>Need for common decision</li>
+<li>Some participants may be malicious</li>
+<li>Honest participants must reach consistent decision</li>
+</ul>
+<hr>
+<h3 id="h-129-q4-define-blockchain">Q4. Define blockchain.</h3>
+<p>Use the full definition:</p>
+<blockquote>Peer-to-peer + distributed ledger + cryptographically secure + append-only + immutable + consensus-based.</blockquote>
+<hr>
+<h3 id="h-130-q5-differentiate-blockchain-and-distributed-ledger">Q5. Differentiate blockchain and distributed ledger.</h3>
+<p>Remember:</p>
+<blockquote><strong>Blockchain is a type of distributed ledger, but every distributed ledger is not necessarily a blockchain.</strong></blockquote>
+<hr>
+<h3 id="h-131-q6-what-is-a-merkle-root">Q6. What is a Merkle root?</h3>
+<p>Explain:</p>
+<pre>Transactions
+    ↓
+Individual hashes
+    ↓
+Pairwise hashing
+    ↓
+Root hash</pre>
+<hr>
+<h3 id="h-132-q7-what-is-a-blockchain-node">Q7. What is a blockchain node?</h3>
+<p>Mention its possible functions:</p>
+<ul>
+<li>Transaction creation</li>
+<li>Transaction validation</li>
+<li>Block validation</li>
+<li>Mining</li>
+<li>Consensus</li>
+<li>Signing</li>
+</ul>
+<hr>
+<h1 id="h-133-27-very-important-10-mark-questions">🔥 27. VERY IMPORTANT 10-MARK QUESTIONS</h1>
+<h2 id="h-134-q1-explain-the-working-of-blockchain-with-a-suitab">Q1. Explain the working of blockchain with a suitable diagram.</h2>
+<p><strong>Write in this order:</strong></p>
+<ol>
+<li>Introduction</li>
+<li>Transaction initiation</li>
+<li>Digital signature</li>
+<li>Transaction validation</li>
+<li>Broadcast</li>
+<li>Block formation</li>
+<li>Consensus</li>
+<li>Block validation</li>
+<li>Addition to blockchain</li>
+<li>Cryptographic link to next block</li>
+<li>Diagram</li>
+</ol>
+<p>This can easily make a strong 10-mark answer.</p>
+<hr>
+<h2 id="h-135-q2-explain-distributed-systems-and-the-byzantine-g">Q2. Explain distributed systems and the Byzantine Generals Problem.</h2>
+<p>Structure:</p>
+<pre>Definition of distributed system
+          ↓
+Nodes
+          ↓
+Types of node behavior
+          ↓
+Challenges
+          ↓
+Byzantine node
+          ↓
+Byzantine Generals Problem
+          ↓
+Need for consensus
+          ↓
+PBFT
+          ↓
+Connection to blockchain</pre>
+<hr>
+<h2 id="h-136-q3-explain-blockchain-architecture">Q3. Explain blockchain architecture.</h2>
+<p>Draw:</p>
+<pre>Applications
+     ↓
+Execution
+     ↓
+Consensus
+     ↓
+P2P Network
+     ↓
+Cryptography</pre>
+<p>Then explain each layer.</p>
+<hr>
+<h2 id="h-137-q4-explain-the-structure-of-a-blockchain-block">Q4. Explain the structure of a blockchain block.</h2>
+<p>Draw:</p>
+<pre>             BLOCK
+┌─────────────────────────┐
+│       BLOCK HEADER      │
+│                         │
+│ Previous Block Hash     │
+│ Timestamp               │
+│ Nonce                   │
+│ Merkle Root             │
+├─────────────────────────┤
+│       BLOCK BODY        │
+│                         │
+│ Transaction 1           │
+│ Transaction 2           │
+│ Transaction 3           │
+│ ...                     │
+└─────────────────────────┘</pre>
+<p>This is directly aligned with your PPT.</p>
+<hr>
+<h1 id="h-138-exam-traps">⚠️ EXAM TRAPS</h1>
+<h3 id="h-139-trap-1">Trap 1</h3>
+<p>❌ "Every distributed ledger is blockchain."</p>
+<p>✅ <strong>Every blockchain is a distributed ledger, but not every distributed ledger is a blockchain.</strong></p>
+<hr>
+<h3 id="h-140-trap-2">Trap 2</h3>
+<p>❌ "Every blockchain node is a miner."</p>
+<p>✅ Nodes can have different functions; mining is only one possible role.</p>
+<hr>
+<h3 id="h-141-trap-3">Trap 3</h3>
+<p>❌ "Blockchain is just a database."</p>
+<p>Too simplistic.</p>
+<p>✅ Blockchain is a <strong>distributed, cryptographically secured, consensus-based ledger</strong>.</p>
+<hr>
+<h3 id="h-142-trap-4">Trap 4</h3>
+<p>❌ "Consensus means everyone votes and 100% agree."</p>
+<p>Don't write that.</p>
+<p>Consensus is the process/mechanism through which distributed nodes determine an accepted state.</p>
+<hr>
+<h3 id="h-143-trap-5">Trap 5</h3>
+<p>❌ "Hash = encryption."</p>
+<p>No.</p>
+<p>Hashing and encryption are different cryptographic concepts. We'll cover this deeply in Unit 2.</p>
+<hr>
+<h1 id="h-144-module-2-final-revision-sheet">🧠 MODULE 2 — Final Revision Sheet</h1>
+<p>Memorize this:</p>
+<pre>DISTRIBUTED SYSTEM
+    ↓
+Multiple nodes cooperate
+    ↓
+Problems:
+- coordination
+- failures
+- malicious nodes
+- network partitions
+    ↓
+BYZANTINE PROBLEM
+    ↓
+Need agreement despite faulty/malicious nodes
+    ↓
+CONSENSUS
+    ↓
+BLOCKCHAIN
+    ↓
+P2P distributed ledger
+    ↓
+Transactions
+    ↓
+Blocks
+    ↓
+Block Header:
+- Previous Hash
+- Timestamp
+- Nonce
+- Merkle Root
+    ↓
+Block Body:
+- Transactions
+    ↓
+Consensus
+    ↓
+Block added
+    ↓
+Next block cryptographically linked</pre>
+<p>And remember the <strong>5-step blockchain working process</strong> from your PPT:</p>
+<blockquote><strong>Initiate → Validate &amp; Broadcast → Find Block → Block Found → Add Block</strong>.</blockquote>
+<hr>
+<h2 id="h-145-before-we-move-to-module-3">📝 Before we move to Module 3</h2>
+<p>Module 3 is <strong>CONSENSUS</strong>, and I would consider it one of the <strong>highest-priority topics for your Monday exam</strong>.</p>
+<p>We'll go much deeper there into:</p>
+<p><strong>Consensus → requirements → PoW → PoS → DPoS → PoET → PoD → PoI → PBFT → Federated consensus → PoA → PoC → Proof of Storage → comparison of consensus mechanisms.</strong></p>
+<p>Your actual Consensus PPT contains a broad list of these mechanisms.</p>
+
+
+
+<div class="module-separator" id="module-3">
+    <div class="module-badge">Module 3</div>
+</div>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-1.html">&larr; Module 1</a>
+        <a class="pn-reader" href="blockchain_guide.html">📖 Single-Page Reader View</a>
+        <a class="pn-btn" href="blockchain-module-3.html">Module 3 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

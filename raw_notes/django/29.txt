@@ -1,0 +1,1756 @@
+# Module 29 — Django Shell & CRUD
+
+Now we're going to **actually work with database records**.
+
+CRUD is one of the most important practical topics in Django:
+
+> **C — Create**
+> **R — Read**
+> **U — Update**
+> **D — Delete**
+
+By the end, you should be able to perform all four operations using Django ORM and explain them in a viva.
+
+---
+
+# 1. What Is CRUD?
+
+CRUD represents the four basic database operations:
+
+| CRUD | Meaning | Django           |
+| ---- | ------- | ---------------- |
+| C    | Create  | Create a record  |
+| R    | Read    | Retrieve records |
+| U    | Update  | Modify records   |
+| D    | Delete  | Remove records   |
+
+Example:
+
+```text
+Student
+    ↓
+Create → Add student
+Read   → View student
+Update → Change student details
+Delete → Remove student
+```
+
+---
+
+# 2. Why Django Shell?
+
+You can interact with your Django project using:
+
+```bash
+python manage.py shell
+```
+
+The Django shell gives you a Python environment where Django is already configured.
+
+You can directly work with:
+
+```python
+Student.objects.all()
+Student.objects.create(...)
+Student.objects.filter(...)
+```
+
+This is extremely useful for:
+
+* Learning ORM
+* Testing queries
+* Debugging
+* Creating test data
+* Inspecting database records
+* Practical exams
+
+---
+
+# 3. Starting the Django Shell
+
+From the folder containing `manage.py`:
+
+```bash
+python manage.py shell
+```
+
+You may see something like:
+
+```text
+Python 3.x.x
+>>>
+```
+
+Now you're inside the Django shell.
+
+---
+
+# 4. Import Your Model
+
+Suppose your app is called:
+
+```text
+students
+```
+
+and your model is:
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+    course = models.CharField(max_length=50)
+    marks = models.IntegerField(default=0)
+```
+
+Inside the shell:
+
+```python
+from students.models import Student
+```
+
+Now you can use:
+
+```python
+Student
+```
+
+---
+
+# 5. CREATE — Method 1
+
+Create an object:
+
+```python
+student = Student(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)
+```
+
+At this point:
+
+> The object exists in Python memory, but it has not necessarily been saved to the database yet.
+
+Now:
+
+```python
+student.save()
+```
+
+This saves it.
+
+---
+
+# 6. CREATE — Method 2: `objects.create()`
+
+A shorter approach:
+
+```python
+student = Student.objects.create(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)
+```
+
+This:
+
+1. Creates the object
+2. Saves it to the database
+
+So:
+
+```text
+Student(...)
+     ↓
+Python object
+     ↓
+save()
+     ↓
+Database
+```
+
+whereas:
+
+```text
+Student.objects.create(...)
+     ↓
+Create + Save
+```
+
+---
+
+# 7. `create()` vs `save()`
+
+### Method 1
+
+```python
+student = Student(
+    name="Aman"
+)
+
+student.save()
+```
+
+### Method 2
+
+```python
+student = Student.objects.create(
+    name="Aman"
+)
+```
+
+The second is shorter.
+
+### Viva answer:
+
+> `objects.create()` creates and saves the model instance immediately, while instantiating a model with `Model(...)` only creates the Python object until `save()` is called.
+
+---
+
+# 8. Verify the Record
+
+Now:
+
+```python
+Student.objects.all()
+```
+
+You should see a QuerySet.
+
+Something like:
+
+```text
+<QuerySet [<Student: Student object (1)>]>
+```
+
+The exact representation depends on your model's `__str__()` method.
+
+---
+
+# 9. `__str__()` — Very Useful
+
+By default, Django may display:
+
+```text
+<Student: Student object (1)>
+```
+
+You can make it more readable.
+
+In `models.py`:
+
+```python
+class Student(models.Model):
+
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.name
+```
+
+Now:
+
+```python
+Student.objects.all()
+```
+
+might display:
+
+```text
+<QuerySet [<Student: Aman>, <Student: Rahul>]>
+```
+
+This is especially useful in:
+
+* Django shell
+* Django admin
+* Debugging
+
+---
+
+# 10. READ — All Records
+
+```python
+Student.objects.all()
+```
+
+This returns a QuerySet containing all students.
+
+Example:
+
+```python
+students = Student.objects.all()
+```
+
+Then:
+
+```python
+for student in students:
+    print(student.name)
+```
+
+Output:
+
+```text
+Aman
+Rahul
+Priya
+```
+
+---
+
+# 11. READ — One Record
+
+Use:
+
+```python
+Student.objects.get(id=1)
+```
+
+Example:
+
+```python
+student = Student.objects.get(id=1)
+```
+
+Now:
+
+```python
+student.name
+```
+
+might return:
+
+```text
+Aman
+```
+
+---
+
+# 12. `get()` Requires Exactly One Result
+
+Remember:
+
+```python
+Student.objects.get(id=1)
+```
+
+expects exactly one object.
+
+If none exists:
+
+```text
+Student.DoesNotExist
+```
+
+If multiple records match:
+
+```text
+MultipleObjectsReturned
+```
+
+For a unique primary key lookup, multiple matches aren't possible, but other conditions can produce multiple results.
+
+---
+
+# 13. `filter()`
+
+Use:
+
+```python
+Student.objects.filter(course="CSE")
+```
+
+This returns a QuerySet.
+
+Example:
+
+```python
+students = Student.objects.filter(course="CSE")
+```
+
+Then:
+
+```python
+for student in students:
+    print(student.name)
+```
+
+---
+
+# 14. Filter by Marks
+
+```python
+Student.objects.filter(marks__gte=80)
+```
+
+Meaning:
+
+```text
+marks >= 80
+```
+
+---
+
+# 15. Combine Conditions
+
+```python
+Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+)
+```
+
+Meaning:
+
+```text
+course = CSE
+AND
+marks >= 80
+```
+
+---
+
+# 16. READ — First Record
+
+```python
+Student.objects.first()
+```
+
+Returns the first object according to the QuerySet's ordering, or `None` if no object exists.
+
+You can also explicitly order:
+
+```python
+Student.objects.order_by("id").first()
+```
+
+---
+
+# 17. READ — Last Record
+
+```python
+Student.objects.last()
+```
+
+or:
+
+```python
+Student.objects.order_by("id").last()
+```
+
+---
+
+# 18. Count Records
+
+```python
+Student.objects.count()
+```
+
+Example:
+
+```text
+5
+```
+
+means there are five records.
+
+---
+
+# 19. Check Whether Records Exist
+
+```python
+Student.objects.exists()
+```
+
+Returns:
+
+```python
+True
+```
+
+or:
+
+```python
+False
+```
+
+You can also check a condition:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).exists()
+```
+
+---
+
+# 20. UPDATE — Method 1
+
+Suppose:
+
+```python
+student = Student.objects.get(id=1)
+```
+
+Change:
+
+```python
+student.marks = 95
+```
+
+Then:
+
+```python
+student.save()
+```
+
+Flow:
+
+```text
+Get student
+    ↓
+Change attribute
+    ↓
+save()
+    ↓
+Database updated
+```
+
+---
+
+# 21. Updating Multiple Fields
+
+```python
+student.name = "Aman Ranjan"
+student.age = 22
+student.marks = 95
+
+student.save()
+```
+
+Now all changed fields are saved.
+
+---
+
+# 22. UPDATE — Method 2: `update()`
+
+You can update directly through a QuerySet:
+
+```python
+Student.objects.filter(
+    id=1
+).update(
+    marks=95
+)
+```
+
+This directly performs a database update.
+
+---
+
+# 23. Updating Multiple Records
+
+Suppose we want to give every CSE student 5 additional marks:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).update(
+    marks=100
+)
+```
+
+This updates every matching record.
+
+**Be careful.**
+
+Bulk updates can affect many records at once.
+
+---
+
+# 24. `save()` vs `update()`
+
+This is an important viva question.
+
+### `save()`
+
+```python
+student.marks = 95
+student.save()
+```
+
+Works with a model instance.
+
+### `update()`
+
+```python
+Student.objects.filter(id=1).update(
+    marks=95
+)
+```
+
+Works on a QuerySet and performs a direct bulk database update.
+
+Remember an important consequence:
+
+> `QuerySet.update()` does not call each model instance's `save()` method.
+
+So if your model has custom `save()` behavior, don't assume `update()` will execute it.
+
+---
+
+# 25. UPDATE Using `get()`
+
+Another common pattern:
+
+```python
+student = Student.objects.get(
+    email="aman@gmail.com"
+)
+
+student.marks = 90
+
+student.save()
+```
+
+This is useful when you want to work with the actual model object.
+
+---
+
+# 26. DELETE — Method 1
+
+Get an object:
+
+```python
+student = Student.objects.get(id=1)
+```
+
+Then:
+
+```python
+student.delete()
+```
+
+The record is removed.
+
+---
+
+# 27. DELETE — Method 2
+
+Delete directly:
+
+```python
+Student.objects.filter(
+    id=1
+).delete()
+```
+
+This deletes matching records.
+
+---
+
+# 28. Delete Multiple Records
+
+Suppose we want to delete inactive students:
+
+```python
+Student.objects.filter(
+    is_active=False
+).delete()
+```
+
+All matching records are deleted.
+
+Again:
+
+> Be very careful with bulk delete operations.
+
+---
+
+# 29. CRUD Complete Example
+
+Let's perform all four operations.
+
+### CREATE
+
+```python
+student = Student.objects.create(
+    name="Aman",
+    age=21,
+    email="aman@gmail.com",
+    course="CSE",
+    marks=85
+)
+```
+
+### READ
+
+```python
+students = Student.objects.all()
+```
+
+### UPDATE
+
+```python
+student.marks = 95
+student.save()
+```
+
+### DELETE
+
+```python
+student.delete()
+```
+
+That's basic CRUD.
+
+---
+
+# 30. CRUD Flow
+
+Memorize:
+
+```text
+CREATE
+   ↓
+Student.objects.create(...)
+   ↓
+Database
+
+READ
+   ↓
+Student.objects.all()
+Student.objects.get()
+Student.objects.filter()
+
+UPDATE
+   ↓
+object.field = value
+object.save()
+
+or
+
+QuerySet.update(...)
+
+DELETE
+   ↓
+object.delete()
+
+or
+
+QuerySet.delete()
+```
+
+---
+
+# 31. `get_or_create()`
+
+Django provides a useful method:
+
+```python
+Student.objects.get_or_create(...)
+```
+
+Suppose:
+
+```python
+student, created = Student.objects.get_or_create(
+    email="aman@gmail.com",
+    defaults={
+        "name": "Aman",
+        "age": 21,
+        "course": "CSE"
+    }
+)
+```
+
+It attempts to:
+
+1. Find an existing matching object
+2. If it doesn't exist, create one
+
+It returns:
+
+```text
+(object, created)
+```
+
+where:
+
+```text
+created = True
+```
+
+if a new object was created.
+
+Otherwise:
+
+```text
+created = False
+```
+
+if an existing object was found.
+
+---
+
+# 32. Why `get_or_create()` Is Useful
+
+Suppose you want to make sure a record exists without writing:
+
+```python
+try:
+    ...
+except:
+    ...
+```
+
+yourself.
+
+You can use:
+
+```python
+get_or_create()
+```
+
+This is especially useful for initialization/setup-type operations.
+
+---
+
+# 33. `update_or_create()`
+
+Another useful method:
+
+```python
+Student.objects.update_or_create(...)
+```
+
+It:
+
+* Updates an existing matching object
+* Or creates it if it doesn't exist
+
+Example:
+
+```python
+student, created = Student.objects.update_or_create(
+    email="aman@gmail.com",
+    defaults={
+        "name": "Aman",
+        "age": 22,
+        "marks": 95
+    }
+)
+```
+
+The lookup fields are used to find the object, while `defaults` contains values to update/create.
+
+---
+
+# 34. `get_or_create()` vs `update_or_create()`
+
+| Method               | Behavior                  |
+| -------------------- | ------------------------- |
+| `get_or_create()`    | Get existing or create    |
+| `update_or_create()` | Update existing or create |
+
+---
+
+# 35. `delete()` Return Value
+
+When deleting objects:
+
+```python
+student.delete()
+```
+
+Django returns information about the deletion, including the number of objects deleted and a breakdown by model.
+
+For basic coding questions, you usually only need:
+
+```python
+student.delete()
+```
+
+---
+
+# 36. Creating Multiple Records
+
+You can use:
+
+```python
+Student.objects.bulk_create([
+    Student(
+        name="Aman",
+        age=21,
+        email="aman@gmail.com",
+        course="CSE"
+    ),
+    Student(
+        name="Rahul",
+        age=22,
+        email="rahul@gmail.com",
+        course="ECE"
+    ),
+])
+```
+
+This is useful for efficiently inserting many objects.
+
+It's an advanced operation; don't use it when you need individual `save()` behavior for every object.
+
+---
+
+# 37. Bulk Update
+
+For example:
+
+```python
+Student.objects.filter(
+    course="CSE"
+).update(
+    is_active=True
+)
+```
+
+This updates all matching records in one database operation.
+
+---
+
+# 38. Bulk Delete
+
+```python
+Student.objects.filter(
+    age__lt=18
+).delete()
+```
+
+This removes all students under 18.
+
+---
+
+# 39. Important Difference: `delete()` vs `update()`
+
+Both can operate on QuerySets:
+
+```python
+Student.objects.filter(...).update(...)
+```
+
+and:
+
+```python
+Student.objects.filter(...).delete()
+```
+
+But they perform completely different actions:
+
+```text
+update() → changes records
+delete() → removes records
+```
+
+---
+
+# 40. Using `get_object_or_404()` in Views
+
+Shell:
+
+```python
+student = Student.objects.get(id=1)
+```
+
+View:
+
+```python
+from django.shortcuts import get_object_or_404
+
+student = get_object_or_404(
+    Student,
+    id=1
+)
+```
+
+Why?
+
+Because a web request should normally produce an HTTP 404 response rather than an unhandled `DoesNotExist` exception.
+
+---
+
+# 41. CRUD in a Django View
+
+Let's make a simple read view:
+
+```python
+from django.shortcuts import render
+from .models import Student
+
+
+def student_list(request):
+
+    students = Student.objects.all()
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+Template:
+
+```html
+{% for student in students %}
+
+    <p>
+        {{ student.name }}
+        - {{ student.age }}
+        - {{ student.marks }}
+    </p>
+
+{% endfor %}
+```
+
+This is:
+
+```text
+Database
+   ↓
+ORM
+   ↓
+View
+   ↓
+Context
+   ↓
+Template
+```
+
+---
+
+# 42. Create Through a View
+
+Example:
+
+```python
+from django.shortcuts import redirect, render
+from .forms import StudentForm
+from .models import Student
+
+
+def create_student(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            Student.objects.create(
+                name=form.cleaned_data["name"],
+                age=form.cleaned_data["age"],
+                email=form.cleaned_data["email"],
+                course=form.cleaned_data["course"]
+            )
+
+            return redirect("student_list")
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "create_student.html",
+        {"form": form}
+    )
+```
+
+Notice how many previous modules are now connecting:
+
+```text
+Form
+ ↓
+Validation
+ ↓
+ORM
+ ↓
+Create
+ ↓
+Redirect
+```
+
+---
+
+# 43. Update Through a View
+
+Conceptually:
+
+```python
+from django.shortcuts import get_object_or_404, redirect, render
+
+
+def update_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            student.name = form.cleaned_data["name"]
+            student.age = form.cleaned_data["age"]
+            student.email = form.cleaned_data["email"]
+            student.course = form.cleaned_data["course"]
+
+            student.save()
+
+            return redirect("student_list")
+
+    else:
+        form = StudentForm(
+            initial={
+                "name": student.name,
+                "age": student.age,
+                "email": student.email,
+                "course": student.course,
+            }
+        )
+
+    return render(
+        request,
+        "update_student.html",
+        {"form": form}
+    )
+```
+
+Don't worry if this seems long. We're going to build complete CRUD projects later.
+
+---
+
+# 44. Delete Through a View
+
+A safer basic pattern is to use POST for destructive operations:
+
+```python
+from django.shortcuts import get_object_or_404, redirect
+
+
+def delete_student(request, id):
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        student.delete()
+
+        return redirect("student_list")
+```
+
+Template:
+
+```html
+<form method="POST">
+    {% csrf_token %}
+
+    <button type="submit">
+        Delete
+    </button>
+</form>
+```
+
+Notice:
+
+```text
+POST
++
+CSRF
++
+delete()
++
+redirect()
+```
+
+We've now combined Modules 23, 24, 25, 27, 28, and 29.
+
+---
+
+# 45. Django Shell Is Not Your Application
+
+Remember:
+
+```bash
+python manage.py shell
+```
+
+is mainly an interactive environment for working with your project.
+
+It doesn't replace:
+
+```text
+views.py
+forms.py
+templates
+urls.py
+```
+
+It's a tool for interacting with Django and testing things.
+
+---
+
+# 46. Exiting Django Shell
+
+Use:
+
+```python
+exit()
+```
+
+or:
+
+```python
+quit()
+```
+
+You can also use the appropriate keyboard shortcut for your terminal/environment.
+
+---
+
+# 47. Important Shell Workflow
+
+A practical workflow:
+
+```bash
+python manage.py shell
+```
+
+Then:
+
+```python
+from students.models import Student
+```
+
+Then:
+
+```python
+Student.objects.all()
+```
+
+Create:
+
+```python
+Student.objects.create(...)
+```
+
+Read:
+
+```python
+Student.objects.filter(...)
+```
+
+Update:
+
+```python
+student = Student.objects.get(id=1)
+student.marks = 95
+student.save()
+```
+
+Delete:
+
+```python
+student.delete()
+```
+
+Exit:
+
+```python
+exit()
+```
+
+---
+
+# 48. Practical Coding Question
+
+### Question:
+
+Create a student with:
+
+```text
+Name = Aman
+Age = 21
+Course = CSE
+Marks = 85
+```
+
+Answer:
+
+```python
+Student.objects.create(
+    name="Aman",
+    age=21,
+    course="CSE",
+    marks=85
+)
+```
+
+---
+
+# 49. Practical Coding Question
+
+### Question:
+
+Find all students with marks greater than 80.
+
+```python
+Student.objects.filter(
+    marks__gt=80
+)
+```
+
+---
+
+# 50. Practical Coding Question
+
+### Question:
+
+Find the student with ID 5.
+
+```python
+Student.objects.get(
+    id=5
+)
+```
+
+---
+
+# 51. Practical Coding Question
+
+### Question:
+
+Change student 5's marks to 95.
+
+Method 1:
+
+```python
+student = Student.objects.get(id=5)
+
+student.marks = 95
+
+student.save()
+```
+
+Method 2:
+
+```python
+Student.objects.filter(
+    id=5
+).update(
+    marks=95
+)
+```
+
+---
+
+# 52. Practical Coding Question
+
+### Question:
+
+Delete student 5.
+
+```python
+Student.objects.filter(
+    id=5
+).delete()
+```
+
+Or:
+
+```python
+student = Student.objects.get(id=5)
+student.delete()
+```
+
+---
+
+# 53. Practical Coding Question
+
+### Question:
+
+Find all CSE students with marks ≥ 80 and sort highest first.
+
+```python
+students = Student.objects.filter(
+    course="CSE",
+    marks__gte=80
+).order_by(
+    "-marks"
+)
+```
+
+---
+
+# 54. Practical Coding Question
+
+### Question:
+
+Check whether any student has the email `aman@gmail.com`.
+
+```python
+exists = Student.objects.filter(
+    email="aman@gmail.com"
+).exists()
+```
+
+---
+
+# 55. Practical Coding Question
+
+### Question:
+
+Count the number of CSE students.
+
+```python
+count = Student.objects.filter(
+    course="CSE"
+).count()
+```
+
+---
+
+# 56. Viva Masterclass
+
+### Q1. What is CRUD?
+
+> CRUD stands for Create, Read, Update, and Delete, the four basic operations performed on persistent data.
+
+---
+
+### Q2. How do you enter Django shell?
+
+```bash
+python manage.py shell
+```
+
+---
+
+### Q3. How do you import a model in the shell?
+
+```python
+from students.models import Student
+```
+
+---
+
+### Q4. How do you create a model object?
+
+```python
+student = Student(
+    name="Aman"
+)
+student.save()
+```
+
+---
+
+### Q5. How do you create and save in one operation?
+
+```python
+Student.objects.create(...)
+```
+
+---
+
+### Q6. Difference between `create()` and `save()`?
+
+> `create()` creates and saves an object immediately, while `save()` explicitly persists a model instance to the database.
+
+---
+
+### Q7. How do you retrieve all objects?
+
+```python
+Student.objects.all()
+```
+
+---
+
+### Q8. How do you retrieve one object?
+
+```python
+Student.objects.get(id=1)
+```
+
+---
+
+### Q9. What happens if `get()` doesn't find an object?
+
+> It raises the model's `DoesNotExist` exception.
+
+---
+
+### Q10. How do you update a model?
+
+```python
+student.marks = 95
+student.save()
+```
+
+---
+
+### Q11. How do you perform a bulk update?
+
+```python
+Student.objects.filter(
+    course="CSE"
+).update(
+    marks=90
+)
+```
+
+---
+
+### Q12. How do you delete a model object?
+
+```python
+student.delete()
+```
+
+---
+
+### Q13. How do you delete multiple objects?
+
+```python
+Student.objects.filter(
+    is_active=False
+).delete()
+```
+
+---
+
+### Q14. What is `get_or_create()`?
+
+> It attempts to retrieve an existing object matching the lookup parameters and creates one if no matching object exists.
+
+---
+
+### Q15. What does `update_or_create()` do?
+
+> It updates an existing matching object or creates one if it doesn't exist.
+
+---
+
+### Q16. What is `__str__()` used for?
+
+> It defines the human-readable string representation of a model instance.
+
+---
+
+# 57. Important CRUD Cheat Sheet
+
+### CREATE
+
+```python
+Student.objects.create(
+    name="Aman",
+    age=21
+)
+```
+
+### READ ALL
+
+```python
+Student.objects.all()
+```
+
+### READ ONE
+
+```python
+Student.objects.get(id=1)
+```
+
+### READ MANY
+
+```python
+Student.objects.filter(
+    course="CSE"
+)
+```
+
+### UPDATE ONE
+
+```python
+student = Student.objects.get(id=1)
+student.marks = 95
+student.save()
+```
+
+### UPDATE MANY
+
+```python
+Student.objects.filter(
+    course="CSE"
+).update(
+    marks=90
+)
+```
+
+### DELETE ONE
+
+```python
+student.delete()
+```
+
+### DELETE MANY
+
+```python
+Student.objects.filter(
+    is_active=False
+).delete()
+```
+
+---
+
+# 58. The Big Picture
+
+At this point, your Django knowledge is becoming much more connected.
+
+A complete data-submission flow can look like:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+POST
+   ↓
+CSRF check
+   ↓
+Django Form
+   ↓
+Validation
+   ↓
+cleaned_data
+   ↓
+Django ORM
+   ↓
+Model
+   ↓
+Database
+   ↓
+redirect()
+   ↓
+GET
+   ↓
+View
+   ↓
+ORM
+   ↓
+Template
+   ↓
+Browser
+```
+
+This is a **very strong mental model for Django**.
+
+---
+
+# Module 29 Summary
+
+### Django Shell
+
+```bash
+python manage.py shell
+```
+
+### CRUD
+
+```text
+C → Create
+R → Read
+U → Update
+D → Delete
+```
+
+### Create
+
+```python
+Student.objects.create(...)
+```
+
+### Read
+
+```python
+Student.objects.all()
+Student.objects.get(...)
+Student.objects.filter(...)
+```
+
+### Update
+
+```python
+student.field = value
+student.save()
+```
+
+or:
+
+```python
+Student.objects.filter(...).update(...)
+```
+
+### Delete
+
+```python
+student.delete()
+```
+
+or:
+
+```python
+Student.objects.filter(...).delete()
+```
+
+### Useful methods
+
+```python
+.get_or_create(...)
+.update_or_create(...)
+.count()
+.exists()
+.first()
+.last()
+```
+
+And remember:
+
+```text
+create() → create + save
+save()   → persist model instance
+filter() → QuerySet
+get()    → exactly one object
+update() → direct QuerySet update
+delete() → remove records
+```
+
+**Next → Module 30: Advanced Django ORM**
+
+We'll go deeper into ORM with **`Q` objects, `F` expressions, `annotate()`, `aggregate()`, `Sum`, `Avg`, `Max`, `Min`, `Count`, `values()`, `values_list()`, complex filtering, database expressions, and advanced query questions**.

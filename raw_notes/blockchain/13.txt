@@ -1,0 +1,866 @@
+# Chapter 3 — Module 5: Bitcoin Blockchain, Network and Mining
+
+Based on your teacher's All topics of bitcoin.pptx, Transaction and mining in bitcoin.pptx, BitcoinSCript.pptx and the blockchain architecture material in Unit1_Part2.pptx.
+
+This is the final module of Chapter 3. We'll connect the topics you have already learned and study how Bitcoin maintains its blockchain, propagates transactions, mines blocks and handles forks.
+
+## Module roadmap
+
+1. Blockchain structure and block header
+2. Hash pointers and the genesis block
+3. Merkle trees and Merkle roots
+4. Bitcoin's peer-to-peer network
+5. Joining the Bitcoin network and transaction flooding
+6. Mining and block rewards
+7. Difficulty adjustment and Bitcoin halving
+8. Block propagation and forks
+9. Confirmations and chain selection
+10. Complete Bitcoin transaction lifecycle
+11. Exam-ready 5-mark and 10-mark answers
+
+# Topic 1: Bitcoin Blockchain Structure
+
+## 1.1 What is a blockchain?
+
+A blockchain is an ordered sequence of blocks, where each block refers to the previous block through a cryptographic hash.
+
+Each block contains transaction information, while its header contains data used to identify the block and link it to the preceding block.
+
+Your teacher's blockchain architecture slides identify the block header, previous-block hash, timestamp, nonce and Merkle root, along with the block body containing transactions.&#x20;
+
+Unit1_Part2.pptx
+
+
+
+## 1.2 How are blocks linked?
+
+Imagine three blocks in the blockchain:
+
+### Block 1 — Genesis block
+
+Previous-block reference: special initial value
+
+Hash: H1
+
+### Block 2
+
+Previous-block hash: H1
+
+Hash: H2
+
+### Block 3
+
+Previous-block hash: H2
+
+Hash: H3
+
+Block 2 stores a reference to Block 1, and Block 3 stores a reference to Block 2.
+
+If the contents of Block 1 change, its hash will change. Block 2's stored reference will no longer match the modified Block 1, and the change can be detected.
+
+This is the main reason blockchains use cryptographic hash pointers.
+
+## 1.3 What is a hash pointer?
+
+A hash pointer is a reference to data that also includes a cryptographic hash of that data.
+
+In a blockchain, the previous-block hash connects a new block to its predecessor.
+
+It provides two useful properties:
+
+- Linking: identifies the preceding block.
+- Tamper detection: allows nodes to detect changes to the referenced block.
+
+Changing an old block therefore affects the consistency of the chain after it. In a PoW blockchain, an attacker attempting to rewrite history must also contend with the Proof of Work and chain-selection rules.
+
+## 1.4 What is the genesis block?
+
+The genesis block is the first block in a blockchain.
+
+It has no ordinary preceding block to reference. Later blocks connect to it, directly or indirectly, through the previous-block hashes.
+
+For exam purposes, remember:
+
+- It is the first block.
+- It establishes the starting point of the chain.
+- All later blocks are linked back to it through the chain.
+
+# Topic 2: Structure of a Bitcoin Block
+
+A Bitcoin block has two major parts:
+
+1. Block header
+2. Block body
+
+The header contains the information used to identify the block and link it to the chain. The body contains the transactions recorded in that block.
+
+## 2.1 Block header
+
+For the traditional Bitcoin block-header structure covered by your syllabus, the header contains six fields.
+
+| Field                       | Purpose                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Version                     | Indicates the block version or applicable consensus-rule signalling information. |
+| Previous block hash         | Links the block to its predecessor.                                              |
+| Merkle root                 | Represents the transactions in the block through a hash-tree structure.          |
+| Timestamp                   | Records the miner's claimed block time, subject to protocol checks.              |
+| Difficulty target (`nBits`) | Encodes the target that the block hash must satisfy for PoW.                     |
+| Nonce                       | A field miners vary while searching for a valid hash.                            |
+
+The block header is 80 bytes in the traditional Bitcoin format. Miners hash the header twice with SHA-256 to calculate the block hash used for Proof of Work.
+
+## 2.2 Block body
+
+The block body contains the block's transactions.
+
+These include the coinbase transaction, which creates the block subsidy and can collect transaction fees under the protocol's rules, along with other transactions selected for inclusion.
+
+## Bitcoin block
+
+### Block header — 80 bytes
+
+Version
+
+Previous hash
+
+Merkle root
+
+Timestamp
+
+Difficulty target
+
+Nonce
+
+### Block body
+
+Coinbase transaction
+
+Transaction 1
+
+Transaction 2
+
+Other included transactions...
+
+Important distinction: the block header contains the Merkle root, not the complete list of transactions. The Merkle root commits to the transaction data.
+
+# Topic 3: Merkle Trees and Merkle Roots
+
+This is an important blockchain theory topic. Your teacher's BitcoinSCript.pptx includes a Merkle-tree example and explains that transactions are organised as a Merkle tree, with the Merkle root used in constructing the block hash.&#x20;
+
+BitcoinSCript.pptx
+
+
+
+## 3.1 What is a Merkle tree?
+
+A Merkle tree is a tree-shaped data structure in which leaf nodes contain hashes of individual data items, and parent nodes contain hashes derived from their children's hashes.
+
+In Bitcoin, the leaves represent transaction hashes, and the hashes are combined upward until one hash remains: the Merkle root.
+
+## 3.2 Example with four transactions
+
+Suppose a block contains four transactions:
+
+- \\(T_1\\)
+- \\(T_2\\)
+- \\(T_3\\)
+- \\(T_4\\)
+
+First, calculate a hash for each transaction:
+
+\\[ H\_{00}=H(T_1),\quad H\_{01}=H(T_2) \\]
+
+\\[ H\_{10}=H(T_3),\quad H\_{11}=H(T_4) \\]
+
+Next, combine the hashes in pairs:
+
+\\[ H_0=H(H\_{00}\parallel H\_{01}) \\]
+
+\\[ H_1=H(H\_{10}\parallel H\_{11}) \\]
+
+Finally, combine the two parent hashes:
+
+\\[ \boxed{H\_{\text{root}}=H(H_0\parallel H_1)} \\]
+
+Here, \\(H\\) represents the hash operation, and \\(\parallel\\) means concatenation.
+
+## 3.3 Merkle-tree diagram
+
+Merkle root
+
+Hroot
+
+H0
+
+H1
+
+H(T1)
+
+H(T2)
+
+H(T3)
+
+H(T4)
+
+T1
+
+T2
+
+T3
+
+T4
+
+## 3.4 Why is the Merkle tree useful?
+
+### 1. Efficient verification
+
+A node can verify that a transaction belongs to a block using a Merkle proof, without downloading every transaction in the block.
+
+### 2. Tamper detection
+
+If transaction data changes, its hash changes. That change propagates upward through the tree and changes the Merkle root.
+
+### 3. Compact commitment
+
+A single Merkle root in the block header commits to the block's transaction set.
+
+### 4. Lightweight verification
+
+Merkle proofs help lightweight clients verify transaction inclusion using a block header and a relatively small amount of additional hash data.
+
+## 3.5 What happens if one transaction changes?
+
+Suppose \\(T_2\\) is modified.
+
+1. The hash of \\(T_2\\) changes.
+2. The parent hash \\(H_0\\) changes.
+3. The Merkle root changes.
+4. The block header changes.
+5. The block hash changes.
+
+In a PoW blockchain, the modified header would need to satisfy the target again. Any subsequent blocks would also need to be reconciled with the changed chain.
+
+Memory trick: Transaction change → leaf hash change → parent hash change → Merkle root change → block hash change.
+
+# Topic 4: Bitcoin's Peer-to-Peer Network
+
+## 4.1 What is the Bitcoin P2P network?
+
+A peer-to-peer network is a network in which participating computers communicate directly with one another rather than relying on a single central server to relay every message.
+
+Your teacher's Transaction and mining in bitcoin.pptx describes Bitcoin's network as an ad hoc network with a random topology, running over TCP, where nodes are treated as peers. It also explains that new nodes can join and non-responding peers may be removed from a node's peer list.&#x20;
+
+Transactiona dn mining in bitcoin.pptx
+
+
+
+## 4.2 How does a node join the network?
+
+The PPT presents a simplified joining process:
+
+1. A new node starts its Bitcoin software.
+2. It contacts a known entry point, such as a seed node or other peer-discovery service.
+3. It receives information about peers.
+4. It establishes connections to other nodes.
+5. It obtains blockchain data and validates it according to the protocol.
+6. It begins participating in the network according to its capabilities.
+
+A seed node helps a new node discover peers. It is not the central authority controlling Bitcoin.
+
+## 4.3 What does a Bitcoin node do?
+
+Depending on its type, a node may:
+
+- Receive and relay transactions
+- Check transaction validity
+- Receive and relay blocks
+- Validate blocks and their proof of work
+- Maintain blockchain data
+- Help users obtain information about transactions
+
+A full node independently checks the consensus rules. A miner additionally performs the block-production work associated with mining.
+
+Important: not every node mines Bitcoin, and miners do not replace the independent validation performed by other nodes.
+
+## 4.4 Why use a P2P network?
+
+1. No single central relay is required: nodes can communicate with multiple peers.
+2. Fault tolerance: the network can continue operating when some peers disconnect.
+3. Information dissemination: transactions and blocks can spread across the network.
+4. Open participation: nodes can join and leave under the network's connection and protocol rules.
+
+# Topic 5: Transaction Flooding and Block Propagation
+
+These are two different stages of information dissemination in Bitcoin.
+
+## 5.1 What is transaction flooding?
+
+In the context of your teacher's PPT, transaction flooding refers to the process of spreading transactions across the peer-to-peer network.
+
+Suppose Aman broadcasts a transaction to one peer.
+
+1. That peer checks the transaction.
+2. If appropriate, it relays the transaction to its peers.
+3. Those peers may relay it further.
+4. The transaction spreads to more of the network.
+
+Aman's node
+
+Broadcast transaction
+
+Peer A
+
+Peer B
+
+Peer C
+
+Peers relay the transaction onward when appropriate.
+
+Nodes do not blindly accept every message. They apply transaction checks and use protocol mechanisms to avoid repeatedly processing or relaying the same transaction unnecessarily.
+
+## 5.2 What is block propagation?
+
+Block propagation is the process of spreading a newly found block to other nodes.
+
+When a miner finds a valid block:
+
+1. The miner broadcasts the block.
+2. Other nodes receive it.
+3. They check the block header, proof of work, transactions and other protocol rules.
+4. Valid blocks may be relayed to their peers.
+5. Nodes update their view of the accepted blockchain according to the chain-selection rules.
+
+Your teacher's PPT emphasises checking the block hash, transactions, scripts and consistency with the existing blockchain before relaying a block.&#x20;
+
+Transactiona dn mining in bitcoin.pptx
+
+
+
+## 5.3 Transaction flooding vs block propagation
+
+| Transaction flooding                                        | Block propagation                                           |
+| ----------------------------------------------------------- | ----------------------------------------------------------- |
+| Spreads individual unconfirmed transactions.                | Spreads blocks containing transactions.                     |
+| Usually occurs before a transaction is included in a block. | Occurs when a miner or block producer announces a block.    |
+| Nodes check transactions before relaying them.              | Nodes check the block and its contents before accepting it. |
+| Helps transactions reach miners.                            | Helps nodes learn about new blocks.                         |
+
+# Topic 6: Bitcoin Mining
+
+## 6.1 What is mining?
+
+Bitcoin mining is the process of constructing candidate blocks and performing Proof of Work to find a block that satisfies the network's difficulty target.
+
+Mining serves two important purposes:
+
+1. It helps produce new blocks and secure the transaction history.
+2. It provides the mechanism through which new bitcoins are issued according to the protocol's block-subsidy schedule.
+
+Your teacher's All topics of bitcoin.pptx lists synchronising with the network, transaction validation, block validation, creating a new block, performing PoW and obtaining the reward as miners' tasks.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+## 6.2 Step-by-step mining process
+
+### Step 1 — Synchronise with the network
+
+The miner obtains the relevant blockchain information and learns about recent transactions and blocks.
+
+### Step 2 — Validate transactions
+
+The miner checks candidate transactions, including their spending conditions and whether the referenced outputs are available to spend.
+
+### Step 3 — Create a candidate block
+
+The miner selects transactions and constructs a block containing them. A block also contains a special coinbase transaction.
+
+### Step 4 — Construct the block header
+
+The header includes the previous-block hash, Merkle root, timestamp, difficulty target and nonce, as well as the version field.
+
+### Step 5 — Perform Proof of Work
+
+The miner hashes the block header repeatedly, changing the nonce and, when necessary, other permitted data.
+
+The objective is to find a hash satisfying the target.
+
+\\[ \boxed{\text{Block hash}<\text{Target}} \\]
+
+### Step 6 — Broadcast the block
+
+When a valid candidate is found, the miner broadcasts it to other nodes.
+
+### Step 7 — Receive the reward
+
+If the block is accepted under the protocol rules, its coinbase transaction can claim the permitted block subsidy plus the included transaction fees.
+
+## 6.3 Complete mining diagram
+
+Receive transactions and chain information
+
+Validate transactions
+
+Construct candidate block and Merkle root
+
+Hash header and vary nonce
+
+Does the hash satisfy the target?
+
+No
+
+Continue searching
+
+Yes
+
+Broadcast block
+
+Nodes validate the block and update their chain view
+
+## 6.4 What is a block reward?
+
+A block reward is commonly used to refer to the block subsidy plus transaction fees earned by a miner for an accepted block.
+
+- Block subsidy: newly issued bitcoins permitted by the protocol.
+- Transaction fees: the difference between transaction inputs and outputs, collected by the miner through the coinbase transaction.
+
+The subsidy is not constant forever. It decreases according to Bitcoin's halving schedule.
+
+## 6.5 What is a coinbase transaction?
+
+A coinbase transaction is the special first transaction in a mined block. It allows the miner to claim the permitted subsidy and transaction fees.
+
+It differs from an ordinary transaction because it does not spend ordinary previous transaction outputs.
+
+The coinbase transaction is also included in the block's transaction set and contributes to its Merkle root.
+
+# Topic 7: Mining Difficulty and Bitcoin Halving
+
+## 7.1 Mining difficulty
+
+Mining difficulty indicates how hard it is, on average, to find a valid PoW hash.
+
+A hash must be less than or equal to the permitted target under Bitcoin's consensus rules.
+
+- Lower target: harder to find a valid hash.
+- Higher target: easier to find a valid hash.
+
+Bitcoin adjusts its target periodically so that block production stays near its intended average rate.
+
+## 7.2 Difficulty adjustment
+
+Your teacher's PPT states that Bitcoin adjusts mining difficulty every 2,016 blocks, with an intended average interval of about 10 minutes per block.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+The target adjustment is based on the time taken to produce the preceding 2,016-block period, subject to Bitcoin's consensus rules.
+
+The simplified relationship is:
+
+\\[ \text{New target} \approx \text{Previous target} \times \frac{\text{Actual elapsed time}}{\text{Expected elapsed time}} \\]
+
+For 2,016 blocks at 10 minutes per block:
+
+\\[ 2016\times10=20,160\text{ minutes} \\]
+
+That is approximately 14 days.
+
+If blocks were found too quickly, the target is reduced, making mining harder. If blocks were found too slowly, the target is increased, making mining easier, subject to protocol limits.
+
+## 7.3 What is Bitcoin halving?
+
+Bitcoin halving is the protocol event in which the block subsidy is reduced by 50% after every 210,000 blocks.
+
+Your teacher's slide describes the 210,000-block interval and lists the historical subsidy of 6.25 BTC introduced in 2020. That value is historical: the subsidy halved again in April 2024, from 6.25 BTC to 3.125 BTC per block.
+
+| Period             | Block subsidy |
+| ------------------ | ------------- |
+| Initial subsidy    | 50 BTC        |
+| After 2012 halving | 25 BTC        |
+| After 2016 halving | 12.5 BTC      |
+| After 2020 halving | 6.25 BTC      |
+| After 2024 halving | 3.125 BTC     |
+
+The subsidy decreases over time. Transaction fees are separate and are not halved automatically by this schedule.
+
+## 7.4 Why is halving important?
+
+1. It reduces the rate at which new bitcoins enter circulation.
+2. It follows Bitcoin's programmed issuance schedule.
+3. It affects miners' expected subsidy revenue.
+4. It gradually moves the system toward relying more heavily on transaction fees as the subsidy declines.
+
+### Exam-ready 5-mark answer: Bitcoin halving
+
+Bitcoin halving is the process by which the block subsidy is reduced by 50% every 210,000 blocks. It is part of Bitcoin's programmed monetary issuance schedule. The subsidy began at 50 BTC per block and was reduced to 25, 12.5, 6.25 and then 3.125 BTC through successive halvings. Halving slows the creation of new bitcoins and changes miners' revenue from block subsidies, while transaction fees remain separate.
+
+# Topic 8: Forks in the Bitcoin Blockchain
+
+## 8.1 What is a fork?
+
+A fork occurs when the blockchain has two or more competing branches, or when protocol rules change in a way that creates different views of the chain.
+
+Your teacher's Transaction and mining in bitcoin.pptx distinguishes accidental forks from intentional forks, including hard forks and soft forks.&#x20;
+
+Transactiona dn mining in bitcoin.pptx
+
+
+
+## 8.2 Accidental fork
+
+An accidental fork can happen when two miners find valid blocks at nearly the same time.
+
+For example:
+
+Previous block
+
+Block A
+
+Found by Miner A
+
+Block B
+
+Found by Miner B
+
+Different nodes may temporarily follow different branches.
+
+A later block extends one branch
+
+Nodes converge on the branch with the most cumulative work
+
+When a branch accumulates more valid proof of work, nodes following Bitcoin's chain-selection rules generally converge on it. The other block may become stale.
+
+The key rule is most cumulative proof of work, not simply the branch that has the greatest number of blocks.
+
+## 8.3 Hard fork
+
+A hard fork occurs when protocol changes are not backward-compatible: nodes following the old rules may reject blocks or transactions that are valid under the new rules.
+
+If participants do not all adopt the new rules, the network can split into separate chains.
+
+## 8.4 Soft fork
+
+A soft fork introduces rules that are stricter while remaining compatible with the old rules in the relevant sense.
+
+Older nodes may continue accepting blocks produced under the new rules, even if they do not fully enforce the new restrictions themselves.
+
+This compatibility depends on the particular rule change and the activation method.
+
+## 8.5 Accidental fork vs hard fork vs soft fork
+
+| Feature               | Accidental fork                         | Hard fork                                 | Soft fork                                    |
+| --------------------- | --------------------------------------- | ----------------------------------------- | -------------------------------------------- |
+| Main cause            | Competing blocks found close together   | Non-backward-compatible rule change       | Backward-compatible tightening of rules      |
+| Usually temporary?    | Often, after chain selection converges  | May split the network if adoption differs | Usually designed to preserve compatibility   |
+| Rule change required? | No                                      | Yes                                       | Yes                                          |
+| Key concern           | Which branch gains more cumulative work | Different rule sets                       | Activation and enforcement of stricter rules |
+
+# Topic 9: Block Validation, Chain Selection and Confirmations
+
+These concepts are closely connected but mean different things.
+
+## 9.1 Block validation
+
+A node checks whether a received block follows Bitcoin's rules. Checks include:
+
+- The block's proof of work satisfies the target.
+- The previous-block reference is consistent with the proposed branch.
+- The transactions are valid.
+- The transaction scripts satisfy their conditions.
+- The block obeys relevant size, weight and consensus constraints.
+
+A miner finding a valid hash does not force every node to accept the block. Nodes independently verify it.
+
+## 9.2 Chain selection
+
+Sometimes a node knows about two valid competing branches.
+
+Bitcoin nodes follow the valid chain with the most cumulative proof of work.
+
+This is often informally called the "longest-chain rule," but that wording can be misleading if interpreted as simply counting blocks. Cumulative work is the important criterion.
+
+## 9.3 What are confirmations?
+
+A transaction receives its first confirmation when it is included in a block that becomes part of the node's accepted chain.
+
+Every additional block built on top increases the confirmation count.
+
+For example:
+
+- Transaction included in Block 100: 1 confirmation.
+- Block 101 builds on Block 100: 2 confirmations.
+- Block 102 builds on Block 101: 3 confirmations.
+
+Your teacher's PPT notes that users commonly wait for multiple confirmations—historically, often six—for greater confidence in a transaction.&#x20;
+
+All topics of bitcoin.pptx
+
+
+
+Important: six confirmations are a convention, not a guarantee of absolute finality. The appropriate waiting period depends on the value, risk and context of the payment.
+
+# Topic 10: Complete Lifecycle of a Bitcoin Transaction
+
+This is one of the best topics to prepare as a 10-mark answer because it connects almost every concept in Chapter 3.
+
+Let's follow a payment from start to finish.
+
+## Step 1 — The receiver shares an address
+
+Rahul wants to receive Bitcoin from Aman. Rahul shares a Bitcoin address, perhaps through a QR code in his wallet.
+
+## Step 2 — The sender's wallet creates a transaction
+
+Aman's wallet identifies suitable UTXOs to spend, selects the amount to send and calculates the change and fee.
+
+## Step 3 — The transaction is signed
+
+The wallet uses the required private key to create the digital signature or signatures needed to satisfy the spending conditions.
+
+The private key is not sent to the network.
+
+## Step 4 — The transaction is broadcast
+
+The transaction is sent to Bitcoin peers and relayed through the P2P network.
+
+## Step 5 — Nodes validate the transaction
+
+Nodes check the transaction's validity, including whether its inputs refer to available outputs and whether the required scripts and signatures are valid.
+
+## Step 6 — Miners select transactions
+
+Miners may select valid transactions from their candidate sets and include them in a proposed block.
+
+## Step 7 — A miner finds valid Proof of Work
+
+The miner repeatedly hashes candidate block headers until one satisfies the target.
+
+## Step 8 — The block is broadcast
+
+The miner announces the block. Other nodes check the block and its transactions independently.
+
+## Step 9 — The block is accepted into the chain
+
+If the block is valid and is selected as part of the node's accepted chain, the included transaction receives its first confirmation.
+
+## Step 10 — Further blocks provide additional confirmations
+
+As additional blocks build on the block containing the transaction, the confirmation count increases. Reversing the transaction generally becomes more difficult as more cumulative work builds on the accepted history.
+
+1\. Address
+
+Receiver shares a payment address
+
+2\. Create
+
+Wallet selects UTXOs and constructs transaction
+
+3\. Sign
+
+Private key authorises spending
+
+4\. Broadcast
+
+Transaction spreads through P2P peers
+
+5\. Validate
+
+Nodes check scripts and transaction rules
+
+6\. Mine
+
+Miner includes transaction in candidate block
+
+7\. Proof of Work
+
+Miner finds a hash satisfying the target
+
+8\. Verify block
+
+Nodes independently validate the block
+
+9\. Confirm
+
+Transaction enters the accepted chain
+
+10\. More blocks
+
+Further confirmations increase confidence
+
+# Module 5 — Exam-Ready Answers
+
+## 5-mark answer 1: Explain the structure of a Bitcoin block
+
+A Bitcoin block consists of a block header and a block body.
+
+The block header contains six fields: version, previous-block hash, Merkle root, timestamp, difficulty target and nonce. These fields support block identification, linking and Proof of Work.
+
+The block body contains the transactions recorded in the block, including the coinbase transaction.
+
+The previous-block hash links the block to its predecessor. The Merkle root represents the block's transaction set through a hash tree. The nonce and difficulty target are used in the PoW process.
+
+Thus, the block structure links transaction data to the existing blockchain and supports validation and tamper detection.
+
+## 5-mark answer 2: Explain a Merkle tree and its advantages
+
+A Merkle tree is a hash-based tree structure in which leaf nodes contain hashes of data items and parent nodes contain hashes computed from their children's hashes.
+
+In Bitcoin, transaction hashes form the leaves. They are combined pairwise until one hash, called the Merkle root, remains. The Merkle root is stored in the block header.
+
+Advantages include:
+
+1. Efficient verification of transaction inclusion.
+2. Detection of transaction-data changes.
+3. Compact representation of a block's transaction set.
+4. Support for lightweight clients using Merkle proofs.
+
+Therefore, Merkle trees provide an efficient way to commit to transaction data in a block.
+
+## 5-mark answer 3: Explain Bitcoin mining
+
+Bitcoin mining is the process of constructing candidate blocks and performing Proof of Work to find a block hash that satisfies the network's target.
+
+The miner synchronises with the network, validates candidate transactions, constructs a block and calculates its Merkle root. It then hashes the block header repeatedly while changing the nonce and other permitted data. When a valid hash is found, the miner broadcasts the block.
+
+Other nodes independently validate the block. If accepted, the block becomes part of the chain under the protocol's chain-selection rules. The miner may claim the permitted subsidy and transaction fees.
+
+## 5-mark answer 4: Explain forks in Bitcoin
+
+A fork occurs when multiple competing blockchain branches exist or when protocol rules change.
+
+An accidental fork can occur when two miners find valid blocks at nearly the same time. Nodes may temporarily follow different branches. As new blocks are added, nodes generally converge on the valid branch with the most cumulative proof of work.
+
+A hard fork introduces a non-backward-compatible rule change, whereas a soft fork introduces stricter rules designed to remain backward-compatible in the relevant sense.
+
+Forks are important because they affect chain consistency and the confidence users can place in recent transactions.
+
+## 10-mark answer: Explain Bitcoin mining with a diagram
+
+Definition: Bitcoin mining is the process of creating candidate blocks and performing Proof of Work to find a block whose hash satisfies the network's difficulty target.
+
+Working:
+
+1. Synchronisation: miners obtain the relevant blockchain information and learn about available transactions.
+2. Transaction validation: candidate transactions are checked for validity.
+3. Block construction: the miner selects transactions and constructs a candidate block.
+4. Merkle root calculation: transaction hashes are combined into a Merkle tree, whose root is placed in the block header.
+5. Header construction: the header contains the version, previous-block hash, Merkle root, timestamp, difficulty target and nonce.
+6. Proof of Work: the miner calculates block-header hashes and varies the nonce or other permitted data.
+7. Target checking: the resulting hash must satisfy the network's difficulty target.
+8. Block broadcasting: after finding a valid proof, the miner broadcasts the block.
+9. Block verification: other nodes independently check the block, its transactions and the PoW.
+10. Reward: an accepted block can claim the permitted subsidy and transaction fees through its coinbase transaction.
+
+Transactions
+
+Validate and select transactions
+
+Construct block and header
+
+Perform Proof of Work
+
+Broadcast valid block
+
+Independent verification and chain selection
+
+Advantages: helps secure the blockchain, supports permissionless participation and makes certain attacks costly.
+
+Limitations: energy consumption, mining-resource concentration, block-propagation delays and temporary forks.
+
+Conclusion: Bitcoin mining combines transaction selection, cryptographic hashing, economic incentives and distributed validation to extend the blockchain without relying on a central block producer.
+
+# Final revision for Chapter 3
+
+## Important formulas and facts
+
+| Topic                             | What to remember                                      |
+| --------------------------------- | ----------------------------------------------------- |
+| CFT node bound from your syllabus | \\(N\geq2F+1\\)                                       |
+| BFT node bound from your syllabus | \\(N\geq3F+1\\)                                       |
+| Paxos phases                      | Prepare → Accept                                      |
+| Raft                              | Leader election → Log replication → Commit            |
+| PBFT normal-operation phases      | Pre-prepare → Prepare → Commit                        |
+| PoW                               | Block-header hash must satisfy the target             |
+| Bitcoin block header              | 80 bytes in the traditional format                    |
+| Difficulty adjustment             | Every 2,016 blocks                                    |
+| Intended average block interval   | About 10 minutes                                      |
+| Halving interval                  | Every 210,000 blocks                                  |
+| Current Bitcoin subsidy           | 3.125 BTC per block, following the April 2024 halving |
+| Merkle root                       | A hash-tree commitment to the block's transaction set |
+| Chain selection                   | Valid chain with the most cumulative proof of work    |
+| Transaction fee                   | Total inputs − total outputs                          |
+| UTXO                              | An unspent transaction output                         |
+
+## Likely 10-mark questions from Module 5
+
+1. Explain the structure of a Bitcoin block with a diagram.
+2. Explain Merkle trees and their importance in blockchain.
+3. Explain the working of Bitcoin mining with a flowchart.
+4. Explain Bitcoin's peer-to-peer network and block propagation.
+5. Explain mining difficulty, difficulty adjustment and Bitcoin halving.
+6. Explain accidental forks, hard forks and soft forks.
+7. Explain the complete lifecycle of a Bitcoin transaction.
+8. Explain how block hashes and Merkle roots help detect tampering.
+
+## Quick self-test — Module 5
+
+1\. Which field links a Bitcoin block to its predecessor?
+
+Nonce
+
+Previous-block hash
+
+Timestamp
+
+Coinbase reward
+
+2\. What is stored in the Bitcoin block header to represent the transaction set?
+
+Every full transaction
+
+Private keys
+
+Merkle root
+
+Wallet passwords
+
+3\. How does Bitcoin select between valid competing chains?
+
+Fewest blocks
+
+Most cumulative proof of work
+
+Newest timestamp alone
+
+Largest transaction
+
+4\. After how many blocks does Bitcoin normally adjust its difficulty?
+
+100
+
+1,000
+
+2,016
+
+210,000
+
+5\. What is the special first transaction in a mined block called?
+
+Coinbase transaction
+
+Genesis transaction in every block
+
+Merkle transaction
+
+Signature transaction
+
+0/5 answered
+
+Reset quiz
+
+All five modules of Chapter 3 are now covered.
+
+For exam preparation, I recommend revising the consensus algorithms and their phases, PoW and PoS comparisons, Bitcoin keys and UTXOs, Merkle trees, mining, and the complete transaction lifecycle first. These topics are especially suitable for structured 5-mark and 10-mark answers.

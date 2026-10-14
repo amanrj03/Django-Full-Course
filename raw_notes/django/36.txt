@@ -1,0 +1,1596 @@
+# Module 36 — Sessions in Django
+
+In Module 35, we learned **Cookies**. Now we learn **Sessions**, which are one of the most important concepts for Django authentication and login systems.
+
+The key idea is:
+
+> **A cookie is mainly client/browser-side data, while a Django session normally stores session data on the server side and uses a cookie to identify the session.**
+
+---
+
+# 1. Why Do We Need Sessions?
+
+Remember that HTTP is **stateless**.
+
+Suppose a user logs in:
+
+```text
+POST /login/
+username = Aman
+password = ********
+```
+
+The server verifies the credentials.
+
+Now the user visits:
+
+```text
+GET /dashboard/
+```
+
+How does Django know:
+
+> "This is the same user who just logged in?"
+
+A session provides a way to maintain this state across requests.
+
+Conceptually:
+
+```text
+Login
+  ↓
+Create session
+  ↓
+Browser receives session identifier
+  ↓
+Browser sends identifier on future requests
+  ↓
+Django retrieves session data
+  ↓
+Django knows the user's state
+```
+
+---
+
+# 2. What Is a Session?
+
+A **session** is a mechanism for storing information associated with a particular user's interaction with your website across multiple requests.
+
+For example:
+
+```text
+user_id = 25
+cart_items = 4
+language = "en"
+```
+
+Django provides a session framework so you don't have to manually build this mechanism.
+
+---
+
+# 3. Cookie vs Session
+
+This distinction is extremely important.
+
+### Cookie
+
+```text
+Browser
+ └── stores cookie
+```
+
+### Django session
+
+```text
+Browser
+ └── stores session identifier
+          ↓
+       Django
+          ↓
+    session data
+```
+
+With Django's default database-backed session engine, the session data is stored in the database.
+
+---
+
+# 4. Django's Session Framework
+
+Django includes sessions through:
+
+```python
+django.contrib.sessions
+```
+
+A typical Django project has:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "django.contrib.sessions",
+]
+```
+
+And session middleware:
+
+```python
+MIDDLEWARE = [
+    ...
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    ...
+]
+```
+
+These are normally included in a project created with Django's standard project template.
+
+---
+
+# 5. Why Is `SessionMiddleware` Important?
+
+It connects Django's session framework to incoming requests and outgoing responses.
+
+It allows you to use:
+
+```python
+request.session
+```
+
+inside views.
+
+Without the required session configuration/middleware, session handling won't work normally.
+
+---
+
+# 6. Accessing the Session
+
+Inside a Django view:
+
+```python
+request.session
+```
+
+Example:
+
+```python
+from django.http import HttpResponse
+
+
+def home(request):
+
+    request.session["username"] = "Aman"
+
+    return HttpResponse("Session created")
+```
+
+Here:
+
+```python
+request.session["username"]
+```
+
+stores a session value.
+
+---
+
+# 7. Setting Session Data
+
+Syntax:
+
+```python
+request.session["key"] = value
+```
+
+Example:
+
+```python
+request.session["username"] = "Aman"
+```
+
+Another example:
+
+```python
+request.session["age"] = 21
+```
+
+Another:
+
+```python
+request.session["course"] = "CSE"
+```
+
+You can store multiple session values:
+
+```python
+request.session["username"] = "Aman"
+request.session["course"] = "CSE"
+request.session["age"] = 21
+```
+
+---
+
+# 8. Reading Session Data
+
+Use:
+
+```python
+request.session.get("key")
+```
+
+Example:
+
+```python
+username = request.session.get("username")
+```
+
+You can provide a default:
+
+```python
+username = request.session.get(
+    "username",
+    "Guest"
+)
+```
+
+So:
+
+```text
+Session exists → actual value
+Session missing → Guest
+```
+
+---
+
+# 9. Complete Set + Read Example
+
+### View 1 — Set
+
+```python
+from django.http import HttpResponse
+
+
+def set_session(request):
+
+    request.session["username"] = "Aman"
+
+    return HttpResponse(
+        "Session data saved"
+    )
+```
+
+### View 2 — Read
+
+```python
+def get_session(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )
+```
+
+---
+
+# 10. Session Data Is Dictionary-Like
+
+You can think of:
+
+```python
+request.session
+```
+
+as a dictionary-like object.
+
+For example:
+
+```python
+request.session["name"] = "Aman"
+request.session["age"] = 21
+```
+
+Then:
+
+```python
+name = request.session.get("name")
+age = request.session.get("age")
+```
+
+---
+
+# 11. Updating Session Data
+
+Suppose:
+
+```python
+request.session["username"] = "Aman"
+```
+
+Later:
+
+```python
+request.session["username"] = "Rahul"
+```
+
+The session value is updated.
+
+There is no separate:
+
+```python
+update_session()
+```
+
+method needed.
+
+---
+
+# 12. Deleting One Session Value
+
+Use:
+
+```python
+del request.session["username"]
+```
+
+Example:
+
+```python
+def delete_username(request):
+
+    if "username" in request.session:
+        del request.session["username"]
+
+    return HttpResponse(
+        "Username removed"
+    )
+```
+
+A safer alternative is often:
+
+```python
+request.session.pop(
+    "username",
+    None
+)
+```
+
+This avoids an error if the key doesn't exist.
+
+---
+
+# 13. `pop()`
+
+Example:
+
+```python
+request.session.pop(
+    "username",
+    None
+)
+```
+
+Meaning:
+
+> Remove `username` if it exists; otherwise return `None`.
+
+---
+
+# 14. Clear the Entire Session
+
+Django provides:
+
+```python
+request.session.flush()
+```
+
+This is very important.
+
+`flush()`:
+
+* removes the current session data
+* clears the session
+* creates a new session identifier as needed for future use
+
+It is commonly useful when completely ending a user's session state.
+
+---
+
+# 15. `flush()` vs `del`
+
+This is a common viva question.
+
+### Delete one value
+
+```python
+del request.session["username"]
+```
+
+Only one key is removed.
+
+### Clear the session
+
+```python
+request.session.flush()
+```
+
+The current session is completely cleared.
+
+---
+
+# 16. `clear()`
+
+You may also encounter:
+
+```python
+request.session.clear()
+```
+
+This clears the session data while retaining the current session key.
+
+Whereas:
+
+```python
+request.session.flush()
+```
+
+clears the session data **and** removes the current session key, providing a stronger session reset.
+
+For logout/security-sensitive situations, Django's authentication logout mechanism is preferred rather than manually trying to reproduce it.
+
+---
+
+# 17. Session Expiry
+
+Django allows you to control session expiry.
+
+For example:
+
+```python
+request.session.set_expiry(3600)
+```
+
+This means the session should expire after:
+
+```text
+3600 seconds
+=
+1 hour
+```
+
+---
+
+# 18. `set_expiry()`
+
+Syntax:
+
+```python
+request.session.set_expiry(value)
+```
+
+Examples:
+
+```python
+request.session.set_expiry(300)
+```
+
+5 minutes.
+
+```python
+request.session.set_expiry(3600)
+```
+
+1 hour.
+
+```python
+request.session.set_expiry(86400)
+```
+
+1 day.
+
+---
+
+# 19. Session Expiry With Datetime
+
+You can also provide a `datetime` value.
+
+Conceptually:
+
+```python
+from datetime import datetime, timedelta
+
+request.session.set_expiry(
+    datetime.now() + timedelta(hours=1)
+)
+```
+
+This specifies an expiration time rather than simply a number of seconds.
+
+---
+
+# 20. Session Expiry of `0`
+
+A particularly important value:
+
+```python
+request.session.set_expiry(0)
+```
+
+This means the session cookie should expire when the user's browser is closed.
+
+This is useful when you want a "session-only" browser cookie behavior.
+
+---
+
+# 21. `set_expiry(None)`
+
+You can also use:
+
+```python
+request.session.set_expiry(None)
+```
+
+to return to the configured default session expiry behavior.
+
+---
+
+# 22. Session Cookie
+
+Django commonly uses a cookie called:
+
+```text
+sessionid
+```
+
+The browser might conceptually have:
+
+```text
+sessionid = abc123...
+```
+
+That identifier allows Django to associate the browser's requests with the appropriate session.
+
+Important:
+
+> Don't assume that the session cookie contains all of your session data.
+
+With the default database-backed session engine, the browser generally holds the session identifier while the session data is stored server-side.
+
+---
+
+# 23. Default Session Storage
+
+Django's default session engine uses the database.
+
+You will typically see a database table related to sessions after migrations.
+
+The session system uses the database to maintain session records.
+
+So the conceptual flow is:
+
+```text
+Browser
+   │
+   │ sessionid
+   ↓
+Django
+   │
+   │ lookup session
+   ↓
+Database
+   │
+   │ session data
+   ↓
+Django
+```
+
+---
+
+# 24. Why Did We Run `migrate`?
+
+You may remember:
+
+```bash
+python manage.py migrate
+```
+
+from earlier modules.
+
+Django's built-in applications, including the sessions framework, have migrations.
+
+That's why running migrations is important.
+
+You can inspect migrations with:
+
+```bash
+python manage.py showmigrations
+```
+
+---
+
+# 25. Session Example: Shopping Cart
+
+Imagine an e-commerce application.
+
+A user adds a product:
+
+```python
+request.session["cart"] = [
+    10,
+    25,
+    31
+]
+```
+
+Now the user visits another page.
+
+You can retrieve:
+
+```python
+cart = request.session.get(
+    "cart",
+    []
+)
+```
+
+The cart can persist across requests.
+
+---
+
+# 26. Complete Cart Example
+
+### Add product
+
+```python
+def add_product(request, product_id):
+
+    cart = request.session.get(
+        "cart",
+        []
+    )
+
+    cart.append(product_id)
+
+    request.session["cart"] = cart
+
+    return HttpResponse(
+        "Product added"
+    )
+```
+
+Suppose:
+
+```text
+product_id = 10
+```
+
+Then:
+
+```text
+cart = [10]
+```
+
+Later:
+
+```text
+product_id = 20
+```
+
+Then:
+
+```text
+cart = [10, 20]
+```
+
+---
+
+# 27. Important Issue With Mutable Session Data
+
+Suppose you do:
+
+```python
+cart = request.session.get(
+    "cart",
+    []
+)
+
+cart.append(product_id)
+```
+
+When modifying mutable data such as lists or dictionaries, it is safest to assign it back:
+
+```python
+request.session["cart"] = cart
+```
+
+This makes the session change explicit.
+
+Alternatively, you can mark the session as modified:
+
+```python
+request.session.modified = True
+```
+
+But assigning the changed object back is generally straightforward.
+
+---
+
+# 28. Session Modified
+
+Django tracks whether session data has changed.
+
+You may explicitly mark:
+
+```python
+request.session.modified = True
+```
+
+This can matter when modifying nested mutable objects in place.
+
+For example:
+
+```python
+cart = request.session["cart"]
+cart.append(10)
+
+request.session.modified = True
+```
+
+But the simpler approach is:
+
+```python
+cart.append(10)
+request.session["cart"] = cart
+```
+
+---
+
+# 29. Session Data and Templates
+
+You can pass session data from a view to a template:
+
+```python
+def dashboard(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    return render(
+        request,
+        "dashboard.html",
+        {"username": username}
+    )
+```
+
+Template:
+
+```html
+<h1>Welcome {{ username }}</h1>
+```
+
+---
+
+# 30. Can Templates Access Session Data Directly?
+
+Django's template context can include session information through context processors in the standard setup.
+
+For example, you may see:
+
+```django
+{{ request.session.username }}
+```
+
+when the request context processor is enabled.
+
+However, for clean architecture, it is often better to explicitly pass important data from the view when appropriate.
+
+---
+
+# 31. Session and Login
+
+This is where sessions become extremely important.
+
+Consider:
+
+```text
+User enters username/password
+              ↓
+         Django verifies
+              ↓
+             login
+              ↓
+       Session established
+              ↓
+      Browser gets session cookie
+              ↓
+      Future requests carry it
+              ↓
+          request.user
+```
+
+Django's authentication system uses sessions to maintain login state.
+
+We'll study the actual `login()` and `logout()` functions in **Module 38**.
+
+---
+
+# 32. Session vs Authentication
+
+Don't confuse them.
+
+### Session
+
+Provides a mechanism to maintain state across requests.
+
+### Authentication
+
+Determines who the user is.
+
+For example:
+
+```python
+request.session
+```
+
+is about session state.
+
+Whereas:
+
+```python
+request.user
+```
+
+represents the currently authenticated user (or an anonymous user).
+
+Django authentication commonly uses sessions to maintain that authenticated state between requests.
+
+---
+
+# 33. Session vs Cookie vs Authentication
+
+Remember this three-way distinction:
+
+```text
+COOKIE
+   ↓
+Browser-side storage/transmission mechanism
+
+
+SESSION
+   ↓
+Maintains state across requests
+
+
+AUTHENTICATION
+   ↓
+Identifies the user
+```
+
+They work together but are not the same thing.
+
+---
+
+# 34. Session Security
+
+Sessions are very important for security because they may represent authenticated state.
+
+Django provides protections around session handling, but you should still follow security best practices.
+
+Important ideas include:
+
+* use HTTPS
+* protect session cookies
+* don't expose session identifiers
+* don't put passwords into session data
+* don't trust arbitrary client-controlled values for authorization
+* use Django's authentication system
+* rotate/invalidate sessions appropriately when security-sensitive state changes
+
+---
+
+# 35. Session Cookie Security Settings
+
+Django has settings such as:
+
+```python
+SESSION_COOKIE_SECURE = True
+```
+
+This means the session cookie should only be sent over HTTPS.
+
+Another important setting:
+
+```python
+SESSION_COOKIE_HTTPONLY = True
+```
+
+This prevents normal JavaScript access to the session cookie.
+
+And:
+
+```python
+SESSION_COOKIE_SAMESITE = "Lax"
+```
+
+controls cross-site cookie behavior.
+
+These settings are configured in:
+
+```text
+settings.py
+```
+
+---
+
+# 36. Example Production-Oriented Settings
+
+Conceptually:
+
+```python
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True
+
+SESSION_COOKIE_SAMESITE = "Lax"
+```
+
+These are especially relevant when deploying a site over HTTPS.
+
+Don't blindly copy production settings into every local-development environment without understanding their effects.
+
+---
+
+# 37. Session Expiry Settings
+
+Django also has a global setting:
+
+```python
+SESSION_COOKIE_AGE = 1209600
+```
+
+The default is commonly:
+
+```text
+1209600 seconds
+=
+2 weeks
+```
+
+This controls the default age of session cookies.
+
+You can override expiry for an individual session with:
+
+```python
+request.session.set_expiry(...)
+```
+
+---
+
+# 38. `SESSION_EXPIRE_AT_BROWSER_CLOSE`
+
+You may encounter:
+
+```python
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+```
+
+This configures sessions so the session cookie expires when the browser closes.
+
+This is a **global configuration**.
+
+Compare:
+
+```python
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+```
+
+with:
+
+```python
+request.session.set_expiry(0)
+```
+
+The first is a project-wide setting; the second is applied to a particular session.
+
+---
+
+# 39. Session Backends
+
+Django supports different ways of storing session data.
+
+Common options include:
+
+```text
+Database
+Cached database
+Cache
+File
+Signed cookies
+```
+
+The default is generally database-backed sessions.
+
+---
+
+# 40. Signed-Cookie Sessions
+
+Django can also use a cookie-based session backend:
+
+```python
+SESSION_ENGINE = (
+    "django.contrib.sessions.backends.signed_cookies"
+)
+```
+
+This is different from the default database-backed session system.
+
+In this backend, session data is stored in the cookie in a signed format.
+
+Important:
+
+> Signed does not mean encrypted.
+
+The signature helps detect tampering, but it should not be treated as a way to hide confidential data.
+
+---
+
+# 41. Database Sessions vs Signed Cookies
+
+### Database backend
+
+```text
+Browser
+   ↓
+session ID
+   ↓
+Database
+   ↓
+session data
+```
+
+### Signed-cookie backend
+
+```text
+Browser
+   ↓
+signed session data
+```
+
+The second approach has different size, privacy, and operational characteristics.
+
+For normal Django applications, you'll commonly encounter the default database-backed approach.
+
+---
+
+# 42. Session Key
+
+A session has a session key.
+
+You can access:
+
+```python
+request.session.session_key
+```
+
+Example:
+
+```python
+def session_info(request):
+
+    return HttpResponse(
+        str(request.session.session_key)
+    )
+```
+
+Don't expose session keys unnecessarily in real applications.
+
+A session key is sensitive because possession of a valid session identifier can potentially allow session impersonation depending on the circumstances.
+
+---
+
+# 43. Session Lifecycle
+
+Understand this flow for your exam:
+
+```text
+1. User makes request
+        ↓
+2. Django checks session cookie
+        ↓
+3. Django identifies session
+        ↓
+4. Session data becomes available
+        ↓
+5. View accesses request.session
+        ↓
+6. View modifies session if needed
+        ↓
+7. Django saves session
+        ↓
+8. Response sent
+```
+
+---
+
+# 44. Complete Mini Example
+
+### `views.py`
+
+```python
+from django.http import HttpResponse
+
+
+def set_session(request):
+
+    request.session["username"] = "Aman"
+    request.session["course"] = "CSE"
+
+    return HttpResponse(
+        "Session created"
+    )
+
+
+def get_session(request):
+
+    username = request.session.get(
+        "username",
+        "Guest"
+    )
+
+    course = request.session.get(
+        "course",
+        "Unknown"
+    )
+
+    return HttpResponse(
+        f"Name: {username}, Course: {course}"
+    )
+
+
+def delete_session(request):
+
+    request.session.flush()
+
+    return HttpResponse(
+        "Session cleared"
+    )
+```
+
+---
+
+# 45. URL Configuration
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "set-session/",
+        views.set_session,
+        name="set_session"
+    ),
+
+    path(
+        "get-session/",
+        views.get_session,
+        name="get_session"
+    ),
+
+    path(
+        "delete-session/",
+        views.delete_session,
+        name="delete_session"
+    ),
+]
+```
+
+Now:
+
+```text
+/set-session/
+```
+
+creates data.
+
+```text
+/get-session/
+```
+
+reads data.
+
+```text
+/delete-session/
+```
+
+clears the session.
+
+---
+
+# 46. Important Difference: `flush()` vs Logout
+
+In a real Django authentication application, don't implement logout merely as:
+
+```python
+request.session.flush()
+```
+
+Django provides:
+
+```python
+from django.contrib.auth import logout
+```
+
+and:
+
+```python
+logout(request)
+```
+
+The authentication framework handles logout appropriately.
+
+We'll cover this in detail in Module 38.
+
+---
+
+# 47. Common Mistakes
+
+### Mistake 1
+
+Writing:
+
+```python
+request.session("username")
+```
+
+Wrong.
+
+Use:
+
+```python
+request.session.get("username")
+```
+
+or:
+
+```python
+request.session["username"]
+```
+
+---
+
+### Mistake 2
+
+Forgetting migrations.
+
+If using the default database session backend:
+
+```bash
+python manage.py migrate
+```
+
+should have been run.
+
+---
+
+### Mistake 3
+
+Confusing cookie with session.
+
+Wrong:
+
+> "The session is stored entirely inside the session cookie."
+
+For the default database-backed session engine, the browser normally stores the session identifier while session data is stored in the database.
+
+---
+
+### Mistake 4
+
+Storing passwords:
+
+```python
+request.session["password"] = password
+```
+
+Don't do this.
+
+---
+
+### Mistake 5
+
+Trusting session values for authorization without considering how they are established and maintained.
+
+Use Django's authentication and permission framework for authorization.
+
+---
+
+# 48. Viva Questions
+
+### Q1. What is a session?
+
+> A session is a mechanism for maintaining user-specific state across multiple HTTP requests.
+
+---
+
+### Q2. How do you set session data?
+
+```python
+request.session["username"] = "Aman"
+```
+
+---
+
+### Q3. How do you retrieve session data?
+
+```python
+request.session.get("username")
+```
+
+---
+
+### Q4. How do you delete one session key?
+
+```python
+del request.session["username"]
+```
+
+or:
+
+```python
+request.session.pop("username", None)
+```
+
+---
+
+### Q5. How do you clear a session?
+
+```python
+request.session.flush()
+```
+
+---
+
+### Q6. How do you set session expiry?
+
+```python
+request.session.set_expiry(3600)
+```
+
+---
+
+### Q7. What does `set_expiry(0)` mean?
+
+> It causes the session cookie to expire when the browser is closed.
+
+---
+
+### Q8. What is `request.session`?
+
+> It is Django's dictionary-like interface for accessing the current request's session data.
+
+---
+
+### Q9. What is `sessionid`?
+
+> It is the commonly used name of Django's session cookie, which identifies the user's session.
+
+---
+
+### Q10. Where is Django's session data stored?
+
+> With the default database-backed session engine, session data is stored in the database and the browser generally stores a session identifier.
+
+---
+
+### Q11. Does a session mean authentication?
+
+> No. Sessions maintain state, while authentication identifies the user. Django authentication commonly uses sessions to maintain login state.
+
+---
+
+### Q12. What is `SessionMiddleware`?
+
+> Middleware that enables Django's session framework to associate session data with requests and responses.
+
+---
+
+### Q13. What is `SESSION_COOKIE_SECURE`?
+
+> A setting that makes the session cookie sent only over HTTPS.
+
+---
+
+### Q14. What is `SESSION_COOKIE_HTTPONLY`?
+
+> A setting that prevents normal client-side JavaScript from accessing the session cookie.
+
+---
+
+### Q15. What is `SESSION_COOKIE_AGE`?
+
+> It specifies the default age of the session cookie in seconds.
+
+---
+
+# 49. Coding Questions You Should Be Able to Write
+
+### Question 1
+
+**Store username in a session.**
+
+```python
+request.session["username"] = "Aman"
+```
+
+### Question 2
+
+**Read username from session.**
+
+```python
+username = request.session.get(
+    "username",
+    "Guest"
+)
+```
+
+### Question 3
+
+**Delete username.**
+
+```python
+request.session.pop(
+    "username",
+    None
+)
+```
+
+### Question 4
+
+**Clear entire session.**
+
+```python
+request.session.flush()
+```
+
+### Question 5
+
+**Set session expiry to one hour.**
+
+```python
+request.session.set_expiry(3600)
+```
+
+### Question 6
+
+**Get session ID.**
+
+```python
+session_id = request.session.session_key
+```
+
+---
+
+# 50. The Most Important Diagram
+
+Memorize this:
+
+```text
+                    HTTP
+                     │
+                     ↓
+                  Browser
+                     │
+              sessionid cookie
+                     │
+                     ↓
+                  Django
+                     │
+              SessionMiddleware
+                     │
+                     ↓
+              request.session
+                     │
+                     ↓
+             Session Backend
+                     │
+                     ↓
+              Session Data
+```
+
+For the default database backend:
+
+```text
+Browser
+   │
+   │ sessionid
+   ↓
+Django
+   │
+   ↓
+Database
+   │
+   └── session data
+```
+
+---
+
+# 51. Cookie vs Session — Final Revision
+
+| Feature            | Cookie                          | Session                            |
+| ------------------ | ------------------------------- | ---------------------------------- |
+| Main purpose       | Store/send browser data         | Maintain state across requests     |
+| Main data location | Browser                         | Usually server                     |
+| Django API         | `request.COOKIES`               | `request.session`                  |
+| Set                | `response.set_cookie()`         | `request.session[key] = value`     |
+| Read               | `request.COOKIES.get()`         | `request.session.get()`            |
+| Delete             | `response.delete_cookie()`      | `del`, `pop()`, `flush()`          |
+| Login state        | Can participate                 | Commonly used                      |
+| Sensitive data     | Don't trust plain client values | Better suited to server-side state |
+
+---
+
+# 52. What You Must Remember for Exams
+
+If the teacher asks:
+
+**"How do you store data in a Django session?"**
+
+Write:
+
+```python
+request.session["username"] = "Aman"
+```
+
+**"How do you retrieve it?"**
+
+```python
+username = request.session.get("username")
+```
+
+**"How do you remove it?"**
+
+```python
+request.session.pop("username", None)
+```
+
+**"How do you clear the session?"**
+
+```python
+request.session.flush()
+```
+
+**"How do you set expiry?"**
+
+```python
+request.session.set_expiry(3600)
+```
+
+**"What is the difference between cookie and session?"**
+
+> A cookie is stored by the browser, whereas Django sessions normally store session data on the server and use a session cookie to identify the session.
+
+---
+
+## Module 36 Complete ✅
+
+You now have the foundation for **Django login systems**.
+
+The remaining authentication sequence is especially important:
+
+```text
+Module 35 → Cookies
+Module 36 → Sessions
+Module 37 → Django Users
+Module 38 → Login & Logout
+Module 39 → Protecting Views
+```
+
+**Next → Module 37: Django Users**
+
+We'll learn the built-in `User` model, creating users, passwords, `request.user`, `is_authenticated`, `is_staff`, `is_superuser`, user management, and how Django represents anonymous vs authenticated users.

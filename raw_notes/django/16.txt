@@ -1,0 +1,1402 @@
+# Module 16 — Dynamic Templates in Django
+
+Now we move from individual template features to **building real dynamic webpages**.
+
+So far you know:
+
+* Views
+* URLs
+* HTTP requests/responses
+* URL parameters
+* Templates
+* DTL variables
+* `if/else`
+* `for` loops
+* filters
+
+Now we'll connect all of them.
+
+---
+
+# 1. What Is a Dynamic Template?
+
+A **static HTML page** always displays the same content.
+
+Example:
+
+```html
+<h1>Welcome Aman</h1>
+<p>Computer Science</p>
+```
+
+Every user sees the same thing.
+
+A **dynamic template** gets data from the Django view and generates the HTML based on that data.
+
+Example:
+
+```html
+<h1>Welcome {{ name }}</h1>
+<p>Course: {{ course }}</p>
+```
+
+If the view sends:
+
+```python
+{
+    'name': 'Aman',
+    'course': 'Computer Science'
+}
+```
+
+the browser displays:
+
+```text
+Welcome Aman
+Course: Computer Science
+```
+
+If another request sends different data, the same template can display different information.
+
+---
+
+# 2. Dynamic Template Flow
+
+The basic flow is:
+
+```text
+Browser
+   ↓
+URL
+   ↓
+View
+   ↓
+Data
+   ↓
+Template
+   ↓
+HTML Response
+   ↓
+Browser
+```
+
+For example:
+
+```text
+/student/101/
+      ↓
+student_detail()
+      ↓
+Student information
+      ↓
+student.html
+      ↓
+HTML
+```
+
+This is one of the most important Django concepts.
+
+---
+
+# 3. Passing Multiple Variables
+
+Suppose your view is:
+
+```python
+from django.shortcuts import render
+
+def home(request):
+
+    name = "Aman"
+    age = 21
+    course = "Computer Science"
+
+    return render(
+        request,
+        "home.html",
+        {
+            "name": name,
+            "age": age,
+            "course": course
+        }
+    )
+```
+
+Template:
+
+```html
+<h1>Hello {{ name }}</h1>
+
+<p>Age: {{ age }}</p>
+
+<p>Course: {{ course }}</p>
+```
+
+The dictionary is called the **context**.
+
+---
+
+# 4. Understanding Context Properly
+
+This:
+
+```python
+{
+    "name": name,
+    "age": age,
+    "course": course
+}
+```
+
+is the context dictionary.
+
+Think of it as a bridge:
+
+```text
+Python View
+     ↓
+ context
+     ↓
+Template
+```
+
+The template can access the keys:
+
+```html
+{{ name }}
+{{ age }}
+{{ course }}
+```
+
+---
+
+# 5. Passing a Dictionary
+
+Instead of creating separate variables, you can create one dictionary.
+
+```python
+def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21,
+        "course": "Computer Science"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )
+```
+
+Template:
+
+```html
+<h1>{{ student.name }}</h1>
+
+<p>Age: {{ student.age }}</p>
+
+<p>Course: {{ student.course }}</p>
+```
+
+Notice:
+
+```text
+student.name
+student.age
+student.course
+```
+
+DTL uses dot notation to access dictionary values.
+
+---
+
+# 6. Complete Example
+
+### `views.py`
+
+```python
+from django.shortcuts import render
+
+def student(request):
+
+    student = {
+        "name": "Aman",
+        "age": 21,
+        "course": "Computer Science",
+        "city": "Phagwara"
+    }
+
+    return render(
+        request,
+        "student.html",
+        {"student": student}
+    )
+```
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("student/", views.student, name="student"),
+]
+```
+
+### `student.html`
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student</title>
+</head>
+
+<body>
+
+    <h1>{{ student.name }}</h1>
+
+    <p>Age: {{ student.age }}</p>
+
+    <p>Course: {{ student.course }}</p>
+
+    <p>City: {{ student.city }}</p>
+
+</body>
+</html>
+```
+
+When the browser visits:
+
+```text
+/student/
+```
+
+Django executes:
+
+```python
+student(request)
+```
+
+The view sends the dictionary to the template.
+
+The template generates HTML.
+
+---
+
+# 7. Dynamic List
+
+Suppose we want to display multiple students.
+
+### View:
+
+```python
+def students(request):
+
+    students = [
+        "Aman",
+        "Rahul",
+        "Rohit",
+        "Karan"
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+Template:
+
+```html
+<h1>Students</h1>
+
+<ul>
+
+{% for student in students %}
+
+    <li>{{ student }}</li>
+
+{% endfor %}
+
+</ul>
+```
+
+Output:
+
+```text
+Students
+
+• Aman
+• Rahul
+• Rohit
+• Karan
+```
+
+---
+
+# 8. Dynamic List of Dictionaries
+
+This is much more important.
+
+View:
+
+```python
+def students(request):
+
+    students = [
+        {
+            "name": "Aman",
+            "age": 21,
+            "course": "CSE"
+        },
+        {
+            "name": "Rahul",
+            "age": 22,
+            "course": "IT"
+        },
+        {
+            "name": "Rohit",
+            "age": 20,
+            "course": "CSE"
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+Template:
+
+```html
+{% for student in students %}
+
+    <h2>{{ student.name }}</h2>
+
+    <p>Age: {{ student.age }}</p>
+
+    <p>Course: {{ student.course }}</p>
+
+{% endfor %}
+```
+
+This pattern appears constantly in Django applications.
+
+---
+
+# 9. Dynamic HTML Table
+
+We can make the same data into a table.
+
+```html
+<table border="1">
+
+    <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Course</th>
+    </tr>
+
+    {% for student in students %}
+
+    <tr>
+        <td>{{ student.name }}</td>
+        <td>{{ student.age }}</td>
+        <td>{{ student.course }}</td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+```
+
+The number of rows is automatically determined by the data.
+
+If there are 3 students → 3 rows.
+
+If there are 100 students → 100 rows.
+
+That's what makes the page dynamic.
+
+---
+
+# 10. Dynamic Conditions
+
+Suppose:
+
+```python
+students = [
+    {
+        "name": "Aman",
+        "marks": 85
+    },
+    {
+        "name": "Rahul",
+        "marks": 42
+    }
+]
+```
+
+Template:
+
+```html
+{% for student in students %}
+
+    <h3>{{ student.name }}</h3>
+
+    <p>Marks: {{ student.marks }}</p>
+
+    {% if student.marks >= 50 %}
+        <p>Result: Pass</p>
+    {% else %}
+        <p>Result: Fail</p>
+    {% endif %}
+
+{% endfor %}
+```
+
+Output:
+
+```text
+Aman
+Marks: 85
+Result: Pass
+
+Rahul
+Marks: 42
+Result: Fail
+```
+
+---
+
+# 11. Combining Loops + Conditions + Filters
+
+This is the type of question that can appear in a coding exam.
+
+```html
+{% for student in students %}
+
+    <h2>{{ student.name|title }}</h2>
+
+    <p>Marks: {{ student.marks|floatformat:2 }}</p>
+
+    {% if student.marks >= 50 %}
+        <p>PASS</p>
+    {% else %}
+        <p>FAIL</p>
+    {% endif %}
+
+{% empty %}
+
+    <p>No students found.</p>
+
+{% endfor %}
+```
+
+Here we're using:
+
+```text
+for
+if
+else
+empty
+filters
+variables
+```
+
+all together.
+
+---
+
+# 12. Dynamic URL Parameters + Templates
+
+Now let's connect URL parameters with templates.
+
+Suppose:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail
+)
+```
+
+View:
+
+```python
+def student_detail(request, id):
+
+    return render(
+        request,
+        "student_detail.html",
+        {"student_id": id}
+    )
+```
+
+Template:
+
+```html
+<h1>Student Details</h1>
+
+<p>Student ID: {{ student_id }}</p>
+```
+
+Visiting:
+
+```text
+/student/101/
+```
+
+gives:
+
+```text
+Student ID: 101
+```
+
+Visiting:
+
+```text
+/student/205/
+```
+
+gives:
+
+```text
+Student ID: 205
+```
+
+Same template, different data.
+
+---
+
+# 13. URL Parameter Can Be Used to Select Data
+
+Suppose:
+
+```python
+students = {
+    101: {
+        "name": "Aman",
+        "course": "CSE"
+    },
+    102: {
+        "name": "Rahul",
+        "course": "IT"
+    }
+}
+```
+
+View:
+
+```python
+def student_detail(request, id):
+
+    student = students.get(id)
+
+    return render(
+        request,
+        "student_detail.html",
+        {"student": student}
+    )
+```
+
+URL:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail
+)
+```
+
+Now:
+
+```text
+/student/101/
+```
+
+selects:
+
+```python
+{
+    "name": "Aman",
+    "course": "CSE"
+}
+```
+
+while:
+
+```text
+/student/102/
+```
+
+selects:
+
+```python
+{
+    "name": "Rahul",
+    "course": "IT"
+}
+```
+
+---
+
+# 14. Handling Missing Data
+
+What if:
+
+```text
+/student/999/
+```
+
+doesn't exist?
+
+Our:
+
+```python
+student = students.get(id)
+```
+
+returns:
+
+```python
+None
+```
+
+We can handle this in the template:
+
+```html
+{% if student %}
+
+    <h1>{{ student.name }}</h1>
+    <p>{{ student.course }}</p>
+
+{% else %}
+
+    <h1>Student not found</h1>
+
+{% endif %}
+```
+
+Later, when we use models, we'll learn the much better:
+
+```python
+get_object_or_404()
+```
+
+approach.
+
+---
+
+# 15. Dynamic Navigation
+
+Templates can also generate links dynamically.
+
+Suppose we have:
+
+```python
+path(
+    "about/",
+    views.about,
+    name="about"
+)
+```
+
+Instead of hardcoding:
+
+```html
+<a href="/about/">About</a>
+```
+
+use:
+
+```html
+<a href="{% url 'about' %}">About</a>
+```
+
+This is called **URL reversing**.
+
+---
+
+# 16. Dynamic URL With Parameters
+
+Suppose:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+Template:
+
+```html
+<a href="{% url 'student_detail' id=student.id %}">
+    View Student
+</a>
+```
+
+If:
+
+```text
+student.id = 101
+```
+
+Django generates:
+
+```text
+/student/101/
+```
+
+This is much better than manually constructing URLs.
+
+---
+
+# 17. Dynamic Student List With Links
+
+View:
+
+```python
+def students(request):
+
+    students = [
+        {
+            "id": 101,
+            "name": "Aman"
+        },
+        {
+            "id": 102,
+            "name": "Rahul"
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+Template:
+
+```html
+{% for student in students %}
+
+    <h2>{{ student.name }}</h2>
+
+    <a href="{% url 'student_detail' id=student.id %}">
+        View Details
+    </a>
+
+{% endfor %}
+```
+
+This creates a dynamic list where every student has a different URL.
+
+---
+
+# 18. Nested Data
+
+Consider:
+
+```python
+student = {
+    "name": "Aman",
+    "address": {
+        "city": "Phagwara",
+        "state": "Punjab"
+    }
+}
+```
+
+Template:
+
+```html
+<p>{{ student.name }}</p>
+
+<p>{{ student.address.city }}</p>
+
+<p>{{ student.address.state }}</p>
+```
+
+DTL supports nested access through dot notation.
+
+---
+
+# 19. List Inside Dictionary
+
+Example:
+
+```python
+student = {
+    "name": "Aman",
+    "skills": [
+        "Python",
+        "Django",
+        "SQL"
+    ]
+}
+```
+
+Template:
+
+```html
+<h1>{{ student.name }}</h1>
+
+<ul>
+
+{% for skill in student.skills %}
+
+    <li>{{ skill }}</li>
+
+{% endfor %}
+
+</ul>
+```
+
+Output:
+
+```text
+Aman
+
+• Python
+• Django
+• SQL
+```
+
+---
+
+# 20. Dictionary Inside a List
+
+Example:
+
+```python
+products = [
+    {
+        "name": "Laptop",
+        "price": 70000
+    },
+    {
+        "name": "Phone",
+        "price": 30000
+    }
+]
+```
+
+Template:
+
+```html
+{% for product in products %}
+
+    <h2>{{ product.name }}</h2>
+    <p>₹{{ product.price }}</p>
+
+{% endfor %}
+```
+
+Again, this is extremely common.
+
+---
+
+# 21. Dynamic Page Based on User
+
+Suppose the view receives:
+
+```python
+def profile(request):
+
+    user = {
+        "name": "Aman",
+        "is_admin": True
+    }
+
+    return render(
+        request,
+        "profile.html",
+        {"user": user}
+    )
+```
+
+Template:
+
+```html
+<h1>Welcome {{ user.name }}</h1>
+
+{% if user.is_admin %}
+    <p>Administrator Panel</p>
+{% else %}
+    <p>User Dashboard</p>
+{% endif %}
+```
+
+The same template can render different interfaces based on data.
+
+---
+
+# 22. Dynamic Template ≠ Dynamic Database
+
+This is an important distinction.
+
+A template can be dynamic even without a database.
+
+For example:
+
+```python
+students = [
+    "Aman",
+    "Rahul"
+]
+```
+
+is dynamic template data.
+
+Later we'll connect templates to actual database records through:
+
+```text
+Model → ORM → View → Template
+```
+
+That is where Django becomes a complete database-driven application.
+
+---
+
+# 23. The Full MVT Flow
+
+At this stage, you should understand this architecture:
+
+```text
+                 Browser
+                    │
+                    │ Request
+                    ▼
+                  URL
+                    │
+                    ▼
+                  View
+                    │
+             ┌──────┴──────┐
+             │             │
+             ▼             ▼
+           Model        Business Logic
+             │
+             ▼
+          Database
+             │
+             ▼
+            Data
+             │
+             └──────┐
+                    ▼
+                 Template
+                    │
+                    ▼
+                  HTML
+                    │
+                    │ Response
+                    ▼
+                 Browser
+```
+
+Don't worry if the **Model → Database** part isn't fully clear yet.
+
+We'll cover it extensively in Unit V.
+
+---
+
+# 24. View Should Prepare Data
+
+A very important Django principle:
+
+### Don't put complicated application logic in the template.
+
+Bad approach:
+
+```html
+{% if student.marks > 50 and student.age > 18 and ... %}
+```
+
+with huge amounts of business logic.
+
+Better:
+
+```python
+is_eligible = ...
+```
+
+Then:
+
+```html
+{% if is_eligible %}
+    Eligible
+{% endif %}
+```
+
+Templates should primarily handle **presentation**.
+
+---
+
+# 25. View + Template Responsibility
+
+A useful exam answer:
+
+### View
+
+Responsible for:
+
+* Receiving request
+* Application/business logic
+* Getting data
+* Preparing context
+* Selecting template
+* Returning response
+
+### Template
+
+Responsible for:
+
+* Displaying data
+* HTML structure
+* Simple conditions
+* Loops
+* Presentation formatting
+
+---
+
+# 26. Complete Dynamic Student Example
+
+Let's combine everything.
+
+### `views.py`
+
+```python
+from django.shortcuts import render
+
+def students(request):
+
+    students = [
+        {
+            "id": 101,
+            "name": "aman ranjan",
+            "course": "computer science",
+            "marks": 87.56
+        },
+        {
+            "id": 102,
+            "name": "rahul kumar",
+            "course": "information technology",
+            "marks": 42.50
+        },
+        {
+            "id": 103,
+            "name": "rohit sharma",
+            "course": "computer science",
+            "marks": 91.25
+        }
+    ]
+
+    return render(
+        request,
+        "students.html",
+        {"students": students}
+    )
+```
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "students/",
+        views.students,
+        name="students"
+    ),
+]
+```
+
+### `students.html`
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Students</title>
+</head>
+
+<body>
+
+<h1>Student List</h1>
+
+{% for student in students %}
+
+    <div>
+
+        <h2>{{ student.name|title }}</h2>
+
+        <p>
+            Course: {{ student.course|upper }}
+        </p>
+
+        <p>
+            Marks: {{ student.marks|floatformat:2 }}
+        </p>
+
+        {% if student.marks >= 50 %}
+            <p>Result: PASS</p>
+        {% else %}
+            <p>Result: FAIL</p>
+        {% endif %}
+
+    </div>
+
+{% empty %}
+
+    <p>No students available.</p>
+
+{% endfor %}
+
+</body>
+
+</html>
+```
+
+This single example uses:
+
+```text
+View
+ ↓
+Context
+ ↓
+Template
+ ↓
+Variables
+ ↓
+Filters
+ ↓
+For loop
+ ↓
+If/else
+ ↓
+Empty
+```
+
+---
+
+# 27. Dynamic Template Coding Question
+
+### Question
+
+Create a Django view that sends three products to a template.
+
+Each product should contain:
+
+* name
+* price
+* category
+
+Display them in an HTML table.
+
+### Solution
+
+```python
+def products(request):
+
+    products = [
+        {
+            "name": "Laptop",
+            "price": 70000,
+            "category": "Electronics"
+        },
+        {
+            "name": "Mouse",
+            "price": 1000,
+            "category": "Accessories"
+        },
+        {
+            "name": "Keyboard",
+            "price": 2000,
+            "category": "Accessories"
+        }
+    ]
+
+    return render(
+        request,
+        "products.html",
+        {"products": products}
+    )
+```
+
+Template:
+
+```html
+<table border="1">
+
+<tr>
+    <th>Name</th>
+    <th>Price</th>
+    <th>Category</th>
+</tr>
+
+{% for product in products %}
+
+<tr>
+    <td>{{ product.name }}</td>
+    <td>₹{{ product.price }}</td>
+    <td>{{ product.category }}</td>
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="3">No products available</td>
+</tr>
+
+{% endfor %}
+
+</table>
+```
+
+---
+
+# 28. Common Viva Questions
+
+### Q1. What is a dynamic template?
+
+A template whose displayed content changes according to data supplied by the view.
+
+### Q2. How does a view send data to a template?
+
+Using the context dictionary passed to `render()`.
+
+```python
+return render(
+    request,
+    "home.html",
+    {"name": "Aman"}
+)
+```
+
+### Q3. What is context?
+
+Context is the collection of data passed from a view to a template, commonly represented as a dictionary.
+
+### Q4. Can a template receive a list?
+
+Yes.
+
+```python
+{"students": students}
+```
+
+### Q5. Can a template receive dictionaries?
+
+Yes.
+
+```html
+{{ student.name }}
+```
+
+### Q6. Can templates contain loops?
+
+Yes, using the `{% for %}` tag.
+
+### Q7. Can templates contain conditions?
+
+Yes, using `{% if %}`, `{% elif %}`, and `{% else %}`.
+
+### Q8. Can URL parameters be passed to templates?
+
+Yes. The view receives the URL parameter and can pass it through the context.
+
+### Q9. Should complex business logic be written in templates?
+
+No. Complex logic should generally be handled in the view/model layer, while templates should focus on presentation.
+
+### Q10. Can dynamic templates work without a database?
+
+Yes. Data can come from Python variables, lists, dictionaries, APIs, files, etc. A database is not required.
+
+---
+
+# ⭐ Module 16 Must Remember
+
+The most important pattern is:
+
+```python
+def view(request):
+
+    data = ...
+
+    return render(
+        request,
+        "template.html",
+        {"data": data}
+    )
+```
+
+Then:
+
+```html
+{{ data }}
+```
+
+or:
+
+```html
+{% for item in data %}
+    {{ item }}
+{% endfor %}
+```
+
+or:
+
+```html
+{% if data %}
+    ...
+{% endif %}
+```
+
+And with nested data:
+
+```html
+{{ student.name }}
+{{ student.address.city }}
+{{ student.skills }}
+```
+
+The core idea is:
+
+> **View prepares the data → Context carries the data → Template displays the data.**
+
+---
+
+## Next → Module 17: Template Inheritance
+
+This is a **very important Django topic** for both exams and real projects.
+
+We'll learn:
+
+* Why repeating HTML is bad
+* `base.html`
+* `{% block %}`
+* `{% extends %}`
+* `{% include %}`
+* Navbar/footer reuse
+* Child templates
+* Multiple blocks
+* How Django builds the final HTML
+* Complete website layout using inheritance
+* Common inheritance mistakes
+* Viva + coding questions

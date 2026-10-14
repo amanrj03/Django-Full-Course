@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 12: Bitcoin Architecture, Keys & Transactions — Blockchain Study Guide</title>
+    <meta name="description" content="Blockchain & Cryptography study guide — Module 12 of 13: Bitcoin Architecture, Keys & Transactions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['\\(', '\\)'], ['$', '$']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+@page { size: A4; margin: 15mm; }
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text-body, #2d3748);
+    margin: 0; padding: 0;
+    background-color: var(--bg-body, #f3f5f8);
+}
+
+.page-container {
+    max-width: 1100px;
+    margin: 25px auto 40px;
+    padding: 40px 55px;
+    background-color: var(--bg-page, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+}
+
+.module-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+.module-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    font-size: 12px; font-weight: 700;
+    padding: 4px 16px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+}
+.module-banner-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    margin: 0; color: #fff !important; border: none !important; padding: 0 !important;
+}
+
+.nav-toggle { margin-bottom: 24px; }
+.nav-toggle-btn {
+    display: inline-block;
+    background: #0284c7;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.nav-toggle-btn:hover { background: #0369a1; }
+
+.nav-panel {
+    display: none;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 8px;
+    column-count: 2;
+    column-gap: 24px;
+}
+.nav-panel.open { display: block; }
+
+.nav-item {
+    display: block;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: var(--link-color, #0284c7);
+    text-decoration: none;
+    border-radius: 4px;
+    break-inside: avoid;
+    transition: all 0.15s;
+}
+.nav-item:hover { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+.nav-item.current {
+    background: #0284c7;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    color: var(--heading-color, #0f172a);
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 10px;
+    margin-top: 36px; margin-bottom: 20px;
+    line-height: 1.3;
+}
+h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 21px;
+    color: var(--heading-h2, #0369a1);
+    border-left: 5px solid #0284c7;
+    padding-left: 12px;
+    margin-top: 34px; margin-bottom: 16px;
+    line-height: 1.35;
+}
+h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    color: var(--heading-h3, #075985);
+    margin-top: 24px; margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+p { margin-top: 0; margin-bottom: 14px; overflow-wrap: break-word; }
+ul, ol { margin-top: 0; margin-bottom: 16px; padding-left: 28px; }
+li { margin-bottom: 6px; }
+hr { border: none; border-top: 1px solid var(--border-color, #e2e8f0); margin: 24px 0; }
+
+blockquote {
+    background-color: var(--bg-blockquote, #f0f9ff);
+    border-left: 5px solid #0284c7;
+    margin: 18px 0;
+    padding: 14px 18px;
+    color: var(--text-blockquote, #0369a1);
+    border-radius: 0 6px 6px 0;
+}
+
+pre {
+    background-color: var(--bg-code-block, #0f172a);
+    color: #f8fafc;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 18px 0;
+}
+code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 13px;
+    background-color: var(--bg-code-inline, #e2e8f0);
+    color: var(--text-code-inline, #be185d);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+}
+th, td {
+    border: 1px solid var(--border-color, #cbd5e0);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #0284c7;
+    color: #ffffff;
+    font-weight: 600;
+}
+tr:nth-child(even) td {
+    background: var(--bg-table-stripe, #f8fafc);
+}
+
+.ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 4px 0 12px;
+}
+
+.math-display {
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    text-align: center;
+    overflow-x: auto;
+}
+
+.exam-header-banner {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 28px 0 16px;
+}
+
+.memory-trick-banner {
+    background: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid #f59e0b;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin: 20px 0 14px;
+}
+
+.prev-next {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+}
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    background: var(--bg-subtle, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e0);
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pn-btn:hover {
+    border-color: #0284c7;
+    background: rgba(2, 132, 199, 0.08);
+    transform: translateY(-1px);
+}
+.pn-reader {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px; font-weight: 600;
+}
+.pn-reader:hover { background: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-container { margin: 12px; padding: 22px 18px; }
+    .prev-next { flex-direction: column; align-items: stretch; }
+    .pn-btn { justify-content: center; }
+    .nav-panel { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION HEADER -->
+<header class="global-navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-brand">
+            <span class="nav-brand-icon">⚡</span>
+            <span class="nav-brand-text">OmniCourse<span class="nav-brand-accent">.Hub</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><span class="icon">🏠</span> All Subjects</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn active"><span class="icon">⛓️</span> Blockchain (13) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="blockchain.html" class="nav-dropdown-header">📋 Blockchain Syllabus Hub</a>
+                    <a href="blockchain-module-1.html">Module 1: History &amp; Bitcoin</a>
+                    <a href="blockchain-module-2.html">Module 2: Distributed Systems</a>
+                    <a href="blockchain-module-3.html">Module 3: Consensus Protocols</a>
+                    <a href="blockchain-module-4.html">Module 4: Decentralization</a>
+                    <a href="blockchain-module-5.html">Module 5: Symmetric Cryptography</a>
+                    <a href="blockchain-module-6.html">Module 6: Public Key Cryptography</a>
+                    <a href="blockchain-module-7.html">Module 7: Digital Signatures</a>
+                    <a href="blockchain-module-8.html">Module 8: SHA &amp; Hashes</a>
+                    <a href="blockchain-module-9.html">Module 9: Consensus Problem &amp; Design</a>
+                    <a href="blockchain-module-10.html">Module 10: Paxos, Raft &amp; PBFT</a>
+                    <a href="blockchain-module-11.html">Module 11: PoW, PoS &amp; Selection</a>
+                    <a href="blockchain-module-12.html">Module 12: Bitcoin Keys &amp; UTXO</a>
+                    <a href="blockchain-module-13.html">Module 13: Mining, Network &amp; Forks</a>
+                    <a href="blockchain_guide.html" class="nav-dropdown-special">📖 Full 8-Module Reader</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn"><span class="icon">🐍</span> Django Course (45) ▾</button>
+                <div class="nav-dropdown-menu">
+                    <a href="django.html" class="nav-dropdown-header">📋 Django Syllabus Hub</a>
+                    <a href="module-1.html">Module 1: Fundamentals</a>
+                    <a href="module-7.html">Module 7: URL Routing</a>
+                    <a href="module-12.html">Module 12: Templates</a>
+                    <a href="module-21.html">Module 21: Forms</a>
+                    <a href="module-25.html">Module 25: Models &amp; ORM</a>
+                    <a href="module-37.html">Module 37: Authentication</a>
+                    <a href="module-42.html">Module 42: Complete Revision</a>
+                    <a href="django_guide.html" class="nav-dropdown-special">📖 Full 44-Module Reader</a>
+                </div>
+            </div>
+            <a href="maths.html" class="nav-link"><span class="icon">📐</span> Mathematics <span class="badge-soon">Soon</span></a>
+        </div>
+        <div class="nav-actions">
+            <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">🌙</button>
+            <a href="blockchain.html" class="nav-action-pill" title="View all 13 modules">📋 Syllabus</a>
+        </div>
+    </div>
+</header>
+
+<div class="page-container">
+
+    <div class="module-banner">
+        <div class="module-badge">Module 12 of 13 — Blockchain &amp; Cryptography</div>
+        <h1 class="module-banner-title">Bitcoin Architecture, Keys & Transactions</h1>
+    </div>
+
+    <div class="nav-toggle">
+        <button class="nav-toggle-btn" onclick="document.getElementById('bcNavPanel').classList.toggle('open')">
+            📚 All Blockchain Modules (13) ▾
+        </button>
+        <div class="nav-panel" id="bcNavPanel">
+<a class="nav-item" href="blockchain-module-1.html">1. Growth, History of Blockchain & Bitcoin</a>
+<a class="nav-item" href="blockchain-module-2.html">2. Distributed Systems & Blockchain</a>
+<a class="nav-item" href="blockchain-module-3.html">3. Consensus Protocols</a>
+<a class="nav-item" href="blockchain-module-4.html">4. Decentralization</a>
+<a class="nav-item" href="blockchain-module-5.html">5. Symmetric Cryptography</a>
+<a class="nav-item" href="blockchain-module-6.html">6. Public Key Cryptography</a>
+<a class="nav-item" href="blockchain-module-7.html">7. Digital Signatures + Cryptographic Constructs</a>
+<a class="nav-item" href="blockchain-module-8.html">8. SHA & Cryptographic Hash Functions</a>
+<a class="nav-item" href="blockchain-module-9.html">9. Consensus Problem, Analysis & Design</a>
+<a class="nav-item" href="blockchain-module-10.html">10. Classification & Traditional Consensus (Paxos, Raft, PBFT)</a>
+<a class="nav-item" href="blockchain-module-11.html">11. Blockchain Consensus (PoW, PoS, DPoS) & Selection</a>
+<span class="nav-item current">12. Bitcoin Architecture, Keys & Transactions</span>
+<a class="nav-item" href="blockchain-module-13.html">13. Bitcoin Blockchain, Network, Mining & Forks</a>
+        </div>
+    </div>
+
+    <div class="module-content">
+<p>Based on your teacher'<span class="ref-pill">📄 Slides Reference: s All topics of bitcoin.pptx</span><span class="ref-pill">📄 Slides Reference:  and BitcoinSCript.pptx</span>.</p>
+<p>This module covers the first part of the Bitcoin syllabus:</p>
+<ol>
+<li>Bitcoin overview</li>
+<li>Bitcoin's architecture and components</li>
+<li>Cryptographic keys</li>
+<li>Public keys and Bitcoin addresses</li>
+<li>Digital signatures</li>
+<li>Bitcoin transactions</li>
+<li>Transaction inputs, outputs and UTXOs</li>
+<li>Bitcoin Script</li>
+</ol>
+<p>We'll begin from the basics and gradually connect the concepts, with exam-ready 5-mark and 10-mark answers.</p>
+<h1>Topic 1: Introduction to Bitcoin</h1>
+<h2>1.1 What is Bitcoin?</h2>
+<p>Bitcoin is a peer-to-peer digital currency that allows people to transfer value over a network without requiring a central intermediary such as a bank to process every transaction.</p>
+<p>Let's understand each term.</p>
+<ul>
+<li>Digital currency: money represented and transferred electronically.</li>
+<li>Peer-to-peer (P2P): participants communicate directly through a network of computers.</li>
+<li>Decentralised: the system does not rely on one central authority to maintain the entire transaction history.</li>
+<li>Cryptocurrency: digital value that uses cryptographic techniques as part of its operation and security.</li>
+</ul>
+<p>For example, suppose Aman wants to send Bitcoin to Rahul. The transaction can be broadcast to the Bitcoin network, checked by participating nodes, and included in a block. Aman does not need a bank to maintain the Bitcoin ledger.</p>
+<h2>1.2 History of Bitcoin</h2>
+<p>Your teacher's PPT identifies the following historical points.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<ul>
+<li>2008: a whitepaper titled Bitcoin: A Peer-to-Peer Electronic Cash System was published under the name Satoshi Nakamoto.</li>
+<li>Satoshi Nakamoto is an alias; the true identity remains unknown.</li>
+<li>Bitcoin introduced a practical system combining cryptography, peer-to-peer communication, a distributed ledger and consensus through Proof of Work.</li>
+</ul>
+<p>The important idea is not merely that Bitcoin is digital money. It is that a network of participants can maintain a shared transaction history without depending on one central operator.</p>
+<h2>1.3 Why was Bitcoin introduced?</h2>
+<p>Consider the traditional online payment system.</p>
+<p>Sender</p>
+<p>Bank or payment intermediary</p>
+<p>Maintains records and processes the transfer</p>
+<p>Receiver</p>
+<p>The intermediary maintains the account records and controls the transfer process.</p>
+<p>Bitcoin uses a different approach:</p>
+<p>Sender</p>
+<p>Receiver</p>
+<p>Bitcoin P2P network</p>
+<p>Nodes verify and relay transactions</p>
+<p>Distributed blockchain</p>
+<p>Accepted transactions are recorded in blocks</p>
+<p>The network uses protocol rules and consensus to determine which transactions become part of the accepted blockchain history.</p>
+<h2>1.4 Main features of Bitcoin</h2>
+<ol>
+<li>Peer-to-peer network: participants communicate directly through the network.</li>
+<li>Decentralised ledger: transaction records are replicated across nodes.</li>
+<li>Cryptographic security: public-key cryptography and digital signatures authorise spending.</li>
+<li>Consensus: Proof of Work and chain-selection rules help nodes agree on the accepted transaction history.</li>
+<li>Transparency: confirmed transaction records can be inspected on the public blockchain.</li>
+<li>Pseudonymity: transactions use addresses rather than requiring every transaction to display a person's legal name.</li>
+<li>Limited issuance: Bitcoin's protocol limits the total supply to approximately 21 million BTC.</li>
+</ol>
+<p>Bitcoin is not completely anonymous: public addresses and transaction flows are visible, and they may sometimes be linked to real-world identities.</p>
+<h1>Topic 2: Bitcoin Architecture and Components</h1>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s All topics of bitcoin.pptx</span> identifies seven major components of the Bitcoin network:</p>
+<ol>
+<li>Digital keys</li>
+<li>Addresses</li>
+<li>Transactions</li>
+<li>Blockchain</li>
+<li>Miners</li>
+<li>Bitcoin network</li>
+<li>Wallets (client software)&#x20;<span class="ref-pill">📄 Slides Reference: </li>
+</ol>
+<p>All topics of bitcoin.pptx</span></p>
+<p>Let's understand how these components work together.</p>
+<h2>2.1 Digital keys</h2>
+<p>Bitcoin uses a pair of cryptographic keys:</p>
+<ul>
+<li>Private key: kept secret by its owner and used to authorise spending.</li>
+<li>Public key: derived from the private key and used to verify the corresponding digital signature.</li>
+</ul>
+<p>The private key must be protected. Anyone who obtains the ability to use it may be able to authorise transactions spending the associated funds.</p>
+<h2>2.2 Bitcoin address</h2>
+<p>A Bitcoin address is a destination identifier used in a payment.</p>
+<p>A wallet creates or manages the information needed to receive funds. Depending on the address type, the address can represent a public-key hash or a script hash.</p>
+<p>A public key and a Bitcoin address are not the same thing.</p>
+<h2>2.3 Transactions</h2>
+<p>A Bitcoin transaction specifies how previously received funds are spent and how the resulting funds are assigned to new outputs.</p>
+<p>Transactions are digitally authorised and checked against Bitcoin's rules.</p>
+<h2>2.4 Blockchain</h2>
+<p>The blockchain is an ordered history of blocks. Each block refers to the previous block through its hash, creating a chain of linked records.</p>
+<p>The blockchain records accepted transactions and helps nodes verify the history of Bitcoin transfers.</p>
+<h2>2.5 Miners</h2>
+<p>Miners collect transactions, construct candidate blocks, and perform Proof of Work. Other nodes independently verify blocks and follow the protocol's chain-selection rules.</p>
+<p>Miners are not the only participants who verify transactions; ordinary full nodes also check protocol rules.</p>
+<h2>2.6 Bitcoin network</h2>
+<p>The Bitcoin network consists of participating computers that exchange transactions and blocks. Nodes may relay information, validate it and maintain local copies of blockchain data.</p>
+<h2>2.7 Wallets</h2>
+<p>A Bitcoin wallet is software or hardware that manages keys and helps users construct, authorise and track transactions.</p>
+<p>A wallet does not literally contain coins in the way a physical wallet contains cash. The Bitcoin ledger records unspent transaction outputs, and the wallet manages the credentials needed to spend outputs that the user controls.</p>
+<h3>How all seven components work together</h3>
+<p>1. Wallet</p>
+<p>Selects funds and constructs a transaction</p>
+<p>2. Private key / digital signature</p>
+<p>Authorises the transaction</p>
+<p>3. Bitcoin network</p>
+<p>Transaction is broadcast and relayed</p>
+<p>4. Nodes and miners</p>
+<p>Validate transactions; miners propose blocks</p>
+<p>5. Blockchain</p>
+<p>Accepted block records the transaction</p>
+<h1>Topic 3: Cryptographic Keys in Bitcoin</h1>
+<p>This is one of the most important topics in this module.</p>
+<h2>3.1 What is cryptography?</h2>
+<p>Cryptography is the study and use of techniques that protect information and enable secure communication.</p>
+<p>Bitcoin uses cryptography for several purposes:</p>
+<ul>
+<li>Digital signatures authorise transactions.</li>
+<li>Public keys allow others to verify signatures.</li>
+<li>Hash functions help construct addresses, link blocks and support Proof of Work.</li>
+</ul>
+<p>For this topic, the main concept is public-key cryptography, also called asymmetric cryptography.</p>
+<h2>3.2 What is public-key cryptography?</h2>
+<p>In public-key cryptography, a user has two mathematically related keys:</p>
+<ul>
+<li>A private key, which must remain secret.</li>
+<li>A public key, which can be shared.</li>
+</ul>
+<p>In Bitcoin, the public key is derived from the private key using elliptic-curve cryptography.</p>
+<p>Your teacher's PPT specifically describes the use of Elliptic Curve Cryptography (ECC) and ECDSA in Bitcoin.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<h2>3.3 Private key</h2>
+<p>A Bitcoin private key is a secret number used to generate digital signatures.</p>
+<p>In the elliptic-curve system presented in your PPT, it is a 256-bit number selected from the valid range for the secp256k1 curve.</p>
+<p>For an exam answer, remember these points:</p>
+<ol>
+<li>It must be kept secret.</li>
+<li>It is used to sign transactions.</li>
+<li>It enables the holder to authorise spending of associated funds.</li>
+<li>It must be generated and stored securely.</li>
+<li>Losing access to it can mean losing access to the associated funds.</li>
+</ol>
+<p>Never share a real private key or seed phrase.</p>
+<h2>3.4 Public key</h2>
+<p>The public key is mathematically derived from the private key.</p>
+<p>It can be shared with others and is used to verify digital signatures.</p>
+<p>The relationship can be shown as:</p>
+<p>Private key</p>
+<p>Secret</p>
+<p>Elliptic-curve operation</p>
+<p>Public key</p>
+<p>Can be shared</p>
+<p>The reverse operation—recovering the private key from the public key—is considered computationally infeasible with properly chosen parameters and current practical computing capabilities.</p>
+<h2>3.5 Private key vs public key</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Private key</th>
+<th>Public key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Confidentiality</td>
+<td>Must remain secret</td>
+<td>Can be shared</td>
+</tr>
+<tr>
+<td>Generation</td>
+<td>Securely generated secret number</td>
+<td>Derived from private key</td>
+</tr>
+<tr>
+<td>Main role</td>
+<td>Creates digital signatures</td>
+<td>Verifies signatures</td>
+</tr>
+<tr>
+<td>If exposed</td>
+<td>Funds controlled by it may be stolen</td>
+<td>Not secret by itself</td>
+</tr>
+<tr>
+<td>In Bitcoin</td>
+<td>Authorises spending</td>
+<td>Helps prove that the correct private key authorised spending</td>
+</tr>
+</tbody>
+</table>
+<h2>3.6 A simple analogy</h2>
+<p>Imagine a private key as your personal, secret signing tool.</p>
+<ul>
+<li>You use it to create a digital signature.</li>
+<li>Anyone with the corresponding public key can check the signature.</li>
+<li>The verifier does not need to know your private key.</li>
+</ul>
+<p>This allows the network to verify transaction authorisation without requiring the secret key to be sent across the network.</p>
+<p>Important exam distinction: a digital signature does not encrypt the entire transaction. It proves authorisation and helps protect the integrity of the signed data.</p>
+<h1>Topic 4: Bitcoin Addresses</h1>
+<h2>4.1 What is a Bitcoin address?</h2>
+<p>A Bitcoin address is an identifier used to specify where a payment should be directed.</p>
+<p>It is similar to sharing bank account details to receive money, but Bitcoin addresses are generated using cryptographic information and may represent different kinds of spending conditions.</p>
+<p>For a common legacy Pay-to-Public-Key-Hash (P2PKH) address, the address is created from a public-key hash.</p>
+<h2>4.2 How is a Bitcoin address generated?</h2>
+<p>Your teacher's PPT describes the following process for a traditional P2PKH address.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<p>Private key</p>
+<p>Generate public key</p>
+<p>SHA-256 hash</p>
+<p>RIPEMD-160 hash</p>
+<p>Produces a 160-bit hash</p>
+<p>Add version and checksum</p>
+<p>Base58Check encoding</p>
+<p>Produces the address string</p>
+<p>Let's understand each step.</p>
+<ol>
+<li>Generate the public key: derive it from the private key.</li>
+<li>Apply SHA-256: calculate a cryptographic hash of the public key.</li>
+<li>Apply RIPEMD-160: hash the SHA-256 result to obtain a 160-bit value.</li>
+<li>Add version and checksum information: identify the address format and help detect errors.</li>
+<li>Encode using Base58Check: convert the result into a human-readable string.</li>
+</ol>
+<p>This is the process for a traditional P2PKH address, not every modern Bitcoin address type.</p>
+<h2>4.3 What is Base58Check?</h2>
+<p>Base58Check is an encoding format used for certain Bitcoin addresses and key representations.</p>
+<p>It uses a Base58 character set that avoids visually confusing characters such as <code>0</code>, <code>O</code>, <code>I</code> and <code>l</code>. It also incorporates a checksum that helps detect accidental typing errors.</p>
+<p>Your PPT gives examples of traditional P2PKH addresses beginning with <code>1</code> and P2SH addresses beginning with <code>3</code>.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<p>Modern Bitcoin also supports other address formats, so not every valid Bitcoin address begins with <code>1</code> or <code>3</code>.</p>
+<h2>4.4 Public key vs Bitcoin address</h2>
+<table>
+<thead>
+<tr>
+<th>Public key</th>
+<th>Bitcoin address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cryptographic key derived from a private key</td>
+<td>Payment identifier derived according to an address format</td>
+</tr>
+<tr>
+<td>Used to verify signatures</td>
+<td>Used to direct payments</td>
+</tr>
+<tr>
+<td>Can be represented in binary or encoded text</td>
+<td>Usually represented as a human-readable string</td>
+</tr>
+<tr>
+<td>Not identical to an address</td>
+<td>Not identical to a public key</td>
+</tr>
+</tbody>
+</table>
+<p>Remember: private key → public key → address is the general relationship for a common key-based address. An address is not itself the private key.</p>
+<h1>Topic 5: Digital Signatures in Bitcoin</h1>
+<h2>5.1 What is a digital signature?</h2>
+<p>A digital signature is a cryptographic value that allows a verifier to check whether a message was authorised by the holder of a corresponding private key and whether the signed data has been altered.</p>
+<p>In Bitcoin, digital signatures are used to authorise spending according to the relevant transaction rules.</p>
+<p>Bitcoin's traditional signature system uses the Elliptic Curve Digital Signature Algorithm (ECDSA) with the secp256k1 curve. Bitcoin also supports newer signature mechanisms, but ECDSA is the focus of your PPT.</p>
+<h2>5.2 How does it work?</h2>
+<p>Suppose Aman wants to spend Bitcoin that he controls.</p>
+<ol>
+<li>His wallet constructs the transaction.</li>
+<li>The wallet creates the required signature using the private key.</li>
+<li>The transaction is broadcast to the network.</li>
+<li>Nodes check the signature and other transaction rules.</li>
+<li>If the transaction satisfies the rules, it can be considered for inclusion in a block.</li>
+</ol>
+<p>Transaction data</p>
+<p>Sign with private key</p>
+<p>Transaction + signature</p>
+<p>Broadcast to the network</p>
+<p>Verify using public-key information</p>
+<p>Check signature and transaction rules</p>
+<h2>5.3 Three purposes of a digital signature</h2>
+<h3>1. Authentication</h3>
+<p>The signature provides evidence that the signer had access to the relevant private key.</p>
+<h3>2. Integrity</h3>
+<p>A valid signature helps detect unauthorised changes to the data covered by the signature.</p>
+<h3>3. Authorisation / non-repudiation context</h3>
+<p>In Bitcoin, the signature authorises spending under the transaction's spending conditions.</p>
+<p>In broader cryptography, signatures are often discussed in relation to non-repudiation, but the legal or practical consequences depend on the context.</p>
+<h2>5.4 What digital signatures do not do</h2>
+<p>A digital signature does not:</p>
+<ul>
+<li>Hide the transaction from the public.</li>
+<li>Prove the signer's real-world identity by itself.</li>
+<li>Guarantee that the transaction has been confirmed.</li>
+<li>Guarantee that the transaction is valid in every other respect.</li>
+</ul>
+<p>A signature can be correct while a transaction is rejected because it attempts to spend an already-spent output.</p>
+<div class="exam-header-banner">🎯 Exam-ready 5-mark answer</div>
+<p>Question: Explain the role of public and private keys in Bitcoin.</p>
+<p>Bitcoin uses public-key cryptography to authorise transactions. The private key is kept secret and is used to generate a digital signature for a transaction. The corresponding public key is used to verify the signature. Bitcoin addresses are generated from cryptographic information, commonly a public-key hash for traditional P2PKH addresses. Nodes verify signatures and other transaction rules before accepting transactions. This enables Bitcoin users to authorise transfers without transmitting their private keys to the network.</p>
+<h1>Topic 6: Bitcoin Transactions</h1>
+<p>A transaction is the core operation in Bitcoin. It describes how existing funds are spent and how new outputs are created.</p>
+<h2>6.1 What is a Bitcoin transaction?</h2>
+<p>A Bitcoin transaction is a data structure that references existing unspent outputs as inputs and creates new outputs with specified values and spending conditions.</p>
+<p>Unlike a traditional bank account, Bitcoin does not simply update a balance field in a central database. Its transaction system uses the Unspent Transaction Output (UTXO) model.</p>
+<p>Let's first understand the transaction's inputs and outputs.</p>
+<h2>6.2 Transaction inputs</h2>
+<p>A transaction input references an output from an earlier transaction.</p>
+<p>It identifies the earlier output and provides the information required to satisfy that output's spending conditions.</p>
+<p>In a traditional transaction, this may include a digital signature and public key.</p>
+<p>Simple meaning: an input identifies which existing funds are being spent.</p>
+<h2>6.3 Transaction outputs</h2>
+<p>A transaction output contains:</p>
+<ul>
+<li>A value, measured in satoshis</li>
+<li>A locking script that defines the conditions for spending those funds</li>
+</ul>
+<p>One transaction can create multiple outputs.</p>
+<p>For example, Aman may send funds to Rahul and receive change back into an address controlled by his wallet.</p>
+<h2>6.4 Understanding UTXO</h2>
+<p>UTXO stands for Unspent Transaction Output.</p>
+<p>It is an output from a previous transaction that has not yet been consumed by a later transaction.</p>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s All topics of bitcoin.pptx</span> explicitly defines a UTXO as an unspent output that can be used as an input to a new transaction.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<h3>Simple example</h3>
+<p>Suppose Aman receives an output worth 1 BTC.</p>
+<pre><code>Previous transaction
+        │
+        ▼
+Output: 1 BTC
+        │
+        ▼
+    UTXO = 1 BTC
+</code></pre>
+<p>As long as Aman has not spent that output, it remains a UTXO.</p>
+<p>Now suppose he spends it by sending 0.6 BTC to Rahul and receiving 0.39 BTC as change. Assume the transaction fee is 0.01 BTC.</p>
+<p>Input</p>
+<h1>1.00 BTC</h1>
+<p>Previously unspent output</p>
+<p>Output 1</p>
+<h1>0.60 BTC</h1>
+<p>To Rahul</p>
+<p>Output 2</p>
+<h1>0.39 BTC</h1>
+<p>Change to Aman</p>
+<p>Transaction fee = 0.01 BTC</p>
+<p>The arithmetic is:</p>
+<p>_<strong>MATH_DISP_0</strong>_</p>
+<p>_<strong>MATH_DISP_1</strong>_</p>
+<p>The original 1 BTC output is now spent. The two newly created outputs become UTXOs until they are spent later.</p>
+<h2>6.5 What is a satoshi?</h2>
+<p>Bitcoin can be divided into smaller units.</p>
+<p>_<strong>MATH_DISP_2</strong>_</p>
+<p>Therefore:</p>
+<p>_<strong>MATH_DISP_3</strong>_</p>
+<p>Satoshis are useful because transaction values and fees often involve small fractions of a Bitcoin.</p>
+<h2>6.6 Why does Bitcoin use UTXOs?</h2>
+<p>The UTXO model offers several benefits:</p>
+<ol>
+<li>Clear spending rules: each input references a specific earlier output.</li>
+<li>Double-spending prevention: once an output is spent, it cannot be spent again in a valid transaction.</li>
+<li>Parallel verification: independent inputs and outputs can often be checked efficiently.</li>
+<li>Explicit ownership conditions: outputs specify the conditions under which funds can be spent.</li>
+</ol>
+<h2>6.7 Transaction fees</h2>
+<p>A transaction fee is the difference between the total input value and total output value.</p>
+<p>_<strong>MATH_DISP_4</strong>_</p>
+<p>Miners may collect fees from transactions included in a block, in addition to the block subsidy.</p>
+<p>A fee is not simply a fixed percentage of the transfer amount. In Bitcoin, the fee market is strongly influenced by transaction size or weight and the fee rate offered by the user.</p>
+<h2>6.8 Important fields in a Bitcoin transaction</h2>
+<p>Your teacher's PPT lists fields and metadata such as transaction size, weight, received time, block inclusion, confirmations, input/output counts and fees.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inputs</td>
+<td>References to previous outputs being spent</td>
+</tr>
+<tr>
+<td>Outputs</td>
+<td>New values and spending conditions</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>Transaction's serialized size in bytes</td>
+</tr>
+<tr>
+<td>Weight</td>
+<td>A metric used for block and transaction resource limits</td>
+</tr>
+<tr>
+<td>Fees</td>
+<td>Difference between total input and output values</td>
+</tr>
+<tr>
+<td>Confirmations</td>
+<td>Number of blocks in the accepted chain containing the transaction or built on top of its block</td>
+</tr>
+<tr>
+<td>Included in block</td>
+<td>Identifies the block that recorded the transaction</td>
+</tr>
+</tbody>
+</table>
+<h2>6.9 Complete Bitcoin payment flow</h2>
+<p>The payment process described in your teacher's PPT follows this general sequence.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<ol>
+<li>The sender obtains the receiver's address.</li>
+<li>The sender's wallet constructs the transaction.</li>
+<li>The wallet signs it using the required private key.</li>
+<li>The transaction is serialised and broadcast.</li>
+<li>Nodes check the transaction's legitimacy.</li>
+<li>Miners may include it in a candidate block.</li>
+<li>The mined block is broadcast and checked by other nodes.</li>
+<li>Additional blocks build on the accepted history, increasing the transaction's confirmation count.</li>
+</ol>
+<p>Important: broadcasting does not mean a transaction is confirmed. Inclusion in a block gives it its first confirmation; later blocks add further confirmations.</p>
+<h1>Topic 7: Bitcoin Script</h1>
+<p>Bitcoin Script is the transaction scripting language used to express the conditions under which outputs can be spent.</p>
+<p>Your teacher'<span class="ref-pill">📄 Slides Reference: s BitcoinSCript.pptx</span> describes it as a compact, stack-based language processed from left to right. It is not Turing-complete and does not support general-purpose loops.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>BitcoinSCript.pptx</span></p>
+<h2>7.1 Why is Bitcoin Script required?</h2>
+<p>Suppose Aman sends Bitcoin to Rahul.</p>
+<p>The network needs a way to specify the conditions Rahul must satisfy before spending the received funds.</p>
+<p>For a common payment type, the condition requires:</p>
+<ul>
+<li>A public key that corresponds to the public-key hash specified in the output</li>
+<li>A valid digital signature proving the ability to use the corresponding private key</li>
+</ul>
+<p>Bitcoin Script expresses and checks these conditions.</p>
+<h2>7.2 Two scripts in a traditional transaction</h2>
+<h3>A. ScriptPubKey — locking script</h3>
+<p>The locking script is stored in the transaction output.</p>
+<p>It defines the conditions that must be satisfied before the output can be spent.</p>
+<p>For example, a traditional P2PKH output uses a script template similar to:</p>
+<pre><code>OP_DUP OP_HASH160 &lt;pubKeyHash&gt;
+OP_EQUALVERIFY OP_CHECKSIG
+</code></pre>
+<h3>B. ScriptSig — unlocking script</h3>
+<p>For a traditional P2PKH input, the unlocking script supplies the signature and public key:</p>
+<pre><code>&lt;signature&gt; &lt;publicKey&gt;
+</code></pre>
+<p>When the input is checked, the unlocking and locking scripts are evaluated together under the applicable rules.</p>
+<h2>7.3 How P2PKH script verification works</h2>
+<p>P2PKH stands for Pay-to-Public-Key-Hash.</p>
+<p>Let's break the process down.</p>
+<p>Unlocking script</p>
+<p><code>&lt;signature&gt; &lt;publicKey&gt;</code></p>
+<p>OP_DUP</p>
+<p>Duplicates the public key on the stack.</p>
+<p>OP_HASH160</p>
+<p>Hashes the public key using RIPEMD-160 applied to SHA-256.</p>
+<p>Compare with the stored public-key hash</p>
+<p>The computed hash must match the hash in the locking script.</p>
+<p>OP_EQUALVERIFY</p>
+<p>Fails if the two hash values do not match.</p>
+<p>OP_CHECKSIG</p>
+<p>Verifies the signature against the relevant transaction data and public key.</p>
+<p>If the checks succeed and the transaction also satisfies the other protocol rules, the input can be accepted as valid.</p>
+<h2>7.4 Important opcodes</h2>
+<p>An opcode is an instruction executed by Bitcoin Script.</p>
+<table>
+<thead>
+<tr>
+<th>Opcode</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OP_DUP</code></td>
+<td>Duplicates the top stack item</td>
+</tr>
+<tr>
+<td><code>OP_HASH160</code></td>
+<td>Applies SHA-256 followed by RIPEMD-160</td>
+</tr>
+<tr>
+<td><code>OP_EQUALVERIFY</code></td>
+<td>Checks equality and fails if values differ</td>
+</tr>
+<tr>
+<td><code>OP_CHECKSIG</code></td>
+<td>Verifies a digital signature</td>
+</tr>
+</tbody>
+</table>
+<p>Your teacher's PPT also lists arithmetic, conditional, logical, data-handling, cryptographic, hashing and signature-verification instructions.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>BitcoinSCript.pptx</span></p>
+<h2>7.5 Why is Bitcoin Script not Turing-complete?</h2>
+<p>A general-purpose Turing-complete language can express arbitrary computations, including general loops.</p>
+<p>Bitcoin Script intentionally restricts its computation model. In particular, it does not provide general-purpose looping constructs.</p>
+<p>This helps make transaction validation more predictable and reduces the risk of scripts consuming unbounded computation.</p>
+<h3>Advantages</h3>
+<ol>
+<li>Defines spending conditions.</li>
+<li>Supports digital-signature verification.</li>
+<li>Enables more complex conditions than simple single-key payments.</li>
+<li>Helps nodes verify whether an input satisfies the corresponding output's requirements.</li>
+</ol>
+<h3>Limitations</h3>
+<ol>
+<li>Not designed as a general-purpose application programming language.</li>
+<li>Restricted computation limits the types of programs that can be expressed.</li>
+<li>Script validity alone does not guarantee that a transaction satisfies every other Bitcoin rule.</li>
+</ol>
+<h2>7.6 Types of scripts in your PPT</h2>
+<p>Your teacher's slides specifically cover these two types:</p>
+<h3>A. Pay-to-Public-Key-Hash (P2PKH)</h3>
+<p>P2PKH locks funds to a public-key hash.</p>
+<p>The spender supplies a public key and signature that satisfy the output's conditions.</p>
+<h3>B. Pay-to-Script-Hash (P2SH)</h3>
+<p>P2SH locks funds to a hash of a redeem script.</p>
+<p>The spender later provides the redeem script and the information needed to satisfy its conditions.</p>
+<p>Your PPT identifies P2SH with the traditional address format beginning with <code>3</code>.&#x20;<span class="ref-pill">📄 Slides Reference: </p>
+<p>All topics of bitcoin.pptx</span></p>
+<table>
+<thead>
+<tr>
+<th>P2PKH</th>
+<th>P2SH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Locks to a public-key hash</td>
+<td>Locks to a script hash</td>
+</tr>
+<tr>
+<td>Commonly uses a public key and signature</td>
+<td>Uses a redeem script plus the required unlocking data</td>
+</tr>
+<tr>
+<td>Traditional addresses often begin with <code>1</code></td>
+<td>Traditional addresses often begin with <code>3</code></td>
+</tr>
+</tbody>
+</table>
+<h1>Module 4 — Exam Revision</h1>
+<div class="exam-header-banner">🎯 Important definitions</div>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Exam-ready definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bitcoin</td>
+<td>A peer-to-peer digital currency that operates without requiring a central intermediary to maintain its ledger.</td>
+</tr>
+<tr>
+<td>Private key</td>
+<td>A secret cryptographic value used to create digital signatures.</td>
+</tr>
+<tr>
+<td>Public key</td>
+<td>A key derived from the private key and used to verify digital signatures.</td>
+</tr>
+<tr>
+<td>Bitcoin address</td>
+<td>An identifier used to direct a payment to the appropriate spending conditions.</td>
+</tr>
+<tr>
+<td>Digital signature</td>
+<td>A cryptographic mechanism used to verify transaction authorisation and integrity.</td>
+</tr>
+<tr>
+<td>Transaction input</td>
+<td>A reference to a previous output being spent.</td>
+</tr>
+<tr>
+<td>Transaction output</td>
+<td>A value and the conditions under which it can be spent.</td>
+</tr>
+<tr>
+<td>UTXO</td>
+<td>An unspent transaction output that can be used as an input in a future transaction.</td>
+</tr>
+<tr>
+<td>Transaction fee</td>
+<td>The difference between the total input value and the total output value.</td>
+</tr>
+<tr>
+<td>Bitcoin Script</td>
+<td>A restricted, stack-based scripting language used to express and verify spending conditions.</td>
+</tr>
+<tr>
+<td>ScriptPubKey</td>
+<td>The locking script that defines an output's spending conditions.</td>
+</tr>
+<tr>
+<td>ScriptSig</td>
+<td>The traditional unlocking script that supplies data to satisfy a locking script.</td>
+</tr>
+<tr>
+<td>P2PKH</td>
+<td>Pay-to-Public-Key-Hash.</td>
+</tr>
+<tr>
+<td>P2SH</td>
+<td>Pay-to-Script-Hash.</td>
+</tr>
+</tbody>
+</table>
+<h2>Important formulas and sequences</h2>
+<p>Bitcoin's smallest commonly used unit:</p>
+<p>_<strong>MATH_DISP_5</strong>_</p>
+<p>Transaction fee:</p>
+<p>_<strong>MATH_DISP_6</strong>_</p>
+<p>Traditional P2PKH address-generation sequence:</p>
+<p>Private key → Public key → SHA-256 → RIPEMD-160 → Version/checksum → Base58Check</p>
+<p>P2PKH script verification:</p>
+<p>Unlocking data → Duplicate key → Hash key → Compare hash → Verify signature</p>
+<div class="exam-header-banner">🎯 Likely 5-mark questions</div>
+<ol>
+<li>Explain Bitcoin and its important features.</li>
+<li>Explain the main components of the Bitcoin network.</li>
+<li>Differentiate public and private keys.</li>
+<li>Explain how a Bitcoin address is generated.</li>
+<li>Explain the role of digital signatures in Bitcoin.</li>
+<li>Define UTXO with an example.</li>
+<li>Explain Bitcoin transaction inputs and outputs.</li>
+<li>What is Bitcoin Script? Explain its characteristics.</li>
+<li>Differentiate P2PKH and P2SH.</li>
+<li>Explain the steps involved in a Bitcoin payment.</li>
+</ol>
+<div class="exam-header-banner">🎯 Likely 10-mark questions</div>
+<ol>
+<li>Explain Bitcoin architecture and the roles of its major components.</li>
+<li>Explain public-key cryptography and digital signatures in Bitcoin.</li>
+<li>Explain the generation of a Bitcoin address with a diagram.</li>
+<li>Explain Bitcoin transactions, including inputs, outputs, UTXOs and transaction fees.</li>
+<li>Explain Bitcoin Script and the verification of a P2PKH transaction.</li>
+<li>Describe the complete lifecycle of a Bitcoin transaction from creation to confirmation.</li>
+</ol>
+<h3>How to write a 10-mark answer on Bitcoin transactions</h3>
+<p>Use this sequence:</p>
+<ol>
+<li>Definition of a Bitcoin transaction</li>
+<li>Transaction inputs and outputs</li>
+<li>UTXO model</li>
+<li>Transaction fee formula</li>
+<li>Digital-signature authorisation</li>
+<li>Transaction broadcasting</li>
+<li>Node validation</li>
+<li>Block inclusion and confirmations</li>
+<li>Diagram</li>
+<li>Conclusion</li>
+</ol>
+<h2>Quick self-test</h2>
+<p>1. Which key must be kept secret in Bitcoin?</p>
+<p>Public key</p>
+<p>Private key</p>
+<p>Bitcoin address</p>
+<p>Transaction ID</p>
+<p>2. What does UTXO stand for?</p>
+<p>Unified Transaction Transfer Operation</p>
+<p>Unspent Transaction Output</p>
+<p>Universal Token Transfer Object</p>
+<p>Unverified Transaction Output</p>
+<p>3. What is the purpose of OP_CHECKSIG?</p>
+<p>Mine a block</p>
+<p>Verify a digital signature</p>
+<p>Create a Bitcoin address</p>
+<p>Calculate the transaction fee</p>
+<p>4. Which script type locks funds to a public-key hash?</p>
+<p>P2SH</p>
+<p>P2PKH</p>
+<p>PoW</p>
+<p>UTXO</p>
+<p>5. If total inputs are 1 BTC and total outputs are 0.98 BTC, what is the fee?</p>
+<p>0.02 BTC</p>
+<p>0.98 BTC</p>
+<p>1.98 BTC</p>
+<p>1 BTC</p>
+<p>0/5 answered</p>
+<p>Reset quiz</p>
+<p>Module 4 is complete.</p>
+<p>When you're ready, say NEXT MODULE for Module 5: Bitcoin Blockchain, Network and Mining. We'll cover block structure, block headers, Merkle trees, block hashes, mining steps, difficulty adjustment, block rewards, halving, forks and confirmations to finish Chapter 3.</p>
+    </div>
+
+    <div class="prev-next">
+        <a class="pn-btn" href="blockchain-module-11.html">&larr; Module 11</a>
+        <a class="pn-reader" href="blockchain.html">📋 All 13 Modules Syllabus</a>
+        <a class="pn-btn" href="blockchain-module-13.html">Module 13 &rarr;</a>
+    </div>
+
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

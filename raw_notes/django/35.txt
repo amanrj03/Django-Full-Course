@@ -1,0 +1,1418 @@
+# Module 35 — Cookies in Django
+
+Now we enter **Cookies & Sessions**, which are very important for understanding login systems and how websites remember information about users.
+
+We will first understand **Cookies**, then in Module 36 we'll learn **Sessions**.
+
+---
+
+# 1. What Is a Cookie?
+
+A **cookie** is a small piece of data that a website asks the user's browser to store.
+
+The browser then sends the cookie back to the website with later requests when the cookie matches the relevant rules.
+
+Simple example:
+
+```text
+Browser
+   ↕
+Cookie
+   ↕
+Django Server
+```
+
+A cookie can contain information such as:
+
+```text
+theme = dark
+language = en
+cart_id = 123
+```
+
+---
+
+# 2. Why Do Websites Need Cookies?
+
+HTTP is fundamentally **stateless**.
+
+Suppose you visit:
+
+```text
+GET /home/
+```
+
+Then later:
+
+```text
+GET /profile/
+```
+
+HTTP doesn't inherently mean:
+
+> "These two requests came from the same person."
+
+Cookies help a browser send information that allows the server to recognize or remember something across requests.
+
+---
+
+# 3. HTTP Is Stateless
+
+Imagine:
+
+```text
+Request 1:
+GET /home/
+
+Request 2:
+GET /profile/
+```
+
+Without some state mechanism:
+
+```text
+Request 1 → independent
+Request 2 → independent
+```
+
+Cookies can provide continuity:
+
+```text
+Request 1
+   ↓
+Server sets cookie
+   ↓
+Browser stores cookie
+   ↓
+Request 2 includes cookie
+   ↓
+Server can use cookie
+```
+
+---
+
+# 4. Cookie Example
+
+Suppose a website wants to remember the user's preferred language.
+
+The server might set:
+
+```text
+language = english
+```
+
+The browser stores it.
+
+Later:
+
+```text
+GET /home/
+Cookie: language=english
+```
+
+Django can read it.
+
+---
+
+# 5. Creating a Cookie in Django
+
+Cookies are set on the **response**.
+
+Example:
+
+```python id="9e0v4x"
+from django.http import HttpResponse
+
+
+def set_cookie(request):
+
+    response = HttpResponse(
+        "Cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman"
+    )
+
+    return response
+```
+
+Important:
+
+```python id="f9o4i7"
+response.set_cookie(...)
+```
+
+---
+
+# 6. Why Is the Cookie Set on the Response?
+
+Because the server needs to tell the browser:
+
+> "Store this cookie."
+
+The server sends this instruction as part of the HTTP response.
+
+Conceptually:
+
+```text
+Browser
+   ↓
+Request
+   ↓
+Django
+   ↓
+Response + Set-Cookie
+   ↓
+Browser stores cookie
+```
+
+---
+
+# 7. Reading Cookies
+
+Cookies sent by the browser are available through:
+
+```python id="f8p6yc"
+request.COOKIES
+```
+
+For example:
+
+```python id="4eq9bf"
+def get_cookie(request):
+
+    username = request.COOKIES.get(
+        "username"
+    )
+
+    return HttpResponse(
+        username or "No cookie"
+    )
+```
+
+---
+
+# 8. `request.COOKIES`
+
+This is essentially a dictionary-like collection of cookies received from the browser.
+
+You can inspect:
+
+```python id="m1g3v7"
+request.COOKIES
+```
+
+Example conceptually:
+
+```python id="e5fx0k"
+{
+    "username": "Aman",
+    "language": "en"
+}
+```
+
+---
+
+# 9. Get a Specific Cookie
+
+```python id="9lqgql"
+username = request.COOKIES.get(
+    "username"
+)
+```
+
+Using `.get()` is convenient because if the cookie doesn't exist, you can receive `None` rather than getting a `KeyError`.
+
+You can also provide a default:
+
+```python id="y1k0j8"
+username = request.COOKIES.get(
+    "username",
+    "Guest"
+)
+```
+
+Now:
+
+```text id="0v1jdy"
+Cookie exists → its value
+Cookie missing → Guest
+```
+
+---
+
+# 10. Delete a Cookie
+
+Use:
+
+```python id="x4qu99"
+response.delete_cookie(
+    "username"
+)
+```
+
+Example:
+
+```python id="3i2eqd"
+def delete_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response
+```
+
+---
+
+# 11. Updating a Cookie
+
+There isn't a separate special `update_cookie()` method.
+
+You generally call:
+
+```python id="qz2s44"
+response.set_cookie(
+    "username",
+    "Rahul"
+)
+```
+
+with the same cookie name.
+
+The browser will receive the new value according to the cookie's attributes.
+
+---
+
+# 12. Complete Cookie CRUD
+
+You can think of cookies similarly to CRUD.
+
+### Create / Set
+
+```python id="i9gn41"
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+### Read
+
+```python id="i7m9eg"
+request.COOKIES.get(
+    "username"
+)
+```
+
+### Update
+
+```python id="r7w8r1"
+response.set_cookie(
+    "username",
+    "Rahul"
+)
+```
+
+### Delete
+
+```python id="d4gq15"
+response.delete_cookie(
+    "username"
+)
+```
+
+---
+
+# 13. Cookie Value Is Usually a String
+
+Example:
+
+```python id="4vr7i9"
+response.set_cookie(
+    "age",
+    "21"
+)
+```
+
+The cookie value is transmitted as cookie data, so don't think of it as a Python integer automatically.
+
+When you read it:
+
+```python id="v27q4x"
+age = request.COOKIES.get("age")
+```
+
+you'll generally receive:
+
+```text id="3rc2qk"
+"21"
+```
+
+If you need an integer:
+
+```python id="6x7xw2"
+age = int(
+    request.COOKIES.get("age", "0")
+)
+```
+
+provided the value is valid.
+
+---
+
+# 14. Cookie Expiration
+
+You can specify how long a cookie should remain available.
+
+Example:
+
+```python id="n9i5jt"
+response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)
+```
+
+`max_age` is measured in seconds.
+
+```text id="9t2glq"
+3600 seconds = 1 hour
+```
+
+So this cookie is intended to expire after one hour.
+
+---
+
+# 15. `expires`
+
+You can also specify an expiration time using the `expires` option.
+
+Conceptually:
+
+```python id="49n9ij"
+response.set_cookie(
+    "username",
+    "Aman",
+    expires=...
+)
+```
+
+`expires` represents a specific expiration time/date, while `max_age` represents a lifetime.
+
+For most beginner-level Django work, `max_age` is easier to understand.
+
+---
+
+# 16. Session Cookie vs Persistent Cookie
+
+A cookie can be:
+
+### Session cookie
+
+Generally expires when the browser session ends, depending on browser behavior.
+
+### Persistent cookie
+
+Has an explicit lifetime/expiration.
+
+For example:
+
+```python id="avb1ti"
+response.set_cookie(
+    "theme",
+    "dark",
+    max_age=86400
+)
+```
+
+This is intended to persist for:
+
+```text
+24 hours
+```
+
+---
+
+# 17. `max_age`
+
+Examples:
+
+### 10 minutes
+
+```python id="c1m2cm"
+max_age=600
+```
+
+### 1 hour
+
+```python id="z5i9i4"
+max_age=3600
+```
+
+### 1 day
+
+```python id="7jtvks"
+max_age=86400
+```
+
+---
+
+# 18. Secure Cookie
+
+A cookie can be marked:
+
+```python id="mql8ov"
+secure=True
+```
+
+Example:
+
+```python id="a3nh8r"
+response.set_cookie(
+    "token",
+    "abc123",
+    secure=True
+)
+```
+
+This tells the browser to send the cookie only over **HTTPS**.
+
+---
+
+# 19. Why Is `Secure` Important?
+
+Suppose you have:
+
+```text
+username
+session identifier
+authentication-related data
+```
+
+You don't want it sent over an unencrypted HTTP connection.
+
+So:
+
+```python id="nbj63c"
+secure=True
+```
+
+is an important security setting for cookies that should only travel over HTTPS.
+
+---
+
+# 20. `HttpOnly`
+
+Another important option:
+
+```python id="k7q1q6"
+httponly=True
+```
+
+Example:
+
+```python id="brs6jn"
+response.set_cookie(
+    "session_id",
+    "abc123",
+    httponly=True
+)
+```
+
+This tells the browser to prevent ordinary client-side JavaScript from accessing the cookie through APIs such as `document.cookie`.
+
+---
+
+# 21. Why Use `HttpOnly`?
+
+Suppose malicious JavaScript executes on your page.
+
+If a sensitive cookie is accessible to JavaScript, that script may be able to read it.
+
+With:
+
+```python id="0c8y1e"
+httponly=True
+```
+
+the cookie isn't exposed through normal JavaScript cookie access.
+
+Important:
+
+> `HttpOnly` helps reduce cookie theft through client-side JavaScript, but it does not prevent XSS itself.
+
+---
+
+# 22. `SameSite`
+
+Another important cookie attribute is:
+
+```python id="5i4qg0"
+samesite
+```
+
+It controls when browsers send cookies in cross-site request contexts.
+
+Common values include:
+
+```text id="n08i5d"
+"Lax"
+"Strict"
+"None"
+```
+
+---
+
+# 23. `SameSite="Lax"`
+
+Example:
+
+```python id="3c9n4s"
+response.set_cookie(
+    "theme",
+    "dark",
+    samesite="Lax"
+)
+```
+
+`Lax` is a common practical setting and helps reduce certain cross-site request risks while allowing some normal navigation behavior.
+
+---
+
+# 24. `SameSite="Strict"`
+
+```python id="7d0h2p"
+response.set_cookie(
+    "theme",
+    "dark",
+    samesite="Strict"
+)
+```
+
+This applies stricter restrictions to cross-site cookie sending.
+
+It's more restrictive and can affect legitimate cross-site navigation/login scenarios.
+
+---
+
+# 25. `SameSite="None"`
+
+```python id="pl1rly"
+response.set_cookie(
+    "example",
+    "value",
+    samesite="None",
+    secure=True
+)
+```
+
+Modern browsers generally require:
+
+```text id="umg3d4"
+SameSite=None
++
+Secure
+```
+
+for cross-site cookies.
+
+---
+
+# 26. Cookie Security Cheat Sheet
+
+For a sensitive cookie, you may encounter:
+
+```python id="nj7r5j"
+response.set_cookie(
+    "token",
+    "abc123",
+    secure=True,
+    httponly=True,
+    samesite="Lax"
+)
+```
+
+Think:
+
+```text id="4lqg55"
+Secure
+   ↓
+HTTPS only
+
+HttpOnly
+   ↓
+Not accessible through normal JS
+
+SameSite
+   ↓
+Controls cross-site sending behavior
+```
+
+---
+
+# 27. `path`
+
+Cookies can also have a path:
+
+```python id="5f7b5y"
+response.set_cookie(
+    "theme",
+    "dark",
+    path="/"
+)
+```
+
+The cookie's `Path` attribute determines which URL paths the browser should send the cookie to.
+
+For example:
+
+```text id="fptl3m"
+path="/shop/"
+```
+
+limits it to the relevant path scope.
+
+---
+
+# 28. Cookie Domain
+
+Cookies can also have a domain attribute.
+
+Conceptually:
+
+```python id="4f5zzx"
+response.set_cookie(
+    "example",
+    "value",
+    domain="example.com"
+)
+```
+
+This controls which host/domain the cookie applies to, subject to browser cookie rules.
+
+This is more advanced but useful to know for viva questions.
+
+---
+
+# 29. Complete Cookie Example
+
+### Set cookie
+
+```python id="jjv2bx"
+from django.http import HttpResponse
+
+
+def set_username(request):
+
+    response = HttpResponse(
+        "Username cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman",
+        max_age=3600,
+        httponly=True,
+        secure=True,
+        samesite="Lax"
+    )
+
+    return response
+```
+
+---
+
+# 30. Read Cookie
+
+```python id="h1c0ij"
+def get_username(request):
+
+    username = request.COOKIES.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )
+```
+
+---
+
+# 31. Delete Cookie
+
+```python id="u5sgtc"
+def logout_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response
+```
+
+---
+
+# 32. Important Development Note About `secure=True`
+
+If you're developing locally using:
+
+```text
+http://127.0.0.1:8000/
+```
+
+and set:
+
+```python id="d9s7lb"
+secure=True
+```
+
+the browser will generally not send that cookie over plain HTTP.
+
+So during local development, this can make it appear that the cookie isn't working.
+
+In production, your site should normally use HTTPS, especially for authentication-related cookies.
+
+---
+
+# 33. Cookie vs Server-Side Data
+
+Cookies are stored on the **client/browser**.
+
+For example:
+
+```text id="uyn0i2"
+Browser
+ └── username=Aman
+```
+
+The server can receive it in later requests.
+
+But don't assume cookies are a secure place to store secrets merely because they are controlled by your application.
+
+The user/browser can potentially inspect and modify ordinary cookie values.
+
+---
+
+# 34. Never Trust Cookie Values
+
+Suppose you set:
+
+```text id="0b1cll"
+is_admin=true
+```
+
+in a cookie.
+
+A malicious user could potentially modify that cookie.
+
+Therefore, never implement authorization like:
+
+```python id="4oc6sr"
+if request.COOKIES.get("is_admin") == "true":
+    allow_delete()
+```
+
+That's insecure.
+
+Authorization should be based on trusted server-side state and Django's authentication/permission system.
+
+---
+
+# 35. Cookie vs Session
+
+This is **very important**.
+
+### Cookie
+
+Data is stored in the browser.
+
+```text id="2quwzo"
+Browser
+   ↓
+Cookie data
+```
+
+### Session
+
+Django's session framework normally stores session data **server-side**, while the browser holds a session identifier in a cookie.
+
+Conceptually:
+
+```text id="7t3q5r"
+Browser
+   ↓
+session cookie
+   ↓
+Django
+   ↓
+Session data
+```
+
+We'll study this in detail in Module 36.
+
+---
+
+# 36. Cookies and Login
+
+When you log into a Django website, Django's authentication system uses sessions.
+
+The browser receives a session cookie, commonly named:
+
+```text id="d7n9eh"
+sessionid
+```
+
+The cookie identifies the session.
+
+The actual session data is generally maintained on the server side according to the configured session backend.
+
+This is why you shouldn't think:
+
+> "The password is stored in the session cookie."
+
+That's not how the standard Django session mechanism works.
+
+---
+
+# 37. Cookie vs Session Comparison
+
+| Feature                              | Cookie                   | Session                                           |
+| ------------------------------------ | ------------------------ | ------------------------------------------------- |
+| Main data location                   | Browser                  | Usually server                                    |
+| Client sends                         | Cookie data              | Session ID cookie                                 |
+| Size                                 | Limited                  | Depends on backend/configuration                  |
+| User can inspect normal cookie value | Yes                      | Session ID is visible, session data usually isn't |
+| Common use                           | Preferences, identifiers | Login state, temporary user state                 |
+
+---
+
+# 38. Cookie vs CSRF Token
+
+Don't confuse:
+
+```text id="k2d3y0"
+Cookie
+CSRF token
+Session
+```
+
+They serve different purposes.
+
+### Cookie
+
+Stores browser-side data.
+
+### CSRF token
+
+Helps Django verify state-changing requests came from an expected/trusted context.
+
+### Session
+
+Maintains server-side user/session state, normally identified by a session cookie.
+
+---
+
+# 39. Cookie vs Authentication
+
+A cookie itself does not automatically mean:
+
+> "This person is authenticated."
+
+Authentication systems can use cookies as part of maintaining login state, but you should distinguish the mechanisms.
+
+In Django:
+
+```text id="51fz7m"
+Login
+ ↓
+Authentication
+ ↓
+Session
+ ↓
+Session cookie
+ ↓
+Future request
+ ↓
+request.user
+```
+
+---
+
+# 40. Cookie Example With URL
+
+Suppose:
+
+```python id="d1bj4a"
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path(
+        "set-cookie/",
+        views.set_username,
+        name="set_cookie"
+    ),
+    path(
+        "get-cookie/",
+        views.get_username,
+        name="get_cookie"
+    ),
+    path(
+        "delete-cookie/",
+        views.logout_cookie,
+        name="delete_cookie"
+    ),
+]
+```
+
+Then:
+
+```text id="s55l5w"
+/set-cookie/
+```
+
+sets the cookie.
+
+```text id="70z4t0"
+/get-cookie/
+```
+
+reads it.
+
+```text id="wmx0q7"
+/delete-cookie/
+```
+
+deletes it.
+
+---
+
+# 41. Practical Coding Question
+
+### Set a cookie called `username` with value `Aman`.
+
+```python id="19xt8y"
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+---
+
+### Read it.
+
+```python id="jljx6u"
+request.COOKIES.get(
+    "username"
+)
+```
+
+---
+
+### Delete it.
+
+```python id="0u7wn6"
+response.delete_cookie(
+    "username"
+)
+```
+
+---
+
+### Make it expire after one hour.
+
+```python id="8ufv3g"
+response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)
+```
+
+---
+
+### Make it HttpOnly.
+
+```python id="v8a1tk"
+response.set_cookie(
+    "username",
+    "Aman",
+    httponly=True
+)
+```
+
+---
+
+### Make it HTTPS-only.
+
+```python id="b76s8p"
+response.set_cookie(
+    "username",
+    "Aman",
+    secure=True
+)
+```
+
+---
+
+# 42. Practical Coding Question
+
+### Write a view that sets a cookie.
+
+```python id="m3r5b9"
+from django.http import HttpResponse
+
+
+def set_cookie(request):
+
+    response = HttpResponse(
+        "Cookie set"
+    )
+
+    response.set_cookie(
+        "username",
+        "Aman"
+    )
+
+    return response
+```
+
+---
+
+# 43. Practical Coding Question
+
+### Write a view that reads the cookie.
+
+```python id="f5i8cr"
+def get_cookie(request):
+
+    username = request.COOKIES.get(
+        "username",
+        "Guest"
+    )
+
+    return HttpResponse(
+        f"Hello {username}"
+    )
+```
+
+---
+
+# 44. Practical Coding Question
+
+### Write a view that deletes the cookie.
+
+```python id="m8xwqx"
+def delete_cookie(request):
+
+    response = HttpResponse(
+        "Cookie deleted"
+    )
+
+    response.delete_cookie(
+        "username"
+    )
+
+    return response
+```
+
+---
+
+# 45. Viva Masterclass
+
+### Q1. What is a cookie?
+
+> A cookie is a small piece of data stored by the user's browser and sent with subsequent matching requests to a website.
+
+---
+
+### Q2. Why are cookies used?
+
+> They allow websites to maintain or remember certain information across otherwise stateless HTTP requests.
+
+---
+
+### Q3. How do you set a cookie in Django?
+
+```python id="91n7d0"
+response.set_cookie(
+    "name",
+    "value"
+)
+```
+
+---
+
+### Q4. How do you read a cookie?
+
+```python id="9h4s7p"
+request.COOKIES.get(
+    "name"
+)
+```
+
+---
+
+### Q5. How do you delete a cookie?
+
+```python id="0hj3d9"
+response.delete_cookie(
+    "name"
+)
+```
+
+---
+
+### Q6. What is `max_age`?
+
+> It specifies the cookie lifetime in seconds.
+
+---
+
+### Q7. What is `secure=True`?
+
+> It tells the browser to send the cookie only over HTTPS.
+
+---
+
+### Q8. What is `httponly=True`?
+
+> It prevents normal client-side JavaScript from accessing the cookie through browser APIs such as `document.cookie`.
+
+---
+
+### Q9. What is `SameSite`?
+
+> It controls when a browser sends a cookie in cross-site request contexts.
+
+---
+
+### Q10. Can a user modify a normal cookie?
+
+> Yes. Client-side cookie values should not be treated as inherently trusted.
+
+---
+
+### Q11. Should you store passwords in cookies?
+
+> No. Passwords should never be stored in cookies.
+
+---
+
+### Q12. Where are cookies stored?
+
+> Cookies are stored by the browser/client.
+
+---
+
+### Q13. Where is Django session data normally stored?
+
+> The session data is normally stored server-side according to the configured session backend, while the browser generally stores a session identifier in a cookie.
+
+---
+
+### Q14. What is the difference between cookie and session?
+
+> A cookie is browser-side data sent with requests, while a Django session normally stores session data server-side and uses a cookie containing a session identifier to associate requests with that session.
+
+---
+
+# 46. Important Security Question
+
+### Interviewer:
+
+> "Can I store `is_admin=True` in a cookie and check it before allowing someone to delete data?"
+
+Answer:
+
+> "No. Cookie values are client-controlled and shouldn't be trusted for authorization. I would use Django's authenticated user and permission system on the server side."
+
+Excellent answer.
+
+---
+
+# 47. Another Interview Question
+
+### "Why use `HttpOnly`?"
+
+Answer:
+
+> "`HttpOnly` prevents normal client-side JavaScript from reading the cookie, which helps reduce exposure of sensitive cookie values if malicious JavaScript executes. It does not itself prevent XSS."
+
+---
+
+# 48. Another Interview Question
+
+### "Why use Secure cookies?"
+
+Answer:
+
+> "The Secure attribute tells the browser to send the cookie only over HTTPS, reducing the risk of exposing the cookie over an unencrypted HTTP connection."
+
+---
+
+# 49. Another Interview Question
+
+### "Is HTTPS the same as Secure cookie?"
+
+No.
+
+```text id="6l6qmg"
+HTTPS
+ ↓
+Encrypts communication
+
+Secure cookie
+ ↓
+Tells browser to send that cookie only over HTTPS
+```
+
+They work together but are not the same thing.
+
+---
+
+# 50. Cookie Security Mental Model
+
+For a sensitive cookie:
+
+```text id="b9e8iz"
+              COOKIE
+                 │
+       ┌─────────┼─────────┐
+       ↓         ↓         ↓
+    Secure    HttpOnly   SameSite
+       │         │         │
+       ↓         ↓         ↓
+   HTTPS only  No normal   Cross-site
+               JS access   sending rules
+```
+
+But remember:
+
+> Cookie security flags reduce specific risks; they do not replace HTTPS, authentication, authorization, CSRF protection, or XSS defenses.
+
+---
+
+# 51. Module 35 Summary
+
+You should now know:
+
+### Set
+
+```python id="k8xw6k"
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+### Read
+
+```python id="m9aqkl"
+request.COOKIES.get(
+    "username"
+)
+```
+
+### Delete
+
+```python id="f8f1ql"
+response.delete_cookie(
+    "username"
+)
+```
+
+### Expiration
+
+```python id="y4f9k2"
+max_age=3600
+```
+
+### Security
+
+```python id="xwq2s4"
+secure=True
+httponly=True
+samesite="Lax"
+```
+
+### Core concept
+
+```text id="d2q1xa"
+Browser
+   ↓
+Cookie
+   ↓
+Future HTTP requests
+   ↓
+Django
+```
+
+---
+
+# 52. Final Exam Cheat Sheet
+
+```python id="y6v0qq"
+# Set
+response.set_cookie(
+    "username",
+    "Aman"
+)
+```
+
+```python id="z5b9v8"
+# Read
+username = request.COOKIES.get(
+    "username"
+)
+```
+
+```python id="0gqg4b"
+# Delete
+response.delete_cookie(
+    "username"
+)
+```
+
+```python id="u8j8xm"
+# Expiration
+response.set_cookie(
+    "username",
+    "Aman",
+    max_age=3600
+)
+```
+
+```python id="m6y8tw"
+# Secure cookie
+response.set_cookie(
+    "token",
+    "abc",
+    secure=True,
+    httponly=True,
+    samesite="Lax"
+)
+```
+
+### Most important distinction:
+
+> **Cookie = data stored by the browser.**
+> **Session = server-side user state typically associated with the browser through a session cookie.**
+
+**Next → Module 36: Django Sessions**
+
+We'll learn how sessions work internally, `request.session`, setting/getting/deleting session data, session expiry, `flush()`, session cookies, session-based login state, and the difference between **cookies, sessions, and authentication**.

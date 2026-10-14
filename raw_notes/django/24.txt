@@ -1,0 +1,1166 @@
+# Module 24 — POST Redirect Pattern (PRG)
+
+This module is short but **very important in practical Django development and viva**.
+
+The main concept is:
+
+> **After successfully processing a POST request, redirect the user to another page instead of directly rendering the response.**
+
+This pattern is called:
+
+# POST → Redirect → GET (PRG)
+
+---
+
+# 1. The Problem With Directly Rendering After POST
+
+Suppose we have a student registration form.
+
+User submits:
+
+```text
+Name: Aman
+Age: 21
+```
+
+Browser sends:
+
+```text
+POST /students/register/
+```
+
+Your Django view processes the data:
+
+```python
+if request.method == "POST":
+    form = StudentForm(request.POST)
+
+    if form.is_valid():
+        # Save/process data
+```
+
+Now suppose you do:
+
+```python
+return render(request, "success.html")
+```
+
+The browser is currently displaying the response to the **POST request**.
+
+If the user presses:
+
+```text
+F5 / Refresh
+```
+
+the browser may ask:
+
+> "Resubmit the form?"
+
+Because the current page came from a POST request.
+
+This can potentially cause the same operation to happen again.
+
+For example:
+
+```text
+POST
+↓
+Create student
+↓
+Success page
+↓
+Refresh
+↓
+POST again
+↓
+Create student again
+```
+
+That could result in duplicate data.
+
+---
+
+# 2. The Solution: Redirect
+
+Instead of:
+
+```python
+return render(request, "success.html")
+```
+
+use:
+
+```python
+return redirect("success")
+```
+
+Now the flow becomes:
+
+```text
+POST
+ ↓
+Process data
+ ↓
+Redirect
+ ↓
+GET
+ ↓
+Success page
+```
+
+This is:
+
+# POST → Redirect → GET
+
+---
+
+# 3. Why Is This Called PRG?
+
+PRG stands for:
+
+```text
+P → POST
+R → Redirect
+G → GET
+```
+
+So:
+
+```text
+POST request
+      ↓
+Process submitted data
+      ↓
+HTTP Redirect
+      ↓
+GET request
+      ↓
+Display result
+```
+
+The browser's final page is now the result of a GET request.
+
+Therefore, refreshing the page normally repeats the GET rather than resubmitting the original POST.
+
+---
+
+# 4. Basic Django Example
+
+```python
+from django.shortcuts import render, redirect
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process data
+
+            return redirect("success")
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+The important line is:
+
+```python
+return redirect("success")
+```
+
+---
+
+# 5. Where Does `"success"` Come From?
+
+Usually from a named URL.
+
+For example:
+
+```python
+path(
+    "success/",
+    views.success,
+    name="success"
+)
+```
+
+Then:
+
+```python
+return redirect("success")
+```
+
+Django finds the URL whose name is:
+
+```text
+success
+```
+
+and redirects the browser there.
+
+---
+
+# 6. The Success View
+
+```python
+def success(request):
+    return render(
+        request,
+        "success.html"
+    )
+```
+
+Complete flow:
+
+```text
+POST /students/register/
+             ↓
+       student_form()
+             ↓
+        form.is_valid()
+             ↓
+           valid
+             ↓
+    redirect("success")
+             ↓
+GET /students/success/
+             ↓
+        success()
+             ↓
+       success.html
+```
+
+---
+
+# 7. `redirect()` vs `render()`
+
+This is a common viva question.
+
+### `render()`
+
+```python
+return render(
+    request,
+    "success.html"
+)
+```
+
+renders a template directly.
+
+Conceptually:
+
+```text
+View
+ ↓
+Template
+ ↓
+HTTP response
+```
+
+### `redirect()`
+
+```python
+return redirect("success")
+```
+
+tells the browser to go to another URL.
+
+Conceptually:
+
+```text
+View
+ ↓
+Redirect response
+ ↓
+Browser makes GET request
+ ↓
+New view
+```
+
+---
+
+# 8. Important Difference
+
+| `render()`                                                | `redirect()`                        |
+| --------------------------------------------------------- | ----------------------------------- |
+| Renders a template                                        | Sends browser to another URL        |
+| Usually returns the page directly                         | Causes a new request                |
+| Doesn't change the browser URL to another route by itself | Browser URL changes                 |
+| Useful for displaying a page                              | Useful after successful POST/action |
+
+---
+
+# 9. Why Not Just Render the Success Page?
+
+Consider:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return render(
+        request,
+        "success.html"
+    )
+```
+
+The browser's current request is still:
+
+```text
+POST
+```
+
+Then refresh can potentially repeat the POST.
+
+Better:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return redirect("success")
+```
+
+Now:
+
+```text
+POST
+ ↓
+save
+ ↓
+redirect
+ ↓
+GET
+ ↓
+success page
+```
+
+---
+
+# 10. PRG Is Especially Useful for Database Operations
+
+Suppose:
+
+```python
+Student.objects.create(
+    name="Aman"
+)
+```
+
+If the POST gets accidentally repeated, you could create another student.
+
+Similarly:
+
+```text
+POST /create-order/
+POST /payment/
+POST /register/
+POST /comment/
+POST /contact/
+```
+
+are actions where duplicate submissions can be problematic.
+
+PRG is therefore widely used after successful form submissions.
+
+---
+
+# 11. Redirect With URL Name
+
+Recommended:
+
+```python
+return redirect("success")
+```
+
+with:
+
+```python
+path(
+    "success/",
+    views.success,
+    name="success"
+)
+```
+
+This is better than hardcoding the URL:
+
+```python
+return redirect("/students/success/")
+```
+
+Why?
+
+Because if the URL changes later:
+
+```python
+path(
+    "registration-complete/",
+    views.success,
+    name="success"
+)
+```
+
+your Python code can still use:
+
+```python
+redirect("success")
+```
+
+---
+
+# 12. Redirect to Another View
+
+You can also redirect using a view name:
+
+```python
+return redirect("home")
+```
+
+provided that:
+
+```python
+path(
+    "",
+    views.home,
+    name="home"
+)
+```
+
+exists.
+
+---
+
+# 13. Redirect With Parameters
+
+Suppose your URL is:
+
+```python
+path(
+    "student/<int:id>/",
+    views.student_detail,
+    name="student_detail"
+)
+```
+
+You can redirect with the parameter:
+
+```python
+return redirect(
+    "student_detail",
+    id=10
+)
+```
+
+Django resolves it to something like:
+
+```text
+/student/10/
+```
+
+This is similar to URL reversing.
+
+---
+
+# 14. Redirect Using `reverse()`
+
+You can also do:
+
+```python
+from django.urls import reverse
+from django.shortcuts import redirect
+```
+
+Then:
+
+```python
+return redirect(
+    reverse("success")
+)
+```
+
+But normally:
+
+```python
+return redirect("success")
+```
+
+is simpler.
+
+Django's `redirect()` can resolve a named URL for you.
+
+---
+
+# 15. PRG With a Django Form
+
+Let's combine what we've learned.
+
+### `forms.py`
+
+```python
+from django import forms
+
+
+class StudentForm(forms.Form):
+
+    name = forms.CharField(
+        min_length=3
+    )
+
+    age = forms.IntegerField(
+        min_value=18,
+        max_value=60
+    )
+```
+
+### `views.py`
+
+```python
+from django.shortcuts import render, redirect
+from .forms import StudentForm
+
+
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            name = form.cleaned_data["name"]
+            age = form.cleaned_data["age"]
+
+            # Process/save data here
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+
+
+def success(request):
+
+    return render(
+        request,
+        "success.html"
+    )
+```
+
+### `urls.py`
+
+```python
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+
+    path(
+        "register/",
+        views.student_form,
+        name="student_form"
+    ),
+
+    path(
+        "success/",
+        views.success,
+        name="success"
+    ),
+]
+```
+
+### Template
+
+```html
+<form method="POST">
+
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">
+        Register
+    </button>
+
+</form>
+```
+
+---
+
+# 16. What Happens When Form Is Invalid?
+
+This is very important.
+
+Suppose user submits:
+
+```text
+Name: A
+Age: 12
+```
+
+Validation fails.
+
+The view does:
+
+```python
+if form.is_valid():
+    return redirect("success")
+```
+
+Since:
+
+```python
+form.is_valid()
+```
+
+is `False`, Django does **not** redirect.
+
+It reaches:
+
+```python
+return render(
+    request,
+    "student_form.html",
+    {"form": form}
+)
+```
+
+The form is displayed again with errors.
+
+So the complete behavior is:
+
+```text
+POST
+ ↓
+Validation
+ ↓
+ ┌─────────────┐
+ │             │
+Valid        Invalid
+ │             │
+ ↓             ↓
+Redirect     Render form
+ │             +
+ ↓           errors
+GET
+ ↓
+Success
+```
+
+This is the standard pattern.
+
+---
+
+# 17. Why Don't We Redirect When Validation Fails?
+
+Because we want to preserve the submitted form and its errors.
+
+Suppose:
+
+```text
+Age = 15
+```
+
+and minimum age is 18.
+
+We want the user to see:
+
+```text
+Age
+15
+
+❌ Ensure this value is greater than or equal to 18.
+```
+
+If we redirected immediately, we'd need another mechanism to preserve the errors/data.
+
+So the usual pattern is:
+
+```text
+Invalid POST → render form with errors
+Valid POST → redirect
+```
+
+---
+
+# 18. PRG + CSRF + Validation
+
+Now you can connect Modules 21–24.
+
+A secure form flow looks like:
+
+```text
+User opens form
+       ↓
+GET
+       ↓
+Django renders form
+       ↓
+User fills form
+       ↓
+POST
+       ↓
+CSRF verification
+       ↓
+Form validation
+       ↓
+ ┌──────────────┐
+ │              │
+Invalid       Valid
+ │              │
+ ↓              ↓
+Show errors   Process data
+               ↓
+            Redirect
+               ↓
+              GET
+               ↓
+          Success page
+```
+
+This is an extremely useful mental model.
+
+---
+
+# 19. POST Redirect vs Redirect After Every POST
+
+Not every POST necessarily has to use PRG.
+
+The important principle is:
+
+> **After a successful state-changing POST, redirecting is generally a good practice when the next page represents the result of that operation.**
+
+For example:
+
+```text
+Create student → redirect to student detail
+Update student → redirect to student detail
+Delete student → redirect to student list
+Submit registration → redirect to success/dashboard
+```
+
+---
+
+# 20. Redirect After Create
+
+Example:
+
+```python
+def create_student(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            student = Student.objects.create(
+                name=form.cleaned_data["name"]
+            )
+
+            return redirect(
+                "student_detail",
+                id=student.id
+            )
+
+    else:
+        form = StudentForm()
+
+    return render(
+        request,
+        "create_student.html",
+        {"form": form}
+    )
+```
+
+Flow:
+
+```text
+POST
+ ↓
+Create student
+ ↓
+Redirect to student detail
+ ↓
+GET student detail
+```
+
+---
+
+# 21. Redirect After Delete
+
+Example:
+
+```python
+def delete_student(request, id):
+
+    if request.method == "POST":
+
+        student = get_object_or_404(
+            Student,
+            id=id
+        )
+
+        student.delete()
+
+        return redirect("student_list")
+```
+
+Flow:
+
+```text
+POST /student/10/delete/
+          ↓
+      Delete student
+          ↓
+redirect("student_list")
+          ↓
+GET /students/
+```
+
+This is a very common Django pattern.
+
+---
+
+# 22. HTTP Redirect Status
+
+A redirect is represented by an HTTP 3xx response.
+
+For example:
+
+```text
+302 Found
+```
+
+is commonly used for redirects.
+
+Django's:
+
+```python
+redirect()
+```
+
+creates an appropriate redirect response.
+
+You generally don't need to manually construct the HTTP response for ordinary redirects.
+
+---
+
+# 23. Common Mistake: Calling `render()` Instead of `redirect()`
+
+Bad after successful POST:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return render(
+        request,
+        "success.html"
+    )
+```
+
+Better:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return redirect("success")
+```
+
+---
+
+# 24. Common Mistake: Redirect Before Processing
+
+Wrong:
+
+```python
+if request.method == "POST":
+
+    return redirect("success")
+
+    form.save()
+```
+
+Why?
+
+Because:
+
+```python
+return
+```
+
+immediately exits the function.
+
+Therefore this:
+
+```python
+form.save()
+```
+
+will never execute.
+
+Correct:
+
+```python
+if form.is_valid():
+
+    form.save()
+
+    return redirect("success")
+```
+
+---
+
+# 25. Common Mistake: No Named URL
+
+If you write:
+
+```python
+return redirect("success")
+```
+
+but don't have:
+
+```python
+name="success"
+```
+
+Django may raise:
+
+```text
+NoReverseMatch
+```
+
+So make sure:
+
+```python
+path(
+    "success/",
+    views.success,
+    name="success"
+)
+```
+
+exists.
+
+---
+
+# 26. `redirect()` vs `reverse()`
+
+This is a useful viva distinction.
+
+### `reverse()`
+
+Builds a URL string.
+
+```python
+reverse("success")
+```
+
+might produce:
+
+```text
+/success/
+```
+
+### `redirect()`
+
+Returns an HTTP redirect response.
+
+```python
+redirect("success")
+```
+
+tells the browser to navigate to that URL.
+
+Simple rule:
+
+```text
+reverse()  → creates URL
+redirect() → redirects browser
+```
+
+---
+
+# 27. Viva Questions
+
+### Q1. What is PRG?
+
+> PRG stands for Post-Redirect-Get. It is a web design pattern where a successful POST request is followed by a redirect, and the browser then makes a GET request to display the result.
+
+---
+
+### Q2. Why is PRG used?
+
+> It prevents the final page from being directly associated with the POST submission, reducing accidental duplicate submissions when the user refreshes the page.
+
+---
+
+### Q3. What function is used for redirecting in Django?
+
+```python
+redirect()
+```
+
+---
+
+### Q4. Difference between `render()` and `redirect()`?
+
+> `render()` generates a response using a template, while `redirect()` sends a redirect response causing the browser to make a new request to another URL.
+
+---
+
+### Q5. What happens when validation fails?
+
+> The form is normally rendered again with its validation errors rather than redirecting to the success page.
+
+---
+
+### Q6. Why use named URLs with `redirect()`?
+
+> Named URLs avoid hardcoding URL paths and make the application easier to maintain when URL patterns change.
+
+---
+
+### Q7. Can `redirect()` accept URL parameters?
+
+Yes.
+
+```python
+return redirect(
+    "student_detail",
+    id=10
+)
+```
+
+---
+
+### Q8. What happens when the user refreshes after PRG?
+
+The browser refreshes the final GET request instead of normally resubmitting the original POST.
+
+---
+
+# 28. Exam Question
+
+### "Explain POST-Redirect-GET pattern in Django."
+
+A good answer:
+
+> **POST-Redirect-GET (PRG)** is a web design pattern used after successful form submission. First, the client sends a POST request containing form data. Django validates and processes the data. Instead of directly rendering the success page for the POST request, Django returns a redirect using `redirect()`. The browser then sends a new GET request to the redirected URL. This prevents the success page from being directly associated with the POST request and helps avoid accidental duplicate form submissions when the page is refreshed.
+
+---
+
+# 29. Must-Memorize Code
+
+This pattern is worth memorizing exactly:
+
+```python
+def student_form(request):
+
+    if request.method == "POST":
+
+        form = StudentForm(request.POST)
+
+        if form.is_valid():
+
+            # Process data
+
+            return redirect("success")
+
+    else:
+
+        form = StudentForm()
+
+    return render(
+        request,
+        "student_form.html",
+        {"form": form}
+    )
+```
+
+And:
+
+```python
+path(
+    "success/",
+    views.success,
+    name="success"
+)
+```
+
+---
+
+# Module 24 Summary
+
+Remember this:
+
+```text
+POST
+ ↓
+Validate
+ ↓
+Valid?
+ ├── No → Render form + errors
+ │
+ └── Yes
+       ↓
+   Process/save
+       ↓
+    redirect()
+       ↓
+      GET
+       ↓
+   Success page
+```
+
+### Golden rule:
+
+> **Invalid POST → render the form again.**
+
+> **Successful POST → process the data → redirect.**
+
+This connects directly with everything we've learned:
+
+```text
+Forms
+ +
+Validation
+ +
+CSRF
+ +
+POST
+ +
+Redirect
+ =
+Proper Django form submission
+```
+
+**Next → Module 25: Databases & Django Models**
+
+This is a **major module**. We'll start from zero with databases, tables, rows, columns, primary keys, Django models, model fields, `models.py`, and how Django represents database data in Python.

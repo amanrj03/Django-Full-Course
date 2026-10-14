@@ -1,0 +1,1657 @@
+# Module 15 — Django Template Filters in Depth
+
+Now we'll properly master **Django Template Filters**.
+
+You already know:
+
+```html
+{{ name }}
+```
+
+A filter lets you **modify or transform the value before displaying it**.
+
+For example:
+
+```html
+{{ name|upper }}
+```
+
+If:
+
+```text
+name = "aman"
+```
+
+the output is:
+
+```text
+AMAN
+```
+
+---
+
+# 1. What Is a Template Filter?
+
+A template filter takes a value and transforms it.
+
+Syntax:
+
+```html
+{{ value|filter }}
+```
+
+Think of it as:
+
+```text
+value
+  ↓
+filter
+  ↓
+modified value
+```
+
+Example:
+
+```html
+{{ name|upper }}
+```
+
+```text
+aman
+ ↓
+upper
+ ↓
+AMAN
+```
+
+---
+
+# 2. Why Do We Need Filters?
+
+Suppose the view gives:
+
+```python
+name = "aman"
+```
+
+You could change it in Python:
+
+```python
+name = name.upper()
+```
+
+But sometimes the transformation is purely for **presentation**.
+
+Instead, the template can handle it:
+
+```html
+{{ name|upper }}
+```
+
+This keeps simple presentation formatting inside the template.
+
+---
+
+# 3. The Pipe `|`
+
+The pipe character:
+
+```text
+|
+```
+
+is used to apply a filter.
+
+Example:
+
+```html
+{{ name|upper }}
+```
+
+Read this as:
+
+> Take `name` and apply the `upper` filter.
+
+---
+
+# 4. `upper`
+
+Converts text to uppercase.
+
+```html
+{{ name|upper }}
+```
+
+If:
+
+```text
+name = "Aman"
+```
+
+output:
+
+```text
+AMAN
+```
+
+---
+
+# 5. `lower`
+
+Converts text to lowercase.
+
+```html
+{{ name|lower }}
+```
+
+If:
+
+```text
+name = "DJANGO"
+```
+
+output:
+
+```text
+django
+```
+
+---
+
+# 6. `title`
+
+Converts words to title case.
+
+```html
+{{ sentence|title }}
+```
+
+If:
+
+```text
+hello django world
+```
+
+output:
+
+```text
+Hello Django World
+```
+
+---
+
+# 7. `capfirst`
+
+`capfirst` capitalizes the first character.
+
+```html
+{{ name|capfirst }}
+```
+
+For:
+
+```text
+aman
+```
+
+output:
+
+```text
+Aman
+```
+
+---
+
+# 8. `length`
+
+Returns the length of a value.
+
+```html
+{{ name|length }}
+```
+
+If:
+
+```text
+name = Aman
+```
+
+output:
+
+```text
+4
+```
+
+For a list:
+
+```html
+{{ students|length }}
+```
+
+If:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+output:
+
+```text
+3
+```
+
+---
+
+# 9. `default`
+
+This is one of the most useful filters.
+
+Syntax:
+
+```html
+{{ value|default:"fallback" }}
+```
+
+Example:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+If:
+
+```text
+name = ""
+```
+
+output:
+
+```text
+Guest
+```
+
+---
+
+# 10. `default_if_none`
+
+There is an important difference between:
+
+```text
+default
+```
+
+and:
+
+```text
+default_if_none
+```
+
+`default_if_none` only replaces the value when it is actually `None`.
+
+Example:
+
+```html
+{{ name|default_if_none:"Guest" }}
+```
+
+If:
+
+```python
+name = None
+```
+
+output:
+
+```text
+Guest
+```
+
+But it doesn't have exactly the same behavior as `default` for other false/empty values.
+
+---
+
+# 11. `default` vs `default_if_none`
+
+Remember:
+
+```text
+default
+    ↓
+fallback for empty/false-ish values
+
+default_if_none
+    ↓
+fallback specifically for None
+```
+
+This is a good viva question.
+
+---
+
+# 12. Filter Arguments
+
+Some filters accept arguments.
+
+Example:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+Here:
+
+```text
+default
+```
+
+is the filter and:
+
+```text
+"Guest"
+```
+
+is its argument.
+
+Another:
+
+```html
+{{ text|truncatechars:20 }}
+```
+
+---
+
+# 13. `truncatechars`
+
+This filter shortens text.
+
+Example:
+
+```html
+{{ description|truncatechars:20 }}
+```
+
+It limits the rendered text to the specified number of characters, including the ellipsis when truncation occurs.
+
+Useful for:
+
+* blog previews
+* product descriptions
+* summaries
+* cards
+
+---
+
+# 14. Example
+
+Suppose:
+
+```python
+description = "Django is a high level Python web framework."
+```
+
+Template:
+
+```html
+<p>{{ description|truncatechars:20 }}</p>
+```
+
+Django produces a shortened version with an ellipsis when necessary.
+
+You don't need to memorize the exact output for every string; understand the purpose.
+
+---
+
+# 15. `wordcount`
+
+The:
+
+```html
+{{ text|wordcount }}
+```
+
+filter returns the number of words.
+
+For:
+
+```text
+"Django is powerful"
+```
+
+output:
+
+```text
+3
+```
+
+---
+
+# 16. `join`
+
+Suppose your view sends:
+
+```python
+subjects = [
+    'Python',
+    'Django',
+    'SQL'
+]
+```
+
+Template:
+
+```html
+{{ subjects|join:", " }}
+```
+
+Output:
+
+```text
+Python, Django, SQL
+```
+
+The argument:
+
+```text
+", "
+```
+
+specifies what should be placed between elements.
+
+---
+
+# 17. Different Join Separators
+
+You can write:
+
+```html
+{{ subjects|join:" | " }}
+```
+
+Output:
+
+```text
+Python | Django | SQL
+```
+
+Or:
+
+```html
+{{ subjects|join:" - " }}
+```
+
+Output:
+
+```text
+Python - Django - SQL
+```
+
+---
+
+# 18. `add`
+
+The `add` filter attempts to add its argument to the value.
+
+Example:
+
+```html
+{{ age|add:"1" }}
+```
+
+If:
+
+```text
+age = 21
+```
+
+it can produce:
+
+```text
+22
+```
+
+It can also concatenate compatible values, so don't think of it as exclusively numeric addition.
+
+---
+
+# 19. `cut`
+
+`cut` removes all occurrences of a specified string.
+
+Example:
+
+```html
+{{ name|cut:" " }}
+```
+
+If:
+
+```text
+name = "Aman Ranjan"
+```
+
+the spaces are removed:
+
+```text
+AmanRanjan
+```
+
+---
+
+# 20. `slugify`
+
+`slugify` converts text into a slug-like format.
+
+Example:
+
+```html
+{{ title|slugify }}
+```
+
+If:
+
+```text
+title = "Django Web Development"
+```
+
+it can produce:
+
+```text
+django-web-development
+```
+
+This is useful when creating readable URL slugs.
+
+---
+
+# 21. `first`
+
+For a list:
+
+```html
+{{ students|first }}
+```
+
+returns the first item.
+
+If:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+output:
+
+```text
+Aman
+```
+
+---
+
+# 22. `last`
+
+Similarly:
+
+```html
+{{ students|last }}
+```
+
+returns:
+
+```text
+Rohit
+```
+
+---
+
+# 23. `random`
+
+The `random` filter returns a randomly selected item from a sequence.
+
+Example:
+
+```html
+{{ students|random }}
+```
+
+If:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+the result can be one of those values.
+
+Because it is random, the output isn't predictable.
+
+---
+
+# 24. `length` on a String vs List
+
+The same filter can work on different types.
+
+String:
+
+```text
+"Aman"
+```
+
+```html
+{{ name|length }}
+```
+
+→
+
+```text
+4
+```
+
+List:
+
+```python
+['Aman', 'Rahul', 'Rohit']
+```
+
+```html
+{{ students|length }}
+```
+
+→
+
+```text
+3
+```
+
+---
+
+# 25. Filter Chaining
+
+This is very important.
+
+You can apply multiple filters:
+
+```html
+{{ name|upper|length }}
+```
+
+Suppose:
+
+```text
+name = aman
+```
+
+Processing:
+
+```text
+aman
+ ↓ upper
+AMAN
+ ↓ length
+4
+```
+
+Output:
+
+```text
+4
+```
+
+---
+
+# 26. Another Chain
+
+```html
+{{ name|lower|capfirst }}
+```
+
+Suppose:
+
+```text
+name = aMAN
+```
+
+First:
+
+```text
+aMAN
+ ↓ lower
+aman
+```
+
+then:
+
+```text
+aman
+ ↓ capfirst
+Aman
+```
+
+Output:
+
+```text
+Aman
+```
+
+---
+
+# 27. Order Matters
+
+Consider:
+
+```html
+{{ name|upper|length }}
+```
+
+versus:
+
+```html
+{{ name|length|upper }}
+```
+
+The first makes sense:
+
+```text
+name → uppercase → length
+```
+
+The second tries to apply `upper` to the result of `length`, which is a number and isn't equivalent.
+
+So:
+
+> Filters are applied from left to right.
+
+---
+
+# 28. `floatformat`
+
+This is useful for decimal numbers.
+
+Suppose:
+
+```python
+price = 125.6789
+```
+
+Template:
+
+```html
+{{ price|floatformat:2 }}
+```
+
+Output:
+
+```text
+125.68
+```
+
+It formats the value to approximately two decimal places according to Django's `floatformat` rules.
+
+---
+
+# 29. `floatformat:0`
+
+Example:
+
+```html
+{{ price|floatformat:0 }}
+```
+
+For:
+
+```text
+125.6789
+```
+
+it produces a rounded integer-style representation.
+
+---
+
+# 30. `date`
+
+Suppose the view sends a Python date/datetime value:
+
+```python
+today
+```
+
+You can format it:
+
+```html
+{{ today|date:"d-m-Y" }}
+```
+
+Example output:
+
+```text
+12-09-2026
+```
+
+---
+
+# 31. Common Date Format Characters
+
+Some useful Django date-format characters:
+
+```text
+d → day, 2 digits
+m → month, 2 digits
+Y → 4-digit year
+y → 2-digit year
+M → short month name
+F → full month name
+```
+
+So:
+
+```html
+{{ date|date:"d M Y" }}
+```
+
+might produce:
+
+```text
+12 Sep 2026
+```
+
+And:
+
+```html
+{{ date|date:"F d, Y" }}
+```
+
+might produce:
+
+```text
+September 12, 2026
+```
+
+---
+
+# 32. `time`
+
+For a time/datetime value:
+
+```html
+{{ value|time:"H:i" }}
+```
+
+can display something like:
+
+```text
+20:30
+```
+
+---
+
+# 33. `urlencode`
+
+`urlencode` is used to encode values for safe use in URLs.
+
+Example:
+
+```html
+{{ value|urlencode }}
+```
+
+This becomes useful when constructing URLs from dynamic values.
+
+---
+
+# 34. `linebreaks`
+
+The `linebreaks` filter can convert plain text line breaks into suitable HTML paragraphs and line breaks.
+
+Example:
+
+```html
+{{ message|linebreaks }}
+```
+
+Useful when displaying user-entered text where line breaks matter.
+
+---
+
+# 35. `striptags`
+
+This filter removes HTML tags from a string.
+
+Example:
+
+```html
+{{ content|striptags }}
+```
+
+If content contains HTML markup, the tags are removed from the resulting text.
+
+This can be useful when you need plain-text-like output.
+
+---
+
+# 36. `safe`
+
+As you learned in Module 13:
+
+```html
+{{ content|safe }}
+```
+
+marks the value as safe for HTML rendering.
+
+Example:
+
+```python
+content = "<b>Hello</b>"
+```
+
+Without `safe`, Django normally escapes the markup.
+
+With:
+
+```html
+{{ content|safe }}
+```
+
+the `<b>` element can be interpreted as HTML.
+
+### ⚠️ Security warning
+
+Never blindly apply `safe` to untrusted user input.
+
+It can create an XSS vulnerability.
+
+---
+
+# 37. `escape`
+
+Django also provides:
+
+```html
+{{ content|escape }}
+```
+
+which explicitly escapes HTML-sensitive characters.
+
+However, remember that Django templates already autoescape normal variable output by default in typical configurations.
+
+---
+
+# 38. Autoescape
+
+Suppose:
+
+```python
+message = "<script>alert('Hello')</script>"
+```
+
+Template:
+
+```html
+{{ message }}
+```
+
+Django normally escapes the HTML rather than allowing the supplied markup to execute as HTML.
+
+That's part of Django's security model.
+
+---
+
+# 39. `safe` vs `escape`
+
+| `safe`                        | `escape`                                       |
+| ----------------------------- | ---------------------------------------------- |
+| Marks content as safe HTML    | Escapes HTML-sensitive characters              |
+| Can allow HTML rendering      | Prevents HTML from being interpreted as markup |
+| Dangerous for untrusted input | Useful for safely displaying text              |
+
+---
+
+# 40. Filter With an Object
+
+Suppose:
+
+```python
+student = {
+    'name': 'aman'
+}
+```
+
+Template:
+
+```html
+{{ student.name|upper }}
+```
+
+Output:
+
+```text
+AMAN
+```
+
+You can apply filters to resolved values, not just simple variables.
+
+---
+
+# 41. Filter With a Model Field
+
+Later, when we work with models, you might have:
+
+```html
+{{ student.name|title }}
+```
+
+or:
+
+```html
+{{ product.price|floatformat:2 }}
+```
+
+This is extremely common in real Django applications.
+
+---
+
+# 42. Multiple Filters on Model Data
+
+For example:
+
+```html
+{{ product.name|title|truncatechars:30 }}
+```
+
+Processing:
+
+```text
+Product name
+    ↓
+title
+    ↓
+truncatechars
+    ↓
+display
+```
+
+---
+
+# 43. Important Rule: Filters Don't Change the Original Variable
+
+Suppose:
+
+```html
+{{ name|upper }}
+{{ name }}
+```
+
+If:
+
+```text
+name = aman
+```
+
+the first outputs:
+
+```text
+AMAN
+```
+
+and the second still outputs:
+
+```text
+aman
+```
+
+The filter changes the value for that template expression; it doesn't permanently modify the original context variable.
+
+---
+
+# 44. Common Mistake — Wrong Syntax
+
+Wrong:
+
+```html
+{{ name upper }}
+```
+
+Correct:
+
+```html
+{{ name|upper }}
+```
+
+The pipe is required.
+
+---
+
+# 45. Common Mistake — Wrong Argument Syntax
+
+Wrong:
+
+```html
+{{ name|default("Guest") }}
+```
+
+That's Python/function-call style.
+
+Correct DTL syntax:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+---
+
+# 46. Common Mistake — Using Python Methods
+
+You might be tempted to write:
+
+```html
+{{ name.upper() }}
+```
+
+Don't treat DTL like Python.
+
+Use:
+
+```html
+{{ name|upper }}
+```
+
+This is one of the easiest ways to remember why filters exist.
+
+---
+
+# 47. Common Mistake — Assuming Every Filter Exists
+
+Don't invent Python methods inside templates.
+
+For example:
+
+```html
+{{ name|capitalize }}
+```
+
+is not the standard Django filter name you should use.
+
+Django has specific built-in filter names, such as:
+
+```text
+capfirst
+upper
+lower
+title
+```
+
+---
+
+# 48. Practical Example — Product Page
+
+### View:
+
+```python
+def product(request):
+
+    product = {
+        'name': 'gaming laptop',
+        'price': 79999.456,
+        'description': 'A powerful laptop for gaming and development.'
+    }
+
+    return render(
+        request,
+        'product.html',
+        {'product': product}
+    )
+```
+
+### Template:
+
+```html
+<h1>{{ product.name|title }}</h1>
+
+<p>₹{{ product.price|floatformat:2 }}</p>
+
+<p>
+    {{ product.description|truncatechars:30 }}
+</p>
+```
+
+This is a very realistic use of filters.
+
+---
+
+# 49. Practical Example — Student List
+
+### View:
+
+```python
+def students(request):
+
+    students = [
+        'aman',
+        'rahul',
+        'rohit'
+    ]
+
+    return render(
+        request,
+        'students.html',
+        {'students': students}
+    )
+```
+
+### Template:
+
+```html
+<h1>Students</h1>
+
+<p>Total students: {{ students|length }}</p>
+
+<p>First student: {{ students|first|title }}</p>
+
+<p>Last student: {{ students|last|title }}</p>
+```
+
+Output:
+
+```text
+Total students: 3
+First student: Aman
+Last student: Rohit
+```
+
+---
+
+# 50. Filter Chaining — Exam Question
+
+Given:
+
+```python
+name = "django"
+```
+
+What is the output of:
+
+```html
+{{ name|upper|length }}
+```
+
+Answer:
+
+```text
+6
+```
+
+Because:
+
+```text
+django
+ ↓ upper
+DJANGO
+ ↓ length
+6
+```
+
+---
+
+# 51. Exam Question
+
+Given:
+
+```python
+name = ""
+```
+
+What is:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+Answer:
+
+```text
+Guest
+```
+
+---
+
+# 52. Exam Question
+
+Given:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+What is:
+
+```html
+{{ students|length }}
+```
+
+Answer:
+
+```text
+3
+```
+
+---
+
+# 53. Exam Question
+
+Given:
+
+```python
+students = ['Aman', 'Rahul', 'Rohit']
+```
+
+What is:
+
+```html
+{{ students|first }}
+```
+
+Answer:
+
+```text
+Aman
+```
+
+---
+
+# 54. Exam Question
+
+Given:
+
+```python
+subjects = ['Python', 'Django', 'SQL']
+```
+
+What is:
+
+```html
+{{ subjects|join:", " }}
+```
+
+Answer:
+
+```text
+Python, Django, SQL
+```
+
+---
+
+# 55. Viva Questions
+
+### Q1. What is a Django template filter?
+
+> A template filter transforms or processes a template value before it is rendered.
+
+### Q2. What symbol is used to apply a filter?
+
+> The pipe `|` symbol.
+
+### Q3. Can filters be chained?
+
+> Yes. Multiple filters can be applied from left to right.
+
+### Q4. What does `upper` do?
+
+> Converts text to uppercase.
+
+### Q5. What does `length` do?
+
+> Returns the length of a value when applicable.
+
+### Q6. What does `default` do?
+
+> Provides a fallback value when the value is empty or false according to the filter's behavior.
+
+---
+
+# 56. Viva — `default` vs `default_if_none`
+
+Teacher:
+
+> What's the difference?
+
+Answer:
+
+> `default` provides its fallback for values that evaluate as false, while `default_if_none` provides the fallback specifically when the value is `None`.
+
+---
+
+# 57. Viva — Filter Chaining
+
+Teacher:
+
+> In what order are filters applied?
+
+Answer:
+
+> Filters are applied from left to right.
+
+For:
+
+```html
+{{ name|upper|length }}
+```
+
+the order is:
+
+```text
+name
+ ↓
+upper
+ ↓
+length
+```
+
+---
+
+# 58. Viva — `safe`
+
+Teacher:
+
+> Why can `safe` be dangerous?
+
+Answer:
+
+> Because it marks content as safe HTML. If the content contains untrusted malicious HTML or JavaScript, marking it safe can bypass normal escaping and potentially create an XSS vulnerability.
+
+---
+
+# 59. Viva — Template vs Python
+
+Teacher:
+
+> Why use `{{ name|upper }}` instead of `name.upper()`?
+
+Answer:
+
+> Django templates use the Django Template Language rather than arbitrary Python code. The `upper` template filter is the appropriate DTL mechanism for presentation-level uppercase formatting.
+
+---
+
+# 60. ⭐ Filters You Should Memorize
+
+For your college exam, definitely know:
+
+```text
+upper
+lower
+title
+capfirst
+length
+default
+default_if_none
+join
+first
+last
+random
+add
+cut
+slugify
+truncatechars
+floatformat
+date
+time
+safe
+escape
+striptags
+wordcount
+urlencode
+linebreaks
+```
+
+You don't necessarily need to memorize every edge case, but you should know the **purpose and syntax** of these.
+
+---
+
+# 🧠 Module 15 Cheat Sheet
+
+### Basic:
+
+```html
+{{ name|upper }}
+```
+
+### With argument:
+
+```html
+{{ name|default:"Guest" }}
+```
+
+### Multiple filters:
+
+```html
+{{ name|upper|length }}
+```
+
+### Text:
+
+```html
+{{ name|lower }}
+{{ name|title }}
+{{ name|capfirst }}
+{{ text|truncatechars:20 }}
+{{ text|wordcount }}
+```
+
+### Lists:
+
+```html
+{{ students|length }}
+{{ students|first }}
+{{ students|last }}
+{{ students|join:", " }}
+```
+
+### Numbers:
+
+```html
+{{ price|floatformat:2 }}
+{{ age|add:"1" }}
+```
+
+### Dates:
+
+```html
+{{ date|date:"d-m-Y" }}
+```
+
+### Security:
+
+```html
+{{ content|safe }}
+{{ content|escape }}
+```
+
+### Other useful filters:
+
+```html
+{{ text|cut:" " }}
+{{ title|slugify }}
+{{ content|striptags }}
+{{ value|urlencode }}
+```
+
+---
+
+# 🎯 Module 15 Coding Challenge
+
+Given this view:
+
+```python
+def student(request):
+
+    student = {
+        'name': 'aman ranjan',
+        'course': 'computer science',
+        'marks': 87.5678,
+        'subjects': ['Python', 'Django', 'SQL']
+    }
+
+    return render(
+        request,
+        'student.html',
+        {'student': student}
+    )
+```
+
+Write a template that displays:
+
+```text
+Name: Aman Ranjan
+Course: COMPUTER SCIENCE
+Marks: 87.57
+Number of subjects: 3
+Subjects: Python, Django, SQL
+```
+
+You should use:
+
+* `title`
+* `upper`
+* `floatformat`
+* `length`
+* `join`
+
+A clean solution is:
+
+```html
+<h1>Name: {{ student.name|title }}</h1>
+
+<p>Course: {{ student.course|upper }}</p>
+
+<p>Marks: {{ student.marks|floatformat:2 }}</p>
+
+<p>
+    Number of subjects:
+    {{ student.subjects|length }}
+</p>
+
+<p>
+    Subjects:
+    {{ student.subjects|join:", " }}
+</p>
+```
+
+If you understand **why every filter is used**, you've mastered this module.
+
+---
+
+## Next → Module 16: Dynamic Templates
+
+Now we'll combine everything you've learned so far and build **proper dynamic Django webpages**.
+
+We'll cover:
+
+* Sending complex data from views
+* Lists of dictionaries
+* Nested objects
+* Dynamic student/product pages
+* URL parameters + templates together
+* Passing URL parameter data into templates
+* Dynamic navigation
+* Conditional rendering
+* Dynamic HTML tables
+* Real-world Django page structure
+* Coding questions that combine **Views + URLs + Templates + DTL**.
