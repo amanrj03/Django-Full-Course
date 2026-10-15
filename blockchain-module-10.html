@@ -1044,9 +1044,9 @@ tr:nth-child(even) td {
 <p>A higher proposal number can supersede a lower one in the protocol's preparation process.</p>
 <p>This helps prevent competing proposers from independently establishing conflicting decisions.</p>
 <h2>2.4 Phase 1 — Prepare</h2>
-<p>The proposer chooses a proposal number _<strong>MATH_INL_0</strong>_ and sends a <code>Prepare(n)</code> message to acceptors.</p>
+<p>The proposer chooses a proposal number <span class="math-inline">\(n\)</span> and sends a <code>Prepare(n)</code> message to acceptors.</p>
 <p>The acceptors check the proposal number against the promises they have already made.</p>
-<p>If _<strong>MATH_INL_1</strong>_ is sufficiently high, an acceptor promises not to accept proposals numbered lower than _<strong>MATH_INL_2</strong>_. It also reports information about the highest-numbered proposal it has already accepted, if any.</p>
+<p>If <span class="math-inline">\(n\)</span> is sufficiently high, an acceptor promises not to accept proposals numbered lower than <span class="math-inline">\(n\)</span>. It also reports information about the highest-numbered proposal it has already accepted, if any.</p>
 <div class="diagram-box">
 <div class="diagram-header">
 <h4 class="diagram-title">Paxos Phase 1 — Prepare Phase</h4>
@@ -1415,21 +1415,21 @@ tr:nth-child(even) td {
 <p>Your teacher's PBFT PPT covers the replica requirement, primary and backups, views, normal operation, view change, checkpointing, and the three main phases.</p>
 <h2>5.1 Number of replicas required</h2>
 <p>PBFT uses the following relationship:</p>
-<p>_<strong>MATH_DISP_0</strong>_</p>
+<div class="math-display">$$\boxed{N=3F+1}$$</div>
 <p>Where:</p>
 <ul>
-<li>_<strong>MATH_INL_3</strong>_ = total replicas</li>
-<li>_<strong>MATH_INL_4</strong>_ = maximum Byzantine faulty replicas to tolerate</li>
+<li><span class="math-inline">\(N\)</span> = total replicas</li>
+<li><span class="math-inline">\(F\)</span> = maximum Byzantine faulty replicas to tolerate</li>
 </ul>
-<p>For example, if _<strong>MATH_INL_5</strong>_:</p>
-<p>_<strong>MATH_DISP_1</strong>_</p>
+<p>For example, if <span class="math-inline">\(F=1\)</span>:</p>
+<div class="math-display">$$N=3(1)+1=4$$</div>
 <p>So four replicas are required to tolerate one Byzantine faulty replica under the standard PBFT model.</p>
 <p>For four replicas:</p>
 <ul>
 <li>Maximum faulty replicas: 1</li>
 <li>Minimum non-faulty replicas: 3</li>
 </ul>
-<p>This is why PBFT needs more replicas than a typical crash-fault-tolerant setup with the same _<strong>MATH_INL_6</strong>_.</p>
+<p>This is why PBFT needs more replicas than a typical crash-fault-tolerant setup with the same <span class="math-inline">\(F\)</span>.</p>
 <h2>5.2 Primary and backup replicas</h2>
 <p>PBFT uses a primary/backup model.</p>
 <ul>
@@ -1493,14 +1493,14 @@ tr:nth-child(even) td {
 <p>After receiving a valid pre-prepare message, a backup broadcasts a <code>PREPARE</code> message to the replicas.</p>
 <p>The replicas collect prepare messages and check that they refer to the same view, sequence number and request.</p>
 <p>This allows replicas to determine whether there is sufficient agreement on the proposed ordering.</p>
-<p>In the formulation shown in your teacher's PPT, a replica waits for the required prepare messages before proceeding to the commit phase. The usual threshold is expressed in terms of _<strong>MATH_INL_7</strong>_ matching prepare messages from other replicas, in addition to the replica's own accepted pre-prepare and prepare state.</p>
+<p>In the formulation shown in your teacher's PPT, a replica waits for the required prepare messages before proceeding to the commit phase. The usual threshold is expressed in terms of <span class="math-inline">\(2F\)</span> matching prepare messages from other replicas, in addition to the replica's own accepted pre-prepare and prepare state.</p>
 <p>Purpose: ensure that replicas have evidence of agreement on the proposed request and its ordering.</p>
 <h2>5.6 Phase 3 — Commit</h2>
 <p>Once the prepare condition is satisfied, a replica sends a <code>COMMIT</code> message to all replicas.</p>
 <p>The replicas collect valid commit messages for the same request, view and sequence number.</p>
-<p>In the PPT's description, the replica waits for _<strong>MATH_INL_8</strong>_ valid commit messages before executing the request and sending its result to the client.</p>
-<p>For _<strong>MATH_INL_9</strong>_:</p>
-<p>_<strong>MATH_DISP_2</strong>_</p>
+<p>In the PPT's description, the replica waits for <span class="math-inline">\(2F+1\)</span> valid commit messages before executing the request and sending its result to the client.</p>
+<p>For <span class="math-inline">\(F=1\)</span>:</p>
+<div class="math-display">$$2F+1=2(1)+1=3$$</div>
 <p>Therefore, three valid commit messages satisfy the stated commit threshold.</p>
 <p>Purpose: ensure that the request is ready to be executed consistently by the replicas.</p>
 <h3>Prepare vs commit — don't confuse them</h3>
@@ -1591,8 +1591,8 @@ tr:nth-child(even) td {
 </tr>
 <tr>
 <td>Node requirement in the PPT</td>
-<td>_<strong>MATH_INL_10</strong>_</td>
-<td>_<strong>MATH_INL_11</strong>_</td>
+<td><span class="math-inline">\(2F+1\)</span></td>
+<td><span class="math-inline">\(3F+1\)</span></td>
 </tr>
 <tr>
 <td>Main strength</td>
@@ -1619,9 +1619,9 @@ tr:nth-child(even) td {
 <li>Checkpointing: recording a sufficiently agreed state to support recovery and manage old logs.</li>
 </ul>
 <h2>Important formulas</h2>
-<p>_<strong>MATH_DISP_3</strong>_</p>
-<p>_<strong>MATH_DISP_4</strong>_</p>
-<p>_<strong>MATH_DISP_5</strong>_</p>
+<div class="math-display">$$\text{Paxos/CFT bound: }N\geq 2F+1$$</div>
+<div class="math-display">$$\text{PBFT/BFT bound: }N=3F+1$$</div>
+<div class="math-display">$$\text{PBFT commit threshold: }2F+1$$</div>
 <p>Remember that these formulas are tied to the fault model and algorithm assumptions, rather than being universal formulas for every consensus protocol.</p>
 <div class="exam-header-banner">🎯 Likely 5-mark questions</div>
 <ol>

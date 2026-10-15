@@ -1355,14 +1355,14 @@ tr:nth-child(even) td {
 </div>
 </div>
 <p>The arithmetic is:</p>
-<p>_<strong>MATH_DISP_0</strong>_</p>
-<p>_<strong>MATH_DISP_1</strong>_</p>
+<div class="math-display">$$\text{Input value}=\text{Output values}+\text{Transaction fee}$$</div>
+<div class="math-display">$$1.00=0.60+0.39+0.01$$</div>
 <p>The original 1 BTC output is now spent. The two newly created outputs become UTXOs until they are spent later.</p>
 <h2>6.5 What is a satoshi?</h2>
 <p>Bitcoin can be divided into smaller units.</p>
-<p>_<strong>MATH_DISP_2</strong>_</p>
+<div class="math-display">$$1\text{ BTC}=100,000,000\text{ satoshis}$$</div>
 <p>Therefore:</p>
-<p>_<strong>MATH_DISP_3</strong>_</p>
+<div class="math-display">$$0.01\text{ BTC}=1,000,000\text{ satoshis}$$</div>
 <p>Satoshis are useful because transaction values and fees often involve small fractions of a Bitcoin.</p>
 <h2>6.6 Why does Bitcoin use UTXOs?</h2>
 <p>The UTXO model offers several benefits:</p>
@@ -1374,7 +1374,7 @@ tr:nth-child(even) td {
 </ol>
 <h2>6.7 Transaction fees</h2>
 <p>A transaction fee is the difference between the total input value and total output value.</p>
-<p>_<strong>MATH_DISP_4</strong>_</p>
+<div class="math-display">$$\boxed{\text{Fee}=\sum\text{Inputs}-\sum\text{Outputs}}$$</div>
 <p>Miners may collect fees from transactions included in a block, in addition to the block subsidy.</p>
 <p>A fee is not simply a fixed percentage of the transfer amount. In Bitcoin, the fee market is strongly influenced by transaction size or weight and the fee rate offered by the user.</p>
 <h2>6.8 Important fields in a Bitcoin transaction</h2>
@@ -1651,9 +1651,9 @@ OP_EQUALVERIFY OP_CHECKSIG
 </table>
 <h2>Important formulas and sequences</h2>
 <p>Bitcoin's smallest commonly used unit:</p>
-<p>_<strong>MATH_DISP_5</strong>_</p>
+<div class="math-display">$$1\text{ BTC}=100,000,000\text{ satoshis}$$</div>
 <p>Transaction fee:</p>
-<p>_<strong>MATH_DISP_6</strong>_</p>
+<div class="math-display">$$\text{Fee}=\sum\text{Inputs}-\sum\text{Outputs}$$</div>
 <p>Traditional P2PKH address-generation sequence:</p>
 <p>Private key → Public key → SHA-256 → RIPEMD-160 → Version/checksum → Base58Check</p>
 <p>P2PKH script verification:</p>

@@ -1089,20 +1089,20 @@ Miners hash only the 80-byte header during Proof of Work, not the entire megabyt
 <h2>3.2 Example with four transactions</h2>
 <p>Suppose a block contains four transactions:</p>
 <ul>
-<li>_<strong>MATH_INL_0</strong>_</li>
-<li>_<strong>MATH_INL_1</strong>_</li>
-<li>_<strong>MATH_INL_2</strong>_</li>
-<li>_<strong>MATH_INL_3</strong>_</li>
+<li><span class="math-inline">\(T_1\)</span></li>
+<li><span class="math-inline">\(T_2\)</span></li>
+<li><span class="math-inline">\(T_3\)</span></li>
+<li><span class="math-inline">\(T_4\)</span></li>
 </ul>
 <p>First, calculate a hash for each transaction:</p>
-<p>_<strong>MATH_DISP_0</strong>_</p>
-<p>_<strong>MATH_DISP_1</strong>_</p>
+<div class="math-display">$$H_{00}=H(T_1),\quad H_{01}=H(T_2)$$</div>
+<div class="math-display">$$H_{10}=H(T_3),\quad H_{11}=H(T_4)$$</div>
 <p>Next, combine the hashes in pairs:</p>
-<p>_<strong>MATH_DISP_2</strong>_</p>
-<p>_<strong>MATH_DISP_3</strong>_</p>
+<div class="math-display">$$H_0=H(H_{00}\parallel H_{01})$$</div>
+<div class="math-display">$$H_1=H(H_{10}\parallel H_{11})$$</div>
 <p>Finally, combine the two parent hashes:</p>
-<p>_<strong>MATH_DISP_4</strong>_</p>
-<p>Here, _<strong>MATH_INL_4</strong>_ represents the hash operation, and _<strong>MATH_INL_5</strong>_ means concatenation.</p>
+<div class="math-display">$$\boxed{H_{\text{root}}=H(H_0\parallel H_1)}$$</div>
+<p>Here, <span class="math-inline">\(H\)</span> represents the hash operation, and <span class="math-inline">\(\parallel\)</span> means concatenation.</p>
 <div class="diagram-box">
 <div class="diagram-header">
 <h4 class="diagram-title">Cryptographic Merkle Tree Structure</h4>
@@ -1179,10 +1179,10 @@ Changing any single character in Tx 2 changes H(Tx 2) → H_0 → H_root, instan
 <h3>4. Lightweight verification</h3>
 <p>Merkle proofs help lightweight clients verify transaction inclusion using a block header and a relatively small amount of additional hash data.</p>
 <h2>3.5 What happens if one transaction changes?</h2>
-<p>Suppose _<strong>MATH_INL_6</strong>_ is modified.</p>
+<p>Suppose <span class="math-inline">\(T_2\)</span> is modified.</p>
 <ol>
-<li>The hash of _<strong>MATH_INL_7</strong>_ changes.</li>
-<li>The parent hash _<strong>MATH_INL_8</strong>_ changes.</li>
+<li>The hash of <span class="math-inline">\(T_2\)</span> changes.</li>
+<li>The parent hash <span class="math-inline">\(H_0\)</span> changes.</li>
 <li>The Merkle root changes.</li>
 <li>The block header changes.</li>
 <li>The block hash changes.</li>
@@ -1338,7 +1338,7 @@ Changing any single character in Tx 2 changes H(Tx 2) → H_0 → H_root, instan
 <h3>Step 5 — Perform Proof of Work</h3>
 <p>The miner hashes the block header repeatedly, changing the nonce and, when necessary, other permitted data.</p>
 <p>The objective is to find a hash satisfying the target.</p>
-<p>_<strong>MATH_DISP_5</strong>_</p>
+<div class="math-display">$$\boxed{\text{Block hash}<\text{Target}}$$</div>
 <h3>Step 6 — Broadcast the block</h3>
 <p>When a valid candidate is found, the miner broadcasts it to other nodes.</p>
 <h3>Step 7 — Receive the reward</h3>
@@ -1429,9 +1429,9 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 <p>Your teacher's PPT states that Bitcoin adjusts mining difficulty every 2,016 blocks, with an intended average interval of about 10 minutes per block.</p>
 <p>The target adjustment is based on the time taken to produce the preceding 2,016-block period, subject to Bitcoin's consensus rules.</p>
 <p>The simplified relationship is:</p>
-<p>_<strong>MATH_DISP_6</strong>_</p>
+<div class="math-display">$$\text{New target} \approx \text{Previous target} \times \frac{\text{Actual elapsed time}}{\text{Expected elapsed time}}$$</div>
 <p>For 2,016 blocks at 10 minutes per block:</p>
-<p>_<strong>MATH_DISP_7</strong>_</p>
+<div class="math-display">$$2016\times10=20,160\text{ minutes}$$</div>
 <p>That is approximately 14 days.</p>
 <p>If blocks were found too quickly, the target is reduced, making mining harder. If blocks were found too slowly, the target is increased, making mining easier, subject to protocol limits.</p>
 <h2>7.3 What is Bitcoin halving?</h2>
@@ -1749,11 +1749,11 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 <tbody>
 <tr>
 <td>CFT node bound from your syllabus</td>
-<td>_<strong>MATH_INL_9</strong>_</td>
+<td><span class="math-inline">\(N\geq2F+1\)</span></td>
 </tr>
 <tr>
 <td>BFT node bound from your syllabus</td>
-<td>_<strong>MATH_INL_10</strong>_</td>
+<td><span class="math-inline">\(N\geq3F+1\)</span></td>
 </tr>
 <tr>
 <td>Paxos phases</td>

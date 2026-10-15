@@ -930,15 +930,15 @@ tr:nth-child(even) td {
 <p>Valid PoW found</p>
 <h2>2.4 The PoW condition</h2>
 <p>Your teacher's PPT expresses the condition in this form:</p>
-<p>_<strong>MATH_DISP_0</strong>_</p>
+<div class="math-display">$$H(N\parallel P_{\text{hash}}\parallel Tx_1\parallel Tx_2\parallel\cdots)<T$$</div>
 <p>Where:</p>
 <ul>
-<li>_<strong>MATH_INL_0</strong>_ = cryptographic hash function</li>
-<li>_<strong>MATH_INL_1</strong>_ = nonce</li>
-<li>_<strong>MATH_INL_2</strong>_ = previous block hash</li>
-<li>_<strong>MATH_INL_3</strong>_ = transaction data</li>
-<li>_<strong>MATH_INL_4</strong>_ = target or threshold value</li>
-<li>_<strong>MATH_INL_5</strong>_ = concatenation of inputs</li>
+<li><span class="math-inline">\(H\)</span> = cryptographic hash function</li>
+<li><span class="math-inline">\(N\)</span> = nonce</li>
+<li><span class="math-inline">\(P_{\text{hash}}\)</span> = previous block hash</li>
+<li><span class="math-inline">\(Tx_i\)</span> = transaction data</li>
+<li><span class="math-inline">\(T\)</span> = target or threshold value</li>
+<li><span class="math-inline">\(\parallel\)</span> = concatenation of inputs</li>
 </ul>
 <p>This is a conceptual representation of the PoW condition. Bitcoin hashes its block header; the header commits to transaction data through the Merkle root rather than directly concatenating every transaction into the header.</p>
 <p>Remember: a smaller target means a stricter condition, so finding a valid hash becomes harder on average.</p>
@@ -1016,7 +1016,7 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 <h2>2.6 A simple numerical illustration</h2>
 <p>Suppose a toy hash function produces numbers between 0 and 999, and the target is 10.</p>
 <p>The miner must find a hash value satisfying:</p>
-<p>_<strong>MATH_DISP_1</strong>_</p>
+<div class="math-display">$$H(\text{candidate})<10$$</div>
 <p>Examples:</p>
 <table>
 <thead>
@@ -1198,7 +1198,7 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 </ul>
 <p>A PoS protocol uses its selection rules to choose a validator or block proposer.</p>
 <p>In a simple stake-proportional illustration, Alice's share of the total stake is:</p>
-<p>_<strong>MATH_DISP_2</strong>_</p>
+<div class="math-display">$$\frac{100}{100+50+25}\times100 =57.14\%$$</div>
 <p>Alice would have a 57.14% selection probability if this particular protocol used direct stake-proportional selection. This is only an illustration; actual PoS protocols may use committees, randomness, eligibility rules and other mechanisms.</p>
 <p>After selection, the validator proposes or validates a block according to the protocol.</p>
 <p>Depending on the design, validators may lose some of their stake for specific kinds of misconduct. This is commonly called slashing.</p>
