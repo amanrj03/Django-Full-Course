@@ -1300,17 +1300,64 @@ tr:nth-child(even) td {
 <h2>2.3 What is a nonce?</h2>
 <p>A nonce is a number that a miner can vary while searching for a valid block hash.</p>
 <p>Suppose the block header includes a nonce. The miner changes the nonce and calculates a new hash each time.</p>
-<p>Candidate block header</p>
-<p>Previous block hash + transaction summary + nonce</p>
-<p>Cryptographic hash function</p>
-<p>Compare hash with target</p>
-<p>Hash too high</p>
-<p>Try another nonce</p>
-<p>Hash below target</p>
-<p>Valid PoW found</p>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Proof of Work Nonce Search &amp; Target Comparison Flow</h4>
+<div class="diagram-subtitle">How a miner repeatedly varies the nonce in the block header to find a valid hash</div>
+</div>
+
+<div class="fork-root-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+<polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+<line x1="12" y1="22.08" x2="12" y2="12"></line>
+</svg>
+<div class="diagram-node-title">Candidate Block Header</div>
+<div class="diagram-node-desc">Previous block hash + Merkle root (Tx summary) + <strong>Nonce</strong></div>
+</div>
+
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Input into Cryptographic Hash Function</span></div>
+
+<div class="fork-root-node" style="border-color: #38bdf8;">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title" style="color: #38bdf8;">SHA-256 Hash Algorithm</div>
+<div class="diagram-node-desc">Computes 256-bit cryptographic digest: <code>SHA256(SHA256(Block Header))</code></div>
+</div>
+
+<div class="diagram-arrow">↓ <span class="diagram-arrow-label">Evaluate against Difficulty Target</span></div>
+
+<div class="mining-decision-box">
+<div class="decision-diamond">◆ Compare: Is Block Hash &lt; Target?</div>
+<div class="decision-branches">
+<div class="branch-no">
+<span class="branch-tag red">NO — Hash Too High</span>
+<span class="branch-action">Target requirement not met</span>
+<span class="branch-loop">↻ Increment &amp; try another nonce</span>
+</div>
+<div class="branch-yes">
+<span class="branch-tag green">YES — Hash &lt; Target</span>
+<span class="branch-action"><strong>✓ Valid PoW Found!</strong></span>
+<span class="branch-action" style="color: #34d399;">Broadcast block to network</span>
+</div>
+</div>
+</div>
+
+<div class="diagram-footer">Miners perform trillions of hash calculations per second, changing the nonce until a hash numerically below the target is discovered.</div>
+</div>
 <h2>2.4 The PoW condition</h2>
 <p>Your teacher's PPT expresses the condition in this form:</p>
-<div class="math-display">$$H(N\parallel P_{\text{hash}}\parallel Tx_1\parallel Tx_2\parallel\cdots)<T$$</div>
+<div class="math-display">$$H(N\parallel P_{\text{hash}}\parallel Tx_1\parallel Tx_2\parallel\cdots)\lt T$$</div>
 <p>Where:</p>
 <ul>
 <li><span class="math-inline">\(H\)</span> = cryptographic hash function</li>
@@ -1396,7 +1443,7 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 <h2>2.6 A simple numerical illustration</h2>
 <p>Suppose a toy hash function produces numbers between 0 and 999, and the target is 10.</p>
 <p>The miner must find a hash value satisfying:</p>
-<div class="math-display">$$H(\text{candidate})<10$$</div>
+<div class="math-display">$$H(\text{candidate})\lt 10$$</div>
 <p>Examples:</p>
 <table>
 <thead>
@@ -1557,12 +1604,53 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 </tr>
 </tbody>
 </table>
-<p>Memory trick: C–Q–G</p>
-<ul>
-<li>Common prefix — shared history</li>
-<li>Quality — honest block contribution</li>
-<li>Growth — new blocks continue to appear</li>
-</ul>
+<div class="diagram-box">
+<div class="diagram-header">
+<h4 class="diagram-title">Three Foundational Nakamoto Chain Properties (C–Q–G)</h4>
+<div class="diagram-subtitle">Guarantees established by Garay, Aggelos & Leonardos for Proof of Work consensus</div>
+</div>
+<div class="diagram-arrow">↓ </div>
+<div class="diagram-nodes-row">
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<div class="diagram-node-title">1. Common Prefix <span class='node-badge'>Safety / Agreement</span></div>
+<div class="diagram-node-desc">Honest chains share an identical long-term history</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+<rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+<line x1="6" y1="6" x2="6.01" y2="6"></line>
+<line x1="6" y1="18" x2="6.01" y2="18"></line>
+</svg>
+<div class="diagram-node-title">2. Chain Quality <span class='node-badge'>Validity</span></div>
+<div class="diagram-node-desc">Honest miners produce a proportional share of valid blocks</div>
+</div>
+
+<div class="diagram-node">
+<svg class="diagram-node-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+<rect x="9" y="9" width="6" height="6"></rect>
+<line x1="9" y1="1" x2="9" y2="4"></line>
+<line x1="15" y1="1" x2="15" y2="4"></line>
+<line x1="9" y1="20" x2="9" y2="23"></line>
+<line x1="15" y1="20" x2="15" y2="23"></line>
+<line x1="20" y1="9" x2="23" y2="9"></line>
+<line x1="20" y1="14" x2="23" y2="14"></line>
+<line x1="1" y1="9" x2="4" y2="9"></line>
+<line x1="1" y1="14" x2="4" y2="14"></line>
+</svg>
+<div class="diagram-node-title">3. Chain Growth <span class='node-badge'>Liveness</span></div>
+<div class="diagram-node-desc">The chain extends steadily over time with new blocks</div>
+</div>
+
+</div>
+<div class="diagram-footer">C–Q–G ensures that honest nodes agree on ledger history (Common Prefix), prevent attacker dominance (Chain Quality), and make continuous transaction progress (Chain Growth).</div>
+</div>
 <h1>Topic 4: Proof of Stake (PoS)</h1>
 <h2>4.1 What is Proof of Stake?</h2>
 <p>Proof of Stake (PoS) is a consensus mechanism in which a participant's stake in the system helps determine their opportunity to propose or validate blocks.</p>
@@ -1950,7 +2038,7 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 </tbody>
 </table>
 <p>These are illustrative choices, not universal rules. A real design must also consider the exact protocol, scale, security assumptions, finality requirements and operational constraints.</p>
-<h1>Module 3 — Exam Revision Notes</h1>
+<h1>Module 11 — Exam Revision Notes</h1>
 <div class="exam-header-banner">🎯 Important definitions</div>
 <table>
 <thead>
@@ -2402,9 +2490,8 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
     })();
     </script>
     
-<p>Module 3 is complete.</p>
-<p>Next is Module 4: Introduction to Bitcoin — Overview, Cryptographic Keys and Transactions, covering how Bitcoin works, public and private keys, addresses, digital signatures, transaction inputs and outputs, UTXOs and Bitcoin Script.</p>
-<p>Say NEXT MODULE when you're ready.</p>
+<p><strong>Module 11 is complete.</strong> We have covered permissionless blockchain consensus, Proof of Work (PoW), nonce searching, difficulty adjustments, Nakamoto consensus properties (Common Prefix, Chain Quality, Chain Growth), Proof of Stake (PoS), DPoS, alternative algorithms (PoET, PoI, PoA), Sybil attacks, 51% attacks, and criteria for selecting a consensus algorithm.</p>
+<p>Next is <strong>Module 12: Bitcoin Architecture, Keys &amp; Transactions</strong>, covering how Bitcoin works, private and public keys, Base58Check addresses, digital signatures, UTXO accounting, and Bitcoin Script.</p>
     </div>
 
     <div class="prev-next">
