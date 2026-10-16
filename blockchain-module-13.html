@@ -781,6 +781,386 @@ tr:nth-child(even) td {
     .nav-panel { column-count: 1; }
 }
 </style>
+
+<style>
+/* ==========================================================================
+   INTERACTIVE MCQ QUIZ STYLES (Module 9-13)
+   ========================================================================== */
+.quiz-section-wrap {
+    margin: 40px 0 24px 0 !important;
+}
+
+.quiz-card-container {
+    background: var(--bg-surface, #ffffff) !important;
+    border: 2px solid #0284c7 !important;
+    border-radius: 16px !important;
+    padding: 28px !important;
+    box-shadow: 0 10px 30px rgba(2, 132, 199, 0.08) !important;
+    position: relative !important;
+}
+
+[data-theme="dark"] .quiz-card-container {
+    background: #111827 !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 10px 30px rgba(2, 132, 199, 0.15) !important;
+}
+
+.quiz-main-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+    padding-bottom: 18px !important;
+    margin-bottom: 24px !important;
+}
+
+.quiz-title-area {
+    flex: 1 1 300px !important;
+}
+
+.quiz-title {
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    color: var(--text-heading, #0f172a) !important;
+    margin: 0 0 6px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.quiz-subtitle {
+    font-size: 13.5px !important;
+    color: var(--text-secondary, #64748b) !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.quiz-action-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+}
+
+.quiz-stat-pill {
+    background: rgba(2, 132, 199, 0.08) !important;
+    color: #0284c7 !important;
+    border: 1px solid rgba(2, 132, 199, 0.25) !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+[data-theme="dark"] .quiz-stat-pill {
+    background: rgba(56, 189, 248, 0.12) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.quiz-score-pill {
+    background: rgba(16, 185, 129, 0.1) !important;
+    color: #059669 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .quiz-score-pill {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+}
+
+.quiz-reset-btn {
+    background: transparent !important;
+    color: var(--text-secondary, #64748b) !important;
+    border: 1px solid var(--border-color, #cbd5e1) !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.quiz-reset-btn:hover {
+    background: var(--bg-card-hover, #f1f5f9) !important;
+    color: var(--text-heading, #0f172a) !important;
+    border-color: #94a3b8 !important;
+    transform: translateY(-1px) !important;
+}
+
+.quiz-progress-track {
+    width: 100% !important;
+    height: 6px !important;
+    background: var(--bg-subtle, #f1f5f9) !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    margin-bottom: 24px !important;
+}
+
+.quiz-progress-fill {
+    height: 100% !important;
+    width: 0% !important;
+    background: linear-gradient(90deg, #0284c7, #10b981) !important;
+    border-radius: 999px !important;
+    transition: width 0.3s ease !important;
+}
+
+.quiz-question-box {
+    background: var(--bg-subtle, #f8fafc) !important;
+    border: 1px solid var(--border-color, #e2e8f0) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+    transition: border-color 0.2s ease !important;
+}
+
+[data-theme="dark"] .quiz-question-box {
+    background: #1a2234 !important;
+    border-color: #2a374d !important;
+}
+
+.quiz-q-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+}
+
+.quiz-q-badge {
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.1) !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+}
+
+[data-theme="dark"] .quiz-q-badge {
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+}
+
+.quiz-q-status {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: var(--text-muted, #94a3b8) !important;
+}
+
+.quiz-q-text {
+    font-size: 15.5px !important;
+    font-weight: 700 !important;
+    color: var(--text-heading, #0f172a) !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.45 !important;
+}
+
+.quiz-options-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+}
+
+@media (min-width: 768px) {
+    .quiz-options-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+.quiz-option-btn {
+    background: var(--bg-surface, #ffffff) !important;
+    border: 1.5px solid var(--border-color, #cbd5e1) !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    font-size: 14px !important;
+    color: var(--text-body, #334155) !important;
+    cursor: pointer !important;
+    transition: all 0.18s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    outline: none !important;
+}
+
+[data-theme="dark"] .quiz-option-btn {
+    background: #111827 !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+    border-color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.04) !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1) !important;
+}
+
+.opt-letter {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 50% !important;
+    background: var(--bg-subtle, #f1f5f9) !important;
+    color: var(--text-secondary, #64748b) !important;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    border: 1px solid var(--border-color, #cbd5e1) !important;
+    transition: all 0.18s ease !important;
+}
+
+[data-theme="dark"] .opt-letter {
+    background: #1e293b !important;
+    border-color: #475569 !important;
+    color: #94a3b8 !important;
+}
+
+.opt-text {
+    flex: 1 1 auto !important;
+    line-height: 1.35 !important;
+}
+
+/* Correct selection */
+.quiz-option-btn.opt-correct {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: #10b981 !important;
+    color: #065f46 !important;
+    font-weight: 600 !important;
+}
+[data-theme="dark"] .quiz-option-btn.opt-correct {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+    border-color: #10b981 !important;
+}
+.quiz-option-btn.opt-correct .opt-letter {
+    background: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+}
+
+/* Incorrect selection */
+.quiz-option-btn.opt-wrong {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: #ef4444 !important;
+    color: #991b1b !important;
+}
+[data-theme="dark"] .quiz-option-btn.opt-wrong {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+    border-color: #ef4444 !important;
+}
+.quiz-option-btn.opt-wrong .opt-letter {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
+}
+
+/* Highlighted true answer after wrong guess */
+.quiz-option-btn.opt-reveal {
+    border: 2px dashed #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+[data-theme="dark"] .quiz-option-btn.opt-reveal {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: #34d399 !important;
+}
+
+.quiz-explanation-box {
+    margin-top: 14px !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+    display: none;
+    animation: fadeInExp 0.25s ease-in-out forwards !important;
+}
+
+@keyframes fadeInExp {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.quiz-explanation-box.correct {
+    display: block !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-left: 4px solid #10b981 !important;
+    color: #065f46 !important;
+}
+[data-theme="dark"] .quiz-explanation-box.correct {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #a7f3d0 !important;
+}
+
+.quiz-explanation-box.wrong {
+    display: block !important;
+    background: rgba(2, 132, 199, 0.08) !important;
+    border-left: 4px solid #0284c7 !important;
+    color: #075985 !important;
+}
+[data-theme="dark"] .quiz-explanation-box.wrong {
+    background: rgba(56, 189, 248, 0.12) !important;
+    color: #bae6fd !important;
+}
+
+.quiz-result-banner {
+    background: linear-gradient(135deg, #0284c7 0%, #1e3a8a 100%) !important;
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    text-align: center !important;
+    margin-top: 24px !important;
+    display: none;
+    animation: fadeInExp 0.3s ease forwards !important;
+}
+
+.quiz-result-title {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+.quiz-result-score {
+    font-size: 15px !important;
+    opacity: 0.92 !important;
+    margin: 0 0 16px 0 !important;
+}
+
+.quiz-result-btn {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-size: 13.5px !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.quiz-result-btn:hover {
+    background: #f8fafc !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2) !important;
+}
+</style>
+
 </head>
 <body>
 
@@ -1820,34 +2200,353 @@ Asymmetric complexity: Finding the nonce takes billions of trillions of hashes (
 <li>Explain the complete lifecycle of a Bitcoin transaction.</li>
 <li>Explain how block hashes and Merkle roots help detect tampering.</li>
 </ol>
-<h2>Quick self-test — Module 5</h2>
-<p>1. Which field links a Bitcoin block to its predecessor?</p>
-<p>Nonce</p>
-<p>Previous-block hash</p>
-<p>Timestamp</p>
-<p>Coinbase reward</p>
-<p>2. What is stored in the Bitcoin block header to represent the transaction set?</p>
-<p>Every full transaction</p>
-<p>Private keys</p>
-<p>Merkle root</p>
-<p>Wallet passwords</p>
-<p>3. How does Bitcoin select between valid competing chains?</p>
-<p>Fewest blocks</p>
-<p>Most cumulative proof of work</p>
-<p>Newest timestamp alone</p>
-<p>Largest transaction</p>
-<p>4. After how many blocks does Bitcoin normally adjust its difficulty?</p>
-<p>100</p>
-<p>1,000</p>
-<p>2,016</p>
-<p>210,000</p>
-<p>5. What is the special first transaction in a mined block called?</p>
-<p>Coinbase transaction</p>
-<p>Genesis transaction in every block</p>
-<p>Merkle transaction</p>
-<p>Signature transaction</p>
-<p>0/5 answered</p>
-<p>Reset quiz</p>
+
+    <div class="quiz-section-wrap" id="module-quiz-section">
+        <div class="quiz-card-container">
+            <div class="quiz-main-header">
+                <div class="quiz-title-area">
+                    <h3 class="quiz-title">📝 Quick Self-Test &amp; Knowledge Check</h3>
+                    <p class="quiz-subtitle">Test your mastery of block headers, Merkle roots, longest-chain rule, difficulty retargeting, and coinbase transactions.</p>
+                </div>
+                <div class="quiz-action-bar">
+                    <span class="quiz-stat-pill" id="quiz-progress-text-13">0/5 Answered</span>
+                    <span class="quiz-score-pill" id="quiz-score-text-13">🏆 Score: 0/5</span>
+                    <button class="quiz-reset-btn" onclick="resetQuiz(13, 5)">🔄 Reset Quiz</button>
+                </div>
+            </div>
+
+            <div class="quiz-progress-track">
+                <div class="quiz-progress-fill" id="quiz-progress-fill-13"></div>
+            </div>
+
+            <div class="quiz-questions-list">
+                
+        <div class="quiz-question-box" id="qbox_13_1">
+            <div class="quiz-q-header">
+                <span class="quiz-q-badge">Question 1 of 5</span>
+                <span class="quiz-q-status" id="qstatus_13_1">⏳ Not answered</span>
+            </div>
+            <h4 class="quiz-q-text">1. Which field links a Bitcoin block to its predecessor?</h4>
+            <div class="quiz-options-grid">
+                
+            <button class="quiz-option-btn" 
+                    id="q_13_1_opt_0"
+                    onclick="handleQuizClick(13, 1, 0, 1)">
+                <span class="opt-letter">A</span>
+                <span class="opt-text">Nonce</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_1_opt_1"
+                    onclick="handleQuizClick(13, 1, 1, 1)">
+                <span class="opt-letter">B</span>
+                <span class="opt-text">Previous-block hash</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_1_opt_2"
+                    onclick="handleQuizClick(13, 1, 2, 1)">
+                <span class="opt-letter">C</span>
+                <span class="opt-text">Timestamp</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_1_opt_3"
+                    onclick="handleQuizClick(13, 1, 3, 1)">
+                <span class="opt-letter">D</span>
+                <span class="opt-text">Coinbase reward</span>
+            </button>
+            </div>
+            <div class="quiz-explanation-box" id="qexp_13_1">
+                <div class="exp-content" id="qexp_text_13_1"></div>
+            </div>
+        </div>
+
+        <div class="quiz-question-box" id="qbox_13_2">
+            <div class="quiz-q-header">
+                <span class="quiz-q-badge">Question 2 of 5</span>
+                <span class="quiz-q-status" id="qstatus_13_2">⏳ Not answered</span>
+            </div>
+            <h4 class="quiz-q-text">2. What is stored in the Bitcoin block header to represent the transaction set?</h4>
+            <div class="quiz-options-grid">
+                
+            <button class="quiz-option-btn" 
+                    id="q_13_2_opt_0"
+                    onclick="handleQuizClick(13, 2, 0, 2)">
+                <span class="opt-letter">A</span>
+                <span class="opt-text">Every full transaction</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_2_opt_1"
+                    onclick="handleQuizClick(13, 2, 1, 2)">
+                <span class="opt-letter">B</span>
+                <span class="opt-text">Private keys</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_2_opt_2"
+                    onclick="handleQuizClick(13, 2, 2, 2)">
+                <span class="opt-letter">C</span>
+                <span class="opt-text">Merkle root</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_2_opt_3"
+                    onclick="handleQuizClick(13, 2, 3, 2)">
+                <span class="opt-letter">D</span>
+                <span class="opt-text">Wallet passwords</span>
+            </button>
+            </div>
+            <div class="quiz-explanation-box" id="qexp_13_2">
+                <div class="exp-content" id="qexp_text_13_2"></div>
+            </div>
+        </div>
+
+        <div class="quiz-question-box" id="qbox_13_3">
+            <div class="quiz-q-header">
+                <span class="quiz-q-badge">Question 3 of 5</span>
+                <span class="quiz-q-status" id="qstatus_13_3">⏳ Not answered</span>
+            </div>
+            <h4 class="quiz-q-text">3. How does Bitcoin select between valid competing chains?</h4>
+            <div class="quiz-options-grid">
+                
+            <button class="quiz-option-btn" 
+                    id="q_13_3_opt_0"
+                    onclick="handleQuizClick(13, 3, 0, 1)">
+                <span class="opt-letter">A</span>
+                <span class="opt-text">Fewest blocks</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_3_opt_1"
+                    onclick="handleQuizClick(13, 3, 1, 1)">
+                <span class="opt-letter">B</span>
+                <span class="opt-text">Most cumulative proof of work</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_3_opt_2"
+                    onclick="handleQuizClick(13, 3, 2, 1)">
+                <span class="opt-letter">C</span>
+                <span class="opt-text">Newest timestamp alone</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_3_opt_3"
+                    onclick="handleQuizClick(13, 3, 3, 1)">
+                <span class="opt-letter">D</span>
+                <span class="opt-text">Largest transaction</span>
+            </button>
+            </div>
+            <div class="quiz-explanation-box" id="qexp_13_3">
+                <div class="exp-content" id="qexp_text_13_3"></div>
+            </div>
+        </div>
+
+        <div class="quiz-question-box" id="qbox_13_4">
+            <div class="quiz-q-header">
+                <span class="quiz-q-badge">Question 4 of 5</span>
+                <span class="quiz-q-status" id="qstatus_13_4">⏳ Not answered</span>
+            </div>
+            <h4 class="quiz-q-text">4. After how many blocks does Bitcoin normally adjust its difficulty?</h4>
+            <div class="quiz-options-grid">
+                
+            <button class="quiz-option-btn" 
+                    id="q_13_4_opt_0"
+                    onclick="handleQuizClick(13, 4, 0, 2)">
+                <span class="opt-letter">A</span>
+                <span class="opt-text">100</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_4_opt_1"
+                    onclick="handleQuizClick(13, 4, 1, 2)">
+                <span class="opt-letter">B</span>
+                <span class="opt-text">1,000</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_4_opt_2"
+                    onclick="handleQuizClick(13, 4, 2, 2)">
+                <span class="opt-letter">C</span>
+                <span class="opt-text">2,016</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_4_opt_3"
+                    onclick="handleQuizClick(13, 4, 3, 2)">
+                <span class="opt-letter">D</span>
+                <span class="opt-text">210,000</span>
+            </button>
+            </div>
+            <div class="quiz-explanation-box" id="qexp_13_4">
+                <div class="exp-content" id="qexp_text_13_4"></div>
+            </div>
+        </div>
+
+        <div class="quiz-question-box" id="qbox_13_5">
+            <div class="quiz-q-header">
+                <span class="quiz-q-badge">Question 5 of 5</span>
+                <span class="quiz-q-status" id="qstatus_13_5">⏳ Not answered</span>
+            </div>
+            <h4 class="quiz-q-text">5. What is the special first transaction in a mined block called?</h4>
+            <div class="quiz-options-grid">
+                
+            <button class="quiz-option-btn" 
+                    id="q_13_5_opt_0"
+                    onclick="handleQuizClick(13, 5, 0, 0)">
+                <span class="opt-letter">A</span>
+                <span class="opt-text">Coinbase transaction</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_5_opt_1"
+                    onclick="handleQuizClick(13, 5, 1, 0)">
+                <span class="opt-letter">B</span>
+                <span class="opt-text">Genesis transaction in every block</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_5_opt_2"
+                    onclick="handleQuizClick(13, 5, 2, 0)">
+                <span class="opt-letter">C</span>
+                <span class="opt-text">Merkle transaction</span>
+            </button>
+            <button class="quiz-option-btn" 
+                    id="q_13_5_opt_3"
+                    onclick="handleQuizClick(13, 5, 3, 0)">
+                <span class="opt-letter">D</span>
+                <span class="opt-text">Signature transaction</span>
+            </button>
+            </div>
+            <div class="quiz-explanation-box" id="qexp_13_5">
+                <div class="exp-content" id="qexp_text_13_5"></div>
+            </div>
+        </div>
+            </div>
+
+            <div class="quiz-result-banner" id="quiz-result-banner-13">
+                <div class="quiz-result-title" id="quiz-result-title-13">🎉 Quiz Completed!</div>
+                <div class="quiz-result-score" id="quiz-result-score-13">You scored 0/5</div>
+                <button class="quiz-result-btn" onclick="resetQuiz(13, 5)">🔄 Retake Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const mod = 13;
+        const totalQ = 5;
+        const explanations = {"1": "The previous-block hash (hashPrevBlock) stores the 256-bit SHA-256 hash of the parent block header, cryptographically chaining every block in a tamper-evident sequence.", "2": "The 32-byte Merkle root (hashMerkleRoot) in the 80-byte header commits to all transactions in the block via a binary cryptographic hash tree.", "3": "Bitcoin nodes follow Nakamoto consensus, which selects the valid chain with the greatest cumulative Proof of Work (often referred to as the heaviest or longest chain).", "4": "Bitcoin adjusts difficulty every 2,016 blocks (roughly 14 days at 10 minutes per block) to maintain an average inter-block time of 10 minutes. (210,000 blocks is the reward halving interval).", "5": "The coinbase transaction is the unique, generation transaction created by the miner to collect the newly minted block subsidy plus transaction fees."};
+        let userAnswers = {};
+        let score = 0;
+
+        window.handleQuizClick = function(m, qid, chosenIdx, correctIdx) {
+            if (m !== mod || userAnswers[qid] !== undefined) return;
+
+            userAnswers[qid] = chosenIdx;
+            const isCorrect = chosenIdx === correctIdx;
+            if (isCorrect) score++;
+
+            // Disable all options for this question
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`q_${m}_${qid}_opt_${i}`);
+                if (btn) btn.disabled = true;
+            }
+
+            const chosenBtn = document.getElementById(`q_${m}_${qid}_opt_${chosenIdx}`);
+            const statusEl = document.getElementById(`qstatus_${m}_${qid}`);
+            const expBox = document.getElementById(`qexp_${m}_${qid}`);
+            const expText = document.getElementById(`qexp_text_${m}_${qid}`);
+
+            if (isCorrect) {
+                if (chosenBtn) chosenBtn.classList.add('opt-correct');
+                if (statusEl) {
+                    statusEl.innerHTML = '<span style="color:#10b981;">✓ Correct (+1)</span>';
+                }
+                if (expBox && expText) {
+                    expBox.className = 'quiz-explanation-box correct';
+                    expText.innerHTML = '<strong>✓ Correct!</strong> ' + explanations[qid];
+                }
+            } else {
+                if (chosenBtn) chosenBtn.classList.add('opt-wrong');
+                // Highlight the correct answer
+                const correctBtn = document.getElementById(`q_${m}_${qid}_opt_${correctIdx}`);
+                if (correctBtn) correctBtn.classList.add('opt-reveal');
+
+                if (statusEl) {
+                    statusEl.innerHTML = '<span style="color:#ef4444;">✗ Incorrect</span>';
+                }
+                if (expBox && expText) {
+                    expBox.className = 'quiz-explanation-box wrong';
+                    expText.innerHTML = '<strong>✗ Incorrect.</strong> ' + explanations[qid];
+                }
+            }
+
+            // Rerender MathJax in explanation if needed
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([expBox]);
+            }
+
+            // Update stats
+            const answeredCount = Object.keys(userAnswers).length;
+            const pct = Math.round((answeredCount / totalQ) * 100);
+            
+            const progText = document.getElementById(`quiz-progress-text-${mod}`);
+            if (progText) progText.textContent = `${answeredCount}/${totalQ} Answered`;
+
+            const scoreText = document.getElementById(`quiz-score-text-${mod}`);
+            if (scoreText) scoreText.textContent = `🏆 Score: ${score}/${totalQ} (${Math.round((score/totalQ)*100)}%)`;
+
+            const progFill = document.getElementById(`quiz-progress-fill-${mod}`);
+            if (progFill) progFill.style.width = `${pct}%`;
+
+            // Check if all answered
+            if (answeredCount === totalQ) {
+                const banner = document.getElementById(`quiz-result-banner-${mod}`);
+                const resTitle = document.getElementById(`quiz-result-title-${mod}`);
+                const resScore = document.getElementById(`quiz-result-score-${mod}`);
+                if (banner && resTitle && resScore) {
+                    banner.style.display = 'block';
+                    if (score === totalQ) {
+                        resTitle.innerHTML = '🏆 Perfect Score! 100% Mastery';
+                        resScore.innerHTML = `Incredible work! You answered all ${totalQ} questions correctly. You have mastered this module!`;
+                    } else if (score >= 3) {
+                        resTitle.innerHTML = '🌟 Great Job! Concept Check Passed';
+                        resScore.innerHTML = `You scored ${score} out of ${totalQ} (${Math.round((score/totalQ)*100)}%). Review the explanations above for complete mastery.`;
+                    } else {
+                        resTitle.innerHTML = '📚 Good Effort! Keep Revising';
+                        resScore.innerHTML = `You scored ${score} out of ${totalQ}. Review the module summary above and retake the quiz to boost your score!`;
+                    }
+                }
+            }
+        };
+
+        window.resetQuiz = function(m, tQ) {
+            if (m !== mod) return;
+            userAnswers = {};
+            score = 0;
+
+            for (let qid = 1; qid <= tQ; qid++) {
+                for (let i = 0; i < 4; i++) {
+                    const btn = document.getElementById(`q_${m}_${qid}_opt_${i}`);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.className = 'quiz-option-btn';
+                    }
+                }
+                const statusEl = document.getElementById(`qstatus_${m}_${qid}`);
+                if (statusEl) statusEl.textContent = '⏳ Not answered';
+
+                const expBox = document.getElementById(`qexp_${m}_${qid}`);
+                if (expBox) {
+                    expBox.style.display = 'none';
+                    expBox.className = 'quiz-explanation-box';
+                }
+            }
+
+            const progText = document.getElementById(`quiz-progress-text-${mod}`);
+            if (progText) progText.textContent = `0/${totalQ} Answered`;
+
+            const scoreText = document.getElementById(`quiz-score-text-${mod}`);
+            if (scoreText) scoreText.textContent = `🏆 Score: 0/${totalQ}`;
+
+            const progFill = document.getElementById(`quiz-progress-fill-${mod}`);
+            if (progFill) progFill.style.width = '0%';
+
+            const banner = document.getElementById(`quiz-result-banner-${mod}`);
+            if (banner) banner.style.display = 'none';
+        };
+    })();
+    </script>
+    
 <p>All five modules of Chapter 3 are now covered.</p>
 <p>For exam preparation, I recommend revising the consensus algorithms and their phases, PoW and PoS comparisons, Bitcoin keys and UTXOs, Merkle trees, mining, and the complete transaction lifecycle first. These topics are especially suitable for structured 5-mark and 10-mark answers.</p>
     </div>
